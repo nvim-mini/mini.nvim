@@ -1489,7 +1489,10 @@ H.cli_run = function(jobs)
     -- Prepare data for `vim.loop.spawn`
     local executable, args = command[1], vim.list_slice(command, 2, #command)
     local process, stdout, stderr = nil, vim.loop.new_pipe(), vim.loop.new_pipe()
-    local spawn_opts = { args = args, cwd = cwd, stdio = { nil, stdout, stderr } }
+    local env = { GIT_WORK_TREE = cwd, GIT_DIR = vim.fs.joinpath(cwd, '.git') }
+    if not vim.uv.fs_stat(env.GIT_DIR) then env = {} end
+
+    local spawn_opts = { args = args, cwd = cwd, env = env, stdio = { nil, stdout, stderr } }
 
     local on_exit = function(code)
       -- Process only not already closing job
