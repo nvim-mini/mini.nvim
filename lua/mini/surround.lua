@@ -16,7 +16,6 @@
 ---     - Replace surrounding with `sr`.
 ---     - Find surrounding with `sf` or `sF` (move cursor right or left).
 ---     - Highlight surrounding with `sh`.
----     - Change number of neighbor lines with `sn` (see |MiniSurround-algorithm|).
 ---
 --- - Surrounding is identified by a single character as both "input" (in
 ---   `delete` and `replace` start, `find`, and `highlight`) and "output" (in
@@ -514,7 +513,6 @@ end
 ---       find_left = '',
 ---       highlight = '',
 ---       replace = 'cs',
----       update_n_lines = '',
 ---
 ---       -- Add this only if you don't want to use extended mappings
 ---       suffix_last = '',
@@ -687,7 +685,6 @@ MiniSurround.config = {
     find_left = 'sF', -- Find surrounding (to the left)
     highlight = 'sh', -- Highlight surrounding
     replace = 'sr', -- Replace surrounding
-    update_n_lines = 'sn', -- Update `n_lines`
 
     suffix_last = 'l', -- Suffix to search with "prev" method
     suffix_next = 'n', -- Suffix to search with "next" method
@@ -894,16 +891,15 @@ MiniSurround.highlight = function()
   end, config.highlight_duration)
 end
 
---- Update `MiniSurround.config.n_lines`
+--- Update `MiniSurround.config.n_lines` from user input
 ---
---- Convenient wrapper for updating `MiniSurround.config.n_lines` in case the
---- default one is not appropriate.
+--- Mapping example: >lua
+---
+---   vim.keymap.set('n', 'sn', '<Cmd>lua MiniSurround.update_n_lines()<CR>')
+--- <
 MiniSurround.update_n_lines = function()
-  if H.is_disabled() then return '<Esc>' end
-
   local n_lines = MiniSurround.user_input('New number of neighbor lines', MiniSurround.config.n_lines)
-  n_lines = math.floor(tonumber(n_lines) or MiniSurround.config.n_lines)
-  MiniSurround.config.n_lines = n_lines
+  MiniSurround.config.n_lines = math.floor(tonumber(n_lines) or MiniSurround.config.n_lines)
 end
 
 --- Ask user for input
@@ -1173,7 +1169,6 @@ H.setup_config = function(config)
   H.check_type('mappings.find_left', config.mappings.find_left, 'string')
   H.check_type('mappings.highlight', config.mappings.highlight, 'string')
   H.check_type('mappings.replace', config.mappings.replace, 'string')
-  H.check_type('mappings.update_n_lines', config.mappings.update_n_lines, 'string')
 
   H.check_type('mappings.suffix_last', config.mappings.suffix_last, 'string')
   H.check_type('mappings.suffix_next', config.mappings.suffix_next, 'string')
@@ -1199,7 +1194,6 @@ H.apply_config = function(config)
   map(m.find_left, H.make_action('find', 'left'),  'Find left surrounding')
   map(m.highlight, H.make_action('highlight'),     'Highlight surrounding')
 
-  H.map('n', m.update_n_lines, MiniSurround.update_n_lines, { desc = 'Update `MiniSurround.config.n_lines`' })
   H.map('x', m.add, [[:<C-u>lua MiniSurround.add('visual')<CR>]], { desc = 'Add surrounding to selection' })
 
   -- Make extended mappings

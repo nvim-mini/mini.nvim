@@ -16,7 +16,6 @@ Features:
     - Replace surrounding with `sr`.
     - Find surrounding with `sf` or `sF` (move cursor right or left).
     - Highlight surrounding with `sh`.
-    - Change number of neighbor lines with `sn` (see |MiniSurround-algorithm|).
 
 - Surrounding is identified by a single character as both "input" (in
   `delete` and `replace` start, `find`, and `highlight`) and "output" (in
@@ -507,7 +506,6 @@ Default values:
       find_left = 'sF', -- Find surrounding (to the left)
       highlight = 'sh', -- Highlight surrounding
       replace = 'sr', -- Replace surrounding
-      update_n_lines = 'sn', -- Update `n_lines`
 
       suffix_last = 'l', -- Suffix to search with "prev" method
       suffix_next = 'n', -- Suffix to search with "next" method
@@ -547,7 +545,6 @@ behavior closest to 'tpope/vim-surround' (but not identical), use this setup: >l
       find_left = '',
       highlight = '',
       replace = 'cs',
-      update_n_lines = '',
 
       -- Add this only if you don't want to use extended mappings
       suffix_last = '',
@@ -746,11 +743,12 @@ No need to use it directly, everything is setup in |MiniSurround.setup|.
 ------------------------------------------------------------------------------
                                                  *MiniSurround.update_n_lines()*
                         `MiniSurround.update_n_lines`()
-Update `MiniSurround.config.n_lines`
+Update `MiniSurround.config.n_lines` from user input
 
-Convenient wrapper for updating `MiniSurround.config.n_lines` in case the
-default one is not appropriate.
+Mapping example: >lua
 
+  vim.keymap.set('n', 'sn', '<Cmd>lua MiniSurround.update_n_lines()<CR>')
+<
 ------------------------------------------------------------------------------
                                                      *MiniSurround.user_input()*
                   `MiniSurround.user_input`({prompt}, {text})
