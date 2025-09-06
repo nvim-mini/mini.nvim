@@ -94,6 +94,10 @@ T['setup()']['creates side effects'] = function()
   has_highlight('MiniNotifyLspProgress', 'links to MiniNotifyNormal')
   has_highlight('MiniNotifyNormal', 'links to NormalFloat')
   has_highlight('MiniNotifyTitle', 'links to FloatTitle')
+
+  -- `vim.notify` implementation
+  child.lua('vim.notify("Hello", vim.log.levels.WARN)')
+  eq(child.lua_get('#MiniNotify.get_all()'), 1)
 end
 
 T['setup()']['creates `config` field'] = function()

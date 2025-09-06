@@ -111,6 +111,14 @@ There are following change types:
 
 - Update `zoom()` to return whether current buffer is zoomed in. By @loichyan, PR #1954.
 
+## mini.notify
+
+### Evolve
+
+- Update `setup()` to set `vim.notify` to a custom implementation, which is arguably the expected behavior for majority of use cases. This makes it unnecessary to manually `vim.notify = MiniNotify.make_notify()` after the `setup()`, but still can be done to adjust the behavior with custom options.
+
+    This is a breaking change for users who do not use 'mini.notify' for `vim.notify` implementation. To keep doing that, set `vim.notify` *after* executing `require('mini.notify').setup()`.
+
 ## mini.pick
 
 ### Expand
