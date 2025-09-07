@@ -14,7 +14,8 @@
 ---       four directions (left, right, down, up).
 ---     - Special handling of linewise movement:
 ---         - Vertical movement gets reindented with |=|.
----         - Horizontal movement is improved indent/dedent with |>| / |<|.
+---         - Horizontal movement is either improved indent/dedent with |>| / |<|
+---           or single character shifting with left and right.
 ---         - Cursor moves along with selection.
 ---
 --- - Provides both mappings and Lua functions for motions. See
@@ -50,9 +51,7 @@
 ---     - Doesn't support vertical movement of charwise and blockwise selections.
 ---       While 'mini.move' does.
 ---     - Doesn't support horizontal movement of current line in favor of
----       horizontal movement of current character. While 'mini.move' supports
----       horizontal movement of current line and doesn't support such movement
----       of current character.
+---       horizontal movement of current character.
 ---     - Has extra functionality for certain moves (like move by half page).
 ---       While 'mini.move' does not (by design).
 --- - 'booperlv/nvim-gomove':
@@ -152,6 +151,9 @@ MiniMove.config = {
 
   -- Options which control moving behavior
   options = {
+    -- Shift the character under the cursor horizontally instead of indenting
+    -- in linewise mode
+    shift_horizontal_chars = false,
     -- Automatically reindent selection during linewise vertical move
     reindent_linewise = true,
   },
@@ -333,11 +335,28 @@ MiniMove.move_line = function(direction, opts)
   local ref_curpos, ref_last_col = vim.fn.getcurpos(), vim.fn.col('$')
 
   if direction == 'left' or direction == 'right' then
-    -- Use indentation as horizontal movement. Explicitly call `count1` because
-    -- `<`/`>` use `v:count` to define number of lines.
-    -- Go to first non-blank at the end.
-    local key = H.indent_keys[direction]
-    cmd(string.rep(key .. key, n_times))
+    -- NOTE: This documentation OK?
+    -- Use either indentation or single character shifting as horizontal
+    -- movement. Explicitly call `count1` because `<`/`>` use `v:count` to
+    -- define number of lines. Go to first non-blank at the end.
+
+    -- NOTE: Added as first option to avoid `if not` per personal style policy
+    if opts.shift_horizontal_chars then
+      local key = H.move_keys[direction]
+      cmd("x" .. string.rep(key, n_times) .. "P")
+
+      -- NOTE: This is a bit hacky, I admit, but I don't control vim cursor
+      -- positions much. If there's better code for this, please let me know :-)
+      if key == "l" then
+        ref_last_col = ref_last_col - n_times
+      else
+        ref_last_col = ref_last_col + n_times
+      end
+    else
+      -- NOTE: This is the original behaviour (`<<` and `>>`)
+      local key = H.indent_keys[direction]
+      cmd(string.rep(key .. key, n_times))
+    end
 
     -- Make cursor move along selection
     H.correct_cursor_col(ref_curpos, ref_last_col)
@@ -413,6 +432,7 @@ H.setup_config = function(config)
   H.check_type('mappings.line_up', config.mappings.line_up, 'string')
 
   H.check_type('options', config.options, 'table')
+  H.check_type('options.shift_horizontal_chars', config.options.shift_horizontal_chars, 'boolean')
   H.check_type('options.reindent_linewise', config.options.reindent_linewise, 'boolean')
 
   return config
