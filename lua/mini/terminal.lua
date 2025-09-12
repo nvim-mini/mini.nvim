@@ -43,7 +43,7 @@ MiniTerm.config = {
   win = {
     height = 0.8,
     width = 0.8,
-    border = 'rounded',
+    border = vim.o.winborder or 'rounded',
   },
 }
 
