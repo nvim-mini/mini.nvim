@@ -29,7 +29,7 @@ https://github.com/nvim-mini/mini.nvim/assets/24854248/81014300-3380-4b8c-9ab5-b
 
 - Manage notifications (add, update, remove, clear).
 
-- `vim.notify()` wrapper generator (see `MiniNotify.make_notify()`).
+- Custom `vim.notify()` implementation. To adjust, use `MiniNotify.make_notify()` after calling `setup()`.
 
 - Automated show of LSP progress report.
 

@@ -36,7 +36,6 @@ https://github.com/user-attachments/assets/e91b6e16-7a9c-44aa-afb4-7e07efc3e811
     - Replace surrounding with `sr`.
     - Find surrounding with `sf` or `sF` (move cursor right or left).
     - Highlight surrounding with `sh`.
-    - Change number of neighbor lines with `sn` (see `:h MiniSurround-algorithm`).
 - Surrounding is identified by a single character as both "input" (in `delete` and `replace` start, `find`, and `highlight`) and "output" (in `add` and `replace` end):
     - 'f' - function call (string of alphanumeric symbols or '_' or '.' followed by balanced '()'). In "input" finds function call, in "output" prompts user to enter function name.
     - 't' - tag. In "input" finds tag with same identifier, in "output" prompts user to enter tag name.
@@ -166,7 +165,6 @@ Here are code snippets for some common installation methods (use only one):
     find_left = 'sF', -- Find surrounding (to the left)
     highlight = 'sh', -- Highlight surrounding
     replace = 'sr', -- Replace surrounding
-    update_n_lines = 'sn', -- Update `n_lines`
 
     suffix_last = 'l', -- Suffix to search with "prev" method
     suffix_next = 'n', -- Suffix to search with "next" method

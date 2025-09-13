@@ -691,6 +691,12 @@ T['Open action']['is correctly initiated in `config.mappings`'] = function()
   validate_no('neigh_disable', [[\]], '(')
 end
 
+T['Open action']['works with `nvim_feedkeys()`'] = function()
+  child.cmd('inoremap <C-j> <Cmd>call nvim_feedkeys("((", "", v:true)<CR>')
+  type_keys('i', '<C-j>')
+  eq(child.o.lazyredraw, false)
+end
+
 T['Open action']['respects `vim.{g,b}.minipairs_disable`'] = new_set({
   parametrize = { { 'g' }, { 'b' } },
 }, {
@@ -1114,6 +1120,13 @@ T['<CR> action']['works as normal if nothing is registered'] = function()
   type_keys('<CR>')
   eq(get_lines(), { '(', ')' })
   eq(get_cursor(), { 2, 0 })
+end
+
+T['<CR> action']['works with `feedkeys()`'] = function()
+  child.cmd('inoremap <C-j> <Cmd>call nvim_feedkeys("(\\r(\\r", "", v:true)<CR>')
+  type_keys('i', '<C-j>')
+  eq(child.o.eventignore, '')
+  eq(child.o.lazyredraw, false)
 end
 
 T['<CR> action']['respects `vim.{g,b}.minipairs_disable`'] = new_set({

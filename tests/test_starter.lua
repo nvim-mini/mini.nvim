@@ -298,6 +298,13 @@ T['open()']['creates unique buffer names'] = function()
   eq(child.api.nvim_buf_get_name(0), 'ministarter://' .. child.api.nvim_get_current_buf() .. '/welcome')
 end
 
+T['open()']['works with `:edit`'] = function()
+  child.lua('MiniStarter.open()')
+  child.cmd('edit')
+  eq(child.cmd_capture('messages'), '')
+  eq(#get_lines() > 1, true)
+end
+
 T['open()']['respects `vim.{g,b}.ministarter_disable`'] = new_set({
   parametrize = { { 'g' }, { 'b' } },
 }, {

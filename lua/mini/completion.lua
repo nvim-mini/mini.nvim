@@ -1147,7 +1147,7 @@ H.filtersort_methods = {
   end,
   fuzzy = function(items, base)
     if base == '' then return vim.deepcopy(items) end
-    return vim.fn.matchfuzzy(items, base, { text_cb = H.lsp_get_filterword, camelcase = false })
+    return vim.fn.matchfuzzy(items, base, { text_cb = H.lsp_get_filterword })
   end,
   none = function(items, _) return vim.deepcopy(items) end,
 }

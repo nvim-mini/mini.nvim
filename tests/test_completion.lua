@@ -400,7 +400,7 @@ T['default_process_items()']['respects `opts.filtersort`'] = function()
 end
 
 T['default_process_items()']['prefers match at start instead of camel case at end'] = function()
-  if child.fn.has('nvim-0.12') == 0 then MiniTest.skip('Only Neovim>=0.12 allows `camelcase=false` in `matchfuzzy`') end
+  if child.fn.has('nvim-0.12') == 0 then MiniTest.skip('Only Neovim>=0.12 has improved fuzzy matching support') end
 
   local items = {
     { kind = 1, label = 'MyClass' },

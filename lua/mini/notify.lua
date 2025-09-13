@@ -11,7 +11,8 @@
 ---
 --- - Manage notifications (add, update, remove, clear).
 ---
---- - |vim.notify()| wrapper generator (see |MiniNotify.make_notify()|).
+--- - Custom |vim.notify()| implementation. To adjust, use |MiniNotify.make_notify()|
+---   or save-restore `vim.notify` manually after calling |MiniNotify.setup()|.
 ---
 --- - Automated show of LSP progress report.
 ---
@@ -89,8 +90,10 @@ local H = {}
 
 --- Module setup
 ---
---- This will also clean the history. Use `MiniNotify.setup(MiniNotify.config)` to
---- force clean history while preserving the config.
+--- This will also:
+--- - Set |vim.notify| custom implementation (see |MiniNotify.make_notify()|).
+--- - Clean the history. Use `MiniNotify.setup(MiniNotify.config)` to force
+---   clean history while preserving the config.
 ---
 ---@param config table|nil Module config table. See |MiniNotify.config|.
 ---
@@ -114,6 +117,9 @@ MiniNotify.setup = function(config)
 
   -- Create default highlighting
   H.create_default_hl()
+
+  -- Set custom implementation
+  vim.notify = MiniNotify.make_notify()
 end
 
 --- Module config
@@ -266,14 +272,17 @@ MiniNotify.config = {
 ---
 --- All notifications set `source = "vim.notify"` in their `data` field.
 ---
---- Examples: >lua
+--- This is used with default options inside |MiniNotify.setup()|. To adjust,
+--- call manually after `setup()`. For example, to show errors longer: >lua
 ---
----   -- Defaults
----   vim.notify = require('mini.notify').make_notify()
+---   require('mini.notify').setup()
+---   vim.notify = MiniNotify.make_notify({ ERROR = { duration = 10000 } })
+--- <
+--- To preserve original `vim.notify`: >lua
 ---
----   -- Change duration for errors to show them longer
----   local opts = { ERROR = { duration = 10000 } }
----   vim.notify = require('mini.notify').make_notify(opts)
+---   local notify_orig = vim.notify
+---   require('mini.notify').setup()
+---   vim.notify = notify_orig
 --- <
 ---@param opts table|nil Options to configure behavior of notification `level`
 ---   (as in |MiniNotfiy.add()|). Fields are the same as names of `vim.log.levels`

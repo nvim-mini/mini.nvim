@@ -287,9 +287,7 @@ MiniPairs.open = function(pair, neigh_pattern)
 
   -- Temporarily redraw lazily for no cursor flicker due to `<Left>`.
   -- This can happen in a big file with tree-sitter highlighting enabled.
-  local cache_lazyredraw = vim.o.lazyredraw
-  vim.o.lazyredraw = true
-  H.restore_lazyredraw(cache_lazyredraw)
+  H.with_temp_option('lazyredraw', true)
 
   return pair .. H.get_arrow_key('left')
 end
@@ -386,15 +384,11 @@ MiniPairs.cr = function(key)
 
   -- Temporarily ignore mode change to not trigger some common expensive
   -- autocommands (like diagnostic check, etc.)
-  local cache_eventignore = vim.o.eventignore
-  vim.o.eventignore = 'InsertLeave,InsertLeavePre,InsertEnter,TextChanged,ModeChanged'
-  H.restore_eventignore(cache_eventignore)
+  H.with_temp_option('eventignore', 'InsertLeave,InsertLeavePre,InsertEnter,TextChanged,ModeChanged')
 
   -- Temporarily redraw lazily for no cursor flicker due to `<C-o>O`.
   -- This can happen in a big file with tree-sitter highlighting enabled.
-  local cache_lazyredraw = vim.o.lazyredraw
-  vim.o.lazyredraw = true
-  H.restore_lazyredraw(cache_lazyredraw)
+  H.with_temp_option('lazyredraw', true)
 
   return res .. H.keys.above
 end
@@ -432,6 +426,9 @@ H.keys = {
   right_undo = escape('<C-g>U<Right>'),
 }
 -- stylua: ignore end
+
+-- Cache for temporary set options
+H.options_cache = {}
 
 -- Helper functionality =======================================================
 -- Settings -------------------------------------------------------------------
@@ -625,7 +622,18 @@ H.map = function(mode, lhs, rhs, opts)
   vim.keymap.set(mode, lhs, rhs, opts)
 end
 
-H.restore_eventignore = vim.schedule_wrap(function(val) vim.o.eventignore = val end)
-H.restore_lazyredraw = vim.schedule_wrap(function(val) vim.o.lazyredraw = val end)
+H.with_temp_option = function(name, value)
+  -- Cache option only once to not override it later with temporary set value
+  -- Like in case of `nvim_feedkeys('(\r(\r')`
+  if H.options_cache[name] == nil then H.options_cache[name] = vim.o[name] end
+  vim.o[name] = value
+  H.restore_option_later(name)
+end
+
+H.restore_option_later = vim.schedule_wrap(function(name)
+  if H.options_cache[name] == nil then return end
+  vim.o[name] = H.options_cache[name]
+  H.options_cache[name] = nil
+end)
 
 return MiniPairs

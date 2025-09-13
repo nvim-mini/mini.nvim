@@ -122,7 +122,6 @@ T['setup()']['creates `config` field'] = function()
   expect_config('mappings.find_left', 'sF')
   expect_config('mappings.highlight', 'sh')
   expect_config('mappings.replace', 'sr')
-  expect_config('mappings.update_n_lines', 'sn')
   expect_config('mappings.suffix_last', 'l')
   expect_config('mappings.suffix_next', 'n')
   expect_config('respect_selection_type', false)
@@ -153,7 +152,6 @@ T['setup()']['validates `config` argument'] = function()
   expect_config_error({ mappings = { find_left = 1 } }, 'mappings.find_left', 'string')
   expect_config_error({ mappings = { highlight = 1 } }, 'mappings.highlight', 'string')
   expect_config_error({ mappings = { replace = 1 } }, 'mappings.replace', 'string')
-  expect_config_error({ mappings = { update_n_lines = 1 } }, 'mappings.update_n_lines', 'string')
   expect_config_error({ mappings = { suffix_last = 1 } }, 'mappings.suffix_last', 'string')
   expect_config_error({ mappings = { suffix_next = 1 } }, 'mappings.suffix_next', 'string')
   expect_config_error({ n_lines = 'a' }, 'n_lines', 'number')
@@ -196,6 +194,41 @@ T['setup()']['properly handles `config.mappings`'] = function()
   eq(has_map('sdn', 'next'), false)
   eq(has_map('srl', 'previous'), false)
   eq(has_map('srn', 'next'), true)
+end
+
+T['update_n_lines()'] = new_set({
+  hooks = {
+    pre_case = function() child.lua('vim.keymap.set("n", "sn", "<Cmd>lua MiniSurround.update_n_lines()<CR>")') end,
+  },
+})
+
+T['update_n_lines()']['works'] = function()
+  local cur_n_lines = child.lua_get('MiniSurround.config.n_lines')
+
+  -- Should ask for input, display prompt text and current value of `n_lines`
+  type_keys('sn')
+  eq(child.fn.mode(), 'c')
+  eq(child.fn.getcmdline(), tostring(cur_n_lines))
+
+  type_keys('0', '<CR>')
+  eq(child.lua_get('MiniSurround.config.n_lines'), 10 * cur_n_lines)
+end
+
+T['update_n_lines()']['allows cancelling with `<Esc> and <C-c>`'] = function()
+  local validate_cancel = function(key)
+    child.ensure_normal_mode()
+    local cur_n_lines = child.lua_get('MiniSurround.config.n_lines')
+
+    type_keys('sn')
+    eq(child.fn.mode(), 'c')
+
+    type_keys(key)
+    eq(child.fn.mode(), 'n')
+    eq(child.lua_get('MiniSurround.config.n_lines'), cur_n_lines)
+  end
+
+  validate_cancel('<Esc>')
+  validate_cancel('<C-c>')
 end
 
 T['gen_spec'] = new_set()
@@ -1739,57 +1772,6 @@ T['Highlight surrounding']['respects `vim.b.minisurround_config`'] = function()
   sleep(5 * small_time + small_time)
   child.expect_screenshot({ ignore_attr = { 5 } })
 end
-
-T['Update number of lines'] = new_set()
-
-T['Update number of lines']['works'] = function()
-  local cur_n_lines = child.lua_get('MiniSurround.config.n_lines')
-
-  -- Should ask for input, display prompt text and current value of `n_lines`
-  type_keys('sn')
-  eq(child.fn.mode(), 'c')
-  eq(child.fn.getcmdline(), tostring(cur_n_lines))
-
-  type_keys('0', '<CR>')
-  eq(child.lua_get('MiniSurround.config.n_lines'), 10 * cur_n_lines)
-end
-
-T['Update number of lines']['allows cancelling with `<Esc> and <C-c>`'] = function()
-  local validate_cancel = function(key)
-    child.ensure_normal_mode()
-    local cur_n_lines = child.lua_get('MiniSurround.config.n_lines')
-
-    type_keys('sn')
-    eq(child.fn.mode(), 'c')
-
-    type_keys(key)
-    eq(child.fn.mode(), 'n')
-    eq(child.lua_get('MiniSurround.config.n_lines'), cur_n_lines)
-  end
-
-  validate_cancel('<Esc>')
-  validate_cancel('<C-c>')
-end
-
-T['Update number of lines']['works with different mapping'] = function()
-  reload_module({ mappings = { update_n_lines = 'SN' } })
-
-  local cur_n_lines = child.lua_get('MiniSurround.config.n_lines')
-  type_keys('SN', '0', '<CR>')
-  child.api.nvim_del_keymap('n', 'SN')
-  eq(child.lua_get('MiniSurround.config.n_lines'), 10 * cur_n_lines)
-end
-
-T['Update number of lines']['respects `vim.{g,b}.minisurround_disable`'] = new_set({
-  parametrize = { { 'g' }, { 'b' } },
-}, {
-  test = function(var_type)
-    child[var_type].minisurround_disable = true
-    local cur_n_lines = child.lua_get('MiniSurround.config.n_lines')
-    type_keys('sn', '0', '<CR>')
-    eq(child.lua_get('MiniSurround.config.n_lines'), cur_n_lines)
-  end,
-})
 
 T['Search method'] = new_set()
 

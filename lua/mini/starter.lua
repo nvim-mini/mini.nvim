@@ -1316,7 +1316,7 @@ H.make_buffer_autocmd = function(buf_id)
     vim.api.nvim_create_autocmd(event, { group = augroup, buffer = buf_id, callback = callback, desc = desc })
   end
 
-  au('VimResized', function() MiniStarter.refresh(buf_id) end, 'Refresh')
+  au({ 'VimResized', 'BufEnter' }, function() MiniStarter.refresh(buf_id) end, 'Refresh')
   au('CursorMoved', function() H.position_cursor_on_current_item(buf_id) end, 'Position cursor')
 
   local cache_showtabline = vim.o.showtabline

@@ -2658,7 +2658,17 @@ T['Commands'][':DepsAdd works'] = function()
 
   -- Should have proper completion
   child.type_keys(':DepsAdd ', '<Tab>')
-  child.expect_screenshot()
+  if child.fn.has('nvim-0.12') == 0 then
+    child.expect_screenshot()
+    return
+  end
+  local ref_cmdcomplete_info = {
+    cmdline_orig = 'DepsAdd ',
+    matches = { 'plu-gin_0.nvim', 'plugin_1', 'plugin_2', 'plugin_3' },
+    pum_visible = 1,
+    selected = 0,
+  }
+  eq(child.fn.cmdcomplete_info(), ref_cmdcomplete_info)
 end
 
 T['Commands'][':DepsUpdate works'] = function()
@@ -2681,7 +2691,17 @@ T['Commands'][':DepsUpdate works'] = function()
 
   -- Should have proper completion
   child.type_keys(':DepsUpdate ', '<Tab>')
-  child.expect_screenshot()
+  if child.fn.has('nvim-0.12') == 0 then
+    child.expect_screenshot()
+    return
+  end
+  local ref_cmdcomplete_info = {
+    cmdline_orig = 'DepsUpdate ',
+    matches = { 'plugin_1', 'plugin_2' },
+    pum_visible = 1,
+    selected = 0,
+  }
+  eq(child.fn.cmdcomplete_info(), ref_cmdcomplete_info)
 end
 
 T['Commands'][':DepsUpdateOffline works'] = function()
@@ -2704,7 +2724,17 @@ T['Commands'][':DepsUpdateOffline works'] = function()
 
   -- Should have proper completion
   child.type_keys(':DepsUpdateOffline ', '<Tab>')
-  child.expect_screenshot()
+  if child.fn.has('nvim-0.12') == 0 then
+    child.expect_screenshot()
+    return
+  end
+  local ref_cmdcomplete_info = {
+    cmdline_orig = 'DepsUpdateOffline ',
+    matches = { 'plugin_1', 'plugin_2' },
+    pum_visible = 1,
+    selected = 0,
+  }
+  eq(child.fn.cmdcomplete_info(), ref_cmdcomplete_info)
 end
 
 T['Commands'][':DepsShowLog works'] = function()
