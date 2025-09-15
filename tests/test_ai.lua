@@ -844,6 +844,19 @@ T['gen_spec']['treesitter()']['works with quantified captures'] = function()
   validate_find(lines, { 3, 0 }, { 'a', 'P', { n_times = 3 } }, { { 3, 19 }, { 3, 23 } })
 end
 
+T['gen_spec']['treesitter()']['works with parent of injected language'] = function()
+  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('`LanguageTree:parent()` requires Neovim>=0.10') end
+
+  local lines = {
+    'local foo = function()',
+    '  vim.cmd([[',
+    'set cursorline',
+    ']])',
+    'end',
+  }
+  validate_find(lines, { 3, 0 }, { 'a', 'F' }, { { 1, 13 }, { 5, 3 } })
+end
+
 T['gen_spec']['treesitter()']['respects plugin options'] = function()
   local lines = get_lines()
 
@@ -905,6 +918,26 @@ T['gen_spec']['treesitter()']['validates builtin treesitter presence'] = functio
   expect.error(
     function() child.lua('MiniAi.find_textobject("a", "F")') end,
     '%(mini%.ai%) Can not get parser for buffer 3 and language "my_aaa"%.'
+  )
+
+  if child.fn.has('nvim-0.10') == 0 then return end
+  -- - Should show each language
+  child.cmd('enew')
+  child.bo.filetype = 'help'
+  set_lines({ '>vim', '    set cursorline', '<' })
+  set_cursor(2, 0)
+  expect.error(
+    function() child.lua('MiniAi.find_textobject("a", "F")') end,
+    '%(mini%.ai%) Can not get query for buffer 3 and languages "vimd?o?c?", "vimd?o?c?"%.'
+  )
+
+  -- - Should show each language once
+  child.cmd('edit tmp.vim')
+  set_lines({ 'set indentexpr=VimIndent()' })
+  set_cursor(1, 0)
+  expect.error(
+    function() child.lua('MiniAi.find_textobject("a", "F")') end,
+    '%(mini%.ai%) Can not get query for buffer 4 and language "vim"%.'
   )
 end
 
