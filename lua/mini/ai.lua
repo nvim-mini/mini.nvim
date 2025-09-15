@@ -1559,20 +1559,19 @@ H.get_matched_ranges_builtin = function(captures)
   local has_parser, parser = pcall(vim.treesitter.get_parser, buf_id, nil, { error = false })
   if not has_parser or parser == nil then H.error_treesitter('parser') end
 
-  -- Get parser (LanguageTree) at cursor (important for injected languages)
-  local pos = vim.api.nvim_win_get_cursor(0)
-  local lang_tree = parser:language_for_range({ pos[1] - 1, pos[2], pos[1] - 1, pos[2] })
-  local lang = lang_tree:lang()
-
-  -- Get query file depending on the local language
-  local query = vim.treesitter.query.get(lang, 'textobjects')
-  if query == nil then H.error_treesitter('query', lang) end
-
-  -- Compute ranges of matched captures
-  local capture_is_requested = vim.tbl_map(function(c) return vim.tbl_contains(captures, '@' .. c) end, query.captures)
-
   local res = {}
-  for _, tree in ipairs(lang_tree:trees()) do
+  parser:for_each_tree(function(tree, lang_tree)
+    local lang = lang_tree:lang()
+    -- Get query file depending on the local language
+    local query = vim.treesitter.query.get(lang, 'textobjects')
+    if query == nil then return end
+
+    -- Compute ranges of matched captures
+    local capture_is_requested = vim.tbl_map(
+      function(c) return vim.tbl_contains(captures, '@' .. c) end,
+      query.captures
+    )
+
     -- TODO: Remove `opts.all`after compatibility with Neovim=0.10 is dropped
     for _, match, metadata in query:iter_matches(tree:root(), buf_id, nil, nil, { all = true }) do
       for capture_id, nodes in pairs(match) do
@@ -1580,7 +1579,7 @@ H.get_matched_ranges_builtin = function(captures)
         if capture_is_requested[capture_id] then table.insert(res, H.get_nodes_range_builtin(nodes, buf_id, mt)) end
       end
     end
-  end
+  end)
 
   return res
 end
