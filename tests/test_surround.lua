@@ -382,6 +382,19 @@ T['gen_spec']['input']['treesitter()']['works with quantified captures'] = funct
   validate(21, 'function M.a(u, vv<www>)')
 end
 
+T['gen_spec']['input']['treesitter()']['works with row-exclusive, col-0 end range'] = function()
+  if child.fn.has('nvim-0.10') == 0 then
+    MiniTest.skip('`Query:iter_matches()` returning several nodes requires Neovim>=0.10')
+  end
+
+  child.lua([[MiniSurround.config.custom_surroundings = {
+    c = { input = MiniSurround.gen_spec.input.treesitter({ outer = '@chunk.outer', inner = '@chunk.inner' }) }
+  }]])
+
+  local lines = get_lines()
+  validate_find(lines, { 4, 0 }, { { 11, 2 }, { 13, 7 }, { 1, 0 }, { 2, 0 } }, type_keys, 'sf', 'c')
+end
+
 T['gen_spec']['input']['treesitter()']['respects plugin options'] = function()
   local lines = get_lines()
 

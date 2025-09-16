@@ -1039,11 +1039,22 @@ MiniSurround.gen_spec.input.treesitter = function(captures, opts)
   -- `row1-col1-byte1-row2-col2-byte2` (i.e. "range six") format.
   local ts_range_to_region = function(r)
     -- The `master` branch of 'nvim-treesitter' can return "range four" format
-    -- if it uses custom directives, like `#make-range!`. Due ot the fact that
+    -- if it uses custom directives, like `#make-range!`. Due to the fact that
     -- it doesn't fully mock the `TSNode:range()` method to return "range six".
     -- TODO: Remove after 'nvim-treesitter' `master` branch support is dropped.
     local offset = #r == 4 and -1 or 0
-    return { from = { line = r[1] + 1, col = r[2] + 1 }, to = { line = r[4 + offset] + 1, col = r[5 + offset] } }
+    local reg = { from = { line = r[1] + 1, col = r[2] + 1 }, to = { line = r[4 + offset] + 1, col = r[5 + offset] } }
+
+    -- When a node ends with a newline, its end point changes from
+    -- row-inclusive, col-exclusive to row-exclusive, col-0
+    if reg.to.col == 0 then
+      local buf_id = vim.api.nvim_get_current_buf()
+      local line = vim.api.nvim_buf_get_lines(buf_id, reg.to.line - 2, reg.to.line - 1, true)[1]
+
+      reg.to.line = reg.to.line - 1
+      reg.to.col = #line
+    end
+    return reg
   end
 
   return function()
