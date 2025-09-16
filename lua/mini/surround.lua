@@ -1536,18 +1536,27 @@ H.get_matched_range_pairs_builtin = function(captures)
   -- Get parser (LanguageTree) at cursor (important for injected languages)
   local pos = vim.api.nvim_win_get_cursor(0)
   local lang_tree = parser:language_for_range({ pos[1] - 1, pos[2], pos[1] - 1, pos[2] })
-  local lang = lang_tree:lang()
 
-  -- Get query file depending on the local language
-  local query = vim.treesitter.query.get(lang, 'textobjects')
-  if query == nil then H.error_treesitter('query') end
-
+  local missing_query_langs = {}
   -- Compute matched ranges for both outer and inner captures
   local outer_ranges, inner_ranges = {}, {}
-  for _, tree in ipairs(lang_tree:trees()) do
-    local root = tree:root()
-    vim.list_extend(outer_ranges, H.get_match_ranges_builtin(root, buf_id, query, captures.outer:sub(2)))
-    vim.list_extend(inner_ranges, H.get_match_ranges_builtin(root, buf_id, query, captures.inner:sub(2)))
+  while (vim.tbl_isempty(inner_ranges) or vim.tbl_isempty(outer_ranges)) and lang_tree ~= nil do
+    local lang = lang_tree:lang()
+    -- Get query file depending on the local language
+    local query = vim.treesitter.query.get(lang, 'textobjects')
+
+    if query ~= nil then
+      for _, tree in ipairs(lang_tree:trees()) do
+        local root = tree:root()
+        vim.list_extend(outer_ranges, H.get_match_ranges_builtin(root, buf_id, query, captures.outer:sub(2)))
+        vim.list_extend(inner_ranges, H.get_match_ranges_builtin(root, buf_id, query, captures.inner:sub(2)))
+      end
+    end
+    if query == nil then missing_query_langs[lang] = true end
+
+    -- `LanguageTree:parent()` was added in Neovim<0.10
+    -- TODO: Change to `lang_tree:parent()` after compatibility with Neovim=0.9 is dropped
+    lang_tree = lang_tree.parent and lang_tree:parent() or nil
   end
 
   -- Match outer and inner ranges: for each outer range pick the biggest inner
@@ -1556,6 +1565,11 @@ H.get_matched_range_pairs_builtin = function(captures)
   for i, outer in ipairs(outer_ranges) do
     res[i] = { outer = outer, inner = H.get_biggest_nested_range(inner_ranges, outer) }
   end
+
+  if vim.tbl_isempty(res) and not vim.tbl_isempty(missing_query_langs) then
+    H.error_treesitter('query', vim.tbl_keys(missing_query_langs))
+  end
+
   return res
 end
 
@@ -1601,11 +1615,17 @@ H.get_biggest_nested_range = function(ranges, parent)
   return best_range
 end
 
-H.error_treesitter = function(failed_get)
+H.error_treesitter = function(failed_get, langs)
   local buf_id, ft = vim.api.nvim_get_current_buf(), vim.bo.filetype
-  local has_lang, lang = pcall(vim.treesitter.language.get_lang, ft)
-  lang = has_lang and lang or ft
-  local msg = string.format('Can not get %s for buffer %d and language "%s".', failed_get, buf_id, lang)
+  if langs == nil then
+    local ok, ft_lang = pcall(vim.treesitter.language.get_lang, ft)
+    -- `vim.treesitter.language.get_lang()` defaults to `ft` only on Neovim>0.11
+    -- TODO: Remove `and ft_lang ~= nil` after compatibility with Neovim=0.10 is dropped
+    langs = (ok and ft_lang ~= nil) and { ft_lang } or { ft }
+  end
+  local langs_str = table.concat(vim.tbl_map(function(lang) return string.format('"%s"', lang) end, langs), ', ')
+  local langs_noun = #langs == 1 and 'language' or 'languages'
+  local msg = string.format('Can not get %s for buffer %d and %s %s.', failed_get, buf_id, langs_noun, langs_str)
   H.error(msg)
 end
 

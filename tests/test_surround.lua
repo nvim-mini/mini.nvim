@@ -327,6 +327,21 @@ T['gen_spec']['input']['treesitter()']['works with no inner captures'] = functio
   validate_find(lines, { 10, 2 }, { { 10, 12 }, { 10, 2 } }, type_keys, 'sf', 'o')
 end
 
+T['gen_spec']['input']['treesitter()']['works with parent of injected language'] = function()
+  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('`LanguageTree:parent()` requires Neovim>=0.10') end
+
+  local lines = {
+    'local foo = function()',
+    '  vim.cmd([[',
+    'set cursorline',
+    ']])',
+    'end',
+  }
+
+  validate_find(lines, { 3, 0 }, { { 4, 2 }, { 5, 2 }, { 1, 12 }, { 2, 1 } }, type_keys, 'sf', 'F')
+  validate_no_find(lines, { 1, 0 }, type_keys, 'sf', 'F')
+end
+
 T['gen_spec']['input']['treesitter()']['respects `opts.use_nvim_treesitter`'] = function()
   child.lua([[MiniSurround.config.custom_surroundings = {
     F = { input = MiniSurround.gen_spec.input.treesitter({ outer = '@function.outer', inner = '@function.inner' }) },
