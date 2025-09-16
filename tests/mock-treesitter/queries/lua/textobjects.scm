@@ -25,3 +25,5 @@
 (string) @string
 
 ((string) @string_offset (#offset! @string_offset 0 1 0 -2))
+
+(chunk) @chunk.outer
