@@ -1984,6 +1984,10 @@ H.lsp_make_on_list = function(source, opts)
   end
 
   return function(data)
+    if vim.tbl_count(data.items) == 1 then
+      vim.lsp.buf[source]()
+      return
+    end
     local items = data.items
     for _, item in ipairs(data.items) do
       item.text, item.path = item.text or '', item.filename or nil
