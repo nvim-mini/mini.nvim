@@ -9,6 +9,8 @@
 --- - |MiniMisc.bench_time()| to benchmark function execution time.
 ---   Useful in combination with `stat_summary()`.
 ---
+--- - |MiniMisc.peek()| to peek a line by entering the linenr in cmdline.
+---
 --- - |MiniMisc.put()| and |MiniMisc.put_text()| to pretty print its arguments
 ---   into command line and current buffer respectively.
 ---
@@ -106,6 +108,57 @@ end
 MiniMisc.get_gutter_width = function(win_id)
   win_id = (win_id == nil or win_id == 0) and vim.api.nvim_get_current_win() or win_id
   return vim.fn.getwininfo(win_id)[1].textoff
+end
+
+--- Peek a line by entering the linenr in cmdline.
+MiniMisc.peek = function()
+  local win_states = {}
+  local options = { foldenable = false, cursorline = true, number = true, relativenumber = false }
+
+  local function save_win_state(winnr)
+    win_states[winnr] = {}
+    for option, _ in pairs(options) do
+      win_states[winnr][option] = vim.api.nvim_get_option_value(option, { win = winnr })
+    end
+    win_states[winnr].cursor = vim.api.nvim_win_get_cursor(winnr)
+  end
+
+  local function restore_win_state(winnr)
+    if not win_states[winnr] then return end
+
+    for option, _ in pairs(options) do
+      vim.api.nvim_set_option_value(option, win_states[winnr][option], { win = winnr })
+    end
+    vim.api.nvim_win_set_cursor(winnr, win_states[winnr].cursor)
+
+    win_states[winnr] = nil
+  end
+
+  local goto_linenr = function(winnr, linenr)
+    linenr = math.max(math.min(linenr, vim.api.nvim_buf_line_count(vim.api.nvim_win_get_buf(winnr))), 1)
+
+    if not win_states[winnr] then save_win_state(winnr) end
+
+    for option, value in pairs(options) do
+      vim.api.nvim_set_option_value(option, value, { win = winnr })
+    end
+    vim.api.nvim_win_set_cursor(winnr, { linenr, 1 })
+
+    vim.cmd('redraw')
+  end
+
+  vim.api.nvim_create_autocmd('CmdlineChanged', {
+    pattern = '*',
+    callback = function()
+      local cmdline_str = vim.api.nvim_call_function('getcmdline', {})
+      if tonumber(cmdline_str) then goto_linenr(vim.api.nvim_get_current_win(), tonumber(cmdline_str)) end
+    end,
+  })
+
+  vim.api.nvim_create_autocmd('CmdlineLeave', {
+    pattern = '*',
+    callback = function() restore_win_state(vim.api.nvim_get_current_win()) end,
+  })
 end
 
 --- Print Lua objects in command line
