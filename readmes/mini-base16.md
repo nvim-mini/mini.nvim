@@ -1,4 +1,4 @@
-<div align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-base16_readme.png" alt="mini.base16"/> </div>
+<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-base16_readme.png?raw=true" alt="mini.base16"/> </p>
 
 ### Fast implementation of [chriskempson/base16](https://github.com/chriskempson/base16) theme for manually supplied palette
 
@@ -27,11 +27,11 @@ If you want to help this project grow but don't know where to start, check out [
 
 Using `minischeme` color scheme:
 
-<img src="https://github.com/nvim-mini/assets/blob/main/demo/demo-base16_minischeme-dark.png" style="width: 45%"/> <img src="https://github.com/nvim-mini/assets/blob/main/demo/demo-base16_minischeme-light.png" style="width: 45%"/>
+<img alt="minischeme dark" src="https://github.com/nvim-mini/assets/blob/main/demo/demo-base16_minischeme-dark.png?raw=true" style="width: 45%"/> <img alt="minischeme light" src="https://github.com/nvim-mini/assets/blob/main/demo/demo-base16_minischeme-light.png?raw=true" style="width: 45%"/>
 
 Using `minicyan` color scheme:
 
-<img src="https://github.com/nvim-mini/assets/blob/main/demo/demo-base16_minicyan-dark.png" style="width: 45%"/> <img src="https://github.com/nvim-mini/assets/blob/main/demo/demo-base16_minicyan-light.png" style="width: 45%"/>
+<img alt="minicyan dark" src="https://github.com/nvim-mini/assets/blob/main/demo/demo-base16_minicyan-dark.png?raw=true" style="width: 45%"/> <img alt="minicyan light" src="https://github.com/nvim-mini/assets/blob/main/demo/demo-base16_minicyan-light.png?raw=true" style="width: 45%"/>
 
 ## Features
 
@@ -90,83 +90,59 @@ Here are code snippets for some common installation methods (use only one):
 
 <details>
 <summary>With <a href="https://github.com/nvim-mini/mini.nvim/blob/main/readmes/mini-deps.md">mini.deps</a></summary>
-<table>
-    <thead>
-        <tr>
-            <th>Github repo</th>
-            <th>Branch</th> <th>Code snippet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan=2>'mini.nvim' library</td> <td>Main</td> <td rowspan=2><i>Follow recommended 'mini.deps' installation</i></td>
-        </tr>
-        <tr>
-            <td>Stable</td>
-        </tr>
-        <tr>
-            <td rowspan=2>Standalone plugin</td> <td>Main</td> <td><code>add('nvim-mini/mini.base16')</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>add({ source = 'nvim-mini/mini.base16', checkout = 'stable' })</code></td>
-        </tr>
-    </tbody>
-</table>
+
+- 'mini.nvim' library:
+
+    | Branch | Code snippet                                  |
+    |--------|-----------------------------------------------|
+    | Main   | *Follow recommended ‘mini.deps’ installation* |
+    | Stable | *Follow recommended ‘mini.deps’ installation* |
+
+- Standalone plugin:
+
+    | Branch | Code snippet                                                     |
+    |--------|------------------------------------------------------------------|
+    | Main   | `add(‘nvim-mini/mini.base16’)`                                   |
+    | Stable | `add({ source = ‘nvim-mini/mini.base16’, checkout = ‘stable’ })` |
+
 </details>
 
 <details>
 <summary>With <a href="https://github.com/folke/lazy.nvim">folke/lazy.nvim</a></summary>
-<table>
-    <thead>
-        <tr>
-            <th>Github repo</th>
-            <th>Branch</th> <th>Code snippet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan=2>'mini.nvim' library</td>
-            <td>Main</td> <td><code>{ 'nvim-mini/mini.nvim', version = false },</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>{ 'nvim-mini/mini.nvim', version = '*' },</code></td>
-        </tr>
-        <tr>
-            <td rowspan=2>Standalone plugin</td>
-            <td>Main</td> <td><code>{ 'nvim-mini/mini.base16', version = false },</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>{ 'nvim-mini/mini.base16', version = '*' },</code></td>
-        </tr>
-    </tbody>
-</table>
+
+- 'mini.nvim' library:
+
+    | Branch | Code snippet                                  |
+    |--------|-----------------------------------------------|
+    | Main   | `{ 'nvim-mini/mini.nvim', version = false },` |
+    | Stable | `{ 'nvim-mini/mini.nvim', version = '*' },`   |
+
+- Standalone plugin:
+
+    | Branch | Code snippet                                    |
+    |--------|-------------------------------------------------|
+    | Main   | `{ 'nvim-mini/mini.base16', version = false },` |
+    | Stable | `{ 'nvim-mini/mini.base16', version = '*' },`   |
+
 </details>
 
 <details>
 <summary>With <a href="https://github.com/junegunn/vim-plug">junegunn/vim-plug</a></summary>
-<table>
-    <thead>
-        <tr>
-            <th>Github repo</th>
-            <th>Branch</th> <th>Code snippet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan=2>'mini.nvim' library</td>
-            <td>Main</td> <td><code>Plug 'nvim-mini/mini.nvim'</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>Plug 'nvim-mini/mini.nvim', { 'branch': 'stable' }</code></td>
-        </tr>
-        <tr>
-            <td rowspan=2>Standalone plugin</td> <td>Main</td> <td><code>Plug 'nvim-mini/mini.base16'</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>Plug 'nvim-mini/mini.base16', { 'branch': 'stable' }</code></td>
-        </tr>
-    </tbody>
-</table>
+
+- 'mini.nvim' library:
+
+    | Branch | Code snippet                                         |
+    |--------|------------------------------------------------------|
+    | Main   | `Plug 'nvim-mini/mini.nvim'`                         |
+    | Stable | `Plug 'nvim-mini/mini.nvim', { 'branch': 'stable' }` |
+
+- Standalone plugin:
+
+    | Branch | Code snippet                                           |
+    |--------|--------------------------------------------------------|
+    | Main   | `Plug 'nvim-mini/mini.base16'`                         |
+    | Stable | `Plug 'nvim-mini/mini.base16', { 'branch': 'stable' }` |
+
 </details>
 
 <br>
@@ -174,7 +150,9 @@ Here are code snippets for some common installation methods (use only one):
 **Important**: don't forget to call `require('mini.base16').setup()` with appropriate `palette` to enable its functionality.
 
 **Note**: if you are on Windows, there might be problems with too long file paths (like `error: unable to create file <some file name>: Filename too long`). Try doing one of the following:
+
 - Enable corresponding git global config value: `git config --system core.longpaths true`. Then try to reinstall.
+
 - Install plugin in other place with shorter path.
 
 ## Default config

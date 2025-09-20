@@ -1,4 +1,4 @@
-<div align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-diff_readme.png" alt="mini.diff"/> </div>
+<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-diff_readme.png?raw=true" alt="mini.diff"/> </p>
 
 ### Work with diff hunks
 
@@ -21,6 +21,7 @@ If you want to help this project grow but don't know where to start, check out [
 
 ## Demo
 
+<!-- Demo source: https://github.com/nvim-mini/assets/blob/main/demo/demo-diff.mp4 -->
 https://github.com/nvim-mini/mini.nvim/assets/24854248/77849127-ee9f-430b-9eff-5a8a724c21ea
 
 ## Features
@@ -137,77 +138,59 @@ Here are code snippets for some common installation methods (use only one):
 
 <details>
 <summary>With <a href="https://github.com/nvim-mini/mini.nvim/blob/main/readmes/mini-deps.md">mini.deps</a></summary>
-<table>
-    <thead>
-        <tr>
-            <th>Github repo</th> <th>Branch</th> <th>Code snippet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan=2>'mini.nvim' library</td> <td>Main</td> <td rowspan=2><i>Follow recommended 'mini.deps' installation</i></td>
-        </tr>
-        <tr>
-            <td>Stable</td>
-        </tr>
-        <tr>
-            <td rowspan=2>Standalone plugin</td> <td>Main</td> <td><code>add('nvim-mini/mini.diff')</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>add({ source = 'nvim-mini/mini.diff', checkout = 'stable' })</code></td>
-        </tr>
-    </tbody>
-</table>
+
+- 'mini.nvim' library:
+
+    | Branch | Code snippet                                  |
+    |--------|-----------------------------------------------|
+    | Main   | *Follow recommended ‘mini.deps’ installation* |
+    | Stable | *Follow recommended ‘mini.deps’ installation* |
+
+- Standalone plugin:
+
+    | Branch | Code snippet                                                   |
+    |--------|----------------------------------------------------------------|
+    | Main   | `add(‘nvim-mini/mini.diff’)`                                   |
+    | Stable | `add({ source = ‘nvim-mini/mini.diff’, checkout = ‘stable’ })` |
+
 </details>
 
 <details>
 <summary>With <a href="https://github.com/folke/lazy.nvim">folke/lazy.nvim</a></summary>
-<table>
-    <thead>
-        <tr>
-            <th>Github repo</th> <th>Branch</th> <th>Code snippet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan=2>'mini.nvim' library</td> <td>Main</td> <td><code>{ 'nvim-mini/mini.nvim', version = false },</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>{ 'nvim-mini/mini.nvim', version = '*' },</code></td>
-        </tr>
-        <tr>
-            <td rowspan=2>Standalone plugin</td> <td>Main</td> <td><code>{ 'nvim-mini/mini.diff', version = false },</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>{ 'nvim-mini/mini.diff', version = '*' },</code></td>
-        </tr>
-    </tbody>
-</table>
+
+- 'mini.nvim' library:
+
+    | Branch | Code snippet                                  |
+    |--------|-----------------------------------------------|
+    | Main   | `{ 'nvim-mini/mini.nvim', version = false },` |
+    | Stable | `{ 'nvim-mini/mini.nvim', version = '*' },`   |
+
+- Standalone plugin:
+
+    | Branch | Code snippet                                  |
+    |--------|-----------------------------------------------|
+    | Main   | `{ 'nvim-mini/mini.diff', version = false },` |
+    | Stable | `{ 'nvim-mini/mini.diff', version = '*' },`   |
+
 </details>
 
 <details>
 <summary>With <a href="https://github.com/junegunn/vim-plug">junegunn/vim-plug</a></summary>
-<table>
-    <thead>
-        <tr>
-            <th>Github repo</th> <th>Branch</th> <th>Code snippet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan=2>'mini.nvim' library</td> <td>Main</td> <td><code>Plug 'nvim-mini/mini.nvim'</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>Plug 'nvim-mini/mini.nvim', { 'branch': 'stable' }</code></td>
-        </tr>
-        <tr>
-            <td rowspan=2>Standalone plugin</td> <td>Main</td> <td><code>Plug 'nvim-mini/mini.diff'</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>Plug 'nvim-mini/mini.diff', { 'branch': 'stable' }</code></td>
-        </tr>
-    </tbody>
-</table>
+
+- 'mini.nvim' library:
+
+    | Branch | Code snippet                                         |
+    |--------|------------------------------------------------------|
+    | Main   | `Plug 'nvim-mini/mini.nvim'`                         |
+    | Stable | `Plug 'nvim-mini/mini.nvim', { 'branch': 'stable' }` |
+
+- Standalone plugin:
+
+    | Branch | Code snippet                                         |
+    |--------|------------------------------------------------------|
+    | Main   | `Plug 'nvim-mini/mini.diff'`                         |
+    | Stable | `Plug 'nvim-mini/mini.diff', { 'branch': 'stable' }` |
+
 </details>
 
 <br>
@@ -215,7 +198,10 @@ Here are code snippets for some common installation methods (use only one):
 **Important**: don't forget to call `require('mini.diff').setup()` to enable its functionality.
 
 **Note**: if you are on Windows, there might be problems with too long file paths (like `error: unable to create file <some file name>: Filename too long`). Try doing one of the following:
+
 - Enable corresponding git global config value: `git config --system core.longpaths true`. Then try to reinstall.
+
+- Install plugin in other place with shorter path.
 
 ## Default config
 

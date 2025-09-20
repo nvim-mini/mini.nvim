@@ -1,4 +1,4 @@
-<div align="center"> <img src="logo.png" alt="mini.nvim"/> </div>
+<p align="center"> <img src="logo.png" alt="mini.nvim"/> </p>
 
 Library of 40+ independent Lua modules improving overall [Neovim](https://github.com/neovim/neovim) (version 0.9 and higher) experience with minimal effort. They all share same configuration approaches and general design principles.
 
@@ -48,15 +48,15 @@ end
 
 - With [folke/lazy.nvim](https://github.com/folke/lazy.nvim):
 
-| Branch | Code snippet                                    |
-|--------|-------------------------------------------------|
+| Branch | Code snippet                                  |
+|--------|-----------------------------------------------|
 | Main   | `{ 'nvim-mini/mini.nvim', version = false },` |
 | Stable | `{ 'nvim-mini/mini.nvim', version = '*' },`   |
 
 - With [junegunn/vim-plug](https://github.com/junegunn/vim-plug):
 
-| Branch | Code snippet                                           |
-|--------|--------------------------------------------------------|
+| Branch | Code snippet                                         |
+|--------|------------------------------------------------------|
 | Main   | `Plug 'nvim-mini/mini.nvim'`                         |
 | Stable | `Plug 'nvim-mini/mini.nvim', { 'branch': 'stable' }` |
 

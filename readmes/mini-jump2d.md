@@ -1,4 +1,4 @@
-<div align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-jump2d_readme.png" alt="mini.jump2d"/> </div>
+<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-jump2d_readme.png?raw=true" alt="mini.jump2d"/> </p>
 
 ### Jump  within visible lines via iterative label filtering
 
@@ -21,6 +21,7 @@ If you want to help this project grow but don't know where to start, check out [
 
 ## Demo
 
+<!-- Demo source: https://github.com/nvim-mini/assets/blob/main/demo/demo-jump2d.mp4 -->
 https://user-images.githubusercontent.com/24854248/227734716-e7b6f2a8-4db1-441d-9b37-873da6772138.mp4
 
 ## Features
@@ -55,83 +56,59 @@ Here are code snippets for some common installation methods (use only one):
 
 <details>
 <summary>With <a href="https://github.com/nvim-mini/mini.nvim/blob/main/readmes/mini-deps.md">mini.deps</a></summary>
-<table>
-    <thead>
-        <tr>
-            <th>Github repo</th>
-            <th>Branch</th> <th>Code snippet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan=2>'mini.nvim' library</td> <td>Main</td> <td rowspan=2><i>Follow recommended 'mini.deps' installation</i></td>
-        </tr>
-        <tr>
-            <td>Stable</td>
-        </tr>
-        <tr>
-            <td rowspan=2>Standalone plugin</td> <td>Main</td> <td><code>add('nvim-mini/mini.jump2d')</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>add({ source = 'nvim-mini/mini.jump2d', checkout = 'stable' })</code></td>
-        </tr>
-    </tbody>
-</table>
+
+- 'mini.nvim' library:
+
+    | Branch | Code snippet                                  |
+    |--------|-----------------------------------------------|
+    | Main   | *Follow recommended ‘mini.deps’ installation* |
+    | Stable | *Follow recommended ‘mini.deps’ installation* |
+
+- Standalone plugin:
+
+    | Branch | Code snippet                                                     |
+    |--------|------------------------------------------------------------------|
+    | Main   | `add(‘nvim-mini/mini.jump2d’)`                                   |
+    | Stable | `add({ source = ‘nvim-mini/mini.jump2d’, checkout = ‘stable’ })` |
+
 </details>
 
 <details>
 <summary>With <a href="https://github.com/folke/lazy.nvim">folke/lazy.nvim</a></summary>
-<table>
-    <thead>
-        <tr>
-            <th>Github repo</th>
-            <th>Branch</th> <th>Code snippet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan=2>'mini.nvim' library</td>
-            <td>Main</td> <td><code>{ 'nvim-mini/mini.nvim', version = false },</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>{ 'nvim-mini/mini.nvim', version = '*' },</code></td>
-        </tr>
-        <tr>
-            <td rowspan=2>Standalone plugin</td>
-            <td>Main</td> <td><code>{ 'nvim-mini/mini.jump2d', version = false },</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>{ 'nvim-mini/mini.jump2d', version = '*' },</code></td>
-        </tr>
-    </tbody>
-</table>
+
+- 'mini.nvim' library:
+
+    | Branch | Code snippet                                  |
+    |--------|-----------------------------------------------|
+    | Main   | `{ 'nvim-mini/mini.nvim', version = false },` |
+    | Stable | `{ 'nvim-mini/mini.nvim', version = '*' },`   |
+
+- Standalone plugin:
+
+    | Branch | Code snippet                                    |
+    |--------|-------------------------------------------------|
+    | Main   | `{ 'nvim-mini/mini.jump2d', version = false },` |
+    | Stable | `{ 'nvim-mini/mini.jump2d', version = '*' },`   |
+
 </details>
 
 <details>
 <summary>With <a href="https://github.com/junegunn/vim-plug">junegunn/vim-plug</a></summary>
-<table>
-    <thead>
-        <tr>
-            <th>Github repo</th>
-            <th>Branch</th> <th>Code snippet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan=2>'mini.nvim' library</td>
-            <td>Main</td> <td><code>Plug 'nvim-mini/mini.nvim'</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>Plug 'nvim-mini/mini.nvim', { 'branch': 'stable' }</code></td>
-        </tr>
-        <tr>
-            <td rowspan=2>Standalone plugin</td> <td>Main</td> <td><code>Plug 'nvim-mini/mini.jump2d'</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>Plug 'nvim-mini/mini.jump2d', { 'branch': 'stable' }</code></td>
-        </tr>
-    </tbody>
-</table>
+
+- 'mini.nvim' library:
+
+    | Branch | Code snippet                                         |
+    |--------|------------------------------------------------------|
+    | Main   | `Plug 'nvim-mini/mini.nvim'`                         |
+    | Stable | `Plug 'nvim-mini/mini.nvim', { 'branch': 'stable' }` |
+
+- Standalone plugin:
+
+    | Branch | Code snippet                                           |
+    |--------|--------------------------------------------------------|
+    | Main   | `Plug 'nvim-mini/mini.jump2d'`                         |
+    | Stable | `Plug 'nvim-mini/mini.jump2d', { 'branch': 'stable' }` |
+
 </details>
 
 <br>
@@ -139,7 +116,9 @@ Here are code snippets for some common installation methods (use only one):
 **Important**: don't forget to call `require('mini.jump2d').setup()` to enable its functionality.
 
 **Note**: if you are on Windows, there might be problems with too long file paths (like `error: unable to create file <some file name>: Filename too long`). Try doing one of the following:
+
 - Enable corresponding git global config value: `git config --system core.longpaths true`. Then try to reinstall.
+
 - Install plugin in other place with shorter path.
 
 ## Default config

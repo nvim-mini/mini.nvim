@@ -1,4 +1,4 @@
-<div align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-hipatterns_readme.png" alt="mini.hipatterns"/> </div>
+<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-hipatterns_readme.png?raw=true" alt="mini.hipatterns"/> </p>
 
 ### Highlight patterns in text
 
@@ -21,6 +21,7 @@ If you want to help this project grow but don't know where to start, check out [
 
 ## Demo
 
+<!-- Demo source: https://github.com/nvim-mini/assets/blob/main/demo/demo-hipatterns.mp4 -->
 https://github.com/nvim-mini/mini.nvim/assets/24854248/130374e2-4e6c-43cf-af33-43d816b4fa32
 
 ## Features
@@ -68,83 +69,59 @@ Here are code snippets for some common installation methods (use only one):
 
 <details>
 <summary>With <a href="https://github.com/nvim-mini/mini.nvim/blob/main/readmes/mini-deps.md">mini.deps</a></summary>
-<table>
-    <thead>
-        <tr>
-            <th>Github repo</th>
-            <th>Branch</th> <th>Code snippet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan=2>'mini.nvim' library</td> <td>Main</td> <td rowspan=2><i>Follow recommended 'mini.deps' installation</i></td>
-        </tr>
-        <tr>
-            <td>Stable</td>
-        </tr>
-        <tr>
-            <td rowspan=2>Standalone plugin</td> <td>Main</td> <td><code>add('nvim-mini/mini.hipatterns')</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>add({ source = 'nvim-mini/mini.hipatterns', checkout = 'stable' })</code></td>
-        </tr>
-    </tbody>
-</table>
+
+- 'mini.nvim' library:
+
+    | Branch | Code snippet                                  |
+    |--------|-----------------------------------------------|
+    | Main   | *Follow recommended ‘mini.deps’ installation* |
+    | Stable | *Follow recommended ‘mini.deps’ installation* |
+
+- Standalone plugin:
+
+    | Branch | Code snippet                                                         |
+    |--------|----------------------------------------------------------------------|
+    | Main   | `add(‘nvim-mini/mini.hipatterns’)`                                   |
+    | Stable | `add({ source = ‘nvim-mini/mini.hipatterns’, checkout = ‘stable’ })` |
+
 </details>
 
 <details>
 <summary>With <a href="https://github.com/folke/lazy.nvim">folke/lazy.nvim</a></summary>
-<table>
-    <thead>
-        <tr>
-            <th>Github repo</th>
-            <th>Branch</th> <th>Code snippet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan=2>'mini.nvim' library</td>
-            <td>Main</td> <td><code>{ 'nvim-mini/mini.nvim', version = false },</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>{ 'nvim-mini/mini.nvim', version = '*' },</code></td>
-        </tr>
-        <tr>
-            <td rowspan=2>Standalone plugin</td>
-            <td>Main</td> <td><code>{ 'nvim-mini/mini.hipatterns', version = false },</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>{ 'nvim-mini/mini.hipatterns', version = '*' },</code></td>
-        </tr>
-    </tbody>
-</table>
+
+- 'mini.nvim' library:
+
+    | Branch | Code snippet                                  |
+    |--------|-----------------------------------------------|
+    | Main   | `{ 'nvim-mini/mini.nvim', version = false },` |
+    | Stable | `{ 'nvim-mini/mini.nvim', version = '*' },`   |
+
+- Standalone plugin:
+
+    | Branch | Code snippet                                        |
+    |--------|-----------------------------------------------------|
+    | Main   | `{ 'nvim-mini/mini.hipatterns', version = false },` |
+    | Stable | `{ 'nvim-mini/mini.hipatterns', version = '*' },`   |
+
 </details>
 
 <details>
 <summary>With <a href="https://github.com/junegunn/vim-plug">junegunn/vim-plug</a></summary>
-<table>
-    <thead>
-        <tr>
-            <th>Github repo</th>
-            <th>Branch</th> <th>Code snippet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan=2>'mini.nvim' library</td>
-            <td>Main</td> <td><code>Plug 'nvim-mini/mini.nvim'</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>Plug 'nvim-mini/mini.nvim', { 'branch': 'stable' }</code></td>
-        </tr>
-        <tr>
-            <td rowspan=2>Standalone plugin</td> <td>Main</td> <td><code>Plug 'nvim-mini/mini.hipatterns'</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>Plug 'nvim-mini/mini.hipatterns', { 'branch': 'stable' }</code></td>
-        </tr>
-    </tbody>
-</table>
+
+- 'mini.nvim' library:
+
+    | Branch | Code snippet                                         |
+    |--------|------------------------------------------------------|
+    | Main   | `Plug 'nvim-mini/mini.nvim'`                         |
+    | Stable | `Plug 'nvim-mini/mini.nvim', { 'branch': 'stable' }` |
+
+- Standalone plugin:
+
+    | Branch | Code snippet                                               |
+    |--------|------------------------------------------------------------|
+    | Main   | `Plug 'nvim-mini/mini.hipatterns'`                         |
+    | Stable | `Plug 'nvim-mini/mini.hipatterns', { 'branch': 'stable' }` |
+
 </details>
 
 <br>
@@ -152,7 +129,9 @@ Here are code snippets for some common installation methods (use only one):
 **Important**: don't forget to call `require('mini.hipatterns').setup()` with non-empty `highlighters` to auto-enable highlighting in all normal buffers.
 
 **Note**: if you are on Windows, there might be problems with too long file paths (like `error: unable to create file <some file name>: Filename too long`). Try doing one of the following:
+
 - Enable corresponding git global config value: `git config --system core.longpaths true`. Then try to reinstall.
+
 - Install plugin in other place with shorter path.
 
 ## Default config

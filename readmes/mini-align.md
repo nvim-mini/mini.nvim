@@ -1,4 +1,4 @@
-<div align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-align_readme.png" alt="mini.align"/> </div>
+<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-align_readme.png?raw=true" alt="mini.align"/> </p>
 
 ### Align text interactively
 
@@ -21,6 +21,7 @@ If you want to help this project grow but don't know where to start, check out [
 
 ## Demo
 
+<!-- Demo source: https://github.com/nvim-mini/assets/blob/main/demo/demo-align.mp4 -->
 https://user-images.githubusercontent.com/24854248/191686791-2c8b345a-2bcc-4de7-a065-5e7a36e2eb1a.mp4
 
 ## Features
@@ -58,83 +59,59 @@ Here are code snippets for some common installation methods (use only one):
 
 <details>
 <summary>With <a href="https://github.com/nvim-mini/mini.nvim/blob/main/readmes/mini-deps.md">mini.deps</a></summary>
-<table>
-    <thead>
-        <tr>
-            <th>Github repo</th>
-            <th>Branch</th> <th>Code snippet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan=2>'mini.nvim' library</td> <td>Main</td> <td rowspan=2><i>Follow recommended 'mini.deps' installation</i></td>
-        </tr>
-        <tr>
-            <td>Stable</td>
-        </tr>
-        <tr>
-            <td rowspan=2>Standalone plugin</td> <td>Main</td> <td><code>add('nvim-mini/mini.align')</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>add({ source = 'nvim-mini/mini.align', checkout = 'stable' })</code></td>
-        </tr>
-    </tbody>
-</table>
+
+- 'mini.nvim' library:
+
+    | Branch | Code snippet                                  |
+    |--------|-----------------------------------------------|
+    | Main   | *Follow recommended ‘mini.deps’ installation* |
+    | Stable | *Follow recommended ‘mini.deps’ installation* |
+
+- Standalone plugin:
+
+    | Branch | Code snippet                                                    |
+    |--------|-----------------------------------------------------------------|
+    | Main   | `add(‘nvim-mini/mini.align’)`                                   |
+    | Stable | `add({ source = ‘nvim-mini/mini.align’, checkout = ‘stable’ })` |
+
 </details>
 
 <details>
 <summary>With <a href="https://github.com/folke/lazy.nvim">folke/lazy.nvim</a></summary>
-<table>
-    <thead>
-        <tr>
-            <th>Github repo</th>
-            <th>Branch</th> <th>Code snippet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan=2>'mini.nvim' library</td>
-            <td>Main</td> <td><code>{ 'nvim-mini/mini.nvim', version = false },</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>{ 'nvim-mini/mini.nvim', version = '*' },</code></td>
-        </tr>
-        <tr>
-            <td rowspan=2>Standalone plugin</td>
-            <td>Main</td> <td><code>{ 'nvim-mini/mini.align', version = false },</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>{ 'nvim-mini/mini.align', version = '*' },</code></td>
-        </tr>
-    </tbody>
-</table>
+
+- 'mini.nvim' library:
+
+    | Branch | Code snippet                                  |
+    |--------|-----------------------------------------------|
+    | Main   | `{ 'nvim-mini/mini.nvim', version = false },` |
+    | Stable | `{ 'nvim-mini/mini.nvim', version = '*' },`   |
+
+- Standalone plugin:
+
+    | Branch | Code snippet                                   |
+    |--------|------------------------------------------------|
+    | Main   | `{ 'nvim-mini/mini.align', version = false },` |
+    | Stable | `{ 'nvim-mini/mini.align', version = '*' },`   |
+
 </details>
 
 <details>
 <summary>With <a href="https://github.com/junegunn/vim-plug">junegunn/vim-plug</a></summary>
-<table>
-    <thead>
-        <tr>
-            <th>Github repo</th>
-            <th>Branch</th> <th>Code snippet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan=2>'mini.nvim' library</td>
-            <td>Main</td> <td><code>Plug 'nvim-mini/mini.nvim'</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>Plug 'nvim-mini/mini.nvim', { 'branch': 'stable' }</code></td>
-        </tr>
-        <tr>
-            <td rowspan=2>Standalone plugin</td> <td>Main</td> <td><code>Plug 'nvim-mini/mini.align'</code></td>
-        </tr>
-        <tr>
-            <td>Stable</td> <td><code>Plug 'nvim-mini/mini.align', { 'branch': 'stable' }</code></td>
-        </tr>
-    </tbody>
-</table>
+
+- 'mini.nvim' library:
+
+    | Branch | Code snippet                                         |
+    |--------|------------------------------------------------------|
+    | Main   | `Plug 'nvim-mini/mini.nvim'`                         |
+    | Stable | `Plug 'nvim-mini/mini.nvim', { 'branch': 'stable' }` |
+
+- Standalone plugin:
+
+    | Branch | Code snippet                                          |
+    |--------|-------------------------------------------------------|
+    | Main   | `Plug 'nvim-mini/mini.align'`                         |
+    | Stable | `Plug 'nvim-mini/mini.align', { 'branch': 'stable' }` |
+
 </details>
 
 <br>
@@ -142,7 +119,9 @@ Here are code snippets for some common installation methods (use only one):
 **Important**: don't forget to call `require('mini.align').setup()` to enable its functionality.
 
 **Note**: if you are on Windows, there might be problems with too long file paths (like `error: unable to create file <some file name>: Filename too long`). Try doing one of the following:
+
 - Enable corresponding git global config value: `git config --system core.longpaths true`. Then try to reinstall.
+
 - Install plugin in other place with shorter path.
 
 ## Default config

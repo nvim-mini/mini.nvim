@@ -1,4 +1,4 @@
-<div align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-deps_readme.png" alt="mini.deps"/> </div>
+<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-deps_readme.png?raw=true" alt="mini.deps"/> </p>
 
 ### Plugin manager
 
@@ -23,6 +23,7 @@ If you want to help this project grow but don't know where to start, check out [
 
 ## Demo
 
+<!-- Demo source: https://github.com/nvim-mini/assets/blob/main/demo/demo-deps.mp4 -->
 https://github.com/nvim-mini/mini.nvim/assets/24854248/e3b0659b-ce79-4464-8601-e0117f38569f
 
 **Note**: This demo features custom `vim.notify()` from [mini.notify](https://github.com/nvim-mini/mini.nvim/blob/main/readmes/mini-notify.md).
