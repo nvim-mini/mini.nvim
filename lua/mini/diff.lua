@@ -700,9 +700,6 @@ end
 --- - "Change" hunks represent modified text not in mercurial repo.
 --- - "Delete" hunks represent text deleted from repo.
 ---
---- Notes:
---- - Requires Git version at least 6.9.4.
----
 ---@return table Source. See |MiniDiff-source-specification|.
 MiniDiff.gen_source.mercurial = function()
   local attach = function(buf_id)
