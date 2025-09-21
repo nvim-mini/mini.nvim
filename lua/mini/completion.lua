@@ -1256,6 +1256,15 @@ H.lsp_completion_response_items_to_complete_items = function(items)
 
     local lsp_data = { item = item, item_id = i }
     lsp_data.needs_snippet_insert = needs_snippet_insert
+
+    local abbr_hlgroup = ""
+    if
+      item.deprecated
+      or vim.list_contains((item.tags or {}), vim.lsp.protocol.CompletionTag.Deprecated)
+    then
+      abbr_hlgroup = 'DiagnosticDeprecated'
+    end
+
     table.insert(res, {
       -- Show less for snippet items (usually less confusion), but preserve
       -- built-in filtering capabilities (as it uses `word` to filter).
@@ -1263,6 +1272,7 @@ H.lsp_completion_response_items_to_complete_items = function(items)
       abbr = item.label,
       kind = item_kinds[item.kind] or 'Unknown',
       kind_hlgroup = item.kind_hlgroup,
+      abbr_hlgroup = abbr_hlgroup,
       menu = label_detail,
       -- NOTE: info will be attempted to resolve, use snippet text as fallback
       info = needs_snippet_insert and word or nil,
