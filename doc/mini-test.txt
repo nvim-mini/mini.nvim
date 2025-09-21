@@ -525,7 +525,7 @@ Usage ~
 <
 ------------------------------------------------------------------------------
                                                     *MiniTest.expect.equality()*
-                  `MiniTest.expect.equality`({left}, {right})
+              `MiniTest.expect.equality`({left}, {right}, {opts})
 Expect equality of two objects
 
 Equality is tested via |vim.deep_equal()|.
@@ -533,10 +533,12 @@ Equality is tested via |vim.deep_equal()|.
 Parameters ~
 {left} `(any)` First object.
 {right} `(any)` Second object.
+{opts} `(table|nil)` Options:
+  - <msg> `(string)` Fails with the supplied failure message. Default: nil
 
 ------------------------------------------------------------------------------
                                                  *MiniTest.expect.no_equality()*
-                 `MiniTest.expect.no_equality`({left}, {right})
+             `MiniTest.expect.no_equality`({left}, {right}, {opts})
 Expect no equality of two objects
 
 Equality is tested via |vim.deep_equal()|.
@@ -544,6 +546,8 @@ Equality is tested via |vim.deep_equal()|.
 Parameters ~
 {left} `(any)` First object.
 {right} `(any)` Second object.
+{opts} `(table|nil)` Options:
+  - <msg> `(string)` Fails with the supplied failure message. Default: nil
 
 ------------------------------------------------------------------------------
                                                        *MiniTest.expect.error()*
@@ -589,6 +593,7 @@ Parameters ~
     if `false` - do not ignore any. Default: `false`.
   - <directory> `(string)` - directory where automatically constructed `path`
     is located. Default: "tests/screenshots".
+  - <msg> `(string)` - Fails with the supplied failure message. Default: nil
 
 ------------------------------------------------------------------------------
                                                     *MiniTest.new_expectation()*
