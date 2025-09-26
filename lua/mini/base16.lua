@@ -1,10 +1,7 @@
 --- *mini.base16* Base16 colorscheme creation
---- *MiniBase16*
 ---
 --- MIT License Copyright (c) 2021 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Fast implementation of 'chriskempson/base16' color scheme (with Copyright
 --- (C) 2012 Chris Kempson) adapted for modern Neovim Lua plugins.
 --- Extra features:
@@ -106,8 +103,9 @@
 ---       your Neovim config directory is usually enough).
 ---     - Inside "myscheme.lua" call `require('mini.base16').setup()` with your
 ---       palette and only after that set |g:colors_name| to "myscheme".
+---@tag MiniBase16
 
---- Base16 colorschemes ~
+--- # Base16 colorschemes ~
 ---
 --- This module comes with several pre-built color schemes. Each of them is
 --- a |MiniBase16| theme created with faster version of the following Lua code: >lua

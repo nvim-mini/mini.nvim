@@ -1,10 +1,7 @@
 --- *mini.statusline* Statusline
---- *MiniStatusline*
 ---
 --- MIT License Copyright (c) 2021 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Define own custom statusline structure for active and inactive windows.
 ---   This is done with a function which should return string appropriate for
@@ -74,6 +71,7 @@
 --- Considering high number of different scenarios and customization
 --- intentions, writing exact rules for disabling module's functionality is
 --- left to user. See |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniStatusline
 
 --- Example content
 ---

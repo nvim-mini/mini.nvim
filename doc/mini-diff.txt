@@ -1,10 +1,9 @@
 *mini.diff* Work with diff hunks
-*MiniDiff*
 
 MIT License Copyright (c) 2024 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                      *MiniDiff*
 Features:
 
 - Visualize difference between buffer text and its configurable reference

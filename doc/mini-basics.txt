@@ -1,10 +1,9 @@
 *mini.basics* Common configuration presets
-*MiniBasics*
 
 MIT License Copyright (c) 2023 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                    *MiniBasics*
 Install, create 'init.lua', add `require('mini.basics').setup()` and you
 are good to go.
 

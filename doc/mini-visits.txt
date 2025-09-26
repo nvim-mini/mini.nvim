@@ -1,10 +1,9 @@
 *mini.visits* Track and reuse file system visits
-*MiniVisits*
 
 MIT License Copyright (c) 2023 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                    *MiniVisits*
 Features:
 
 - Persistently track file system visits (both files and directories)

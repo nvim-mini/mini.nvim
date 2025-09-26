@@ -1,10 +1,7 @@
 --- *mini.bufremove* Remove buffers
---- *MiniBufremove*
 ---
 --- MIT License Copyright (c) 2021 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Unshow, delete, and wipeout buffer while saving window layout
 ---   (opposite to builtin Neovim's commands).
@@ -38,6 +35,7 @@
 --- number of different scenarios and customization intentions, writing exact
 --- rules for disabling module's functionality is left to user. See
 --- |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniBufremove
 
 ---@alias __bufremove_return boolean|nil Whether operation was successful. If `nil`, no operation was done.
 ---@alias __bufremove_buf_id number|nil Buffer identifier (see |bufnr()|) to use.

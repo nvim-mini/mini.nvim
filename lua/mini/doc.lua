@@ -1,10 +1,7 @@
 --- *mini.doc* Generate Neovim help files
---- *MiniDoc*
 ---
 --- MIT License Copyright (c) 2022 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Key design ideas:
 --- - Keep documentation next to code by writing EmmyLua-like annotation
 ---   comments. They will be parsed as is, so formatting should follow built-in
@@ -70,6 +67,7 @@
 ---     - It takes more care about automating output formatting (like auto
 ---       indentation and line width fit). This plugin leans more to manual
 ---       formatting with option to supply customized post-processing hooks.
+---@tag MiniDoc
 
 --- Data structures
 ---

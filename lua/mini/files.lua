@@ -1,10 +1,7 @@
 --- *mini.files* Navigate and manipulate file system
---- *MiniFiles*
 ---
 --- MIT License Copyright (c) 2023 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Navigate file system using column view (Miller columns) to display nested
 ---   directories. See |MiniFiles-navigation| for overview.
@@ -100,8 +97,9 @@
 ---
 --- This plugin provides only manually started functionality, so no disabling
 --- is available.
+---@tag MiniFiles
 
---- Navigation ~
+--- # Navigation ~
 ---
 --- Every navigation starts by calling |MiniFiles.open()|, either directly or via
 --- mapping (see its help for examples of some common scenarios). It will show
@@ -214,7 +212,7 @@
 --- - Keys can be configured with `mappings` table of |MiniFiles.config|.
 ---@tag MiniFiles-navigation
 
---- Manipulation ~
+--- # Manipulation ~
 ---
 --- File system manipulation is done by editing text inside directory buffers,
 --- which are shown inside dedicated window(s). See |MiniFiles-navigation| for
@@ -314,12 +312,10 @@
 --- - Moving directory inside itself is not supported.
 ---@tag MiniFiles-manipulation
 
---- Events ~
----
 --- To allow user customization and integration of external tools, certain |User|
 --- autocommand events are triggered under common circumstances.
 ---
---- UI events ~
+--- # UI events ~
 ---
 --- - `MiniFilesExplorerOpen` - just after explorer finishes opening.
 ---
@@ -346,7 +342,7 @@
 ---   `MiniFilesBufferCreate` and buffer's first `MiniFilesBufferUpdate` as
 ---   they are triggered before window is created.
 ---
---- File action events ~
+--- # File action events ~
 ---
 --- - `MiniFilesActionCreate` - after entry is successfully created.
 ---
@@ -366,8 +362,6 @@
 --- - <to> - full path of entry after action (`nil` for permanent "delete" action).
 ---@tag MiniFiles-events
 
---- Common configuration examples ~
----
 --- # Toggle explorer ~
 ---
 --- Use a combination of |MiniFiles.open()| and |MiniFiles.close()|: >lua

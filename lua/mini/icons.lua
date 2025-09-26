@@ -1,10 +1,7 @@
 --- *mini.icons* Icon provider
---- *MiniIcons*
 ---
 --- MIT License Copyright (c) 2024 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 ---
 --- - Provide icons with their highlighting via a single |MiniIcons.get()| for
@@ -163,6 +160,7 @@
 --- * `MiniIconsYellow` - yellow.
 ---
 --- To change any highlight group, modify it directly with |:highlight|.
+---@tag MiniIcons
 
 ---@diagnostic disable:undefined-field
 ---@diagnostic disable:discard-returns

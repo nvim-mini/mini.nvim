@@ -1,10 +1,9 @@
 *mini.deps* Plugin manager
-*MiniDeps*
 
 MIT License Copyright (c) 2024 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                      *MiniDeps*
 Features:
 
 - Manage plugins utilizing Git and built-in |packages| with these actions:

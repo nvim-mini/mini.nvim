@@ -1,10 +1,7 @@
 --- *mini.notify* Show notifications
---- *MiniNotify*
 ---
 --- MIT License Copyright (c) 2024 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 ---
 --- - Show one or more highlighted notifications in a single floating window.
@@ -57,6 +54,7 @@
 --- of different scenarios and customization intentions, writing exact rules
 --- for disabling module's functionality is left to user. See
 --- |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniNotify
 
 --- # Notification specification ~
 ---

@@ -1,10 +1,7 @@
 --- *mini.keymap* Special key mappings
---- *MiniKeymap*
 ---
 --- MIT License Copyright (c) 2025 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 ---
 --- - Map keys to perform configurable multi-step actions: if condition for step
@@ -75,6 +72,7 @@
 --- of different scenarios and customization intentions, writing exact rules
 --- for disabling module's functionality is left to user.
 --- See |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniKeymap
 
 --- # Multi-step ~
 ---

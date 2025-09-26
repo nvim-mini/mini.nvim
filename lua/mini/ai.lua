@@ -1,10 +1,7 @@
 --- *mini.ai* Extend and create a/i textobjects
---- *MiniAi*
 ---
 --- MIT License Copyright (c) 2022 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Enhance some builtin |text-objects| (like |a(|, |a)|, |a'|, and more),
 --- create new ones (like `a*`, `a<Space>`, `af`, `a?`, and more), and allow
 --- user to create their own.
@@ -18,7 +15,7 @@
 ---     - Consecutive application (update selection without leaving Visual mode).
 ---     - Aliases for multiple textobjects.
 ---
---- - Comprehensive builtin textobjects (see more in |MiniAi-textobject-builtin|):
+--- - Comprehensive builtin textobjects (see more in |MiniAi-builtin-textobjects|):
 ---     - Balanced brackets (with and without whitespace) plus alias.
 ---     - Balanced quotes plus alias.
 ---     - Function call.
@@ -111,9 +108,8 @@
 --- and customization intentions, writing exact rules for disabling module's
 --- functionality is left to user. See |mini.nvim-disabling-recipes| for common
 --- recipes.
+---@tag MiniAi
 
---- Builtin textobjects ~
----
 --- This table describes all builtin textobjects along with what they
 --- represent. Explanation:
 --- - `Key` represents the textobject identifier: single character which should
@@ -178,7 +174,7 @@
 ---     - When cursor is exactly on the identifier character while there are
 ---       two matching candidates on both left and right, the resulting region
 ---       with smaller width is preferred.
----@tag MiniAi-textobject-builtin
+---@tag MiniAi-builtin-textobjects
 
 --- - REGION - table representing region in a buffer. Fields:
 ---     - <from> and <to> for inclusive start and end positions (<to> might be
@@ -227,22 +223,22 @@
 ---   Examples:
 ---     1. Either balanced `()` or balanced `[]` but both with inner edge space: >lua
 ---
----          -- Composed pattern
----          { { '%b()', '%b[]' }, '^. .* .$' }
+---         -- Composed pattern
+---         { { '%b()', '%b[]' }, '^. .* .$' }
 ---
----          -- Composed pattern expanded into equivalent array of nested patterns
----          { '%b()', '^. .* .$' } -- and
----          { '%b[]', '^. .* .$' }
+---         -- Composed pattern expanded into equivalent array of nested patterns
+---         { '%b()', '^. .* .$' } -- and
+---         { '%b[]', '^. .* .$' }
 --- <
 ---     2. Either "balanced `()` with inner edge space" or "balanced `[]` with
 ---        no inner edge space", both with 5 or more characters: >lua
 ---
----          -- Composed pattern
----          { { { '%b()', '^. .* .$' }, { '%b[]', '^.[^ ].*[^ ].$' } }, '.....' }
+---         -- Composed pattern
+---         { { { '%b()', '^. .* .$' }, { '%b[]', '^.[^ ].*[^ ].$' } }, '.....' }
 ---
----          -- Composed pattern expanded into equivalent array of nested patterns
----          { '%b()', '^. .* .$', '.....' } -- and
----          { '%b[]', '^.[^ ].*[^ ].$', '.....' }
+---         -- Composed pattern expanded into equivalent array of nested patterns
+---         { '%b()', '^. .* .$', '.....' } -- and
+---         { '%b[]', '^.[^ ].*[^ ].$', '.....' }
 --- <
 --- - SPAN MATCHES COMPOSED PATTERN if it matches at least one nested pattern
 ---   from expanded composed pattern.
@@ -356,8 +352,6 @@
 --- textobject specifications.
 ---@tag MiniAi-textobject-specification
 
---- Algorithm design
----
 --- Search for the textobjects relies on these principles:
 --- - It uses same input data as described in |MiniAi.find_textobject()|,
 ---   i.e. whether it is `a` or `i` textobject, its identifier, reference region, etc.
@@ -436,7 +430,7 @@ end
 --- (see |MiniAi-textobject-specification|).
 ---
 --- General recommendations:
---- - This can be used to override builtin ones (|MiniAi-textobject-builtin|).
+--- - This can be used to override builtin ones (|MiniAi-builtin-textobjects|).
 ---   Supply non-valid input (not in specification format) to disable module's
 ---   builtin textobject in favor of external or Neovim's builtin mapping.
 --- - Keys should use character representation which can be |getcharstr()| output.
@@ -693,6 +687,7 @@ end
 ---       ['|'] = gen_spec.pair('|', '|', { type = 'non-balanced' }),
 ---     }
 ---   })
+--- <
 MiniAi.gen_spec = {}
 
 --- Argument specification
@@ -850,7 +845,7 @@ end
 --- - `function_call({ name_pattern = '[%w_]' })` will recognize function name with
 ---   only alphanumeric or underscore (not dot).
 ---
----@param opts table|nil Optsion. Allowed fields:
+---@param opts table|nil Options. Allowed fields:
 ---   - <name_pattern> - string pattern of character set allowed in function name.
 ---     Default: `'[%w_%.]'` (alphanumeric, underscore, or dot).
 ---     Note: should be enclosed in `[]`.
@@ -976,10 +971,10 @@ end
 ---   returns array of current buffer regions representing matches for
 ---   corresponding (`a` or `i`) treesitter capture.
 ---
----@seealso |MiniAi-textobject-specification| for how this type of textobject
+---@seealso - |MiniAi-textobject-specification| for how this type of textobject
 ---   specification is processed.
---- |vim.treesitter.get_query()| for how query is fetched.
---- |Query:iter_captures()| for how all query captures are iterated in case of
+--- - |vim.treesitter.get_query()| for how query is fetched.
+--- - |Query:iter_captures()| for how all query captures are iterated in case of
 ---   no 'nvim-treesitter'.
 MiniAi.gen_spec.treesitter = function(ai_captures, opts)
   -- TODO: Remove after releasing 'mini.nvim' 0.17.0
@@ -1023,7 +1018,7 @@ end
 --- - Construct specification for a textobject that matches from left edge string
 ---   to right edge string: `a` includes both strings, `i` only insides.
 ---
---- Used for |MiniAi-textobject-builtin| with identifier `?`.
+--- Used for |MiniAi-builtin-textobjects| with identifier `?`.
 ---
 ---@return function Textobject specification as function.
 MiniAi.gen_spec.user_prompt = function()

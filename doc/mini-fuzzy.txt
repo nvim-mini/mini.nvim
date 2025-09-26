@@ -1,10 +1,9 @@
 *mini.fuzzy* Fuzzy matching
-*MiniFuzzy*
 
 MIT License Copyright (c) 2021 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                     *MiniFuzzy*
 Features:
 - Minimal and fast fuzzy matching algorithm which prioritizes match width.
 

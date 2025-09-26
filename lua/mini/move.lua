@@ -1,10 +1,7 @@
 --- *mini.move* Move any selection in any direction
---- *MiniMove*
 ---
 --- MIT License Copyright (c) 2023 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Works in two modes:
 ---     - Visual mode. Select text (charwise with |v|, linewise with |V|, and
@@ -68,6 +65,7 @@
 --- and customization intentions, writing exact rules for disabling module's
 --- functionality is left to user. See |mini.nvim-disabling-recipes| for common
 --- recipes.
+---@tag MiniMove
 
 ---@alias __move_direction string One of "left", "down", "up", "right".
 ---@alias __move_opts table|nil Options. Same structure as `options` in |MiniMove.config|

@@ -1,10 +1,9 @@
 *mini.jump* Jump to next/previous single character
-*MiniJump*
 
 MIT License Copyright (c) 2021 Evgeni Chasnovski, Adam Blažek
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                      *MiniJump*
 Features:
 - Extend f, F, t, T to work on multiple lines.
 
@@ -54,8 +53,6 @@ disabling module's functionality is left to user. See
 
 ------------------------------------------------------------------------------
                                                                *MiniJump-events*
-Events ~
-
 To allow user customization and integration of external tools, certain |User|
 autocommand events are triggered under common circumstances:
 

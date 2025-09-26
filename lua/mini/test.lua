@@ -1,10 +1,7 @@
 --- *mini.test* Test Neovim plugins
---- *MiniTest*
 ---
 --- MIT License Copyright (c) 2022 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Test action is defined as a named callable entry of a table.
 ---
@@ -136,6 +133,7 @@
 --- and customization intentions, writing exact rules for disabling module's
 --- functionality is left to user. See |mini.nvim-disabling-recipes| for common
 --- recipes.
+---@tag MiniTest
 
 -- Module definition ==========================================================
 local MiniTest = {}
@@ -1473,7 +1471,7 @@ end
 ---@field wo table Redirection table for |vim.wo|.
 ---@tag MiniTest-child-neovim
 
---- child.start(args, opts) ~
+---                           `child.start`({args}, {opts})
 ---
 --- Start child process and connect to it. Won't work if child is already running.
 ---
@@ -1497,7 +1495,7 @@ end
 --- <
 ---@tag MiniTest-child-neovim.start()
 
---- child.type_keys(wait, ...) ~
+---                        `child.type_keys`({wait}, {...})
 ---
 --- Basically a wrapper for |nvim_input()| applied inside child process.
 --- Differences:
@@ -1525,7 +1523,7 @@ end
 --- <
 ---@tag MiniTest-child-neovim.type_keys()
 
---- child.get_screenshot() ~
+---                         `child.get_screenshot`({opts})
 ---
 --- Compute what is displayed on (default TUI) screen and how it is displayed.
 --- This basically calls |screenstring()| and |screenattr()| for every visible

@@ -1,10 +1,9 @@
 *mini.move* Move any selection in any direction
-*MiniMove*
 
 MIT License Copyright (c) 2023 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                      *MiniMove*
 Features:
 - Works in two modes:
     - Visual mode. Select text (charwise with |v|, linewise with |V|, and

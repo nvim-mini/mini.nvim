@@ -1,10 +1,7 @@
 --- *mini.cursorword* Autohighlight word under cursor
---- *MiniCursorword*
 ---
 --- MIT License Copyright (c) 2021 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Autohighlight word under cursor with customizable delay.
 ---
@@ -77,6 +74,7 @@
 ---   -- Make sure to add this autocommand *before* calling module's `setup()`.
 ---   vim.cmd('au CursorMoved * lua _G.cursorword_blocklist()')
 --- <
+---@tag MiniCursorword
 
 -- Module definition ==========================================================
 local MiniCursorword = {}

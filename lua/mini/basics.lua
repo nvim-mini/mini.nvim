@@ -1,10 +1,7 @@
 --- *mini.basics* Common configuration presets
---- *MiniBasics*
 ---
 --- MIT License Copyright (c) 2023 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Install, create 'init.lua', add `require('mini.basics').setup()` and you
 --- are good to go.
 ---
@@ -54,6 +51,7 @@
 ---     - The 'tpope/vim-unimpaired' has mapping for toggling options with `yo`
 ---       prefix. This module implements similar functionality with `\` prefix
 ---       (see |MiniBasics.config.mappings|).
+---@tag MiniBasics
 
 ---@diagnostic disable:undefined-field
 

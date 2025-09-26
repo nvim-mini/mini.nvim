@@ -1,10 +1,7 @@
 --- *mini.completion* Completion and signature help
---- *MiniCompletion*
 ---
 --- MIT License Copyright (c) 2021 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Key design ideas:
 --- - Have an async (with customizable "debounce" delay) "two-stage chain
 ---   completion": first try to get completion items from LSP client (if set
@@ -213,9 +210,8 @@
 --- number of different scenarios and customization intentions, writing exact
 --- rules for disabling module's functionality is left to user. See
 --- |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniCompletion
 
---- Events ~
----
 --- To allow user customization, certain |User| autocommand events are
 --- triggered under common circumstances:
 ---
@@ -580,8 +576,8 @@ end
 ---
 ---@param snippet string Snippet body to insert at cursor.
 ---
----@seealso |MiniSnippets-session| if 'mini.snippets' is set up.
---- |vim.snippet| for Neovim's built-in snippet engine.
+---@seealso - |MiniSnippets-session| if 'mini.snippets' is set up.
+--- - |vim.snippet| for Neovim's built-in snippet engine.
 MiniCompletion.default_snippet_insert = function(snippet)
   if _G.MiniSnippets then
     local insert = MiniSnippets.config.expand.insert or MiniSnippets.default_insert

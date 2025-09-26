@@ -1,10 +1,7 @@
 --- *mini.surround* Surround actions
---- *MiniSurround*
 ---
 --- MIT License Copyright (c) 2021 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Fast and feature-rich surrounding. Can be configured to have experience
 --- similar to 'tpope/vim-surround' (see |MiniSurround-vim-surround-config|).
 ---
@@ -93,7 +90,7 @@
 ---       default mappings, while 'mini.surround' has a more coherent set.
 ---     - 'mini.surround' supports dot-repeat, customized search path (see
 ---       |MiniSurround.config|), customized specifications (see
----       |MiniSurround-surround-specification|) allowing usage of tree-sitter
+---       |MiniSurround-surrounding-specification|) allowing usage of tree-sitter
 ---       queries (see |MiniSurround.gen_spec.input.treesitter()|),
 ---       highlighting and finding surrounding, "last"/"next" extended
 ---       mappings. While 'vim-surround' does not.
@@ -135,9 +132,8 @@
 --- number of different scenarios and customization intentions, writing exact
 --- rules for disabling module's functionality is left to user. See
 --- |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniSurround
 
---- Builtin surroundings ~
----
 --- This table describes all builtin surroundings along with what they
 --- represent. Explanation:
 --- - `Key` represents the surrounding identifier: single character which should
@@ -203,7 +199,7 @@
 ---     - When cursor is exactly on the identifier character while there are
 ---       two matching candidates on both left and right, the one resulting in
 ---       region with smaller width is preferred.
----@tag MiniSurround-surround-builtin
+---@tag MiniSurround-builtin-surroundings
 
 --- Note: this is similar to |MiniAi-glossary|.
 ---
@@ -405,7 +401,7 @@
 ---     return { left = function_name .. '(', right = ')' }
 ---   end
 --- <
----@tag MiniSurround-surround-specification
+---@tag MiniSurround-surrounding-specification
 
 --- Count with actions
 ---
@@ -429,7 +425,7 @@
 ---
 --- Search for the input surrounding relies on these principles:
 --- - Input surrounding specification is constructed based on surrounding
----   identifier (see |MiniSurround-surround-specification|).
+---   identifier (see |MiniSurround-surrounding-specification|).
 --- - General search is done by converting some 2d buffer region (neighborhood
 ---   of reference region) into 1d string (each line is appended with `\n`).
 ---   Then search for a best span matching specification is done inside string
@@ -546,7 +542,7 @@ end
 --- User can define own surroundings by supplying `config.custom_surroundings`.
 --- It should be a **table** with keys being single character surrounding
 --- identifier (supported by |getcharstr()|) and values - surround specification
---- (see |MiniSurround-surround-specification|).
+--- (see |MiniSurround-surrounding-specification|).
 ---
 --- General recommendations:
 --- - In `config.custom_surroundings` only some data can be defined (like only
@@ -1024,12 +1020,12 @@ MiniSurround.gen_spec = { input = {}, output = {} }
 ---@return function Function which returns array of current buffer region pairs
 ---   representing differences between outer and inner captures.
 ---
----@seealso |MiniSurround-surround-specification| for how this type of
+---@seealso - |MiniSurround-surrounding-specification| for how this type of
 ---   surrounding specification is processed.
---- |vim.treesitter.get_query()| for how query is fetched.
---- |Query:iter_captures()| for how all query captures are iterated in case of
+--- - |vim.treesitter.get_query()| for how query is fetched.
+--- - |Query:iter_captures()| for how all query captures are iterated in case of
 ---   no 'nvim-treesitter'.
---- |MiniAi.gen_spec.treesitter()| for similar 'mini.ai' generator.
+--- - |MiniAi.gen_spec.treesitter()| for similar 'mini.ai' generator.
 MiniSurround.gen_spec.input.treesitter = function(captures, opts)
   -- TODO: Remove after releasing 'mini.nvim' 0.17.0
   opts = vim.tbl_deep_extend('force', { use_nvim_treesitter = false }, opts or {})

@@ -1,10 +1,7 @@
 --- *mini.jump2d* Jump within visible lines
---- *MiniJump2d*
 ---
 --- MIT License Copyright (c) 2022 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Jump within visible lines via iterative label filtering.
 ---
 --- Features:
@@ -145,6 +142,7 @@
 --- number of different scenarios and customization intentions, writing exact
 --- rules for disabling module's functionality is left to user. See
 --- |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniJump2d
 
 -- Module definition ==========================================================
 local MiniJump2d = {}
@@ -289,7 +287,7 @@ MiniJump2d.config = {
 ---
 --- Compute possible jump spots, visualize them and wait for iterative filtering.
 ---
---- First computation of possible jump spots ~
+--- # First computation of possible jump spots ~
 ---
 --- - Process allowed windows (current and/or not current; controlled by
 ---   `allowed_windows` option) by visible lines from top to bottom. For each
@@ -307,12 +305,12 @@ MiniJump2d.config = {
 ---   spot over another. Basically, it means "use all labels at each step of
 ---   iterative filtering as equally as possible".
 ---
---- Visualization ~
+--- # Visualization ~
 ---
 --- Current label for each possible jump spot is shown at that position
 --- overriding everything underneath it.
 ---
---- Iterative filtering ~
+--- # Iterative filtering ~
 ---
 --- Labels of possible jump spots are computed in order to use them as equally
 --- as possible.

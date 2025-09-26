@@ -1,10 +1,7 @@
 --- *mini.fuzzy* Fuzzy matching
---- *MiniFuzzy*
 ---
 --- MIT License Copyright (c) 2021 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Minimal and fast fuzzy matching algorithm which prioritizes match width.
 ---
@@ -35,6 +32,7 @@
 ---    but simple examples should work.
 --- 2. Smart case is used: case insensitive if input word (which is usually a
 ---    user input) is all lower case. Case sensitive otherwise.
+---@tag MiniFuzzy
 
 --- # Algorithm design ~
 ---

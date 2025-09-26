@@ -1,10 +1,7 @@
 --- *mini.clue* Show next key clues
---- *MiniClue*
 ---
 --- MIT License Copyright (c) 2023 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Implement custom key query process to reach target key combination:
 ---     - Starts after customizable opt-in triggers (mode + keys).
@@ -141,6 +138,7 @@
 --- of different scenarios and customization intentions, writing exact rules
 --- for disabling module's functionality is left to user. See
 --- |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniClue
 
 --- # Key query process ~
 ---

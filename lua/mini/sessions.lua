@@ -1,10 +1,7 @@
 --- *mini.sessions* Session management
---- *MiniSessions*
 ---
 --- MIT License Copyright (c) 2021 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Read, write, and delete sessions. Uses |mksession| (meaning 'sessionoptions'
 --- is fully respected). This is intended as a drop-in Lua replacement for
 --- session management part of 'mhinz/vim-startify' (works out of the box with
@@ -56,6 +53,7 @@
 --- number of different scenarios and customization intentions, writing exact
 --- rules for disabling module's functionality is left to user. See
 --- |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniSessions
 
 -- Module definition ==========================================================
 local MiniSessions = {}

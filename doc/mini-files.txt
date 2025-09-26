@@ -1,10 +1,9 @@
 *mini.files* Navigate and manipulate file system
-*MiniFiles*
 
 MIT License Copyright (c) 2023 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                     *MiniFiles*
 Features:
 - Navigate file system using column view (Miller columns) to display nested
   directories. See |MiniFiles-navigation| for overview.
@@ -103,7 +102,7 @@ is available.
 
 ------------------------------------------------------------------------------
                                                           *MiniFiles-navigation*
-Navigation ~
+# Navigation ~
 
 Every navigation starts by calling |MiniFiles.open()|, either directly or via
 mapping (see its help for examples of some common scenarios). It will show
@@ -217,7 +216,7 @@ Notes:
 
 ------------------------------------------------------------------------------
                                                         *MiniFiles-manipulation*
-Manipulation ~
+# Manipulation ~
 
 File system manipulation is done by editing text inside directory buffers,
 which are shown inside dedicated window(s). See |MiniFiles-navigation| for
@@ -318,12 +317,10 @@ Note that order of text manipulation steps does not affect performed actions.
 
 ------------------------------------------------------------------------------
                                                               *MiniFiles-events*
-Events ~
-
 To allow user customization and integration of external tools, certain |User|
 autocommand events are triggered under common circumstances.
 
-UI events ~
+# UI events ~
 
 - `MiniFilesExplorerOpen` - just after explorer finishes opening.
 
@@ -350,7 +347,7 @@ Callback for each buffer/window UI event will receive <data> field
   `MiniFilesBufferCreate` and buffer's first `MiniFilesBufferUpdate` as
   they are triggered before window is created.
 
-File action events ~
+# File action events ~
 
 - `MiniFilesActionCreate` - after entry is successfully created.
 
@@ -371,8 +368,6 @@ Callback for each file action event will receive `data` field
 
 ------------------------------------------------------------------------------
                                                             *MiniFiles-examples*
-Common configuration examples ~
-
 # Toggle explorer ~
 
 Use a combination of |MiniFiles.open()| and |MiniFiles.close()|: >lua

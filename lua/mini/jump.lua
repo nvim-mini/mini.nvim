@@ -1,10 +1,7 @@
 --- *mini.jump* Jump to next/previous single character
---- *MiniJump*
 ---
 --- MIT License Copyright (c) 2021 Evgeni Chasnovski, Adam Blažek
----
---- ==============================================================================
----
+
 --- Features:
 --- - Extend f, F, t, T to work on multiple lines.
 ---
@@ -51,9 +48,8 @@
 --- different scenarios and customization intentions, writing exact rules for
 --- disabling module's functionality is left to user. See
 --- |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniJump
 
---- Events ~
----
 --- To allow user customization and integration of external tools, certain |User|
 --- autocommand events are triggered under common circumstances:
 ---

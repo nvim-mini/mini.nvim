@@ -1,10 +1,9 @@
 *mini.misc* Miscellaneous functions
-*MiniMisc*
 
 MIT License Copyright (c) 2021 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                      *MiniMisc*
 Features the following functions:
 - |MiniMisc.bench_time()| to benchmark function execution time.
   Useful in combination with `stat_summary()`.

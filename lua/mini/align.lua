@@ -1,10 +1,7 @@
 --- *mini.align* Align text interactively
---- *MiniAlign*
 ---
 --- MIT License Copyright (c) 2022 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Rich and flexible customization of both alignment rules and user interaction.
 --- Works with charwise, linewise, and blockwise selections in both Normal mode
 --- (on textobject/motion; with dot-repeat) and Visual mode.
@@ -93,6 +90,7 @@
 --- and customization intentions, writing exact rules for disabling module's
 --- functionality is left to user. See |mini.nvim-disabling-recipes| for common
 --- recipes.
+---@tag MiniAlign
 
 --- Glossary
 ---
@@ -131,7 +129,7 @@
 --- and interactive region alignment. See |MiniAlign-glossary| for more information
 --- about used terms.
 ---
---- Strings alignment ~
+--- # Strings alignment ~
 ---
 --- Main implementation is in |MiniAlign.align_strings()|. Its input is array of
 --- strings and output - array of aligned strings. The process consists from three
@@ -164,7 +162,7 @@
 ---   This allows steps to "talk" to each other, i.e. earlier steps can pass data
 ---   to later ones.
 ---
---- Interactive region alignment ~
+--- # Interactive region alignment ~
 ---
 --- Interactive alignment is a main entry point for most users. It can be done
 --- in two flavors:
@@ -218,7 +216,7 @@
 --- - All modifiers can be customized inside |MiniAlign.setup|. See "Modifiers"
 ---   section of |MiniAlign.config|.
 ---
---- Main option modifiers ~
+--- # Main option modifiers ~
 ---
 --- <s> Enter split pattern (confirm prompt by pressing `<CR>`). Input is treated
 ---     as plain delimiter.
@@ -252,7 +250,7 @@
 ---     a --_--b --_--c
 ---     aa--_--bb--_--cc
 --- <
---- Modifiers adding pre-steps ~
+--- # Modifiers adding pre-steps ~
 ---
 --- <f> Enter filter expression. See more details in |MiniAlign.gen_step.filter()|.
 ---
@@ -298,7 +296,7 @@
 ---     a   _b _c
 ---       aa_bb_cc
 --- <
---- Delete some last pre-step ~
+--- # Delete some last pre-step ~
 ---
 --- <BS> Delete one of the pre-steps. If there is only one kind of pre-steps,
 ---      remove its latest added one. If not, prompt user to choose pre-step kind
@@ -309,7 +307,7 @@
 ---      - `it<BS>` prompts to choose which step to delete (pre-split or
 ---        pre-justify in this case).
 ---
---- Special configurations for common splits ~
+--- # Special configurations for common splits ~
 ---
 --- <=> Use special pattern to align by a group of consecutive "=". It can be
 ---     preceded by any number of punctuation marks and followed by some sommon
@@ -362,6 +360,7 @@
 ---     After typing `<Space>`: >
 ---       a  b  c
 ---       aa bb cc
+--- <
 ---@tag MiniAlign-modifiers-builtin
 
 --- More complex examples to explore functionality
@@ -370,7 +369,7 @@
 --- and try typing suggested key sequences.
 --- These are modified examples taken from 'junegunn/vim-easy-align'.
 ---
---- Equal sign ~
+--- # Equal sign ~
 ---
 --- Lines: >
 ---

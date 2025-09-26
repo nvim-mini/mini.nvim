@@ -1,10 +1,7 @@
 --- *mini.trailspace* Trailspace (highlight and remove)
---- *MiniTrailspace*
 ---
 --- MIT License Copyright (c) 2021 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Highlighting is done only in modifiable buffer by default, only in Normal
 ---   mode, and stops in Insert mode and when leaving window.
@@ -41,6 +38,7 @@
 --- |mini.nvim-disabling-recipes| for common recipes. Note: after disabling
 --- there might be highlighting left; it will be removed after next
 --- highlighting update (see |events| and `MiniTrailspace` |augroup|).
+---@tag MiniTrailspace
 
 -- Module definition ==========================================================
 local MiniTrailspace = {}

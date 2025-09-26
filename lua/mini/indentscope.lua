@@ -1,10 +1,7 @@
 --- *mini.indentscope* Visualize and work with indent scope
---- *MiniIndentscope*
 ---
 --- MIT License Copyright (c) 2022 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Indent scope (or just "scope") is a maximum set of consecutive lines which
 --- contains certain reference line (cursor line by default) and every member
 --- has indent not less than certain reference indent ("indent at cursor" by
@@ -70,8 +67,9 @@
 --- number of different scenarios and customization intentions, writing exact
 --- rules for disabling module's functionality is left to user. See
 --- |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniIndentscope
 
---- Drawing of scope indicator
+--- # Drawing of scope indicator ~
 ---
 --- Draw of scope indicator is done as iterative animation. It has the
 --- following design:
@@ -88,7 +86,7 @@
 ---   a discrete inverse version of its derivative. Such interface proved to be
 ---   more appropriate for kind of task at hand.
 ---
---- Special cases ~
+--- ## Special cases ~
 ---
 --- - When scope to be drawn intersects (same indent, ranges overlap) currently
 ---   visible one (at process or finished drawing), drawing is done immediately
@@ -242,7 +240,7 @@ MiniIndentscope.config = {
 --minidoc_afterlines_end
 
 -- Module functionality =======================================================
---- Compute indent scope
+--- # Compute indent scope ~
 ---
 --- Indent scope (or just "scope") is a maximum set of consecutive lines which
 --- contains certain reference line (cursor line by default) and every member
@@ -258,7 +256,7 @@ MiniIndentscope.config = {
 ---   Useful to define local behavior (for example, for a certain filetype).
 --- - Global options from |MiniIndentscope.config|.
 ---
---- Algorithm overview ~
+--- ## Algorithm overview ~
 ---
 --- - Compute reference "indent at column". Reference line is an input `line`
 ---   which might be modified to one of its neighbors if `try_as_border` option
@@ -277,7 +275,7 @@ MiniIndentscope.config = {
 ---   indent minus one in case of no border). This is used during drawing
 ---   visual indicator.
 ---
---- Indent computation ~
+--- ## Indent computation ~
 ---
 --- For every line indent is intended to be computed unambiguously:
 --- - For "normal" lines indent is an output of |indent()|.
@@ -385,7 +383,7 @@ MiniIndentscope.undraw = function() H.undraw_scope() end
 --- Each field corresponds to one family of progression which can be customized
 --- further by supplying appropriate arguments.
 ---
---- Examples ~
+--- Examples:
 --- - Don't use animation: `MiniIndentscope.gen_animation.none()`
 --- - Use quadratic "out" easing with total duration of 1000 ms: >lua
 ---

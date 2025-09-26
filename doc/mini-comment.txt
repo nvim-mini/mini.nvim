@@ -1,10 +1,9 @@
 *mini.comment* Comment lines
-*MiniComment*
 
 MIT License Copyright (c) 2021 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                   *MiniComment*
 Features:
 - Commenting in Normal mode respects |count| and is dot-repeatable.
 

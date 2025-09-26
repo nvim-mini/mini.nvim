@@ -58,7 +58,7 @@ hooks.write_pre = function(lines)
   return lines
 end
 
-MiniDoc.generate({ 'lua/mini/init.lua' }, 'doc/mini.txt', { hooks = hooks })
+MiniDoc.generate({ 'lua/mini/init.lua' }, 'doc/mini-nvim.txt', { hooks = hooks })
 
 for _, m in ipairs(modules) do
   MiniDoc.generate({ 'lua/mini/' .. m .. '.lua' }, 'doc/mini-' .. m .. '.txt', { hooks = hooks })

@@ -36,7 +36,7 @@ https://user-images.githubusercontent.com/24854248/181909691-b6f6b677-c37f-468f-
     - Different search methods (see `:h MiniAi.config`).
     - Consecutive application (update selection without leaving Visual mode).
     - Aliases for multiple textobjects.
-- Comprehensive builtin textobjects (see more at `:h MiniAi-textobject-builtin`):
+- Comprehensive builtin textobjects (see more at `:h MiniAi-builtin-textobjects`):
     - Balanced brackets (with and without whitespace) plus alias.
     - Balanced quotes plus alias.
     - Function call.

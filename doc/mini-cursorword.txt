@@ -1,10 +1,9 @@
 *mini.cursorword* Autohighlight word under cursor
-*MiniCursorword*
 
 MIT License Copyright (c) 2021 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                *MiniCursorword*
 Features:
 - Autohighlight word under cursor with customizable delay.
 

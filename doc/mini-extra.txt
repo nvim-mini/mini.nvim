@@ -1,10 +1,9 @@
 *mini.extra* Extra 'mini.nvim' functionality
-*MiniExtra*
 
 MIT License Copyright (c) 2023 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                     *MiniExtra*
 Extra useful functionality which is not essential enough for other 'mini.nvim'
 modules to include directly.
 
@@ -324,7 +323,7 @@ Notes:
 - Query and preview work as usual (not only `move_next`/`move_prev` can be used).
 - Preview works for any item.
 
-Examples ~
+Examples:
 
 - `MiniExtra.pickers.explorer()`
 - `:Pick explorer cwd='..'` - open explorer in parent directory.
@@ -361,7 +360,7 @@ Notes:
   is suggested to be done in a dedicated Git client and is not planned.
 - On choose opens scratch buffer with branch's history.
 
-Examples ~
+Examples:
 
 - `MiniExtra.pickers.git_branches({ scope = 'local' })` - local branches of
   the |current-directory| parent Git repository.
@@ -394,7 +393,7 @@ Notes:
   is suggested to be done in a dedicated Git client and is not planned.
 - On choose opens scratch buffer with commit's diff.
 
-Examples ~
+Examples:
 
 - `MiniExtra.pickers.git_commits()` - all commits from parent Git
   repository of |current-directory|.
@@ -425,7 +424,7 @@ Notes:
 - Present for exploration and navigation purposes. Doing any Git operations
   is suggested to be done in a dedicated Git client and is not planned.
 
-Examples ~
+Examples:
 
 - `MiniExtra.pickers.git_files({ scope = 'ignored' })` - ignored files from
   parent Git repository of |current-directory|.
@@ -463,7 +462,7 @@ Notes:
   is suggested to be done in a dedicated Git client and is not planned.
 - On choose navigates to hunk's first change.
 
-Examples ~
+Examples:
 
 - `MiniExtra.pickers.git_hunks({ scope = 'staged' })` - staged hunks from
   parent Git repository of |current-directory|.
@@ -523,7 +522,7 @@ Notes:
     - For other scopes nothing is done (but chosen item is still returned).
 - `<C-e>` only works for "cmd" / ":" / "search" / "/" / "?" scopes.
 
-Examples ~
+Examples:
 
 - Command history: `MiniExtra.pickers.history({ scope = ':' })`
 - Search history: `:Pick history scope='/'`
@@ -594,7 +593,7 @@ Pick and navigate to elements of the following Neovim lists:
 
 Note: it requires explicit `scope`.
 
-Examples ~
+Examples:
 
 - `MiniExtra.pickers.list({ scope = 'quickfix' })` - quickfix list.
 - `:Pick list scope='jump'` - jump list.
@@ -631,7 +630,7 @@ Notes:
 - Requires set up |mini.icons| to show extra icons and highlighting in
   "document_symbol" and "workspace_symbol" scopes.
 
-Examples ~
+Examples:
 
 - `MiniExtra.pickers.lsp({ scope = 'references' })` - references of the symbol
   under cursor.
@@ -772,7 +771,7 @@ Pick paths from |MiniVisits| using |MiniVisits.list_paths()|.
 Notes:
 - Requires 'mini.visits'.
 
-Examples ~
+Examples:
 
 - `MiniExtra.pickers.visit_paths()` - visits registered for |current-directory|
   and ordered by "robust frecency".
@@ -811,7 +810,7 @@ Notes:
 - Choosing essentially starts |MiniExtra.pickers.visit_paths()| for paths
   with the chosen label.
 
-Examples ~
+Examples:
 
 - `MiniExtra.pickers.visit_labels()` - labels from visits registered
   for |current-directory|.

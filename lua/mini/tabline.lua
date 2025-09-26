@@ -1,10 +1,7 @@
 --- *mini.tabline* Tabline
---- *MiniTabline*
 ---
 --- MIT License Copyright (c) 2021 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Key idea: show all listed buffers in readable way with minimal total width.
 ---
 --- Features:
@@ -76,6 +73,7 @@
 --- of different scenarios and customization intentions, writing exact rules
 --- for disabling module's functionality is left to user. See
 --- |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniTabline
 
 -- Module definition ==========================================================
 local MiniTabline = {}

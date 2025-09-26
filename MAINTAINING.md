@@ -15,6 +15,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for how to generate help files, run tests
     - There was an intended change in Neovim Nightly to which affected module(s) should adapt. Update module and/or tests.
     - There was a change in Neovim Nightly disrupting only tests (usually screenshots due to changed way of how highlight attributes are computed). Update test: ideally so that it passes on all versions (by adjusting test logic or by selectively ignoring attributes / text of not matching lines with `ignore_text` / `ignore_attr` *behind narrowest Neovim version check*), but testing some parts only on Nightly is allowed if needed (regenerate screenshot on Nightly and verify it only on versions starting from it).
     - There was an unintended change in Neovim Nightly which breaks functionality it should not break. Create an issue in ['neovim/neovim' repo](https://github.com/neovim/neovim). If the issue is not resolved for a long-ish time (i.e. more than a week) try to make tests pass and/or adapt the code to new behavior.
+- Write help annotations in a way that after help generation they are usable in both built-in `:help`and on nvim-mini.org site. In particular:
+    - Prefer using `# Section ~` and `## Subsection ~` explicit sections. This allows more structured table of contents and adds anchors for all of them.
 
 ## Maintainer setup
 

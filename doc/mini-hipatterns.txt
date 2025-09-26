@@ -1,10 +1,9 @@
 *mini.hipatterns* Highlight patterns in text
-*MiniHipatterns*
 
 MIT License Copyright (c) 2023 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                *MiniHipatterns*
 Features:
 - Highlight text with configurable patterns and highlight groups (can be
   string or callable).

@@ -1,10 +1,9 @@
 *mini.sessions* Session management
-*MiniSessions*
 
 MIT License Copyright (c) 2021 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                  *MiniSessions*
 Read, write, and delete sessions. Uses |mksession| (meaning 'sessionoptions'
 is fully respected). This is intended as a drop-in Lua replacement for
 session management part of 'mhinz/vim-startify' (works out of the box with

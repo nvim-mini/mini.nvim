@@ -1,10 +1,9 @@
 *mini.starter* Start screen
-*MiniStarter*
 
 MIT License Copyright (c) 2021 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                   *MiniStarter*
 Displayed items are fully customizable both in terms of what they do and
 how they look (with reasonable defaults). Item selection can be done using
 prefix query with instant visual feedback.

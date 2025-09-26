@@ -1,10 +1,9 @@
 *mini.statusline* Statusline
-*MiniStatusline*
 
 MIT License Copyright (c) 2021 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                *MiniStatusline*
 Features:
 - Define own custom statusline structure for active and inactive windows.
   This is done with a function which should return string appropriate for

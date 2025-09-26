@@ -1,10 +1,9 @@
 *mini.snippets* Manage and expand snippets
-*MiniSnippets*
 
 MIT License Copyright (c) 2024 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                  *MiniSnippets*
 Snippet is a template for a frequently used text. Typical workflow is to type
 snippet's (configurable) prefix and expand it into a snippet session.
 

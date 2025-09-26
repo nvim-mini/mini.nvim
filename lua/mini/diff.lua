@@ -1,10 +1,7 @@
 --- *mini.diff* Work with diff hunks
---- *MiniDiff*
 ---
 --- MIT License Copyright (c) 2024 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 ---
 --- - Visualize difference between buffer text and its configurable reference
@@ -80,6 +77,7 @@
 --- customization intentions, writing exact rules for disabling module's
 --- functionality is left to user.
 --- See |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniDiff
 
 --- # Diffs and hunks ~
 ---

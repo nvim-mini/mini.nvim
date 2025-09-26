@@ -1,10 +1,9 @@
 *mini.notify* Show notifications
-*MiniNotify*
 
 MIT License Copyright (c) 2024 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                    *MiniNotify*
 Features:
 
 - Show one or more highlighted notifications in a single floating window.

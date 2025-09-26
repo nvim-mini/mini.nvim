@@ -1,10 +1,9 @@
 *mini.keymap* Special key mappings
-*MiniKeymap*
 
 MIT License Copyright (c) 2025 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                    *MiniKeymap*
 Features:
 
 - Map keys to perform configurable multi-step actions: if condition for step

@@ -1,10 +1,7 @@
 --- *mini.operators* Text edit operators
---- *MiniOperators*
 ---
 --- MIT License Copyright (c) 2023 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Operators:
 ---     - Evaluate text and replace with output.
@@ -75,6 +72,7 @@
 --- of different scenarios and customization intentions, writing exact rules
 --- for disabling module's functionality is left to user. See
 --- |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniOperators
 
 --- # General overview ~
 ---

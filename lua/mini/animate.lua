@@ -1,10 +1,7 @@
 --- *mini.animate* Animate common Neovim actions
---- *MiniAnimate*
 ---
 --- MIT License Copyright (c) 2022 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Works out of the box with a single `require('mini.animate').setup()`.
 ---   No extra mappings or commands needed.
@@ -94,6 +91,7 @@
 --- number of different scenarios and customization intentions, writing exact
 --- rules for disabling module's functionality is left to user. See
 --- |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniAnimate
 
 ---@diagnostic disable:undefined-field
 
@@ -317,7 +315,8 @@ end
 --- <
 --- After animation is done, `MiniAnimateDoneResize` event is triggered.
 ---
----                               *MiniAnimate.config.open* *MiniAnimate.config.close*
+---                                                        *MiniAnimate.config.open*
+---                                                       *MiniAnimate.config.close*
 --- # Window open/close ~
 ---
 --- These animations are similarly triggered for regular (non-floating) window
@@ -514,7 +513,7 @@ end
 ---
 --- Mostly meant to be used inside mappings.
 ---
---- Example ~
+--- Example:
 ---
 --- A useful `nnoremap n nzvzz` mapping (consecutive application of |n|, |zv|, and |zz|)
 --- should be expressed in the following way: >lua

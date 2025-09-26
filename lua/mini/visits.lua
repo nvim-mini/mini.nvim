@@ -1,10 +1,7 @@
 --- *mini.visits* Track and reuse file system visits
---- *MiniVisits*
 ---
 --- MIT License Copyright (c) 2023 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 ---
 --- - Persistently track file system visits (both files and directories)
@@ -100,6 +97,7 @@
 --- number of different scenarios and customization intentions, writing exact
 --- rules for disabling module's functionality is left to user. See
 --- |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniVisits
 
 --- # Tracking visits ~
 ---

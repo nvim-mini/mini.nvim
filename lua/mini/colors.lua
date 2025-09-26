@@ -1,10 +1,7 @@
 --- *mini.colors* Tweak and save any color scheme
---- *MiniColors*
 ---
 --- MIT License Copyright (c) 2023 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Create colorscheme object: either manually (|MiniColors.as_colorscheme()|)
 ---   or by querying present color schemes (including currently active one; see
@@ -57,7 +54,7 @@
 --- - There is no goal to support as many color spaces as possible, only the
 ---   already present ones.
 ---
---- Tweak quick start ~
+--- # Tweak quick start ~
 ---
 --- - Execute `:lua require('mini.colors').interactive()`.
 ---
@@ -99,8 +96,9 @@
 ---     - Comparisons are similar to that of 'rktjmp/lush.nvim'.
 --- - 'tjdevries/colorbuddy.nvim':
 ---     - Comparisons are similar to that of 'rktjmp/lush.nvim'.
+---@tag MiniColors
 
---- Recipes for common tasks ~
+--- # Recipes for common tasks ~
 ---
 --- All following code snippets assume to be executed inside interactive buffer
 --- (|MiniColors.interactively()|). They are directly copy-pasteable.
@@ -226,7 +224,7 @@
 --- Also use `adjust_lightness = false` in |MiniColors.convert()|.
 ---
 ---                                                          *MiniColors-gamut-clip*
---- Gamut clip ~
+--- # Gamut clip ~
 ---
 --- In Neovim highlight group colors are usually specified by their red, green,
 --- and blue values from 0 to 255 in the form of HEX string (see |gui-colors|).
@@ -770,7 +768,7 @@ end
 --- Create a special buffer in which user can write plain Lua code to tweak
 --- color scheme and apply to get visual feedback.
 ---
---- General principles ~
+--- # General principles ~
 --- - Initial colorscheme object is fixed to interactive buffer on its creation.
 ---
 --- - There are special buffer convenience mappings:

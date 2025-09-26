@@ -1,10 +1,7 @@
 --- *mini.comment* Comment lines
---- *MiniComment*
 ---
 --- MIT License Copyright (c) 2021 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Commenting in Normal mode respects |count| and is dot-repeatable.
 ---
@@ -49,6 +46,7 @@
 --- of different scenarios and customization intentions, writing exact rules
 --- for disabling module's functionality is left to user. See
 --- |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniComment
 
 -- Module definition ==========================================================
 local MiniComment = {}

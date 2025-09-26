@@ -1,10 +1,9 @@
 *mini.operators* Text edit operators
-*MiniOperators*
 
 MIT License Copyright (c) 2023 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                 *MiniOperators*
 Features:
 - Operators:
     - Evaluate text and replace with output.

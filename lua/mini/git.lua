@@ -1,10 +1,7 @@
 --- *mini.git* Git integration
---- *MiniGit*
 ---
 --- MIT License Copyright (c) 2024 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 ---
 --- - Automated tracking of Git related data: root path, status, HEAD, etc.
@@ -68,6 +65,7 @@
 --- different scenarios and customization intentions, writing exact rules for
 --- disabling module's functionality is left to user.
 --- See |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniGit
 
 --- # Statusline component ~
 ---

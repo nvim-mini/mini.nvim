@@ -1,10 +1,9 @@
 *mini.clue* Show next key clues
-*MiniClue*
 
 MIT License Copyright (c) 2023 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                      *MiniClue*
 Features:
 - Implement custom key query process to reach target key combination:
     - Starts after customizable opt-in triggers (mode + keys).

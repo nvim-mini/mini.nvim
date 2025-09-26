@@ -1,10 +1,7 @@
 --- *mini.hues* Generate configurable color scheme
---- *MiniHues*
 ---
 --- MIT License Copyright (c) 2023 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Required to set two base colors: background and foreground.
 ---   Their shades and other non-base colors are computed to be as much
@@ -101,7 +98,7 @@
 --- - This is used to create some of plugin's color schemes
 ---   (see |MiniHues-color-schemes|).
 ---
---- - Using `setup()` doesn't actually create a |colorscheme|. It basically
+--- - Using `setup()` doesn't actually create a colorscheme. It basically
 ---   creates a coordinated set of |highlight|s. To create your own scheme:
 ---     - Put "myscheme.lua" file (name after your chosen theme name) inside
 ---       any "colors" directory reachable from 'runtimepath' ("colors" inside
@@ -112,6 +109,7 @@
 --- - This module doesn't define |cterm-colors| for implementation simplicity.
 ---   Use |mini.colors| module, |MiniColors-colorscheme:add_cterm_attributes()|
 ---   in particular.
+---@tag MiniHues
 
 --- Bundled color schemes
 ---
@@ -128,7 +126,7 @@
 ---   |MiniHues.gen_random_base_colors()| with a slight adjustments for
 ---   'background' value.
 ---
----   Activate it as regular |colorscheme|. Get currently active config with
+---   Activate it as regular |:colorscheme|. Get currently active config with
 ---   `:lua print(vim.inspect(MiniHues.config))`.
 ---@tag MiniHues-color-schemes
 
@@ -249,7 +247,7 @@ MiniHues.config = {
 }
 --minidoc_afterlines_end
 
---- Make palette
+--- # Make palette ~
 ---
 --- General idea of palette generation is that it is mostly based on color channel
 --- information extracted from base colors (background and foreground).
@@ -266,7 +264,7 @@ MiniHues.config = {
 --- For more details about `Oklch` see |MiniColors-color-spaces| or
 --- https://bottosson.github.io/posts/oklab/.
 ---
---- Algorithm overview ~
+--- ## Algorithm overview ~
 ---
 --- - Extract lightness, chroma, and hue of base colors.
 ---

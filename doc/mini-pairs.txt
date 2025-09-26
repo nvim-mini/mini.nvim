@@ -1,10 +1,9 @@
 *mini.pairs* Autopairs
-*MiniPairs*
 
 MIT License Copyright (c) 2021 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                     *MiniPairs*
 Features:
 - Functionality to work with two "paired" characters conditional on cursor's
   neighborhood (character to its left and character to its right).

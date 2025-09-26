@@ -1,10 +1,9 @@
 *mini.icons* Icon provider
-*MiniIcons*
 
 MIT License Copyright (c) 2024 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                     *MiniIcons*
 Features:
 
 - Provide icons with their highlighting via a single |MiniIcons.get()| for

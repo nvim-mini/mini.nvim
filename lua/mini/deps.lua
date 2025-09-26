@@ -1,10 +1,7 @@
 --- *mini.deps* Plugin manager
---- *MiniDeps*
 ---
 --- MIT License Copyright (c) 2024 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 ---
 --- - Manage plugins utilizing Git and built-in |packages| with these actions:
@@ -100,6 +97,7 @@
 --- * `MiniDepsTitleUpdate`   - title when plugin has changes to update.
 ---
 --- To change any highlight group, modify it directly with |:highlight|.
+---@tag MiniDeps
 
 --- # Directory structure ~
 ---

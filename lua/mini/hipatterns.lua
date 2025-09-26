@@ -1,10 +1,7 @@
 --- *mini.hipatterns* Highlight patterns in text
---- *MiniHipatterns*
 ---
 --- MIT License Copyright (c) 2023 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Highlight text with configurable patterns and highlight groups (can be
 ---   string or callable).
@@ -102,6 +99,7 @@
 --- Considering high number of different scenarios and customization
 --- intentions, writing exact rules for disabling module's functionality is
 --- left to user. See |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniHipatterns
 
 --- # Common configuration examples ~
 ---

@@ -1,10 +1,9 @@
 *mini.splitjoin* Split and join arguments
-*MiniSplitjoin*
 
 MIT License Copyright (c) 2023 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                 *MiniSplitjoin*
 Features:
 - Mappings and Lua functions that modify arguments (regions inside brackets
   between allowed separators) under cursor.

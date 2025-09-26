@@ -1,10 +1,9 @@
 *mini.git* Git integration
-*MiniGit*
 
 MIT License Copyright (c) 2024 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                       *MiniGit*
 Features:
 
 - Automated tracking of Git related data: root path, status, HEAD, etc.

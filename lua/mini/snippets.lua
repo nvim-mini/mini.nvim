@@ -1,10 +1,7 @@
 --- *mini.snippets* Manage and expand snippets
---- *MiniSnippets*
 ---
 --- MIT License Copyright (c) 2024 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Snippet is a template for a frequently used text. Typical workflow is to type
 --- snippet's (configurable) prefix and expand it into a snippet session.
 ---
@@ -136,6 +133,7 @@
 --- of different scenarios and customization intentions, writing exact rules
 --- for disabling module's functionality is left to user. See
 --- |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniSnippets
 
 --- `POSITION`        Table representing position in a buffer. Fields:
 ---                 - <line> `(number)` - line number (starts at 1).

@@ -1,10 +1,7 @@
 --- *mini.bracketed* Go forward/backward with square brackets
---- *MiniBracketed*
 ---
 --- MIT License Copyright (c) 2023 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Configurable Lua functions to go forward/backward to a certain target.
 ---   Each function can be customized with:
@@ -105,6 +102,7 @@
 --- number of different scenarios and customization intentions, writing exact
 --- rules for disabling module's functionality is left to user. See
 --- |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniBracketed
 
 ---@diagnostic disable:luadoc-miss-type-name
 ---@alias __bracketed_direction string One of "first", "backward", "forward", "last".
@@ -933,7 +931,7 @@ end
 --- more "out of the box" experience, |u| and |<C-R>| are remapped to call it after
 --- they perform their undo/redo.
 ---
---- Example ~
+--- Example:
 ---
 --- To show more clearly the difference between advancing this target and using
 --- built-in functionality, here is an example:
@@ -1079,14 +1077,14 @@ end
 ---
 --- Direction "forward" goes to newer yank history entry, "backward" - to older.
 ---
---- Example ~
+--- Example:
 ---
 --- - Type `one two three`.
 --- - Yank each word with `yiw`.
 --- - Create new line and press `p`. This should paste `three`.
 --- - Type `[y`. This should replace latest `three` with `two`.
 ---
---- Latest put region ~
+--- # Latest put region
 ---
 --- "Latest put region" is (in order of decreasing priority):
 --- - The one from latest advance of this target.

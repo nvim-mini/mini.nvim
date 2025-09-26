@@ -1,10 +1,7 @@
 --- *mini.map* Window with buffer text overview
---- *MiniMap*
 ---
 --- MIT License Copyright (c) 2022 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Show and manage special floating window displaying automatically updated
 ---   overview of current buffer text. Window takes up whole height of Neovim
@@ -141,6 +138,7 @@
 --- and customization intentions, writing exact rules for disabling module's
 --- functionality is left to user. See |mini.nvim-disabling-recipes| for common
 --- recipes.
+---@tag MiniMap
 
 --- # Mappings ~
 ---
@@ -458,7 +456,7 @@ MiniMap.current = {
 ---       Traversing left-right, top-bottom (top-left is lowest bit,
 ---       bottom-right - highest).
 ---
---- Example ~
+--- Example:
 ---
 --- Assume the output should have 3 rows of symbols each with width 2. Encode
 --- symbols are ' ', '▌', '▐', '█' with `1x2` resolution.

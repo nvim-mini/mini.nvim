@@ -1,10 +1,7 @@
 --- *mini.splitjoin* Split and join arguments
---- *MiniSplitjoin*
 ---
 --- MIT License Copyright (c) 2023 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Mappings and Lua functions that modify arguments (regions inside brackets
 ---   between allowed separators) under cursor.
@@ -81,6 +78,7 @@
 --- and customization intentions, writing exact rules for disabling module's
 --- functionality is left to user. See |mini.nvim-disabling-recipes| for common
 --- recipes.
+---@tag MiniSplitjoin
 
 --- - POSITION - table with fields <line> and <col> containing line and column
 ---   numbers respectively. Both are 1-indexed. Example: `{ line = 2, col = 1 }`.

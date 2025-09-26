@@ -1,10 +1,7 @@
 --- *mini.pairs* Autopairs
---- *MiniPairs*
 ---
 --- MIT License Copyright (c) 2021 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features:
 --- - Functionality to work with two "paired" characters conditional on cursor's
 ---   neighborhood (character to its left and character to its right).
@@ -94,6 +91,7 @@
 --- and customization intentions, writing exact rules for disabling module's
 --- functionality is left to user. See |mini.nvim-disabling-recipes| for common
 --- recipes.
+---@tag MiniPairs
 
 ---@alias __pairs_neigh_pattern string|nil Pattern for two neighborhood characters.
 ---   Character "\r" indicates line start, "\n" - line end.

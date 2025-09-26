@@ -1,10 +1,7 @@
 --- *mini.misc* Miscellaneous functions
---- *MiniMisc*
 ---
 --- MIT License Copyright (c) 2021 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Features the following functions:
 --- - |MiniMisc.bench_time()| to benchmark function execution time.
 ---   Useful in combination with `stat_summary()`.
@@ -42,6 +39,7 @@
 ---
 --- This module doesn't have runtime options, so using `vim.b.minimisc_config`
 --- will have no effect here.
+---@tag MiniMisc
 
 -- Module definition ==========================================================
 local MiniMisc = {}

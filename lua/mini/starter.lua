@@ -1,10 +1,7 @@
 --- *mini.starter* Start screen
---- *MiniStarter*
 ---
 --- MIT License Copyright (c) 2021 Evgeni Chasnovski
----
---- ==============================================================================
----
+
 --- Displayed items are fully customizable both in terms of what they do and
 --- how they look (with reasonable defaults). Item selection can be done using
 --- prefix query with instant visual feedback.
@@ -78,6 +75,7 @@
 --- of different scenarios and customization intentions, writing exact rules
 --- for disabling module's functionality is left to user. See
 --- |mini.nvim-disabling-recipes| for common recipes.
+---@tag MiniStarter
 
 --- Example configurations
 ---

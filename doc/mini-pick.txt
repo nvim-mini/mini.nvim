@@ -1,10 +1,9 @@
 *mini.pick* Pick anything
-*MiniPick*
 
 MIT License Copyright (c) 2023 Evgeni Chasnovski
 
-==============================================================================
-
+------------------------------------------------------------------------------
+                                                                      *MiniPick*
 Features:
 
 - Single window general purpose interface for picking element from any array.
@@ -137,8 +136,6 @@ To change any highlight group, modify it directly with |:highlight|.
 
 ------------------------------------------------------------------------------
                                                                *MiniPick-events*
-Events ~
-
 To allow user customization and integration of external tools, certain |User|
 autocommand events are triggered under common circumstances:
 
@@ -624,14 +621,15 @@ Example of `execute` custom mapping: >lua
 <
 ------------------------------------------------------------------------------
                                                              *MiniPick-examples*
-Common configuration examples ~
+# Disable icons ~
 
-- Disable icons in |MiniPick.builtin| pickers related to paths: >lua
+Disable icons in |MiniPick.builtin| pickers related to paths: >lua
 
   local pick = require('mini.pick')
   pick.setup({ source = { show = pick.default_show } })
 <
-- Mappings to switch `toggle_{preview,info}` and `move_{up,down}`: >lua
+# Switch toggle and move keys ~
+>lua
 
   require('mini.pick').setup({
     mappings = {
@@ -642,7 +640,8 @@ Common configuration examples ~
     }
   })
 <
-- Different window styles: >lua
+# Different window styles: ~
+>lua
 
   -- Different border
   { window = { config = { border = 'double' } } }
