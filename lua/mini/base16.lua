@@ -704,6 +704,7 @@ H.apply_palette = function(palette, use_cterm)
 
     hi('@string.special.vimdoc',     {link='SpecialChar'})
     hi('@variable.parameter.vimdoc', {fg=p.base09, bg=nil, attr=nil, sp=nil})
+    hi('@markup.heading.4.vimdoc',   {link='Title'})
   end
 
   -- Plugins
