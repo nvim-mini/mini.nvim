@@ -752,6 +752,13 @@ T['expect']['equality()/no_equality()']['return `true` on success'] = function()
   eq(MiniTest.expect.no_equality(1, 2), true)
 end
 
+T['expect']['equality()/no_equality()']['print message on failure'] = function()
+  local validate = function(fn, x, y, opts) expect.error(fn, '.*Test msg.*', x, y, opts) end
+
+  validate(MiniTest.expect.equality, 1, 2, { msg = 'Test msg' })
+  validate(MiniTest.expect.no_equality, 1, 1, { msg = 'Test msg' })
+end
+
 T['expect']['error()'] = new_set()
 
 T['expect']['error()']['works'] = function()
@@ -1059,6 +1066,16 @@ T['expect']['reference_screenshot()']['works with multibyte characters'] = funct
   child.set_size(5, 12)
   set_lines({ '  1  2' })
   expect.no_error(function() MiniTest.expect.reference_screenshot(child.get_screenshot()) end)
+end
+
+T['expect']['reference_screenshot()']['print message on failure'] = function()
+  local path = get_ref_path('reference-screenshot')
+  child.set_size(5, 12)
+  set_lines({ 'bbb' })
+  expect.error(
+    function() MiniTest.expect.reference_screenshot(child.get_screenshot(), path, { msg = 'Test msg' }) end,
+    'screenshot equality to reference at ' .. vim.pesc(vim.inspect(path)) .. '.*Test msg.*Reference:.*Observed:'
+  )
 end
 
 T['new_expectation()'] = new_set()
