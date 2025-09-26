@@ -856,6 +856,8 @@ MiniHues.apply_palette = function(palette, plugins)
     hi('@markup.heading.5', { fg=p.azure,  bg=nil })
     hi('@markup.heading.6', { fg=p.blue,   bg=nil })
 
+    hi('@markup.heading.4.vimdoc', { link='Title' })
+
     hi('@markup.quote',       { link='@string.special' })
     hi('@markup.math',        { link='@string.special' })
     hi('@markup.environment', { link='@module' })
