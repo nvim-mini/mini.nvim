@@ -3586,6 +3586,33 @@ H.redraw = function() vim.cmd('redraw') end
 
 H.redraw_scheduled = vim.schedule_wrap(H.redraw)
 
+-- Minimal config
+-- require("mini.pick").setup {
+--   mappings = {
+--     iminsert = {
+--       char = "<C-^>",
+--       func = function()
+--         vim.cmd "let &l:iminsert = xor(&l:iminsert, 1)"
+--         vim.notify("'iminsert' is now " .. vim.o.iminsert)
+--       end,
+--     },
+--   },
+-- }
+
+---@return table<string, string>
+function H.lmap()
+  if H._lmap == nil then
+    H._lmap = vim
+      .iter(ipairs(vim.fn.maplist()))
+      :filter(function(_, map) return map.mode == 'l' end)
+      :fold({}, function(acc, _, map)
+        acc[map.lhs] = map.rhs
+        return acc
+      end)
+  end
+  return H._lmap
+end
+
 H.getcharstr = function(delay_async)
   -- Ensure that redraws still happen
   H.timers.getcharstr:start(0, delay_async, H.redraw_scheduled)
@@ -3599,7 +3626,11 @@ H.getcharstr = function(delay_async)
   if H.pickers.active ~= nil then main_win_id = H.pickers.active.windows.main end
   local is_bad_mouse_click = vim.v.mouse_winid ~= 0 and vim.v.mouse_winid ~= main_win_id
   if not ok or char == '' or char == '\3' or is_bad_mouse_click then return end
-  return char
+  if vim.o.keymap ~= '' and vim.o.iminsert ~= 0 then
+    return H.lmap()[char] or char
+  else
+    return char
+  end
 end
 
 H.tolower = (function()
