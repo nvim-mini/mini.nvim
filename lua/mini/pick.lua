@@ -3682,6 +3682,7 @@ end
 H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
 
 H.get_lmap = function()
+  if vim.o.keymap == '' then return {} end
   local lmap = {}
   for _, map in ipairs(vim.fn.maplist()) do
     if map.mode == 'l' then lmap[map.lhs] = map.rhs end
