@@ -2861,7 +2861,7 @@ H.picker_get_current_item = function(picker)
 end
 
 H.picker_get_register_contents = function(picker)
-  local register = H.getcharstr(picker.opts.delay.async)
+  local register = H.getcharstr(picker.opts.delay.async, {})
   -- Mimic some "insert object under cursor" behavior of Command-line mode
   local expand_var = ({ ['\1'] = '<cWORD>', ['\6'] = '<cfile>', ['\23'] = '<cword>' })[register]
   if expand_var then
