@@ -3586,7 +3586,7 @@ H.redraw = function() vim.cmd('redraw') end
 
 H.redraw_scheduled = vim.schedule_wrap(H.redraw)
 
-H.getcharstr = function(delay_async)
+H.getcharstr = function(delay_async, lmap)
   -- Ensure that redraws still happen
   H.timers.getcharstr:start(0, delay_async, H.redraw_scheduled)
   H.cache.is_in_getcharstr = true
@@ -3599,7 +3599,7 @@ H.getcharstr = function(delay_async)
   if H.pickers.active ~= nil then main_win_id = H.pickers.active.windows.main end
   local is_bad_mouse_click = vim.v.mouse_winid ~= 0 and vim.v.mouse_winid ~= main_win_id
   if not ok or char == '' or char == '\3' or is_bad_mouse_click then return end
-  return char
+  return lmap[char] or char
 end
 
 H.tolower = (function()
