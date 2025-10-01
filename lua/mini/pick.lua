@@ -3681,4 +3681,12 @@ end
 -- TODO: Remove after compatibility with Neovim=0.9 is dropped
 H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
 
+H.get_lmap = function()
+  local lmap = {}
+  for _, map in ipairs(vim.fn.maplist()) do
+    if map.mode == 'l' then lmap[map.lhs] = map.rhs end
+  end
+  return lmap
+end
+
 return MiniPick
