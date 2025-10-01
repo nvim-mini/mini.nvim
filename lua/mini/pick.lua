@@ -2200,11 +2200,12 @@ H.picker_advance = function(picker)
   vim.schedule(function() vim.api.nvim_exec_autocmds('User', { pattern = 'MiniPickStart' }) end)
 
   local do_match, is_aborted = false, false
+  local lmap = H.get_lmap()
   for _ = 1, 1000000 do
     if H.cache.is_force_stop_advance then break end
     H.picker_update(picker, do_match)
 
-    local char = H.getcharstr(picker.opts.delay.async)
+    local char = H.getcharstr(picker.opts.delay.async, vim.o.iminsert == 0 and {} or lmap)
     if H.cache.is_force_stop_advance then break end
 
     is_aborted = char == nil
