@@ -6244,4 +6244,11 @@ T['iminsert']['ignores nontrivial rhs'] = function()
   eq(get_picker_query(), { 'a', 'b', 'c' })
 end
 
+T['iminsert']['ignores nontrivial lhs'] = function()
+  load_keymap('test_lhs')
+  start_with_items({ 'a' })
+  type_keys('a', 'a', 'b', 'b', 'c', 'c')
+  eq(get_picker_query(), { 'a', 'a', 'b', 'b', 'c', 'c' })
+end
+
 return T

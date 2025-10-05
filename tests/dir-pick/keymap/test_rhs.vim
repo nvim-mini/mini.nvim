@@ -1,6 +1,6 @@
 scriptencoding utf-8
 
-let b:keymap_name = "test-rsh"
+let b:keymap_name = "test-rhs"
 
 loadkeymap
 a <char-0x1f170>
