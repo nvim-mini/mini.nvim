@@ -3687,7 +3687,17 @@ H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
 H.get_lmap = function()
   local lmap = {}
   for _, map in ipairs(vim.fn.maplist()) do
-    if map.mode == 'l' then lmap[map.lhs] = map.rhs end
+    if map.mode == 'l' then
+      if H.is_single_character(map.lhs) and H.is_single_character(map.rhs) then
+        lmap[map.lhs] = map.rhs
+      else
+        -- notify_once specifically to avoid duplicate messages
+        vim.notify_once(
+          '(mini.pick) Skipped `lmap` mappings that are not proper single characters',
+          vim.log.levels.WARN
+        )
+      end
+    end
   end
   return lmap
 end
