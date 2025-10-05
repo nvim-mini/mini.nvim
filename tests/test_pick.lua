@@ -6224,14 +6224,24 @@ end
 
 T['iminsert'] = new_set()
 
-T['iminsert']['works'] = function()
+local load_keymap = function(keymap)
   child.cmd('let &rtp .= ",' .. test_dir_absolute .. '"')
-  child.cmd('set keymap=simple')
+  child.cmd('set keymap=' .. keymap)
   eq(child.o.iminsert, 1)
+end
+
+T['iminsert']['works'] = function()
+  load_keymap('test_simple')
   start_with_items({ 'a' })
-  eq(is_picker_active(), true)
   type_keys('a', 'b', 'c')
   eq(get_picker_query(), { '1', '2', '3' })
+end
+
+T['iminsert']['ignores nontrivial rhs'] = function()
+  load_keymap('test_rhs')
+  start_with_items({ 'a' })
+  type_keys('a', 'b', 'c')
+  eq(get_picker_query(), { 'a', 'b', 'c' })
 end
 
 return T
