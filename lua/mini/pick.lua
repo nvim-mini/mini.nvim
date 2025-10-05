@@ -2730,7 +2730,7 @@ H.actions = {
 
 H.picker_query_add = function(picker, char)
   -- Determine if it **is** proper single character
-  if vim.fn.strchars(char) > 1 or vim.fn.char2nr(char) <= 31 then return end
+  if not H.is_single_character(char) then return end
   table.insert(picker.query, picker.caret, char)
   picker.caret = picker.caret + 1
   H.querytick = H.querytick + 1
@@ -2740,6 +2740,8 @@ H.picker_query_add = function(picker, char)
   local should_reset = picker.items ~= nil and picker.caret <= #picker.query
   if should_reset then picker.match_inds = H.seq_along(picker.items) end
 end
+
+H.is_single_character = function(char) return not (vim.fn.strchars(char) > 1 or vim.fn.char2nr(char) <= 31) end
 
 H.picker_query_delete = function(picker, n)
   local delete_to_left = n > 0
