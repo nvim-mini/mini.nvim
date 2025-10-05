@@ -6222,4 +6222,16 @@ T['Stop']['triggers User event'] = function()
   validate('<C-c>')
 end
 
+T['iminsert'] = new_set()
+
+T['iminsert']['works'] = function()
+  child.cmd('let &rtp .= ",' .. test_dir_absolute .. '"')
+  child.cmd('set keymap=simple')
+  eq(child.o.iminsert, 1)
+  start_with_items({ 'a' })
+  eq(is_picker_active(), true)
+  type_keys('a', 'b', 'c')
+  eq(get_picker_query(), { '1', '2', '3' })
+end
+
 return T
