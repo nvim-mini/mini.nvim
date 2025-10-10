@@ -189,6 +189,11 @@ MiniJump.jump = function(target, backward, till, n_times)
     return
   end
 
+  target = target or MiniJump.state.target
+  backward = backward or MiniJump.state.backward
+  till = till or MiniJump.state.till
+  n_times = n_times or MiniJump.state.n_times
+
   -- Determine if target is present anywhere in order to correctly enter
   -- jumping mode. If not, jumping mode is not possible.
   local search_pattern = [[\V]] .. vim.fn.escape(MiniJump.state.target, [[\]])
@@ -196,17 +201,14 @@ MiniJump.jump = function(target, backward, till, n_times)
   if not target_is_present then return end
 
   -- Construct search and highlight pattern data
-  local pattern, hl_pattern, flags = H.make_search_data()
+  local pattern, hl_pattern, flags = H.make_search_data(target, backward, till)
 
   -- Delay highlighting after stopping previous one
   local config = H.get_config()
   H.timers.highlight:stop()
-  H.timers.highlight:start(
-    -- Update highlighting immediately if any highlighting is already present
-    H.is_highlighting() and 0 or config.delay.highlight,
-    0,
-    vim.schedule_wrap(function() H.highlight(hl_pattern) end)
-  )
+  -- - Update highlighting immediately if any highlighting is already present
+  local delay = H.is_highlighting() and 0 or config.delay.highlight
+  H.timers.highlight:start(delay, 0, function() H.highlight(hl_pattern) end)
 
   -- Start idle timer after stopping previous one
   H.timers.idle_stop:stop()
@@ -220,7 +222,7 @@ MiniJump.jump = function(target, backward, till, n_times)
   if not was_jumping then H.trigger_event('MiniJumpStart') end
   H.trigger_event('MiniJumpJump')
 
-  for _ = 1, MiniJump.state.n_times do
+  for _ = 1, n_times do
     vim.fn.search(pattern, flags)
   end
 
@@ -379,11 +381,21 @@ H.get_config = function(config)
 end
 
 -- Mappings -------------------------------------------------------------------
+MiniJump.jump_once = function(target, backward, till, n_times)
+  local search_pattern = [[\V]] .. vim.fn.escape(target, [[\]])
+  local target_is_present = vim.fn.search(search_pattern, 'wn') ~= 0
+  if not target_is_present then return end
+
+  local pattern, _, flags = H.make_search_data(target, backward, till)
+  for _ = 1, n_times do
+    vim.fn.search(pattern, flags)
+  end
+  vim.cmd('normal! zv')
+end
+
 H.make_expr_jump = function(backward, till)
   return function()
     if H.is_disabled() then return '' end
-
-    H.update_state(nil, backward, till, vim.v.count1)
 
     -- Ask for `target` for non-repeating jump as this will be used only in
     -- operator-pending mode. Dot-repeat is supported via expression-mapping.
@@ -392,13 +404,13 @@ H.make_expr_jump = function(backward, till)
 
     -- Stop if user supplied invalid target
     if target == nil then return '<Esc>' end
-    H.update_state(target)
 
-    vim.schedule(function()
-      if H.cache.has_changed_cursor then return end
-      vim.cmd('undo!')
-    end)
-    return 'v<Cmd>lua MiniJump.jump()<CR>'
+    -- vim.schedule(function()
+    --   if H.cache.has_changed_cursor then return end
+    --   vim.cmd('undo!')
+    -- end)
+    local cmd_format = 'v<Cmd>lua MiniJump.jump_once(%s, %s, %s, %s)<CR>'
+    return string.format(cmd_format, vim.inspect(target), backward, till, vim.v.count1)
   end
 end
 
@@ -413,9 +425,8 @@ H.on_cursormoved = function()
 end
 
 -- Pattern matching -----------------------------------------------------------
-H.make_search_data = function()
-  local target = vim.fn.escape(MiniJump.state.target, [[\]])
-  local backward, till = MiniJump.state.backward, MiniJump.state.till
+H.make_search_data = function(target, backward, till)
+  target = vim.fn.escape(target, [[\]])
 
   local flags = backward and 'Wb' or 'W'
   local pattern, hl_pattern
@@ -456,7 +467,7 @@ H.make_search_data = function()
 end
 
 -- Highlighting ---------------------------------------------------------------
-H.highlight = function(pattern)
+H.highlight = vim.schedule_wrap(function(pattern)
   -- Don't do anything if already highlighting input pattern
   if H.is_highlighting(pattern) then return end
 
@@ -471,7 +482,7 @@ H.highlight = function(pattern)
 
   local match_id = vim.fn.matchadd('MiniJump', pattern)
   H.window_matches[vim.api.nvim_get_current_win()] = { id = match_id, pattern = pattern }
-end
+end)
 
 H.unhighlight = function()
   -- Remove highlighting from all windows as jumping is intended to work only
