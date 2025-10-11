@@ -2781,7 +2781,7 @@ end
 T['Builtin']['Tag'] = new_set()
 
 T['Builtin']['Tag']['works'] = function()
-  -- Sinle line
+  -- Single line
   validate_tobj1d('<x>aaa</x>', 0, 'at', { 1, 10 })
   validate_tobj1d('<x>aaa</x>', 0, 'it', { 4, 6 })
 
@@ -2796,6 +2796,9 @@ T['Builtin']['Tag']['works'] = function()
   validate_tobj1d('<x></x>', 0, 'it', { 4, 4 })
   validate_edit1d('<x></x>', 0, '<x></x>', 3, 'dit')
   validate_edit1d('<x></x>', 0, '<x></x>', 3, 'cit')
+
+  -- Dots in tags
+  validate_tobj1d('<x.y.z></x.y.z>', 0, 'it', { 8, 8 })
 end
 
 T['Builtin']['Tag']['works consecutively'] = function()
