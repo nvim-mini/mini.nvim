@@ -222,6 +222,7 @@ T['setup()']['creates side effects'] = function()
   local validate_hl_group = function(name, ref) expect.match(child.cmd_capture('hi ' .. name), ref) end
 
   validate_hl_group('MiniFilesBorder', 'links to FloatBorder')
+  validate_hl_group('MiniFilesBorderFocused', 'links to FloatBorder')
   validate_hl_group('MiniFilesBorderModified', 'links to DiagnosticFloatingWarn')
   validate_hl_group('MiniFilesCursorLine', 'links to CursorLine')
   validate_hl_group('MiniFilesDirectory', 'links to Directory')
@@ -2463,6 +2464,7 @@ T['Windows']['uses correct UI highlight groups'] = function()
     -- Make sure entry is match in full
     local base_pattern = from_hl .. ':' .. to_hl
     local is_matched = winhl:find(base_pattern .. ',') ~= nil or winhl:find(base_pattern .. '$') ~= nil
+    if not is_matched then error('Pattern "' .. base_pattern .. '" not found in "' .. winhl .. '"') end
     eq(is_matched, true)
   end
 
@@ -2476,14 +2478,14 @@ T['Windows']['uses correct UI highlight groups'] = function()
   validate_winhl_match(win_id_1, 'FloatTitle', 'MiniFilesTitle')
   validate_winhl_match(win_id_1, 'CursorLine', 'MiniFilesCursorLine')
   validate_winhl_match(win_id_2, 'NormalFloat', 'MiniFilesNormal')
-  validate_winhl_match(win_id_2, 'FloatBorder', 'MiniFilesBorder')
+  validate_winhl_match(win_id_2, 'FloatBorder', 'MiniFilesBorderFocused')
   validate_winhl_match(win_id_2, 'FloatTitle', 'MiniFilesTitleFocused')
   validate_winhl_match(win_id_2, 'CursorLine', 'MiniFilesCursorLine')
 
   -- Simply going in Insert mode should not add "modified"
   type_keys('i')
   validate_winhl_match(win_id_1, 'FloatBorder', 'MiniFilesBorder')
-  validate_winhl_match(win_id_2, 'FloatBorder', 'MiniFilesBorder')
+  validate_winhl_match(win_id_2, 'FloatBorder', 'MiniFilesBorderFocused')
 
   type_keys('x')
   validate_winhl_match(win_id_1, 'FloatBorder', 'MiniFilesBorder')

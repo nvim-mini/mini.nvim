@@ -84,6 +84,7 @@
 --- # Highlight groups ~
 ---
 --- - `MiniFilesBorder` - border of regular windows.
+--- - `MiniFilesBorderFocused` - border of focused window.
 --- - `MiniFilesBorderModified` - border of windows showing modified buffer.
 --- - `MiniFilesCursorLine` - cursor line in explorer windows.
 --- - `MiniFilesDirectory` - text and icon representing directory.
@@ -1329,6 +1330,7 @@ H.create_default_hl = function()
   end
 
   hi('MiniFilesBorder',         { link = 'FloatBorder' })
+  hi('MiniFilesBorderFocused',  { link = 'FloatBorder' })
   hi('MiniFilesBorderModified', { link = 'DiagnosticFloatingWarn' })
   hi('MiniFilesCursorLine',     { link = 'CursorLine' })
   hi('MiniFilesDirectory',      { link = 'Directory'   })
@@ -2453,6 +2455,11 @@ end
 H.window_focus = function(win_id)
   vim.api.nvim_set_current_win(win_id)
   H.window_update_highlight(win_id, 'FloatTitle', 'MiniFilesTitleFocused')
+
+  local buf_id = vim.api.nvim_win_get_buf(win_id)
+  if not H.is_modified_buffer(buf_id) then
+    H.window_update_highlight(win_id, 'FloatBorder', 'MiniFilesBorderFocused')
+  end
 end
 
 H.window_close = function(win_id)

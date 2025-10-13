@@ -86,6 +86,7 @@ more details.
 # Highlight groups ~
 
 - `MiniFilesBorder` - border of regular windows.
+- `MiniFilesBorderFocused` - border of focused window.
 - `MiniFilesBorderModified` - border of windows showing modified buffer.
 - `MiniFilesCursorLine` - cursor line in explorer windows.
 - `MiniFilesDirectory` - text and icon representing directory.
