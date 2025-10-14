@@ -183,7 +183,7 @@ end
 ---     }
 ---   })
 --- <
---- If you don't want only some mappings to be made at all, use |vim.keymap.del()|
+--- If you don't want some mappings to be made at all, use |vim.keymap.del()|
 --- after calling |MiniBasics.setup()|.
 ---
 --- ## mappings.basic ~
