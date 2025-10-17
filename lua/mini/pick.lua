@@ -2196,11 +2196,12 @@ H.picker_advance = function(picker)
   vim.schedule(function() vim.api.nvim_exec_autocmds('User', { pattern = 'MiniPickStart' }) end)
 
   local do_match, is_aborted = false, false
+  local lmap = H.get_lmap()
   for _ = 1, 1000000 do
     if H.cache.is_force_stop_advance then break end
     H.picker_update(picker, do_match)
 
-    local char = H.getcharstr(picker.opts.delay.async)
+    local char = H.getcharstr(picker.opts.delay.async, vim.o.iminsert == 0 and {} or lmap)
     if H.cache.is_force_stop_advance then break end
 
     is_aborted = char == nil
@@ -2725,7 +2726,7 @@ H.actions = {
 
 H.picker_query_add = function(picker, char)
   -- Determine if it **is** proper single character
-  if vim.fn.strchars(char) > 1 or vim.fn.char2nr(char) <= 31 then return end
+  if not H.is_query_char(char) then return end
   table.insert(picker.query, picker.caret, char)
   picker.caret = picker.caret + 1
   H.querytick = H.querytick + 1
@@ -2735,6 +2736,8 @@ H.picker_query_add = function(picker, char)
   local should_reset = picker.items ~= nil and picker.caret <= #picker.query
   if should_reset then picker.match_inds = H.seq_along(picker.items) end
 end
+
+H.is_query_char = function(char) return vim.fn.strchars(char) == 1 and vim.fn.char2nr(char) > 31 end
 
 H.picker_query_delete = function(picker, n)
   local delete_to_left = n > 0
@@ -2856,7 +2859,7 @@ H.picker_get_current_item = function(picker)
 end
 
 H.picker_get_register_contents = function(picker)
-  local register = H.getcharstr(picker.opts.delay.async)
+  local register = H.getcharstr(picker.opts.delay.async, {})
   -- Mimic some "insert object under cursor" behavior of Command-line mode
   local expand_var = ({ ['\1'] = '<cWORD>', ['\6'] = '<cfile>', ['\23'] = '<cword>' })[register]
   if expand_var then
@@ -3582,7 +3585,7 @@ H.redraw = function() vim.cmd('redraw') end
 
 H.redraw_scheduled = vim.schedule_wrap(H.redraw)
 
-H.getcharstr = function(delay_async)
+H.getcharstr = function(delay_async, lmap)
   -- Ensure that redraws still happen
   H.timers.getcharstr:start(0, delay_async, H.redraw_scheduled)
   H.cache.is_in_getcharstr = true
@@ -3595,7 +3598,7 @@ H.getcharstr = function(delay_async)
   if H.pickers.active ~= nil then main_win_id = H.pickers.active.windows.main end
   local is_bad_mouse_click = vim.v.mouse_winid ~= 0 and vim.v.mouse_winid ~= main_win_id
   if not ok or char == '' or char == '\3' or is_bad_mouse_click then return end
-  return char
+  return lmap[char] or char
 end
 
 H.tolower = (function()
@@ -3676,5 +3679,15 @@ end
 
 -- TODO: Remove after compatibility with Neovim=0.9 is dropped
 H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
+
+H.get_lmap = function()
+  local lmap = {}
+  for _, map in ipairs(vim.fn.maplist()) do
+    -- NOTE: Account only for characters that resolve to proper query character
+    local is_query_lmap = map.mode == 'l' and H.is_query_char(map.rhs)
+    if is_query_lmap then lmap[map.lhs] = map.rhs end
+  end
+  return lmap
+end
 
 return MiniPick

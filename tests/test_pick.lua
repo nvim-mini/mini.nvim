@@ -6222,4 +6222,33 @@ T['Stop']['triggers User event'] = function()
   validate('<C-c>')
 end
 
+T['iminsert'] = new_set()
+
+local load_keymap = function(keymap)
+  child.cmd('let &rtp .= ",' .. test_dir_absolute .. '"')
+  child.cmd('set keymap=' .. keymap)
+  eq(child.o.iminsert, 1)
+end
+
+T['iminsert']['works'] = function()
+  load_keymap('test_simple')
+  start_with_items({ 'a' })
+  type_keys('a', 'b', 'c')
+  eq(get_picker_query(), { '1', '2', '3' })
+end
+
+T['iminsert']['ignores nontrivial rhs'] = function()
+  load_keymap('test_rhs')
+  start_with_items({ 'a' })
+  type_keys('a', 'b', 'c')
+  eq(get_picker_query(), { 'a', 'b', 'c' })
+end
+
+T['iminsert']['ignores nontrivial lhs'] = function()
+  load_keymap('test_lhs')
+  start_with_items({ 'a' })
+  type_keys('a', 'a', 'b', 'b', 'c', 'c')
+  eq(get_picker_query(), { 'a', 'a', 'b', 'b', 'c', 'c' })
+end
+
 return T
