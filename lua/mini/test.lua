@@ -664,10 +664,14 @@ MiniTest.expect = {}
 ---
 ---@param left any First object.
 ---@param right any Second object.
-MiniTest.expect.equality = function(left, right)
+---@param opts table|nil Options:
+---   - <msg> `(string)` Fails with the supplied failure message. Default: nil
+MiniTest.expect.equality = function(left, right, opts)
   if vim.deep_equal(left, right) then return true end
 
   local context = string.format('Left:  %s\nRight: %s', vim.inspect(left), vim.inspect(right))
+  opts = opts or {}
+  if opts.msg then context = string.format('%s\n%s', opts.msg, context) end
   H.error_expect('equality', context)
 end
 
@@ -677,10 +681,15 @@ end
 ---
 ---@param left any First object.
 ---@param right any Second object.
-MiniTest.expect.no_equality = function(left, right)
+---@param opts table|nil Options:
+---   - <msg> `(string)` Fails with the supplied failure message. Default: nil
+MiniTest.expect.no_equality = function(left, right, opts)
+  opts = opts or {}
   if not vim.deep_equal(left, right) then return true end
 
   local context = string.format('Object: %s', vim.inspect(left))
+  opts = opts or {}
+  if opts.msg then context = string.format('%s\n%s', opts.msg, context) end
   H.error_expect('*no* equality', context)
 end
 
@@ -737,6 +746,7 @@ end
 ---     if `false` - do not ignore any. Default: `false`.
 ---   - <directory> `(string)` - directory where automatically constructed `path`
 ---     is located. Default: "tests/screenshots".
+---   - <msg> `(string)` - Fails with the supplied failure message. Default: nil
 MiniTest.expect.reference_screenshot = function(screenshot, path, opts)
   if screenshot == nil then return true end
 
@@ -792,6 +802,7 @@ MiniTest.expect.reference_screenshot = function(screenshot, path, opts)
   local cause = same_text and cause_attr or cause_text
   local subject = 'screenshot equality to reference at ' .. vim.inspect(path)
   local context = string.format('%s\nReference:\n%s\n\nObserved:\n%s', cause, tostring(reference), tostring(screenshot))
+  if opts.msg then context = string.format('%s\n%s', opts.msg, context) end
   H.error_expect(subject, context)
 end
 
