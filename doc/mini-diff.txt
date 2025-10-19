@@ -62,6 +62,7 @@ You can override runtime config settings locally to buffer inside
 - `MiniDiffSignAdd`        - "add" hunk lines visualization.
 - `MiniDiffSignChange`     - "change" hunk lines visualization.
 - `MiniDiffSignDelete`     - "delete" hunk lines visualization.
+- `MiniDiffSignChangeDelete` - lines which are both "change" and "delete" on the same line (combined hunk visualization).
 - `MiniDiffOverAdd`        - added buffer text shown in overlay.
 - `MiniDiffOverChange`     - changed reference text shown in overlay.
 - `MiniDiffOverChangeBuf`  - changed buffer text shown in overlay.
