@@ -1055,6 +1055,7 @@ H.create_default_hl = function()
   hi('MiniDiffSignAdd',        { link = has_core_diff_hl and 'Added' or 'diffAdded' })
   hi('MiniDiffSignChange',     { link = has_core_diff_hl and 'Changed' or 'diffChanged' })
   hi('MiniDiffSignDelete',     { link = has_core_diff_hl and 'Removed' or 'diffRemoved'  })
+  hi('MiniDiffSignChangeDelete',{ link = 'ErrorMsg' })
   hi('MiniDiffOverAdd',        { link = 'DiffAdd' })
   hi('MiniDiffOverChange',     { link = 'DiffText' })
   hi('MiniDiffOverChangeBuf',  { link = 'MiniDiffOverChange'})
@@ -1327,6 +1328,12 @@ H.update_hunk_data = function(diff, buf_cache, buf_lines)
   local hunks, viz_lines, overlay_lines = {}, {}, {}
   local n_add, n_change, n_delete = 0, 0, 0
   local n_ranges, last_range_to = 0, -math.huge
+
+  -- Determine which field to use for highlighting (universal for "sign" and "number" style)
+  local field = buf_cache.config.view.style == "number" and "number_hl_group" or "sign_hl_group"
+
+  -- collect hunk types per line
+  local line_types = {}
   for i, d in ipairs(diff) do
     -- Hunk
     local n_ref, n_buf = d[2], d[4]
@@ -1347,17 +1354,41 @@ H.update_hunk_data = function(diff, buf_cache, buf_lines)
     n_ranges = n_ranges + ((range_from <= last_range_to + 1) and 0 or 1)
     last_range_to = math.max(last_range_to, range_to)
 
-    -- Register lines for draw. At least one line should visualize hunk.
-    local viz_ext_opts = extmark_opts[hunk_type]
+    -- collect all hunk types for each line
     for l_num = range_from, range_to do
-      -- Prefer showing "change" hunk over other types
-      if viz_lines[l_num] == nil or hunk_type == 'change' then viz_lines[l_num] = viz_ext_opts end
+      line_types[l_num] = line_types[l_num] or {}
+      table.insert(line_types[l_num], hunk_type)
     end
 
     if do_overlay then
       if hunk_type == 'add' then H.append_overlay_add(overlay_lines, hunk, priority) end
       if hunk_type == 'change' then H.append_overlay_change(overlay_lines, hunk, ref_lines, buf_lines, priority) end
       if hunk_type == 'delete' then H.append_overlay_delete(overlay_lines, hunk, ref_lines, priority) end
+    end
+  end
+
+  -- Register lines for draw. Prefer showing "change+delete" over other types.
+  for l_num, types in pairs(line_types) do
+    local has_add = false
+    local has_change = false
+    local has_delete = false
+    for _, t in ipairs(types) do
+      if t == "add" then has_add = true end
+      if t == "change" then has_change = true end
+      if t == "delete" then has_delete = true end
+    end
+    if has_change and has_delete then
+      viz_lines[l_num] = {
+        [field] = "MiniDiffSignChangeDelete",
+        priority = priority,
+        invalidate = H.extmark_invalidate,
+      }
+    elseif has_add then
+      viz_lines[l_num] = extmark_opts["add"]
+    elseif has_change then
+      viz_lines[l_num] = extmark_opts["change"]
+    elseif has_delete then
+      viz_lines[l_num] = extmark_opts["delete"]
     end
   end
 
