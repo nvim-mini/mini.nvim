@@ -2545,6 +2545,24 @@ T['Windows']['correctly highlight content during editing'] = function()
   child.expect_screenshot()
 end
 
+T['Windows']['always show cursor line in directories'] = function()
+  child.o.cursorline = false
+  child.o.cursorlineopt = 'number'
+  open(test_dir_path, false, { windows = { preview = true } })
+  child.expect_screenshot()
+  eq(child.wo.cursorlineopt, 'number,line')
+
+  -- File preview should not show cursor line
+  type_keys('G')
+  child.expect_screenshot()
+  close()
+
+  -- Should preserve flags of 'cursorlineopt' as much as possible
+  child.o.cursorlineopt = 'screenline'
+  open(test_dir_path)
+  eq(child.wo.cursorlineopt, 'screenline')
+end
+
 T['Windows']['can be closed manually'] = function()
   open(test_dir_path)
   type_keys('G', '<CR>')

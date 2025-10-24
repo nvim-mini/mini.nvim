@@ -1945,6 +1945,8 @@ H.explorer_show_help = function(explorer, explorer_buf_id, explorer_win_id)
   H.window_update_highlight(win_id, 'FloatTitle', 'MiniFilesTitle')
   H.window_update_highlight(win_id, 'CursorLine', 'MiniFilesCursorLine')
   vim.wo[win_id].cursorline = true
+  local culopt = vim.wo[win_id].cursorlineopt
+  if culopt:find('line') == nil then vim.wo[win_id].cursorlineopt = culopt .. ',line' end
 
   vim.api.nvim_set_current_win(win_id)
   return win_id
@@ -2504,8 +2506,10 @@ H.window_set_view = function(win_id, view)
 
   -- Set cursor (if defined), visible only in directories
   pcall(H.window_set_cursor, win_id, view.cursor)
-  -- NOTE: set 'cursorline' here because changing buffer might remove it
+  -- NOTE: set 'cursorline[opt]' here because changing buffer might remove it
   vim.wo[win_id].cursorline = H.fs_get_type(buf_data.path) == 'directory'
+  local culopt = vim.wo[win_id].cursorlineopt
+  if culopt:find('line') == nil then vim.wo[win_id].cursorlineopt = culopt .. ',line' end
 
   -- Update border highlight based on buffer status
   H.window_update_border_hl(win_id)
