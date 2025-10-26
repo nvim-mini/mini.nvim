@@ -43,7 +43,7 @@ local mock_gettimeofday = function()
 
   local lua_cmd = string.format(
     [[local start, n = %d, -1
-      vim.loop.gettimeofday = function()
+      vim.uv.gettimeofday = function()
         n = n + 1
         return start + n, %d
       end]],
@@ -281,7 +281,7 @@ T['make_notify()']['has output working in fast event'] = function()
   child.lua('_G.dur = ' .. small_time)
   child.lua([[
     vim.notify = MiniNotify.make_notify()
-    local timer = vim.loop.new_timer()
+    local timer = vim.uv.new_timer()
     timer:start(_G.dur, 0, function() vim.notify('Hello', vim.log.levels.INFO) end)
   ]])
   sleep(small_time + small_time)
@@ -344,7 +344,7 @@ T['add()']['works'] = function()
   eq(notif.hl_group, 'MiniNotifyNormal')
   eq(notif.data, {})
 
-  -- Timestamp fields should use `vim.loop.gettimeofday()`
+  -- Timestamp fields should use `vim.uv.gettimeofday()`
   eq(notif.ts_add, ref_seconds + ref_microseconds)
   eq(notif.ts_update, notif.ts_add)
 end
@@ -569,7 +569,7 @@ T['refresh()']['can be used inside fast event'] = function()
   add('Hello')
   child.lua('_G.dur = ' .. small_time)
   child.lua([[
-    local timer = vim.loop.new_timer()
+    local timer = vim.uv.new_timer()
     timer:start(_G.dur, 0, function() MiniNotify.refresh() end)
   ]])
   sleep(small_time + small_time)

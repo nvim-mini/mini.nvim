@@ -492,7 +492,7 @@
 --- Create environment variables and `config.expand.insert` wrapper: >lua
 ---
 ---   -- Use evnironment variables with value is same for all snippet sessions
----   vim.loop.os_setenv('USERNAME', 'user')
+---   vim.uv.os_setenv('USERNAME', 'user')
 ---
 ---   -- Compute custom lookup for variables with dynamic values
 ---   local insert_with_lookup = function(snippet)
@@ -1834,7 +1834,7 @@ H.parse_normalize = function(node_arr, opts)
     has_final_tabstop = has_final_tabstop or n.tabstop == '0'
   end
   -- - Ensure proper random random variables
-  math.randomseed(vim.loop.hrtime())
+  math.randomseed(vim.uv.hrtime())
   H.nodes_traverse(node_arr, normalize)
 
   -- Possibly append final tabstop as a regular normalized tabstop
@@ -2028,7 +2028,7 @@ H.parse_eval_var = function(var, lookup)
   local value
   if H.var_evaluators[var] ~= nil then value = H.var_evaluators[var]() end
   -- - Fall back to environment variable or `-1` to not evaluate twice
-  if value == nil then value = vim.loop.os_getenv(var) or -1 end
+  if value == nil then value = vim.uv.os_getenv(var) or -1 end
 
   -- Skip caching random variables (to allow several different in one snippet)
   if not (var == 'RANDOM' or var == 'RANDOM_HEX' or var == 'UUID') then lookup[var] = value end

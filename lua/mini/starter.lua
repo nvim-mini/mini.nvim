@@ -130,7 +130,7 @@
 ---   }
 ---
 ---   local footer_n_seconds = (function()
----     local timer = vim.loop.new_timer()
+---     local timer = vim.uv.new_timer()
 ---     local n_seconds = 0
 ---     timer:start(0, 1000, vim.schedule_wrap(function()
 ---       if vim.bo.filetype ~= 'ministarter' then
@@ -506,7 +506,7 @@ MiniStarter.sections.recent_files = function(n, current_dir, show_path)
 
   return function()
     local section = string.format('Recent files%s', current_dir and ' (current directory)' or '')
-    local sep = vim.loop.os_uname().sysname == 'Windows_NT' and '\\' or '/'
+    local sep = vim.uv.os_uname().sysname == 'Windows_NT' and '\\' or '/'
     local cwd = vim.fn.getcwd() .. sep
 
     local files = {}
@@ -987,7 +987,7 @@ H.default_header = function()
   -- [04:00, 12:00) - morning, [12:00, 20:00) - day, [20:00, 04:00) - evening
   local part_id = math.floor((hour + 4) / 8) + 1
   local day_part = ({ 'evening', 'morning', 'afternoon', 'evening' })[part_id]
-  local username = vim.loop.os_get_passwd()['username'] or 'USERNAME'
+  local username = vim.uv.os_get_passwd()['username'] or 'USERNAME'
 
   return ('Good %s, %s'):format(day_part, username)
 end

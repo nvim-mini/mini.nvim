@@ -82,7 +82,7 @@ T['bench_time()'] = new_set({
   hooks = {
     pre_case = function()
       child.lua('_G.small_time = ' .. small_time)
-      child.lua('_G.f = function(ms) ms = ms or _G.small_time; vim.loop.sleep(ms); return ms end')
+      child.lua('_G.f = function(ms) ms = ms or _G.small_time; vim.uv.sleep(ms); return ms end')
     end,
   },
 })

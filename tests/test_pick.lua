@@ -753,7 +753,7 @@ T['start()']['respects `delay.async`'] = function()
   child.lua('_G.small_time = ' .. small_time)
   child.lua_notify([[
     _G.buf_id, _G.n = vim.api.nvim_get_current_buf(), 0
-    local timer = vim.loop.new_timer()
+    local timer = vim.uv.new_timer()
     local f = vim.schedule_wrap(function()
       _G.n = _G.n + 1
       vim.fn.appendbufline(_G.buf_id, '$', { 'Line ' .. _G.n })
@@ -1120,7 +1120,7 @@ T['default_match()']['does not block query update'] = function()
     -- Mock slow matching
     local find_orig = string.find
     string.find = function(...)
-      vim.loop.sleep(_G.small_time)
+      vim.uv.sleep(_G.small_time)
       return find_orig(...)
     end
 
@@ -1664,7 +1664,7 @@ T['default_preview()']['works for file path'] = function()
   stop()
 
   -- Should work for failed to read files
-  child.lua('vim.loop.fs_open = function() return nil end')
+  child.lua('vim.uv.fs_open = function() return nil end')
   local makefile_path = real_file('Makefile')
   validate_preview({ makefile_path })
   validate_helper_buf_name(0, 'preview')
@@ -4063,9 +4063,9 @@ T['set_picker_items()']['respects `opts.querytick`'] = function()
     -- Mock slow item preparation
     local tolower_orig = vim.fn.tolower
     vim.fn.tolower = function(...)
-      table.insert(_G.log, { time = vim.loop.hrtime(), args = {...} })
-      vim.loop.sleep(_G.small_time)
-      table.insert(_G.log, { time = vim.loop.hrtime() })
+      table.insert(_G.log, { time = vim.uv.hrtime(), args = {...} })
+      vim.uv.sleep(_G.small_time)
+      table.insert(_G.log, { time = vim.uv.hrtime() })
       return tolower_orig(...)
     end
 
@@ -4189,7 +4189,7 @@ T['set_picker_items_from_cli()']['stops process if picker is stopped'] = functio
   child.lua('_G.delay = ' .. delay)
   child.lua([[
     local is_active_indicator = true
-    vim.loop.spawn = function(path, options, on_exit)
+    vim.uv.spawn = function(path, options, on_exit)
       vim.defer_fn(on_exit, _G.delay)
 
       local process = {
@@ -4199,7 +4199,7 @@ T['set_picker_items_from_cli()']['stops process if picker is stopped'] = functio
       }
       return process, pid
     end
-    vim.loop.process_kill = function(process)
+    vim.uv.process_kill = function(process)
       -- Killing process also means it stops being active
       is_active_indicator = false
       table.insert(_G.process_log, 'Process Pid_1 was killed.')
@@ -6154,7 +6154,7 @@ T['Paste']['respects `delay.async` when waiting for register label'] = function(
   child.lua('_G.small_time = ' .. small_time)
   child.lua_notify([[
     _G.buf_id, _G.n = vim.api.nvim_get_current_buf(), 0
-    local timer = vim.loop.new_timer()
+    local timer = vim.uv.new_timer()
     local f = vim.schedule_wrap(function()
       _G.n = _G.n + 1
       vim.fn.appendbufline(_G.buf_id, '$', { 'Line ' .. _G.n })

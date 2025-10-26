@@ -121,7 +121,7 @@ MiniCursorword.config = {
 H.default_config = vim.deepcopy(MiniCursorword.config)
 
 -- Delay timer
-H.timer = vim.loop.new_timer()
+H.timer = vim.uv.new_timer()
 
 -- Information about last match highlighting (stored *per window*):
 -- - Key: windows' unique buffer identifiers.

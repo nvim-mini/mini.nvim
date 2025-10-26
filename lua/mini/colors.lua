@@ -1756,7 +1756,7 @@ H.animate_single_transition = function(from_cs, to_cs, after_action, opts)
 
   -- Start animation
   local cur_step = 1
-  local timer = vim.loop.new_timer()
+  local timer = vim.uv.new_timer()
 
   local apply_step
   apply_step = vim.schedule_wrap(function()

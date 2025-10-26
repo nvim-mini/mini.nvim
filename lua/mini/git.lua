@@ -334,7 +334,7 @@ MiniGit.show_at_cursor = function(opts)
   -- Try showing range history if possible: either in Git repo (tracked or not;
   -- after resolving symlinks) or diff source output.
   local buf_id, buf_name = vim.api.nvim_get_current_buf(), vim.api.nvim_buf_get_name(0)
-  local path = vim.loop.fs_realpath(buf_name)
+  local path = vim.uv.fs_realpath(buf_name)
   local path_dir = path == nil and '' or vim.fn.fnamemodify(path, ':h')
 
   local is_in_git = H.is_buf_enabled(buf_id) or #H.git_cli_output({ 'rev-parse', '--show-toplevel' }, path_dir) > 0
@@ -605,7 +605,7 @@ H.default_config = MiniGit.config
 H.cache = {}
 
 -- Cache per repo (git directory) path. Values are tables with fields:
--- - <fs_event> - `vim.loop` event for watching repo dir.
+-- - <fs_event> - `vim.uv` event for watching repo dir.
 -- - <timer> - timer to debounce repo changes.
 -- - <buffers> - map of buffers which should are part of repo.
 H.repos = {}
@@ -1300,7 +1300,7 @@ H.setup_repo_watch = function(buf_id, repo)
   local is_set_up = repo_cache.fs_event ~= nil and repo_cache.fs_event:is_active()
   if not is_set_up then
     H.teardown_repo_watch(repo)
-    local fs_event, timer = vim.loop.new_fs_event(), vim.loop.new_timer()
+    local fs_event, timer = vim.uv.new_fs_event(), vim.uv.new_timer()
 
     local on_change = vim.schedule_wrap(function() H.on_repo_change(repo) end)
     local watch = function(_, filename, _)
@@ -1328,8 +1328,8 @@ end
 
 H.teardown_repo_watch = function(repo)
   if H.repos[repo] == nil then return end
-  pcall(vim.loop.fs_event_stop, H.repos[repo].fs_event)
-  pcall(vim.loop.timer_stop, H.repos[repo].timer)
+  pcall(vim.uv.fs_event_stop, H.repos[repo].fs_event)
+  pcall(vim.uv.timer_stop, H.repos[repo].timer)
 end
 
 H.setup_path_watch = function(buf_id, repo)
@@ -1624,8 +1624,8 @@ H.git_cmd = function(args)
 end
 
 H.make_spawn_env = function(env_vars)
-  -- Setup all environment variables (`vim.loop.spawn()` by default has none)
-  local environ = vim.tbl_deep_extend('force', vim.loop.os_environ(), env_vars)
+  -- Setup all environment variables (`vim.uv.spawn()` by default has none)
+  local environ = vim.tbl_deep_extend('force', vim.uv.os_environ(), env_vars)
   local res = {}
   for k, v in pairs(environ) do
     table.insert(res, string.format('%s=%s', k, tostring(v)))
@@ -1636,7 +1636,7 @@ end
 H.cli_run = function(command, cwd, on_done, opts)
   local spawn_opts = opts or {}
   local executable, args = command[1], vim.list_slice(command, 2, #command)
-  local process, stdout, stderr = nil, vim.loop.new_pipe(), vim.loop.new_pipe()
+  local process, stdout, stderr = nil, vim.uv.new_pipe(), vim.uv.new_pipe()
   spawn_opts.args, spawn_opts.cwd, spawn_opts.stdio = args, cwd or vim.fn.getcwd(), { nil, stdout, stderr }
 
   -- Allow `on_done = nil` to mean synchronous execution
@@ -1661,7 +1661,7 @@ H.cli_run = function(command, cwd, on_done, opts)
     on_done(code, out, err)
   end
 
-  process = vim.loop.spawn(executable, spawn_opts, on_exit)
+  process = vim.uv.spawn(executable, spawn_opts, on_exit)
   H.cli_read_stream(stdout, out)
   H.cli_read_stream(stderr, err)
   vim.defer_fn(function()
@@ -1708,7 +1708,7 @@ H.notify = function(msg, level_name) vim.notify('(mini.git) ' .. msg, vim.log.le
 
 H.trigger_event = function(event_name, data) vim.api.nvim_exec_autocmds('User', { pattern = event_name, data = data }) end
 
-H.is_fs_present = function(path) return vim.loop.fs_stat(path) ~= nil end
+H.is_fs_present = function(path) return vim.uv.fs_stat(path) ~= nil end
 
 H.expandcmd = function(x)
   if x == '<cwd>' then return vim.fn.getcwd() end
@@ -1720,7 +1720,7 @@ end
 H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
 
 -- Try getting buffer's full real path (after resolving symlinks)
-H.get_buf_realpath = function(buf_id) return vim.loop.fs_realpath(vim.api.nvim_buf_get_name(buf_id)) or '' end
+H.get_buf_realpath = function(buf_id) return vim.uv.fs_realpath(vim.api.nvim_buf_get_name(buf_id)) or '' end
 
 H.redrawstatus = function() vim.cmd('redrawstatus') end
 if vim.api.nvim__redraw ~= nil then H.redrawstatus = function() vim.api.nvim__redraw({ statusline = true }) end end

@@ -133,7 +133,7 @@ for disabling module's functionality is left to user. See
   }
 
   local footer_n_seconds = (function()
-    local timer = vim.loop.new_timer()
+    local timer = vim.uv.new_timer()
     local n_seconds = 0
     timer:start(0, 1000, vim.schedule_wrap(function()
       if vim.bo.filetype ~= 'ministarter' then

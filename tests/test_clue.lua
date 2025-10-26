@@ -2940,7 +2940,7 @@ T['Reproducing keys']['works for builtin keymaps in Terminal mode'] = function()
   child.cmd('wincmd v')
   child.cmd('terminal')
   -- Wait for terminal to load
-  vim.loop.sleep(6 * small_time)
+  vim.uv.sleep(6 * small_time)
   child.cmd('startinsert')
   eq(child.fn.mode(), 't')
 
@@ -2959,7 +2959,7 @@ T['Reproducing keys']['works for user keymaps in Terminal mode'] = function()
   child.cmd('wincmd v')
   child.cmd('terminal')
   -- Wait for terminal to load
-  vim.loop.sleep(6 * small_time)
+  vim.uv.sleep(6 * small_time)
   child.cmd('startinsert')
   eq(child.fn.mode(), 't')
 

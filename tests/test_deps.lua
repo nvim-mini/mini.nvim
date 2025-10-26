@@ -210,7 +210,7 @@ local T = new_set({
       -- Mock `vim.notify()`
       mock_notify()
 
-      -- Mock `vim.loop.spawn()`
+      -- Mock `vim.uv.spawn()`
       mock_spawn()
 
       -- Mock getting reproducible timestamp
@@ -1168,7 +1168,7 @@ T['add()']['Install']['works when no information about number of cores is availa
       {},                            -- Checkout changes
     }
   ]])
-  child.lua('vim.loop.cpu_info = function() return nil end')
+  child.lua('vim.uv.cpu_info = function() return nil end')
   expect.no_error(function() add('user/new_plugin') end)
 end
 
@@ -1936,7 +1936,7 @@ T['update()']['works when no information about number of cores is available'] = 
     }
   ]])
   add('user/plugin_1')
-  child.lua('vim.loop.cpu_info = function() return nil end')
+  child.lua('vim.uv.cpu_info = function() return nil end')
   expect.no_error(update)
 end
 

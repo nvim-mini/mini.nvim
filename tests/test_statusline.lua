@@ -181,12 +181,12 @@ T['setup()']['ensures content when working with built-in terminal'] = function()
 
   child.cmd('terminal! bash --noprofile --norc')
   -- Wait for terminal to get active
-  vim.loop.sleep(term_mode_wait)
+  vim.uv.sleep(term_mode_wait)
   validate_statusline(0, 'active')
   eq(child.api.nvim_get_current_buf() == init_buf_id, false)
 
   type_keys('i', 'exit', '<CR>')
-  vim.loop.sleep(term_mode_wait)
+  vim.uv.sleep(term_mode_wait)
   type_keys('<CR>')
   validate_statusline(0, 'active')
   eq(child.api.nvim_get_current_buf() == init_buf_id, true)

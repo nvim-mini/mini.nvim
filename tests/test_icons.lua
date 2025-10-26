@@ -376,9 +376,9 @@ T['get()']['caches output'] = function()
   local durations = child.lua([[
     local file = 'complex.file.name.which.should.fall.back.to.vim.filetype.match'
     local bench = function()
-      local start_time = vim.loop.hrtime()
+      local start_time = vim.uv.hrtime()
       MiniIcons.get('file', file)
-      return vim.loop.hrtime() - start_time
+      return vim.uv.hrtime() - start_time
     end
 
     local dur_no_cache = bench()
@@ -402,9 +402,9 @@ T['get()']['adds to cache resolved output in its original category'] = function(
   --   caching, the benchmarking is not stable.
   local durations = child.lua([[
     local bench = function(category, name)
-      local start_time = vim.loop.hrtime()
+      local start_time = vim.uv.hrtime()
       MiniIcons.get(category, name)
-      return vim.loop.hrtime() - start_time
+      return vim.uv.hrtime() - start_time
     end
 
     -- "file" category resolving to manually tracked "extension"
@@ -443,9 +443,9 @@ end
 T['get()']['uses cached extension during "file" resolution'] = function()
   local durations = child.lua([[
     local bench = function(category, name)
-      local start_time = vim.loop.hrtime()
+      local start_time = vim.uv.hrtime()
       MiniIcons.get(category, name)
-      return vim.loop.hrtime() - start_time
+      return vim.uv.hrtime() - start_time
     end
 
     -- Known extension (i.e. not falling back to default)
@@ -487,9 +487,9 @@ T['get()']['prefers user configured data over `vim.filetype.match()`'] = functio
 
   local durations = child.lua([[
     local bench = function(category, name)
-      local start_time = vim.loop.hrtime()
+      local start_time = vim.uv.hrtime()
       MiniIcons.get(category, name)
-      return vim.loop.hrtime() - start_time
+      return vim.uv.hrtime() - start_time
     end
 
     local ext_fallback = bench('extension', 'not-supported-extension')

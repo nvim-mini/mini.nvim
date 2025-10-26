@@ -868,7 +868,7 @@ end
 ---@return boolean|nil Whether closing was done or `nil` if there was nothing to close.
 MiniFiles.close = function()
   -- Stop possible tracking lost focus
-  pcall(vim.loop.timer_stop, H.timers.focus)
+  pcall(vim.uv.timer_stop, H.timers.focus)
 
   -- Act if there is explorer to close (even invisible after improper quit)
   local explorer = H.explorer_get(nil, true)
@@ -1252,7 +1252,7 @@ H.ns_id = {
 
 -- Timers
 H.timers = {
-  focus = vim.loop.new_timer(),
+  focus = vim.uv.new_timer(),
 }
 
 -- Index of all visited files
@@ -1278,7 +1278,7 @@ H.latest_paths = {}
 H.opened_buffers = {}
 
 -- File system information
-H.is_windows = vim.loop.os_uname().sysname == 'Windows_NT'
+H.is_windows = vim.uv.os_uname().sysname == 'Windows_NT'
 
 -- Helper functionality =======================================================
 -- Settings -------------------------------------------------------------------
@@ -2303,10 +2303,10 @@ end
 H.buffer_update_file = function(buf_id, path, opts, _)
   -- Work only with readable text file. This is not 100% proof, but good enough.
   -- Source: https://github.com/sharkdp/content_inspector
-  local fd, width_preview = vim.loop.fs_open(path, 'r', 1), opts.windows.width_preview
+  local fd, width_preview = vim.uv.fs_open(path, 'r', 1), opts.windows.width_preview
   if fd == nil then return H.set_buflines(buf_id, { '-No-access' .. string.rep('-', width_preview) }) end
-  local is_text = vim.loop.fs_read(fd, 1024):find('\0') == nil
-  vim.loop.fs_close(fd)
+  local is_text = vim.uv.fs_read(fd, 1024):find('\0') == nil
+  vim.uv.fs_close(fd)
   if not is_text then return H.set_buflines(buf_id, { '-Non-text-file' .. string.rep('-', width_preview) }) end
 
   -- Compute lines. Limit number of read lines to work better on large files.
@@ -2562,16 +2562,16 @@ end
 ---@field path_id number Id of full path.
 ---@private
 H.fs_read_dir = function(path, content_opts)
-  local fs = vim.loop.fs_scandir(path)
+  local fs = vim.uv.fs_scandir(path)
   local res = {}
   if not fs then return res end
 
   -- Read all entries
-  local name, fs_type = vim.loop.fs_scandir_next(fs)
+  local name, fs_type = vim.uv.fs_scandir_next(fs)
   while name do
     if not (fs_type == 'file' or fs_type == 'directory') then fs_type = H.fs_get_type(H.fs_child_path(path, name)) end
     table.insert(res, { fs_type = fs_type, name = name, path = H.fs_child_path(path, name) })
-    name, fs_type = vim.loop.fs_scandir_next(fs)
+    name, fs_type = vim.uv.fs_scandir_next(fs)
   end
 
   -- Filter and sort entries
@@ -2626,7 +2626,7 @@ end
 
 H.fs_is_imaginary_path = function(path) return path:sub(-1) == '\000' end
 
-H.fs_is_present_path = function(path) return vim.loop.fs_stat(path) ~= nil and not H.fs_is_imaginary_path(path) end
+H.fs_is_present_path = function(path) return vim.uv.fs_stat(path) ~= nil and not H.fs_is_imaginary_path(path) end
 
 H.fs_child_path = function(dir, name) return H.fs_normalize_path(string.format('%s/%s', dir, name)) end
 
@@ -2635,7 +2635,7 @@ H.fs_full_path = function(path) return H.fs_normalize_path(vim.fn.fnamemodify(pa
 H.fs_shorten_path = function(path)
   -- Replace home directory with '~'
   path = H.fs_normalize_path(path)
-  local home_dir = H.fs_normalize_path(vim.loop.os_homedir() or '~')
+  local home_dir = H.fs_normalize_path(vim.uv.os_homedir() or '~')
   return (path:gsub('^' .. vim.pesc(home_dir), '~'))
 end
 
@@ -2746,7 +2746,7 @@ H.fs_do.copy = function(from, to)
   vim.fn.mkdir(H.fs_get_parent(to), 'p')
 
   -- Copy file directly
-  if from_type == 'file' then return vim.loop.fs_copyfile(from, to) end
+  if from_type == 'file' then return vim.uv.fs_copyfile(from, to) end
 
   -- Recursively copy a directory
   local fs_entries = H.fs_read_dir(from, { filter = function() return true end, sort = function(x) return x end })
@@ -2777,7 +2777,7 @@ H.fs_do.move = function(from, to, skip_buf_rename)
 
   -- Move while allowing to create directory
   vim.fn.mkdir(H.fs_get_parent(to), 'p')
-  local success, _, err_code = vim.loop.fs_rename(from, to)
+  local success, _, err_code = vim.uv.fs_rename(from, to)
 
   if err_code == 'EXDEV' then
     -- Handle cross-device move separately as `loop.fs_rename` does not work

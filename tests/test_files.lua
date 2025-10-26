@@ -54,13 +54,13 @@ local validate_tree = function(dir, ref_tree)
     local read_dir
     read_dir = function(path, res)
       res = res or {}
-      local fs = vim.loop.fs_scandir(path)
-      local name, fs_type = vim.loop.fs_scandir_next(fs)
+      local fs = vim.uv.fs_scandir(path)
+      local name, fs_type = vim.uv.fs_scandir_next(fs)
       while name do
         local cur_path = path .. '/' .. name
         table.insert(res, cur_path .. (fs_type == 'directory' and '/' or ''))
         if fs_type == 'directory' then read_dir(cur_path, res) end
-        name, fs_type = vim.loop.fs_scandir_next(fs)
+        name, fs_type = vim.uv.fs_scandir_next(fs)
       end
       return res
     end
@@ -366,7 +366,7 @@ T['open()']['handles problematic entry names'] = function()
 end
 
 T['open()']['handles backslash on Unix'] = function()
-  if child.lua_get('vim.loop.os_uname().sysname') == 'Windows_NT' then MiniTest.skip('Test is not for Windows.') end
+  if child.lua_get('vim.uv.os_uname().sysname') == 'Windows_NT' then MiniTest.skip('Test is not for Windows.') end
 
   local temp_dir = make_temp_dir('temp', { '\\', 'hello\\', 'wo\\rld' })
   open(temp_dir)
@@ -739,8 +739,8 @@ T['open()']['`content.prefix` is called only on visible part of preview'] = func
     end
 
     _G.scandir_log = {}
-    fs_scandir_orig = vim.loop.fs_scandir
-    vim.loop.fs_scandir = function(path)
+    fs_scandir_orig = vim.uv.fs_scandir
+    vim.uv.fs_scandir = function(path)
       table.insert(_G.scandir_log, path)
       return fs_scandir_orig(path)
     end
@@ -2727,7 +2727,7 @@ T['Preview']['works for files'] = function()
 
   -- Should not error on files which failed to read (looks like on Windows it
   -- can be different from "non-readable" files)
-  child.lua('vim.loop.fs_open = function() return nil end')
+  child.lua('vim.uv.fs_open = function() return nil end')
   type_keys('j')
   expect_screenshot()
 end
@@ -3680,8 +3680,8 @@ T['File manipulation']['can move to trash across devices'] = function()
   local trash_dir = join_path(data_dir, 'mini.files', 'trash')
   child.lua('MiniFiles.config.options.permanent_delete = false')
 
-  -- Mock `vim.loop.fs_rename()` not working across devices/volumes/partitions
-  child.lua('vim.loop.fs_rename = function() return nil, "EXDEV: cross-device link not permitted:", "EXDEV" end')
+  -- Mock `vim.uv.fs_rename()` not working across devices/volumes/partitions
+  child.lua('vim.uv.fs_rename = function() return nil, "EXDEV: cross-device link not permitted:", "EXDEV" end')
 
   local temp_dir = make_temp_dir('temp', { 'file', 'dir/', 'dir/nested/', 'dir/nested/file' })
   open(temp_dir)
@@ -4006,8 +4006,8 @@ end
 T['File manipulation']['can move across devices'] = function()
   child.set_size(10, 60)
 
-  -- Mock `vim.loop.fs_rename()` not working across devices/volumes/partitions
-  child.lua('vim.loop.fs_rename = function() return nil, "EXDEV: cross-device link not permitted:", "EXDEV" end')
+  -- Mock `vim.uv.fs_rename()` not working across devices/volumes/partitions
+  child.lua('vim.uv.fs_rename = function() return nil, "EXDEV: cross-device link not permitted:", "EXDEV" end')
 
   local tmp_children = { 'dir/', 'dir/file', 'dir/nested/', 'dir/nested/sub/', 'dir/nested/sub/file' }
   local temp_dir = make_temp_dir('temp', tmp_children)
@@ -5676,7 +5676,7 @@ end
 T['Default explorer'] = new_set()
 
 T['Default explorer']['works on startup'] = function()
-  vim.loop.os_setenv('USE_AS_DEFAULT_EXPLORER', 'true')
+  vim.uv.os_setenv('USE_AS_DEFAULT_EXPLORER', 'true')
   child.restart({ '-u', make_test_path('init-default-explorer.lua'), '--', test_dir_path })
   child.expect_screenshot()
 
@@ -5688,7 +5688,7 @@ T['Default explorer']['works on startup'] = function()
 end
 
 T['Default explorer']['respects `options.use_as_default_explorer`'] = function()
-  vim.loop.os_setenv('USE_AS_DEFAULT_EXPLORER', 'false')
+  vim.uv.os_setenv('USE_AS_DEFAULT_EXPLORER', 'false')
   child.restart({ '-u', make_test_path('init-default-explorer.lua'), '--', test_dir_path })
   eq(child.bo.filetype, 'netrw')
 end

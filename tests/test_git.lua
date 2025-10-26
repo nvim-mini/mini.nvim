@@ -500,7 +500,7 @@ T['show_at_cursor()']['works for range history in not tracked file'] = function(
 
   -- Mock real path presence
   child.lua([[
-    vim.loop.fs_realpath = function() return "/home/user/repo-root/source/of/symlink" end
+    vim.uv.fs_realpath = function() return "/home/user/repo-root/source/of/symlink" end
     vim.fn.isdirectory = function() return 1 end
   ]])
   child.lua([[_G.stdio_queue = { { { 'out', '/home/user/repo-root' } } }]])
@@ -1075,7 +1075,7 @@ T['show_range_history()'] = new_set({
       set_lines({ 'aaa', 'bbb', 'ccc' })
       child.fn.chdir(git_root_dir)
       child.api.nvim_buf_set_name(0, git_root_dir .. '/dir/tmp-file')
-      child.lua('vim.loop.fs_realpath = function(path) return path end')
+      child.lua('vim.uv.fs_realpath = function(path) return path end')
       child.lua([[_G.stdio_queue = {
         { { 'out', '' } },                           -- No uncommitted changes
         { { 'out', 'commit abc1234\nLog output' } }, -- Asked logs
@@ -1295,7 +1295,7 @@ T['show_range_history()']['uses correct working directory'] = function()
 end
 
 T['show_range_history()']['resolves symlinks'] = function()
-  child.lua('vim.loop.fs_realpath = function(path) return path .. "_symlink-source" end')
+  child.lua('vim.uv.fs_realpath = function(path) return path .. "_symlink-source" end')
   show_range_history()
 
   local ref_git_spawn_log = {
@@ -1457,7 +1457,7 @@ T['enable()']['does not work in non-file buffer'] = function()
 end
 
 T['enable()']['resolves symlinks'] = function()
-  child.lua('vim.loop.fs_realpath = function(path) return path .. "_symlink-source" end')
+  child.lua('vim.uv.fs_realpath = function(path) return path .. "_symlink-source" end')
 
   child.lua([[
     _G.stdio_queue = {
@@ -1796,7 +1796,7 @@ T['Tracking'] = new_set({
     pre_case = function()
       load_module()
       -- Ensure proper separators when dealing with paths
-      if helpers.is_windows() then child.lua('vim.loop.fs_realpath = function(path) return path end') end
+      if helpers.is_windows() then child.lua('vim.uv.fs_realpath = function(path) return path end') end
     end,
   },
 })
@@ -2398,9 +2398,9 @@ T[':Git']['works'] = function()
   ]])
 
   -- Should execute command synchronously
-  local start_time = vim.loop.hrtime()
+  local start_time = vim.uv.hrtime()
   child.cmd('Git log --oneline')
-  local duration = 0.000001 * (vim.loop.hrtime() - start_time)
+  local duration = 0.000001 * (vim.uv.hrtime() - start_time)
   eq(10 * small_time <= duration and duration <= 14 * small_time, true)
 
   -- Should properly gather subcommand data before executing command
@@ -2428,9 +2428,9 @@ T[':Git']['works asynchronously with bang modifier'] = function()
   ]])
 
   -- Should execute command asynchronously
-  local start_time = vim.loop.hrtime()
+  local start_time = vim.uv.hrtime()
   child.cmd('Git! log')
-  local duration = 0.000001 * (vim.loop.hrtime() - start_time)
+  local duration = 0.000001 * (vim.uv.hrtime() - start_time)
   eq(duration <= small_time, true)
 
   -- Should properly gather subcommand data before executing command
@@ -2813,9 +2813,9 @@ T[':Git']['respects `job.timeout`'] = function()
 
   child.lua('MiniGit.config.job.timeout = ' .. (2 * small_time))
 
-  local start_time = vim.loop.hrtime()
+  local start_time = vim.uv.hrtime()
   child.cmd('Git log')
-  local duration = 0.000001 * (vim.loop.hrtime() - start_time)
+  local duration = 0.000001 * (vim.uv.hrtime() - start_time)
   eq((1.5 * small_time) <= duration and duration <= (2.5 * small_time), true)
 
   local ref_notify_log = {

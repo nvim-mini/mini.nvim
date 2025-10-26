@@ -833,7 +833,7 @@ H.default_input = function()
 end
 
 H.default_output = function()
-  local cur_dir = vim.fn.fnamemodify(vim.loop.cwd(), ':t:r')
+  local cur_dir = vim.fn.fnamemodify(vim.uv.cwd(), ':t:r')
   return ('doc/%s.txt'):format(cur_dir)
 end
 

@@ -899,7 +899,7 @@ H.default_config = MiniDiff.config
 H.default_source = { MiniDiff.gen_source.git() }
 
 -- Timers
-H.timer_diff_update = vim.loop.new_timer()
+H.timer_diff_update = vim.uv.new_timer()
 
 -- Namespaces per highlighter name
 H.ns_id = {
@@ -1675,7 +1675,7 @@ H.git_start_watching_index = function(buf_id, path)
   -- via "create fresh 'index.lock' file, apply modifications, change file name
   -- to 'index'". Hence watch the whole '.git' (first level) and react only if
   -- change was in 'index' file.
-  local stdout = vim.loop.new_pipe()
+  local stdout = vim.uv.new_pipe()
   local args = { 'rev-parse', '--path-format=absolute', '--git-dir' }
   local spawn_opts = { args = args, cwd = vim.fn.fnamemodify(path, ':h'), stdio = { nil, stdout, nil } }
 
@@ -1705,12 +1705,12 @@ H.git_start_watching_index = function(buf_id, path)
     H.git_set_ref_text(buf_id)
   end
 
-  process = vim.loop.spawn('git', spawn_opts, on_exit)
+  process = vim.uv.spawn('git', spawn_opts, on_exit)
   H.git_read_stream(stdout, stdout_feed)
 end
 
 H.git_setup_index_watch = function(buf_id, git_dir_path)
-  local buf_fs_event, timer = vim.loop.new_fs_event(), vim.loop.new_timer()
+  local buf_fs_event, timer = vim.uv.new_fs_event(), vim.uv.new_timer()
   local buf_git_set_ref_text = function() H.git_set_ref_text(buf_id) end
 
   local watch_index = function(_, filename, _)
@@ -1735,7 +1735,7 @@ H.git_set_ref_text = vim.schedule_wrap(function(buf_id)
   local cwd, basename = vim.fn.fnamemodify(path, ':h'), vim.fn.fnamemodify(path, ':t')
 
   -- Set
-  local stdout = vim.loop.new_pipe()
+  local stdout = vim.uv.new_pipe()
   local spawn_opts = { args = { 'show', ':0:./' .. basename }, cwd = cwd, stdio = { nil, stdout, nil } }
 
   local process, stdout_feed = nil, {}
@@ -1756,14 +1756,14 @@ H.git_set_ref_text = vim.schedule_wrap(function(buf_id)
     buf_set_ref_text(text)
   end
 
-  process = vim.loop.spawn('git', spawn_opts, on_exit)
+  process = vim.uv.spawn('git', spawn_opts, on_exit)
   H.git_read_stream(stdout, stdout_feed)
 end)
 
 H.git_get_path_data = function(path)
   -- Get path data needed for proper patch header
   local cwd, basename = vim.fn.fnamemodify(path, ':h'), vim.fn.fnamemodify(path, ':t')
-  local stdout = vim.loop.new_pipe()
+  local stdout = vim.uv.new_pipe()
   local args = { 'ls-files', '-z', '--full-name', '--format=%(objectmode) %(eolinfo:index) %(path)', '--', basename }
   local spawn_opts = { args = args, cwd = cwd, stdio = { nil, stdout, nil } }
 
@@ -1778,7 +1778,7 @@ H.git_get_path_data = function(path)
     res.mode_bits, res.eol, res.rel_path = string.match(out, '^(%d+) (%S+) (.*)$')
   end
 
-  process = vim.loop.spawn('git', spawn_opts, on_exit)
+  process = vim.uv.spawn('git', spawn_opts, on_exit)
   H.git_read_stream(stdout, stdout_feed)
   vim.wait(1000, function() return did_exit end, 1)
   return res
@@ -1816,11 +1816,11 @@ H.git_format_patch = function(buf_id, hunks, path_data)
 end
 
 H.git_apply_patch = function(path_data, patch)
-  local stdin = vim.loop.new_pipe()
+  local stdin = vim.uv.new_pipe()
   local args = { 'apply', '--whitespace=nowarn', '--cached', '--unidiff-zero', '-' }
   local spawn_opts = { args = args, cwd = path_data.cwd, stdio = { stdin, nil, nil } }
   local process
-  process = vim.loop.spawn('git', spawn_opts, function() process:close() end)
+  process = vim.uv.spawn('git', spawn_opts, function() process:close() end)
 
   -- Write patch, notify that writing is finished (shutdown), and close
   for _, l in ipairs(patch) do
@@ -1841,8 +1841,8 @@ end
 
 H.git_invalidate_cache = function(cache)
   if cache == nil then return end
-  pcall(vim.loop.fs_event_stop, cache.fs_event)
-  pcall(vim.loop.timer_stop, cache.timer)
+  pcall(vim.uv.fs_event_stop, cache.fs_event)
+  pcall(vim.uv.timer_stop, cache.timer)
 end
 
 -- Utilities ------------------------------------------------------------------
@@ -1896,7 +1896,7 @@ H.get_buftext = function(buf_id)
 end
 
 -- Try getting buffer's full real path (after resolving symlinks)
-H.get_buf_realpath = function(buf_id) return vim.loop.fs_realpath(vim.api.nvim_buf_get_name(buf_id)) or '' end
+H.get_buf_realpath = function(buf_id) return vim.uv.fs_realpath(vim.api.nvim_buf_get_name(buf_id)) or '' end
 
 -- nvim__redraw replaced nvim__buf_redraw_range during the 0.10 release cycle
 H.redraw_buffer = function(buf_id)

@@ -1385,7 +1385,7 @@ MiniPick.builtin.grep_live = function(local_opts, opts)
   local set_items_opts, spawn_opts = { do_match = false, querytick = H.querytick }, { cwd = cwd }
   local process
   local match = function(_, _, query)
-    pcall(vim.loop.process_kill, process)
+    pcall(vim.uv.process_kill, process)
     if H.querytick == set_items_opts.querytick then return end
     if #query == 0 then return MiniPick.set_picker_items({}, set_items_opts) end
 
@@ -1730,15 +1730,15 @@ MiniPick.set_picker_items_from_cli = function(command, opts)
   opts = vim.tbl_deep_extend('force', default_opts, opts or {})
 
   local executable, args = command[1], vim.list_slice(command, 2, #command)
-  local process, pid, stdout = nil, nil, vim.loop.new_pipe()
+  local process, pid, stdout = nil, nil, vim.uv.new_pipe()
   local spawn_opts = vim.tbl_deep_extend('force', opts.spawn_opts, { args = args, stdio = { nil, stdout, nil } })
   if type(spawn_opts.cwd) == 'string' then spawn_opts.cwd = H.full_path(spawn_opts.cwd) end
-  process, pid = vim.loop.spawn(executable, spawn_opts, function()
+  process, pid = vim.uv.spawn(executable, spawn_opts, function()
     if process:is_active() then process:close() end
   end)
 
   -- Make sure to stop the process if picker is stopped
-  local kill_process = function() pcall(vim.loop.process_kill, process) end
+  local kill_process = function() pcall(vim.uv.process_kill, process) end
   vim.api.nvim_create_autocmd('User', { pattern = 'MiniPickStop', once = true, callback = kill_process })
 
   local data_feed = {}
@@ -1893,9 +1893,9 @@ H.ns_id = {
 
 -- Timers
 H.timers = {
-  busy = vim.loop.new_timer(),
-  focus = vim.loop.new_timer(),
-  getcharstr = vim.loop.new_timer(),
+  busy = vim.uv.new_timer(),
+  focus = vim.uv.new_timer(),
+  getcharstr = vim.uv.new_timer(),
 }
 
 -- Pickers
@@ -1908,7 +1908,7 @@ H.querytick = 0
 H.cache = {}
 
 -- File system information
-H.is_windows = vim.loop.os_uname().sysname == 'Windows_NT'
+H.is_windows = vim.uv.os_uname().sysname == 'Windows_NT'
 
 -- Helper functionality =======================================================
 -- Settings -------------------------------------------------------------------
@@ -2621,7 +2621,7 @@ H.picker_compute_footer = function(picker, win_id)
 end
 
 H.picker_stop = function(picker, abort)
-  vim.tbl_map(function(timer) pcall(vim.loop.timer_stop, timer) end, H.timers)
+  vim.tbl_map(function(timer) pcall(vim.uv.timer_stop, timer) end, H.timers)
 
   -- Show cursor (work around `guicursor=''` actually leaving cursor hidden)
   if H.cache.guicursor == '' then vim.cmd('set guicursor=a: | redraw') end
@@ -3231,7 +3231,7 @@ H.parse_path = function(x)
   local location_pattern = '()%z(%d+)%z?(%d*)%z?(.*)$'
   local from, lnum, col, rest = x:match(location_pattern)
   local path = x:sub(1, (from or 0) - 1)
-  path = path:sub(1, 1) == '~' and ((vim.loop.os_homedir() or '~') .. path:sub(2)) or path
+  path = path:sub(1, 1) == '~' and ((vim.uv.os_homedir() or '~') .. path:sub(2)) or path
 
   -- Verify that path is real
   local path_type = H.get_fs_type(path)
@@ -3482,9 +3482,9 @@ H.poke_picker_throttle = function(querytick_ref)
     return function() return true end
   end
 
-  local latest_time, dont_check_querytick = vim.loop.hrtime(), querytick_ref == nil
+  local latest_time, dont_check_querytick = vim.uv.hrtime(), querytick_ref == nil
   local threshold = 1000000 * H.get_config().delay.async
-  local hrtime = vim.loop.hrtime
+  local hrtime = vim.uv.hrtime
   local poke_is_picker_active = MiniPick.poke_is_picker_active
   return function()
     local now = hrtime()
@@ -3658,10 +3658,10 @@ H.get_next_char_bytecol = function(line_str, col)
 end
 
 H.is_file_text = function(path)
-  local fd = vim.loop.fs_open(path, 'r', 1)
+  local fd = vim.uv.fs_open(path, 'r', 1)
   if fd == nil then return nil end
-  local is_text = vim.loop.fs_read(fd, 1024):find('\0') == nil
-  vim.loop.fs_close(fd)
+  local is_text = vim.uv.fs_read(fd, 1024):find('\0') == nil
+  vim.uv.fs_close(fd)
   return is_text
 end
 

@@ -581,7 +581,7 @@ MiniAnimate.animate = function(step_action, step_timing, opts)
   opts = vim.tbl_deep_extend('force', { max_steps = 10000000 }, opts or {})
 
   local step, max_steps = 0, opts.max_steps
-  local timer, wait_time = vim.loop.new_timer(), 0
+  local timer, wait_time = vim.uv.new_timer(), 0
 
   local draw_step
   draw_step = vim.schedule_wrap(function()

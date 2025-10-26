@@ -226,7 +226,7 @@ Helpers.sleep = function(ms, child, skip_slow)
   if skip_slow then
     Helpers.skip_if_slow('Skip because state checks after sleep are hard to make robust in slow context')
   end
-  vim.loop.sleep(math.max(ms, 1))
+  vim.uv.sleep(math.max(ms, 1))
   if child ~= nil then child.poke_eventloop() end
 end
 

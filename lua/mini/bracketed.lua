@@ -1659,8 +1659,8 @@ H.get_file_data = function()
   local dir_path = cur_buf_path ~= '' and vim.fn.fnamemodify(cur_buf_path, ':p:h') or vim.fn.getcwd()
 
   -- Compute sorted array of all files in target directory
-  local dir_handle = vim.loop.fs_scandir(dir_path)
-  local files_stream = function() return vim.loop.fs_scandir_next(dir_handle) end
+  local dir_handle = vim.uv.fs_scandir(dir_path)
+  local files_stream = function() return vim.uv.fs_scandir_next(dir_handle) end
 
   local files = {}
   for basename, fs_type in files_stream do

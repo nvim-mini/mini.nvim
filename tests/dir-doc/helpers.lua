@@ -2,7 +2,7 @@ H = {}
 
 --- Remove (possibly not empty) directory
 _G.remove_dir = function(path)
-  local fs = vim.loop.fs_scandir(path)
+  local fs = vim.uv.fs_scandir(path)
   if not fs then
     vim.notify([[Couldn't open directory ]] .. path)
     return
@@ -10,13 +10,13 @@ _G.remove_dir = function(path)
 
   local path_sep = package.config:sub(1, 1)
   while true do
-    local f_name, _ = vim.loop.fs_scandir_next(fs)
+    local f_name, _ = vim.uv.fs_scandir_next(fs)
     if f_name == nil then break end
     local p = ('%s%s%s'):format(path, path_sep, f_name)
-    vim.loop.fs_unlink(p)
+    vim.uv.fs_unlink(p)
   end
 
-  vim.loop.fs_rmdir(path)
+  vim.uv.fs_rmdir(path)
 end
 
 _G.validate_doc_structure = function(x)

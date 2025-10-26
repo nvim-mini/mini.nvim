@@ -497,7 +497,7 @@ Use |ModeChanged| and |MiniSnippets-events| events: >lua
 Create environment variables and `config.expand.insert` wrapper: >lua
 
   -- Use evnironment variables with value is same for all snippet sessions
-  vim.loop.os_setenv('USERNAME', 'user')
+  vim.uv.os_setenv('USERNAME', 'user')
 
   -- Compute custom lookup for variables with dynamic values
   local insert_with_lookup = function(snippet)

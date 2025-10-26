@@ -1579,7 +1579,7 @@ MiniHues.get_palette = function() return vim.deepcopy(H.palette) end
 ---   proper random generation. For example: >
 ---
 ---   local hues = require('mini.hues')
----   math.randomseed(vim.loop.hrtime())
+---   math.randomseed(vim.uv.hrtime())
 ---   hues.setup(hues.gen_random_base_colors())
 ---
 ---@param opts table|nil Options. Possible values:

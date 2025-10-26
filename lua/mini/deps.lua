@@ -1200,11 +1200,11 @@ H.get_plugin_path = function(name)
 
   -- First check for the most common case of name present in 'pack/deps/opt'
   local opt_path = string.format('%s/pack/deps/opt/%s', package_path, name)
-  if vim.loop.fs_stat(opt_path) ~= nil then return opt_path, true end
+  if vim.uv.fs_stat(opt_path) ~= nil then return opt_path, true end
 
   -- Allow processing 'pack/deps/start'
   local start_path = string.format('%s/pack/deps/start/%s', package_path, name)
-  if vim.loop.fs_stat(start_path) ~= nil then return start_path, true end
+  if vim.uv.fs_stat(start_path) ~= nil then return start_path, true end
 
   -- Use 'opt' directory by default
   return opt_path, false
@@ -1484,9 +1484,9 @@ H.cli_run = function(jobs)
     local job = jobs[id_started]
     local command, cwd, exit_msg = job.command or {}, job.cwd, job.exit_msg
 
-    -- Prepare data for `vim.loop.spawn`
+    -- Prepare data for `vim.uv.spawn`
     local executable, args = command[1], vim.list_slice(command, 2, #command)
-    local process, stdout, stderr = nil, vim.loop.new_pipe(), vim.loop.new_pipe()
+    local process, stdout, stderr = nil, vim.uv.new_pipe(), vim.uv.new_pipe()
 
     -- - Unset special `GIT_xxx` variables that can affect `git` commands
     local env_map = vim.fn.environ()
@@ -1522,7 +1522,7 @@ H.cli_run = function(jobs)
       run_next()
     end
 
-    process = vim.loop.spawn(executable, spawn_opts, on_exit)
+    process = vim.uv.spawn(executable, spawn_opts, on_exit)
     H.cli_read_stream(stdout, job.out)
     H.cli_read_stream(stderr, job.err)
     vim.defer_fn(function()
@@ -1562,7 +1562,7 @@ H.schedule_finish = function()
 end
 
 H.finish = function()
-  local timer, step_delay = vim.loop.new_timer(), 1
+  local timer, step_delay = vim.uv.new_timer(), 1
   local f = nil
   f = vim.schedule_wrap(function()
     local callback = H.cache.later_callback_queue[1]
@@ -1619,7 +1619,7 @@ end
 
 H.get_timestamp = function() return vim.fn.strftime('%Y-%m-%d %H:%M:%S') end
 
-H.get_n_threads = function() return math.floor(0.8 * #(vim.loop.cpu_info() or {})) end
+H.get_n_threads = function() return math.floor(0.8 * #(vim.uv.cpu_info() or {})) end
 
 H.full_path = function(path) return (vim.fn.fnamemodify(path, ':p'):gsub('\\', '/'):gsub('/+', '/'):gsub('(.)/$', '%1')) end
 

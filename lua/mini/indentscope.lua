@@ -551,7 +551,7 @@ H.default_config = vim.deepcopy(MiniIndentscope.config)
 H.ns_id = vim.api.nvim_create_namespace('MiniIndentscope')
 
 -- Timer for doing animation
-H.timer = vim.loop.new_timer()
+H.timer = vim.uv.new_timer()
 
 -- Table with current relevalnt data:
 -- - `event_id` - counter for events.

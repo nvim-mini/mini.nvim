@@ -1066,7 +1066,7 @@ T['gen_source']['git()']['attaches only in readable file buffers'] = function()
   set_buf(new_scratch_buf())
   eq(is_buf_enabled(0), false)
 
-  child.lua('vim.loop.fs_realpath = function() return nil end')
+  child.lua('vim.uv.fs_realpath = function() return nil end')
   edit(test_file_path)
   eq(is_buf_enabled(0), false)
 
@@ -1251,7 +1251,7 @@ T['gen_source']['save()']['works'] = function()
   -- - Wait for `:checktime` itself to process
   for _ = 1, 100 do
     if child.api.nvim_buf_get_changedtick(0) ~= cur_changedtick then break end
-    vim.loop.sleep(small_time)
+    vim.uv.sleep(small_time)
   end
   if child.api.nvim_buf_get_changedtick(0) == cur_changedtick then
     MiniTest.skip('Could not wait for `silent! checktime` to take effect')

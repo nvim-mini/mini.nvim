@@ -1374,9 +1374,9 @@ T['Align']['does not stop on error during modifier execution'] = function()
   set_cursor(1, 0)
 
   -- Error in modifier execution should lead to a pause to make message visible
-  local before_time = vim.loop.hrtime()
+  local before_time = vim.uv.hrtime()
   type_keys('Vj', 'ga', 'e')
-  local duration = 0.000001 * (vim.loop.hrtime() - before_time)
+  local duration = 0.000001 * (vim.uv.hrtime() - before_time)
   eq(error_message_force_delay <= duration and duration <= error_message_force_delay + 2 * small_time, true)
   expect.match(get_latest_message(), '^%(mini.align%) Modifier "e" should be properly callable%. Reason:')
 end

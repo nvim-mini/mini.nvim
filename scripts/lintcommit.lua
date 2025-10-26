@@ -18,7 +18,7 @@ end
 local validate_subject = function(line)
   -- Possibly allow starting with 'fixup' to disable commit linting
   if vim.startswith(line, 'fixup') then
-    local is_strict = vim.loop.os_getenv('LINTCOMMIT_STRICT') ~= nil
+    local is_strict = vim.uv.os_getenv('LINTCOMMIT_STRICT') ~= nil
     local msg = is_strict and 'No "fixup" commits are allowed.' or ''
     return not is_strict, msg
   end
@@ -124,7 +124,7 @@ local validate_commit_msg = function(lines)
   local is_valid, err_msg
 
   -- If not in strict context, ignore lines which will be later cleaned up
-  local is_strict = vim.loop.os_getenv('LINTCOMMIT_STRICT') ~= nil
+  local is_strict = vim.uv.os_getenv('LINTCOMMIT_STRICT') ~= nil
   if not is_strict then lines = remove_cleanup_lines(lines) end
 
   -- Allow all lines to be empty to abort committing
@@ -296,7 +296,7 @@ local test_cases = {
 
 _G.test_cases_failed = {}
 
-vim.loop.os_unsetenv('LINTCOMMIT_STRICT')
+vim.uv.os_unsetenv('LINTCOMMIT_STRICT')
 for message, expected in pairs(test_cases) do
   local lines = vim.split(message, '\n')
   local is_valid = validate_commit_msg(lines)
@@ -305,7 +305,7 @@ for message, expected in pairs(test_cases) do
   end
 end
 
-vim.loop.os_setenv('LINTCOMMIT_STRICT', 'true')
+vim.uv.os_setenv('LINTCOMMIT_STRICT', 'true')
 local strict_test_cases = {
   -- Fixup commit type is not allowed
   ['fixup'] = false,
@@ -340,4 +340,4 @@ for message, expected in pairs(strict_test_cases) do
 end
 
 -- Cleanup
-vim.loop.os_unsetenv('LINTCOMMIT_STRICT')
+vim.uv.os_unsetenv('LINTCOMMIT_STRICT')

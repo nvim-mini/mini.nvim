@@ -303,7 +303,7 @@ H.cache = {
 }
 
 -- Timers for different delay-related functionalities
-H.timers = { highlight = vim.loop.new_timer(), idle_stop = vim.loop.new_timer() }
+H.timers = { highlight = vim.uv.new_timer(), idle_stop = vim.uv.new_timer() }
 
 -- Information about last match highlighting (stored *per window*):
 -- - Key: windows' unique buffer identifiers.

@@ -51,7 +51,7 @@ local get_active_items_names = function(buf_id)
 end
 
 local mock_user_and_time = function()
-  child.lua([[vim.loop.os_get_passwd = function() return { username = 'MINI' } end]])
+  child.lua([[vim.uv.os_get_passwd = function() return { username = 'MINI' } end]])
   child.lua([[vim.fn.strftime = function(x) return x == '%H' and '12' or '' end]])
 end
 

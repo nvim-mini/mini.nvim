@@ -17,9 +17,9 @@ end
 -- arrays as source. Each feed's element should be either string (for usable
 -- data) or a table with `err` field (for error).
 local stream_counts = {}
-vim.loop.new_pipe = function()
+vim.uv.new_pipe = function()
   -- NOTE: Use `_G.stream_type_queue` to determine which stream type to create
-  -- (for log purposes). This is to account for `vim.loop.spawn` creating
+  -- (for log purposes). This is to account for `vim.uv.spawn` creating
   -- different sets of streams. Assume 'stdout' by default.
   if _G.stream_type_queue == nil or #_G.stream_type_queue == 0 then _G.stream_type_queue = { 'stdout' } end
   local stream_type = _G.stream_type_queue[1]
@@ -45,7 +45,7 @@ vim.loop.new_pipe = function()
 end
 
 _G.spawn_log = {}
-vim.loop.spawn = function(path, options, on_exit)
+vim.uv.spawn = function(path, options, on_exit)
   local options_without_callables = vim.deepcopy(options)
   options_without_callables.stdio = nil
   table.insert(_G.spawn_log, { executable = path, options = options_without_callables })
@@ -57,7 +57,7 @@ vim.loop.spawn = function(path, options, on_exit)
   return new_process(pid), pid
 end
 
-vim.loop.process_kill = function(process)
+vim.uv.process_kill = function(process)
   process._is_active_indicator = false
   table.insert(_G.process_log, 'Process ' .. process.pid .. ' was killed.')
 end

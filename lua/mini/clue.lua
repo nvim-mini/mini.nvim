@@ -1154,7 +1154,7 @@ H.state = {
   -- Array of raw keys
   query = {},
   clues = {},
-  timer = vim.loop.new_timer(),
+  timer = vim.uv.new_timer(),
   buf_id = nil,
   win_id = nil,
   is_after_postkeys = false,
@@ -1182,7 +1182,7 @@ H.keys = {
 
 -- Timers
 H.timers = {
-  getcharstr = vim.loop.new_timer(),
+  getcharstr = vim.uv.new_timer(),
 }
 
 -- Undo autocommand to be created for several operator tweaks

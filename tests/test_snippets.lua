@@ -2989,8 +2989,8 @@ T['parse()']['respects `opts.normalize`'] = function()
   -- Evaluates variable only once
   child.lua([[
     _G.log = {}
-    local os_getenv_orig = vim.loop.os_getenv
-    vim.loop.os_getenv = function(...)
+    local os_getenv_orig = vim.uv.os_getenv
+    vim.uv.os_getenv = function(...)
       table.insert(_G.log, { ... })
       return os_getenv_orig(...)
     end
@@ -3153,7 +3153,7 @@ T['parse()']['can resolve special variables'] = function()
   validate('$CURRENT_SECONDS_UNIX', { { var = 'CURRENT_SECONDS_UNIX', text = '111' }, final_tabstop })
 
   -- Random values
-  child.lua('vim.loop.hrtime = function() return 101 end') -- mock reproducible `math.randomseed`
+  child.lua('vim.uv.hrtime = function() return 101 end') -- mock reproducible `math.randomseed`
   local ref_random = {
     { var = 'RANDOM', text = '491985' }, { var = 'RANDOM', text = '873024' },
     { var = 'RANDOM_HEX', text = '10347d' }, { var = 'RANDOM_HEX', text = 'df5ed0' },
@@ -4768,7 +4768,7 @@ T['Various snippets']['var'] = function()
   end
 
   -- Basic cases
-  child.lua('vim.loop.hrtime = function() return 101 end') -- mock reproducible `math.randomseed`
+  child.lua('vim.uv.hrtime = function() return 101 end') -- mock reproducible `math.randomseed`
   validate('$RANDOM ${RANDOM}', { '491985 873024' }, { 1, 13 })
 
   child.fn.setreg('"', 'abc\n')
@@ -5253,7 +5253,7 @@ end
 
 T['Examples']['customize variable evaluation'] = function()
   child.lua([[
-    vim.loop.os_setenv('USERNAME', 'user')
+    vim.uv.os_setenv('USERNAME', 'user')
     local insert_with_lookup = function(snippet)
       local lookup = {
         TM_SELECTED_TEXT = table.concat(vim.fn.getreg('a', true, true), '\n'),

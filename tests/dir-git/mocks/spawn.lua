@@ -19,7 +19,7 @@ end
 -- - Element 2 is the feed of the pipe. Can be `nil`, `string`, `string[]`.
 _G.stdio_queue = {}
 local process_pipe_indexes = {}
-vim.loop.new_pipe = function()
+vim.uv.new_pipe = function()
   local cur_process_id = process_id
   local process_pipe_data = _G.stdio_queue[cur_process_id] or {}
 
@@ -58,7 +58,7 @@ end
 -- - <exit_code> `(number|nil)` - exit code. Default: 0.
 _G.process_mock_data = {}
 _G.spawn_log = {}
-vim.loop.spawn = function(path, options, on_exit)
+vim.uv.spawn = function(path, options, on_exit)
   local options_without_callables = vim.deepcopy(options) or {}
   options_without_callables.stdio = nil
   table.insert(_G.spawn_log, { executable = path, options = options_without_callables })

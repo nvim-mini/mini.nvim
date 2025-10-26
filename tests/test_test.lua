@@ -1274,9 +1274,9 @@ end
 
 T['child']['type_keys()']['respects `wait` argument'] = function()
   local delay = helpers.get_time_const(100)
-  local start_time = vim.loop.hrtime()
+  local start_time = vim.uv.hrtime()
   child.type_keys(delay, 'i', 'Hello', { 'w', 'o' }, 'rld')
-  local end_time = vim.loop.hrtime()
+  local end_time = vim.uv.hrtime()
   local duration = (end_time - start_time) * 0.000001
   eq(0.9 * 5 * delay <= duration and duration <= 1.1 * 5 * delay, true)
 end
@@ -1581,7 +1581,7 @@ T['gen_reporter']['stdout'] = new_set({
     local command = string.format([[%s %s --headless --clean -n -u %s]], env_var, vim.v.progpath, vim.inspect(path))
     child.fn.termopen(command)
     -- Wait until check is done and possible process is ended
-    vim.loop.sleep(terminal_wait)
+    vim.uv.sleep(terminal_wait)
     local ignore_attr = child.fn.has('nvim-0.11') == 1 and {} or { 31, 32, 34, 35 }
     child.expect_screenshot({ ignore_attr = ignore_attr })
   end,

@@ -2164,7 +2164,7 @@ H.set_buf_name = function(buf_id, name) vim.api.nvim_buf_set_name(buf_id, 'minii
 H.notify = function(msg, level_name) vim.notify('(mini.icons) ' .. msg, vim.log.levels[level_name]) end
 
 H.fs_basename = function(x) return vim.fn.fnamemodify(x:sub(-1, -1) == '/' and x:sub(1, -2) or x, ':t') end
-if vim.loop.os_uname().sysname == 'Windows_NT' then
+if vim.uv.os_uname().sysname == 'Windows_NT' then
   H.fs_basename = function(x)
     local last = x:sub(-1, -1)
     return vim.fn.fnamemodify((last == '/' or last == '\\') and x:sub(1, -2) or x, ':t')

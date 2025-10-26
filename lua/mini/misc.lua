@@ -88,9 +88,9 @@ MiniMisc.bench_time = function(f, n, ...)
   n = n or 1
   local durations, output = {}, nil
   for _ = 1, n do
-    local start_time = vim.loop.hrtime()
+    local start_time = vim.uv.hrtime()
     output = f(...)
-    local end_time = vim.loop.hrtime()
+    local end_time = vim.uv.hrtime()
     table.insert(durations, 0.000000001 * (end_time - start_time))
   end
 

@@ -648,8 +648,8 @@ end
 H.default_config = vim.deepcopy(MiniHipatterns.config)
 
 -- Timers
-H.timer_debounce = vim.loop.new_timer()
-H.timer_view = vim.loop.new_timer()
+H.timer_debounce = vim.uv.new_timer()
+H.timer_view = vim.uv.new_timer()
 
 -- Namespaces per highlighter name
 H.ns_id = {}

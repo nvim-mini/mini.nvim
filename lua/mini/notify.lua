@@ -897,8 +897,8 @@ H.fit_to_width = function(text, width)
 end
 
 H.get_timestamp = function()
-  -- This is more acceptable for `vim.fn.strftime()` than `vim.loop.hrtime()`
-  local seconds, microseconds = vim.loop.gettimeofday()
+  -- This is more acceptable for `vim.fn.strftime()` than `vim.uv.hrtime()`
+  local seconds, microseconds = vim.uv.gettimeofday()
   return seconds + 0.000001 * microseconds
 end
 

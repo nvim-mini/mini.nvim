@@ -708,7 +708,7 @@ H.completion = {
   force = false,
   source = nil,
   text_changed_id = 0,
-  timer = vim.loop.new_timer(),
+  timer = vim.uv.new_timer(),
   lsp = { id = 0, status = nil, is_incomplete = false, result = nil, resolved = {}, cancel_fun = nil, context = nil },
   init_base = { lnum = nil, col = nil, length = nil },
 }
@@ -718,7 +718,7 @@ H.info = {
   bufnr = nil,
   event = nil,
   id = 0,
-  timer = vim.loop.new_timer(),
+  timer = vim.uv.new_timer(),
   win_id = nil,
   lsp = { id = 0, status = nil, result = nil, cancel_fun = nil },
 }
@@ -727,7 +727,7 @@ H.info = {
 H.signature = {
   bufnr = nil,
   text = nil,
-  timer = vim.loop.new_timer(),
+  timer = vim.uv.new_timer(),
   win_id = nil,
   lsp = { id = 0, status = nil, result = nil, cancel_fun = nil },
 }

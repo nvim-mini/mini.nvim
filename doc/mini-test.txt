@@ -804,7 +804,7 @@ Fields ~
 {highlight} `(table)` Redirection table for |vim.highlight|.
 {hl} `(table)` Redirection table for |vim.hl|.
 {json} `(table)` Redirection table for `vim.json`.
-{loop} `(table)` Redirection table for |vim.loop|.
+{loop} `(table)` Redirection table for |vim.uv|.
 {lsp} `(table)` Redirection table for `vim.lsp` (|lsp-core|).
 {mpack} `(table)` Redirection table for |vim.mpack|.
 {spell} `(table)` Redirection table for |vim.spell|.
