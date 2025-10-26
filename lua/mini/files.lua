@@ -1526,6 +1526,22 @@ H.explorer_refresh = function(explorer, opts)
   local win_id_focused = explorer.windows[win_focus_count]
   H.window_focus(win_id_focused)
 
+  -- Resize windows in proportion to still fit on screen
+  if vim.o.columns < cur_win_col then
+    local resize_ratio = vim.o.columns / cur_win_col
+    cur_win_col = 0
+    for win_index = depth_range.from, depth_range.to do
+      local win_id = explorer.windows[win_index]
+      local win_width = vim.api.nvim_win_get_width(win_id)
+      local new_win_width = math.floor(win_width * resize_ratio)
+      vim.api.nvim_win_set_width(win_id, new_win_width)
+      local win_config = vim.api.nvim_win_get_config(win_id)
+      win_config.col = cur_win_col
+      vim.api.nvim_win_set_config(win_id, win_config)
+      cur_win_col = cur_win_col + new_win_width + 2
+    end
+  end
+
   -- Register as currently opened
   local tabpage_id = vim.api.nvim_win_get_tabpage(win_id_focused)
   H.opened_explorers[tabpage_id] = explorer
