@@ -1343,7 +1343,7 @@ MiniPick.builtin.grep = function(local_opts, opts)
   local default_opts = { source = { name = string.format('Grep (%s%s)', tool, name_suffix), show = show } }
   opts = vim.tbl_deep_extend('force', default_opts, opts or {})
 
-  local pattern = type(local_opts.pattern) == 'string' and local_opts.pattern or vim.fn.input('Grep pattern: ')
+  local pattern = type(local_opts.pattern) == 'string' and local_opts.pattern or H.user_input('Grep pattern')
   if tool == 'fallback' then
     local cwd = H.full_path(opts.source.cwd or vim.fn.getcwd())
     opts.source.items = function() H.grep_fallback_items(pattern, cwd) end
@@ -1357,7 +1357,8 @@ end
 ---
 --- Perform pattern matching treating prompt as pattern. Gives live feedback on
 --- which matches are found. Use |MiniPick-actions-refine| to revert to regular
---- matching. Use `<C-o>` to restrict search to files matching glob patterns.
+--- matching. Use `<C-o>` to restrict search to files matching glob patterns,
+--- `<C-S-O>` to remove glob patterns, `<C-m>` to modify glob patterns.
 --- Tries to use one of the CLI tools to create items (see |MiniPick-cli-tools|):
 --- `rg`, `git`. If none is present, error is thrown (for performance reasons).
 ---
@@ -1369,6 +1370,8 @@ end
 ---     Default: whichever tool is present, trying in that same order.
 ---   - __pick_builtin_grep_globs
 ---     Use `<C-o>` custom mapping to add glob to the array.
+---     Use `<C-S-O>` custom mapping to remove glob from the array.
+---     Use `<C-m>` custom mapping to modify glob inside the array.
 ---@param opts __pick_builtin_opts
 MiniPick.builtin.grep_live = function(local_opts, opts)
   local_opts = vim.tbl_extend('force', { tool = nil, globs = {} }, local_opts or {})
@@ -1394,14 +1397,71 @@ MiniPick.builtin.grep_live = function(local_opts, opts)
     process = MiniPick.set_picker_items_from_cli(command, { set_items_opts = set_items_opts, spawn_opts = spawn_opts })
   end
 
-  local add_glob = function()
-    local ok, glob = pcall(vim.fn.input, 'Glob pattern: ')
-    if ok then table.insert(globs, glob) end
+  -- update picker query with modified globs
+  local update_query = function()
     name_suffix = #globs == 0 and '' or (' | ' .. table.concat(globs, ', '))
     MiniPick.set_picker_opts({ source = { name = string.format('Grep live (%s%s)', tool, name_suffix) } })
     MiniPick.set_picker_query(MiniPick.get_picker_query())
   end
-  local mappings = { add_glob = { char = '<C-o>', func = add_glob } }
+
+  -- return glob number from user input if available
+  local pick_glob = function(action)
+    if #globs == 0 then
+      H.echo({ { 'Glob list is empty', 'ErrorMsg' } })
+      return
+    end
+
+    local glob_list = ''
+    for i, g in ipairs(globs) do
+      glob_list = glob_list .. string.format(' {%d: %s}', i, g)
+    end
+    H.echo({ { 'Glob list:' }, { glob_list, 'WarningMsg' }, { '. ' } })
+
+    local glob_id = H.user_input('Enter glob number to ' .. action)
+    if not glob_id or vim.trim(glob_id) == '' then return end
+
+    glob_id = tonumber(glob_id) or glob_id
+    if type(glob_id) ~= 'number' or glob_id < 1 or glob_id > #globs then
+      H.echo({ { 'Invalid selection: ' .. glob_id, 'ErrorMsg' } })
+      return
+    end
+
+    return glob_id
+  end
+
+  local add_glob = function()
+    local glob = H.user_input('Glob pattern')
+    if not glob or vim.trim(glob) == '' then return end
+
+    table.insert(globs, glob)
+    update_query()
+  end
+
+  local remove_glob = function()
+    local glob_id = pick_glob('remove')
+    if not glob_id then return end
+
+    table.remove(globs, glob_id)
+    update_query()
+  end
+
+  local modify_glob = function()
+    local glob_id = pick_glob('modify')
+    if not glob_id then return end
+
+    local glob = H.user_input('Glob pattern', globs[glob_id])
+    if not glob or vim.trim(glob) == '' then return end
+
+    globs[glob_id] = glob
+    update_query()
+  end
+
+  --stylua: ignore
+  local mappings = {
+    add_glob    = { char = '<C-o>',   func = add_glob },
+    remove_glob = { char = '<C-S-O>', func = remove_glob },
+    modify_glob = { char = '<C-m>',   func = modify_glob },
+  }
 
   opts = vim.tbl_deep_extend('force', opts or {}, { source = { items = {}, match = match }, mappings = mappings })
   return MiniPick.start(opts)
@@ -1889,6 +1949,7 @@ H.ns_id = {
   headers = vim.api.nvim_create_namespace('MiniPickHeaders'),
   preview = vim.api.nvim_create_namespace('MiniPickPreview'),
   ranges = vim.api.nvim_create_namespace('MiniPickRanges'),
+  input = vim.api.nvim_create_namespace('MiniPickInput'),
 }
 
 -- Timers
@@ -3496,6 +3557,49 @@ H.poke_picker_throttle = function(querytick_ref)
 end
 
 -- Utilities ------------------------------------------------------------------
+H.user_input = function(prompt, text)
+  -- Register temporary keystroke listener to distinguish between cancel with
+  -- `<Esc>` and immediate `<CR>`.
+  local on_key = vim.on_key or vim.register_keystroke_callback
+  local was_cancelled = false
+  on_key(function(key)
+    if key == vim.api.nvim_replace_termcodes('<Esc>', true, true, true) then was_cancelled = true end
+  end, H.ns_id.input)
+
+  -- Ask for input
+  local opts = { prompt = '(mini.pick) ' .. prompt .. ': ', default = text or '' }
+  vim.cmd('echohl Question')
+  -- Use `pcall` to allow `<C-c>` to cancel user input
+  local ok, res = pcall(vim.fn.input, opts)
+  vim.cmd([[echohl None | echo '' | redraw]])
+
+  -- Stop key listening
+  on_key(nil, H.ns_id.input)
+
+  if not ok or was_cancelled then return end
+  return res
+end
+
+H.echo = function(msg, is_important)
+  -- Construct message chunks
+  msg = type(msg) == 'string' and { { msg } } or msg
+  table.insert(msg, 1, { '(mini.pick) ', 'WarningMsg' })
+
+  -- Avoid hit-enter-prompt
+  local max_width = vim.o.columns * math.max(vim.o.cmdheight - 1, 0) + vim.v.echospace
+  local chunks, tot_width = {}, 0
+  for _, ch in ipairs(msg) do
+    local new_ch = { vim.fn.strcharpart(ch[1], 0, max_width - tot_width), ch[2] }
+    table.insert(chunks, new_ch)
+    tot_width = tot_width + vim.fn.strdisplaywidth(new_ch[1])
+    if tot_width >= max_width then break end
+  end
+
+  -- Echo. Force redraw to ensure that it is effective (`:h echo-redraw`)
+  vim.cmd([[echo '' | redraw]])
+  vim.api.nvim_echo(chunks, is_important, {})
+end
+
 H.error = function(msg) error('(mini.pick) ' .. msg, 0) end
 
 H.check_type = function(name, val, ref, allow_nil)

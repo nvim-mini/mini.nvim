@@ -1138,7 +1138,8 @@ Pick from pattern matches with live feedback
 
 Perform pattern matching treating prompt as pattern. Gives live feedback on
 which matches are found. Use |MiniPick-actions-refine| to revert to regular
-matching. Use `<C-o>` to restrict search to files matching glob patterns.
+matching. Use `<C-o>` to restrict search to files matching glob patterns,
+`<C-S-O>` to remove glob patterns, `<C-m>` to modify glob patterns.
 Tries to use one of the CLI tools to create items (see |MiniPick-cli-tools|):
 `rg`, `git`. If none is present, error is thrown (for performance reasons).
 
@@ -1154,6 +1155,8 @@ Parameters ~
     specific glob syntax and effects. Default: `{}` (no restriction).
     Example: `{ '*.lua', 'lua/**' }` for Lua files and files in "lua" directory.
     Use `<C-o>` custom mapping to add glob to the array.
+    Use `<C-S-O>` custom mapping to remove glob from the array.
+    Use `<C-m>` custom mapping to modify glob inside the array.
 {opts} `(table|nil)` Options forwarded to |MiniPick.start()|.
 
 ------------------------------------------------------------------------------
