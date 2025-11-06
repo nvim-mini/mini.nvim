@@ -611,8 +611,12 @@ Defaults ~
       width_focus = 50,
       -- Width of non-focused window
       width_nofocus = 15,
-      -- Width of preview window
+      -- Width of preview window (0 to fit preview buffer content)
       width_preview = 25,
+      -- Maximum width of preview window (used when width_preview is 0)
+      width_preview_max = 80,
+      -- Minimum width of preview window (used when width_preview is 0)
+      width_preview_min = 15,
     },
   }
 <

@@ -709,8 +709,12 @@ MiniFiles.config = {
     width_focus = 50,
     -- Width of non-focused window
     width_nofocus = 15,
-    -- Width of preview window
+    -- Width of preview window (0 to fit preview buffer content)
     width_preview = 25,
+    -- Maximum width of preview window (used when width_preview is 0)
+    width_preview_max = 80,
+    -- Minimum width of preview window (used when width_preview is 0)
+    width_preview_min = 15,
   },
 }
 --minidoc_afterlines_end
@@ -1317,6 +1321,8 @@ H.setup_config = function(config)
   H.check_type('windows.width_focus', config.windows.width_focus, 'number')
   H.check_type('windows.width_nofocus', config.windows.width_nofocus, 'number')
   H.check_type('windows.width_preview', config.windows.width_preview, 'number')
+  H.check_type('windows.width_preview_max', config.windows.width_preview_max, 'number')
+  H.check_type('windows.width_preview_min', config.windows.width_preview_min, 'number')
 
   return config
 end
@@ -1760,16 +1766,18 @@ H.explorer_refresh_depth_window = function(explorer, depth, win_count, win_col)
   local path = explorer.branch[depth]
   local views, windows, opts = explorer.views, explorer.windows, explorer.opts
 
-  -- Compute width based on window role
+  -- Compute window role
   local win_is_focused = depth == explorer.depth_focus
   local win_is_preview = opts.windows.preview and (depth == (explorer.depth_focus + 1))
-  local cur_width = win_is_focused and opts.windows.width_focus
-    or (win_is_preview and opts.windows.width_preview or opts.windows.width_nofocus)
 
   -- Prepare target view
   local view = views[path] or {}
   view = H.view_ensure_proper(view, path, opts, win_is_focused, win_is_preview)
   views[path] = view
+
+  -- Compute width based on window role
+  local nofocus_width = win_is_preview and H.window_compute_preview_width(opts, view.buf_id) or opts.windows.width_nofocus
+  local cur_width = win_is_focused and opts.windows.width_focus or nofocus_width
 
   -- Create relevant window config
   local config = {
@@ -1958,7 +1966,7 @@ H.compute_visible_depth_range = function(explorer, opts)
   local width_focus, width_nofocus = opts.windows.width_focus + 2, opts.windows.width_nofocus + 2
 
   local has_preview = explorer.opts.windows.preview and explorer.depth_focus < #explorer.branch
-  local width_preview = has_preview and (opts.windows.width_preview + 2) or width_nofocus
+  local width_preview = has_preview and (H.window_compute_preview_width(opts) + 2) or width_nofocus
 
   local max_number = 1
   if (width_focus + width_preview) <= vim.o.columns then max_number = max_number + 1 end
@@ -2114,7 +2122,8 @@ H.buffer_create = function(path, mappings)
   H.set_buf_name(buf_id, path)
 
   -- Register buffer
-  H.opened_buffers[buf_id] = { path = path }
+  if not H.opened_buffers[buf_id] then H.opened_buffers[buf_id] = {} end
+  H.opened_buffers[buf_id].path = path
 
   -- Set buffer options
   vim.bo[buf_id].filetype = 'minifiles'
@@ -2239,7 +2248,7 @@ H.buffer_update = function(buf_id, path, opts, is_preview)
   local fs_type = H.fs_get_type(path)
   if fs_type == 'directory' then H.buffer_update_directory(buf_id, path, opts, is_preview) end
   if fs_type == 'file' then H.buffer_update_file(buf_id, path, opts, is_preview) end
-  if fs_type == nil then H.set_buflines(buf_id, { '-No-fs-entry-' .. string.rep('-', opts.windows.width_preview) }) end
+  if fs_type == nil then H.set_buflines(buf_id, { '-No-fs-entry-' .. string.rep('-', H.window_compute_preview_width(opts)) }) end
 
   -- Trigger dedicated event
   local data = { buf_id = buf_id, win_id = H.opened_buffers[buf_id].win_id }
@@ -2303,7 +2312,7 @@ end
 H.buffer_update_file = function(buf_id, path, opts, _)
   -- Work only with readable text file. This is not 100% proof, but good enough.
   -- Source: https://github.com/sharkdp/content_inspector
-  local fd, width_preview = vim.loop.fs_open(path, 'r', 1), opts.windows.width_preview
+  local fd, width_preview = vim.loop.fs_open(path, 'r', 1), H.window_compute_preview_width(opts, buf_id)
   if fd == nil then return H.set_buflines(buf_id, { '-No-access' .. string.rep('-', width_preview) }) end
   local is_text = vim.loop.fs_read(fd, 1024):find('\0') == nil
   vim.loop.fs_close(fd)
@@ -2552,6 +2561,17 @@ H.window_get_max_height = function()
   local has_statusline = vim.o.laststatus > 0
   -- Remove 2 from maximum height to account for top and bottom borders
   return vim.o.lines - vim.o.cmdheight - (has_tabline and 1 or 0) - (has_statusline and 1 or 0) - 2
+end
+
+H.window_compute_preview_width = function(opts, buf_id)
+  local windows = opts.windows
+  if windows.width_preview > 0 then
+    return windows.width_preview
+  else
+    local buf_ok = buf_id ~= nil and type(H.opened_buffers[buf_id] == 'table')
+    local buf_max_columns = (buf_ok and H.opened_buffers[buf_id].max_columns or nil) or 0
+    return math.max(math.min(buf_max_columns, windows.width_preview_max), windows.width_preview_min)
+  end
 end
 
 -- File system ----------------------------------------------------------------
@@ -2916,6 +2936,10 @@ end
 H.get_bufline = function(buf_id, line) return vim.api.nvim_buf_get_lines(buf_id, line - 1, line, false)[1] end
 
 H.set_buflines = function(buf_id, lines)
+  local max = 0
+  for _, line in ipairs(lines) do max = math.max(max, #line) end
+  if not H.opened_buffers[buf_id] then H.opened_buffers[buf_id] = {} end
+  H.opened_buffers[buf_id].max_columns = max
   local cmd =
     string.format('lockmarks lua vim.api.nvim_buf_set_lines(%d, 0, -1, false, %s)', buf_id, vim.inspect(lines))
   vim.cmd(cmd)
