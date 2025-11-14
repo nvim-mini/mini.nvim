@@ -621,12 +621,16 @@ Notes:
     - "references".
     - "type_definition".
     - "workspace_symbol".
+    - "workspace_symbol_live" - same as "workspace_symbol", but with live
+      feedback treating picker's prompt as LSP server query. Similar to
+      how |MiniPick.builtin.grep_live()| and |MiniPick.builtin.grep()| are
+      related. To use regular matching, use |MiniPick-actions-refine|.
 - Relies on `vim.lsp.buf` methods supporting |vim.lsp.LocationOpts.OnList|.
   In particular, it means that picker is started only if LSP server returns
   list of locations and not a single location.
 - Doesn't return anything due to async nature of `vim.lsp.buf` methods.
 - Requires set up |mini.icons| to show extra icons and highlighting in
-  "document_symbol" and "workspace_symbol" scopes.
+  "document_symbol", "workspace_symbol", "workspace_symbol_live" scopes.
 
 Examples:
 
@@ -639,7 +643,7 @@ Parameters ~
   Possible fields:
   - <scope> `(string)` - LSP method to use. One of the supported ones (see
     list above). Default: `nil` which means explicit scope is needed.
-  - <symbol_query> `(string)` - query for |vim.lsp.buf.workspace_symbol()|.
+  - <symbol_query> `(string)` - query for `"workspace_symbol"` scope.
     Default: empty string for all symbols (according to LSP specification).
 {opts} `(table|nil)` Options forwarded to |MiniPick.start()|.
 

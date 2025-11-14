@@ -1172,12 +1172,16 @@ end
 ---     - "references".
 ---     - "type_definition".
 ---     - "workspace_symbol".
+---     - "workspace_symbol_live" - same as "workspace_symbol", but with live
+---       feedback treating picker's prompt as LSP server query. Similar to
+---       how |MiniPick.builtin.grep_live()| and |MiniPick.builtin.grep()| are
+---       related. To use regular matching, use |MiniPick-actions-refine|.
 --- - Relies on `vim.lsp.buf` methods supporting |vim.lsp.LocationOpts.OnList|.
 ---   In particular, it means that picker is started only if LSP server returns
 ---   list of locations and not a single location.
 --- - Doesn't return anything due to async nature of `vim.lsp.buf` methods.
 --- - Requires set up |mini.icons| to show extra icons and highlighting in
----   "document_symbol" and "workspace_symbol" scopes.
+---   "document_symbol", "workspace_symbol", "workspace_symbol_live" scopes.
 ---
 --- Examples:
 ---
@@ -1189,7 +1193,7 @@ end
 ---   Possible fields:
 ---   - <scope> `(string)` - LSP method to use. One of the supported ones (see
 ---     list above). Default: `nil` which means explicit scope is needed.
----   - <symbol_query> `(string)` - query for |vim.lsp.buf.workspace_symbol()|.
+---   - <symbol_query> `(string)` - query for `"workspace_symbol"` scope.
 ---     Default: empty string for all symbols (according to LSP specification).
 ---@param opts __extra_pickers_opts
 ---
@@ -1201,15 +1205,26 @@ MiniExtra.pickers.lsp = function(local_opts, opts)
   if local_opts.scope == nil then H.error('`pickers.lsp` needs an explicit scope.') end
   --stylua: ignore
   local allowed_scopes = {
-    'declaration', 'definition', 'document_symbol', 'implementation', 'references', 'type_definition', 'workspace_symbol',
+    'declaration', 'definition', 'document_symbol', 'implementation',
+    'references', 'type_definition', 'workspace_symbol', 'workspace_symbol_live'
   }
   local scope = H.pick_validate_scope(local_opts, allowed_scopes, 'lsp')
 
-  local buf_lsp_opts = H.lsp_make_opts(scope, opts)
+  local buf_lsp_opts, picker_opts = H.lsp_make_opts(scope, opts)
   if scope == 'references' then return vim.lsp.buf[scope](nil, buf_lsp_opts) end
   if scope == 'workspace_symbol' then
     local query = tostring(local_opts.symbol_query)
     return vim.lsp.buf[scope](query, buf_lsp_opts)
+  end
+  if scope == 'workspace_symbol_live' then
+    picker_opts.source.match = function(_, _, query)
+      if #query == 0 then return MiniPick.set_picker_items({}, { do_match = false }) end
+      local win_id = MiniPick.get_picker_state().windows.target
+      local buf_id = vim.api.nvim_win_get_buf(win_id)
+      vim.api.nvim_buf_call(buf_id, function() vim.lsp.buf.workspace_symbol(table.concat(query), buf_lsp_opts) end)
+    end
+
+    return H.pick_start({}, picker_opts, opts)
   end
   vim.lsp.buf[scope](buf_lsp_opts)
 end
@@ -1991,10 +2006,14 @@ H.lsp_make_opts = function(source, opts)
     end
     items = process(items)
 
+    if MiniPick.is_picker_active() and source == 'workspace_symbol_live' then
+      return MiniPick.set_picker_items(items, { do_match = false })
+    end
+
     return H.pick_start(items, picker_opts, opts)
   end
 
-  return { on_list = on_list }
+  return { on_list = on_list }, picker_opts
 end
 
 H.get_symbol_kind_map = function()

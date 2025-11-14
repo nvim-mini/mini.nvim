@@ -563,7 +563,8 @@ This action is useful in at least two cases:
   both "hello" and "world" exact matches (in no particular order) with default
   matching, type "'hello" (notice "'" at the start) followed by `<C-Space>` and
   another "'world".
-- Reset `match` to default. Particularly useful in |MiniPick.builtin.grep_live()|.
+- Reset `match` to default. Particularly useful in |MiniPick.builtin.grep_live()|
+  and |MiniExtra.pickers.lsp()| with `scope='workspace_symbol_live'`.
 
 ## Scroll ~
 *MiniPick-actions-scroll*
