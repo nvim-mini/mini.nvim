@@ -881,6 +881,7 @@ H.file_icons = {
   LICENSE                = { glyph = '', hl = 'MiniIconsCyan'   },
   ['LICENSE.md']         = { glyph = '', hl = 'MiniIconsCyan'   },
   ['LICENSE.txt']        = { glyph = '', hl = 'MiniIconsCyan'   },
+  UNLICENSE              = { glyph = '', hl = 'MiniIconsCyan'   },
   NEWS                   = { glyph = '󰎕', hl = 'MiniIconsBlue'   },
   ['NEWS.md']            = { glyph = '󰎕', hl = 'MiniIconsBlue'   },
   PKGBUILD               = { glyph = '󱁤', hl = 'MiniIconsPurple' },
