@@ -717,6 +717,13 @@ H.apply_palette = function(palette, use_cterm)
     hi('MiniClueSeparator',           {link='DiagnosticFloatingInfo'})
     hi('MiniClueTitle',               {fg=p.base0D, bg=p.base01, attr='bold', sp=nil})
 
+    hi('MiniCmdlinePeekBorder', {link='FloatBorder'})
+    hi('MiniCmdlinePeekLineNr', {link='DiagnosticSignWarn'})
+    hi('MiniCmdlinePeekNormal', {link='NormalFloat'})
+    hi('MiniCmdlinePeekSep',    {link='SignColumn'})
+    hi('MiniCmdlinePeekSign',   {link='DiagnosticSignHint'})
+    hi('MiniCmdlinePeekTitle',  {fg=p.base0D, bg=p.base01, attr='bold', sp=nil})
+
     hi('MiniCompletionActiveParameter',    {link='LspSignatureActiveParameter'})
     hi('MiniCompletionDeprecated',         {link='DiagnosticDeprecated'})
     hi('MiniCompletionInfoBorderOutdated', {link='DiagnosticFloatingWarn'})
