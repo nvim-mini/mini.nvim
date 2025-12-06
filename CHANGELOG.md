@@ -87,6 +87,10 @@ There are following change types:
 
 - Ensure triggers for 'mini.starter' buffers, but not override its query updaters (like for "g" and "z" triggers).
 
+## mini.cmdline
+
+- Introduction of a new module.
+
 ## mini.diff
 
 ### Expand

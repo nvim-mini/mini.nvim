@@ -148,6 +148,14 @@ Here is a list of all highlight groups defined inside 'mini.nvim' modules. See d
     - `MiniClueSeparator`
     - `MiniClueTitle`
 
+- 'mini.cmdline':
+    - `MiniCmdlinePeekBorder`
+    - `MiniCmdlinePeekLineNr`
+    - `MiniCmdlinePeekNormal`
+    - `MiniCmdlinePeekSep`
+    - `MiniCmdlinePeekSign`
+    - `MiniCmdlinePeekTitle`
+
 - 'mini.completion':
     - `MiniCompletionActiveParameter`
     - `MiniCompletionDeprecated`

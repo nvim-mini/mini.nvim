@@ -21,6 +21,7 @@
 ---   Go forward/backward with square brackets .................. |mini.bracketed|
 ---   Remove buffers ............................................ |mini.bufremove|
 ---   Show next key clues ............................................ |mini.clue|
+---   Command line tweaks ......................................... |mini.cmdline|
 ---   Tweak and save any color scheme .............................. |mini.colors|
 ---   Comment lines ............................................... |mini.comment|
 ---   Completion and signature help ............................ |mini.completion|
@@ -179,6 +180,10 @@
 ---   customizable opt-in triggers, next key descriptions (clues), hydra-like
 ---   submodes, window delay/config. Provides clue sets for some built-in
 ---   concepts: `g`/`z` keys, window commands, etc.
+---
+--- - |mini.cmdline| - command line tweaks. Adds autocompletion with customizable
+---   delay, autocorrection for words with fixed candidates, and autopeek command
+---   range in a floating window with customizable context size.
 ---
 --- - |mini.colors| - tweak and save any color scheme. Can create colorscheme
 ---   object with methods to invert/set/modify/etc.

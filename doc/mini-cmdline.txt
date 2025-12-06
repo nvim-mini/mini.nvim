@@ -1,0 +1,361 @@
+*mini.cmdline* Command line tweaks
+
+MIT License Copyright (c) 2025 Evgeni Chasnovski
+
+------------------------------------------------------------------------------
+                                                                   *MiniCmdline*
+Features:
+
+- Autocomplete with customizable delay. Enhances |cmdline-completion| and
+  manual |'wildchar'| pressing experience.
+  Requires Neovim>=0.11, though Neovim>=0.12 is recommended.
+
+- Autocorrect words as-you-type. Only words that must come from a fixed set of
+  candidates (like commands and options) are autocorrected by default.
+
+- Autopeek command range as-you-type. Shows a floating window with range lines
+  along with customizable context lines.
+
+What it doesn't do:
+
+- Customization of command line UI. Use |vim._extui| (on Neovim>=0.12).
+
+- Customization of autocompletion candidates. They are computed
+  via |cmdline-completion|.
+
+# Setup ~
+
+This module needs a setup with `require('mini.cmdline').setup({})` (replace `{}`
+with your `config` table). It will create global Lua table `MiniCmdline` which
+you can use for scripting or manually (with `:lua MiniCmdline.*`).
+
+See |MiniCmdline.config| for `config` structure and default values.
+
+You can override runtime config settings locally to buffer inside
+`vim.b.minicmdline_config` which should have same structure as
+`MiniCmdline.config`. See |mini.nvim-buffer-local-config| for more details.
+
+# Suggested option values ~
+
+Some options are set automatically (if not set before |MiniCmdline.setup()|):
+- |'wildmode'| is set to "noselect,full" for less intrusive autocompletion.
+  Requires Neovim>=0.11 and enabled `config.autocomplete`.
+- |'wildoptions'| is set to "pum,fuzzy" to enable fuzzy matching.
+
+# Comparisons ~
+
+- [folke/noice.nvim](https://github.com/folke/noice.nvim):
+    - Mostly focuses on visual aspects of the Command line.
+      This modules is aimed to improve its workflow without changing UI.
+
+- [nacro90/numb.nvim](https://github.com/nacro90/numb.nvim):
+    - Designed to preview only a single line range defined by numbers.
+      This module handles any form of |:range| and |:range-offset| for both
+      one and two line ranges.
+    - Shows target line directly in the normal window.
+      This module uses a dedicated floating window.
+
+- Built-in |cmdline-autocompletion| (on Neovim>=0.12):
+    - This module on Neovim>=0.12 uses that as its base for autocompletion.
+      Ont top of that it also provides customizable delay and predicate.
+
+- Built-in |vim._extui| (on Neovim>=0.12):
+    - Mostly focuses on visual aspects of the Command line.
+      This modules is aimed to improve its workflow without changing UI.
+
+# Highlight groups ~
+
+- `MiniCmdlinePeekBorder` - border of autopeek window.
+- `MiniCmdlinePeekLineNr` - line numbers in autopeek window.
+- `MiniCmdlinePeekNormal` - basic foreground/background of autopeek window.
+- `MiniCmdlinePeekSep` - statuscolumn separator in autopeek window.
+- `MiniCmdlinePeekSign` - signs in autopeek window.
+- `MiniCmdlinePeekTitle` - title of autopeek window.
+
+# Disabling ~
+
+To disable acting in mappings, set `vim.g.minicmdline_disable` (globally) or
+`vim.b.minicmdline_disable` (for a buffer) to `true`. Considering high number
+of different scenarios and customization intentions, writing exact rules
+for disabling module's functionality is left to user.
+See |mini.nvim-disabling-recipes| for common recipes.
+
+------------------------------------------------------------------------------
+                                                           *MiniCmdline.setup()*
+                         `MiniCmdline.setup`({config})
+Module setup
+
+Parameters ~
+{config} `(table|nil)` Module config table. See |MiniCmdline.config|.
+
+Usage ~
+>lua
+  require('mini.cmdline').setup() -- use default config
+  -- OR
+  require('mini.cmdline').setup({}) -- replace {} with your config table
+<
+------------------------------------------------------------------------------
+                                                            *MiniCmdline.config*
+                              `MiniCmdline.config`
+Defaults ~
+>lua
+  MiniCmdline.config = {
+    -- Autocompletion: show `:h 'wildmenu'` as you type
+    autocomplete = {
+      enable = true,
+
+      -- Delay (in ms) after which to trigger completion
+      -- Neovim>=0.12 is recommended for positive values
+      delay = 0,
+
+      -- Custom rule of when to trigger completion
+      predicate = nil,
+
+      -- Whether to map arrow keys for more consistent wildmenu behavior
+      map_arrows = true,
+    },
+
+    -- Autocorrection: adjust non-existing words (commands, options, etc.)
+    autocorrect = {
+      enable = true,
+
+      -- Custom autocorrection rule
+      func = nil,
+    },
+
+    -- Autopeek: show command's target range in a floating window
+    autopeek = {
+      enable = true,
+
+      -- Number of lines to show above and below range lines
+      n_context = 1,
+
+      -- Window options
+      window = {
+        -- Floating window config
+        config = {},
+
+        -- Function to render statuscolumn
+        statuscolumn = nil,
+      },
+    },
+  }
+<
+# General ~
+
+- Each feature is configured via separate table.
+- Use `enable = false` to disable a feature.
+
+Autocomplete ~
+
+`config.autocomplete` is used to configure autocompletion: automatic show
+of |'wildmenu'|.
+
+`autocomplete.delay` defines a (debounce style) delay after which |'wildchar'|
+is triggered to show wildmenu.
+Default: 0. Note: Neovim>=0.12 is recommended for positive values if you
+want to reduce flicker (thanks to |wildtrigger()|).
+
+`autocomplete.predicate` defines a condition of whether to trigger completion
+at the current command line state. Takes a table with input data and should
+return `true` to show completion and `false` otherwise. Will be called before
+the possible delay at current command line state.
+Default: |MiniCmdline.default_autocomplete_predicate()|.
+
+Input data fields:
+- <line> `(string)` - current command line text. See |getcmdline()|.
+- <pos> `(number)` - current command line column. See |getcmdpos()|.
+- <line_prev> `(string)` - command line text before the latest change.
+- <pos_prev> `(number)` - command line column before the latest cursor move.
+
+Example of blocking completion based on completion type (as some may be slow): >lua
+
+  local block_compltype = { shellcmd = true }
+  require('mini.cmdline').setup({
+    autocomplete = {
+      predicate = function()
+        return not block_compltype[vim.fn.getcmdcompltype()]
+      end,
+    },
+  })
+<
+Similar approach can be used to enable completion only for normal Ex commands.
+Use `return vim.fn.getcmdtype() == ':'` as a predicate output.
+
+Autocorrect ~
+
+`config.autocorrect` is used to configure autocorrection: automatic adjustment
+of bad words as you type them. This works only when appending text at the end
+of the command line. Editing already typed words does not trigger autocorrect
+(allows correcting the autocorrection).
+
+When to autocorrect is computed automatically based on |getcmdcomplpat()| after
+every key press: if it doesn't add the character to completion pattern, then
+the pattern before the key press is attempted to be corrected.
+There is also an autocorrection attempt for the last word just before
+executing the command.
+
+Notes:
+- This is intended mostly for fixing typos and not as a shortcut for fuzzy
+  matching. Performing the latter automatically is too intrusive. Explicitly
+  use fuzzy completion for that (set up by default).
+
+- Default autocorrection is done only for words that must come from a fixed
+  set of candidates (like commands and options) by choosing the one with
+  the lowest string distance.
+  See |MiniCmdline.default_autocorrect_func()| for details.
+
+- If current command expects only a single argument (like |:colorscheme|), then
+  autocorrection will happen only just before executing the command.
+
+`autocorrect.func` is a function that can be used to customize autocorrection.
+Takes a table with input data and should return a string with the correct word
+or `nil` for no autocorrection. Default: |MiniCmdline.default_autocorrect_func()|.
+
+Input data fields:
+- <word> `(string)` - word to be autocorrected. Never empty string.
+- <type> `(string)` - word type. Output of |getcmdcompltype()|.
+
+Autopeek ~
+
+`config.autopeek` is used to configure automatic peeking: show command's target
+range in a floating window. The window will appear above command line and show
+current buffer with the focus on left and right (if present and differs from
+left) range lines.
+
+`autopeek.n_context` defines how many lines to show above and below the target.
+The range itself is visualized by default with the statuscolumn signs.
+Default: 1.
+
+`autopeek.window` defines behavior of a peek window.
+`autopeek.window.config` is a table defining floating window characteristics
+or a callable returning such table.
+It should have the same structure as in |nvim_open_win()|.
+
+`autopeek.window.statuscolumn` is a special function that can be used to
+customize |'statuscolumn'| value for the peek window. Takes a table with input
+data and should return a string to display for line |v:lnum|.
+Default: |MiniCmdline.default_autopeek_statuscolumn()|.
+Input data fields:
+- <left> `(number)` - left range edge. Not necessarily smallest.
+- <right> `(number)` - right range edge. Same as `left` for a single line range.
+
+Example of showing `<` and `>` signs on range lines: >lua
+
+  function(data)
+    local n, l, r = vim.v.lnum, data.left, data.right
+    local s = n == l and (n == r and '* ' or '< ') or n == r and '> ' or ''
+    -- Needs explicit highlighting via `:h 'statusline'` syntax
+    return '%#MiniCmdlinePeekSign#' .. s
+  end
+<
+Notes:
+- Peek window directly shows current buffer, which means that all its
+  extmarks, virtual text, virtual lines, etc. are also shown.
+- Non-zero context might work unreliably if there are virtual lines.
+- Peeking intentionally hides Visual selection if Command-line mode is entered
+  directly from it. Peeking `'<,'>` range already visualizes the selection.
+  To disable autopeek for this case, add the following code BEFORE
+  executing `require('mini.cmdline').setup()`: >lua
+
+    local disable = vim.schedule_wrap(function()
+      local is_from_visual = vim.startswith(vim.fn.getcmdline(), "'<,'>")
+      MiniCmdline.config.autopeek.enable = not is_from_visual
+    end)
+    local reenable = function() MiniCmdline.config.autopeek.enable = true end
+
+    vim.api.nvim_create_autocmd('CmdlineEnter', { callback = disable })
+    vim.api.nvim_create_autocmd('CmdlineLeave', { callback = reenable })
+<
+------------------------------------------------------------------------------
+                                  *MiniCmdline.default_autocomplete_predicate()*
+          `MiniCmdline.default_autocomplete_predicate`({data}, {opts})
+Default autocompletion predicate
+
+Parameters ~
+{data} `(table)` Input autocompletion data. As described in |MiniCmdline.config|.
+{opts} `(table|nil)` Options. Reserved for future use.
+
+Return ~
+`(boolean)` If command line does not (yet) contain a letter - `false`,
+  otherwise - `true`. This makes autopeek easier to use for a numerical range.
+
+------------------------------------------------------------------------------
+                                        *MiniCmdline.default_autocorrect_func()*
+             `MiniCmdline.default_autocorrect_func`({data}, {opts})
+Default autocorrection function
+
+- Return input word if `opts.strict_type=true` and input `type` is not proper.
+- Get candidates via `opts.get_candidates()`.
+  Default: mostly via |getcompletion()| with empty pattern and input `type`.
+  Exceptions are `help` and `option` types: both list all available candidates
+  in their own ways.
+- Choose the candidate with the lowest Damerau–Levenshtein distance
+  (smallest number of deletion/insertion/substitution/transposition needed
+  to transform one word into another; slightly prefers transposition).
+  Notes:
+    - Type `'command'` also chooses from all valid candidate abbreviations.
+    - Comparison is done both respecting and ignoring case.
+
+Parameters ~
+{data} `(table)` Input autocorrection data. As described in |MiniCmdline.config|.
+{opts} `(table|nil)` Options. Possible fields:
+  - <strict_type> `(boolean)` - whether to restrict output only for types which
+    must have words from a fixed set of candidates (like command or option
+    names). Note: does not include `help` type since |:help| already has
+    "sophisticated algorithm" to handle typos. Default: `true`.
+  - <get_candidates> `(function)` - source of candidates. Will be called
+    with `data` as argument and should return array of string candidates to
+    choose from.
+    Default: for most types -  |getcompletion()| with empty pattern and
+    input `type`; for `help` and `option` type - all available help tags and
+    option names (long and short) respectively.
+
+Return ~
+`(string)` Autocorrected word.
+
+------------------------------------------------------------------------------
+                                   *MiniCmdline.default_autopeek_statuscolumn()*
+          `MiniCmdline.default_autopeek_statuscolumn`({data}, {opts})
+Default autopeek statuscolumn
+
+- Show signs next to lines depending on their relation to peeked range.
+  Highlighted with `MiniCmdlinePeekSign` group.
+- Show line numbers for left and right parts of the range.
+  Highlighted with `MiniCmdlinePeekLineNr` group.
+- Separate statuscolumn and buffer text with dedicated separator character.
+  Highlighted with `MiniCmdlinePeekSep` group.
+
+Notes:
+- Intended to only be used as a part of |'statuscolumn'| function, as it
+  uses |v:lnum| and |v:virtnum| to compute the output.
+
+Example of adjusting a `mid` sign: >lua
+
+  local peek_stc_opts = { signs = { mid = '+' } }
+  local peek_stc = function(data)
+    return MiniCmdline.default_autopeek_statuscolumn(data, peek_stc_opts)
+  end
+  require('mini.cmdline').setup({
+    autopeek = { window = { statuscolumn = peek_stc } },
+  })
+<
+Parameters ~
+{data} `(table)` Input peek data. As described in |MiniCmdline.config|.
+{opts} `(table|nil)` Options. Possible fields:
+  - <signs> `(table)` - signs to show. Possible fields:
+      - <same> `(string)` - on range if `left=right`. Default: `'🭬'`.
+      - <left> `(string)`  - on `left` line.  Default: `'┌'`.
+      - <mid> `(string)`   - inside range.  Default: `'┊'`.
+      - <right> `(string)` - on `right` line. Default: `'└'`.
+      - <out> `(string)` - outside of range. Default: `''` (no sign).
+      - <virt> `(string)` - virtual line. Default: `'•'`.
+      - <wrap> `(string)` - wrapped line. Default: `'↳'`.
+  - <sep> `(string)` - string to put at the end to separate statuscolumn and
+    buffer text. Default: `'│'`
+
+  Note: Any sign and separator should have every `%` escaped as `%%` (due to its
+  special meaning in |'statuscolumn'|).
+
+
+ vim:tw=78:ts=8:noet:ft=help:norl:

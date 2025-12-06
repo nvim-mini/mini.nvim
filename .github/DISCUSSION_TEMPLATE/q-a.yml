@@ -22,6 +22,7 @@ body:
         - mini.bracketed
         - mini.bufremove
         - mini.clue
+        - mini.cmdline
         - mini.colors
         - mini.comment
         - mini.completion
