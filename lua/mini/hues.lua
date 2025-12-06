@@ -919,6 +919,13 @@ MiniHues.apply_palette = function(palette, plugins, opts)
     hi('MiniClueSeparator',           { link='DiagnosticFloatingInfo' })
     hi('MiniClueTitle',               { link='FloatTitle' })
 
+    hi('MiniCmdlinePeekBorder', { link = 'FloatBorder' })
+    hi('MiniCmdlinePeekLineNr', { link = 'DiagnosticSignWarn' })
+    hi('MiniCmdlinePeekNormal', { link = 'NormalFloat' })
+    hi('MiniCmdlinePeekSep',    { link = 'SignColumn' })
+    hi('MiniCmdlinePeekSign',   { link = 'DiagnosticSignHint' })
+    hi('MiniCmdlinePeekTitle',  { link = 'FloatTitle' })
+
     hi('MiniCompletionActiveParameter',    { link='LspSignatureActiveParameter' })
     hi('MiniCompletionDeprecated',         { link='DiagnosticDeprecated' })
     hi('MiniCompletionInfoBorderOutdated', { link='DiagnosticFloatingWarn' })
