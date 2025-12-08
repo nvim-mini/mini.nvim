@@ -106,7 +106,7 @@ Here are code snippets for some common installation methods (use only one):
 
 </details>
 
-**Important**: no need to call `require('mini.cmdline').setup()`, but it can be done to improve usability.
+**Important**: don't forget to call `require('mini.cmdline').setup()` to enable its functionality.
 
 **Note**: if you are on Windows, there might be problems with too long file paths (like `error: unable to create file <some file name>: Filename too long`). Try doing one of the following:
 
