@@ -5740,6 +5740,24 @@ T['Default explorer']['works in `:edit .`'] = function()
   child.expect_screenshot()
 end
 
+T['Default explorer']['does not crash on external `vim.api.nvim_set_current_win`'] = function()
+  -- BufEnter Autocommands for "*": Vim(append):Lua callback : Invalid buffer id: 2
+
+  child.cmd('edit ' .. test_file_path)
+  child.cmd('edit ' .. test_dir_path)
+
+  -- Mimic MiniPick when stopping the picker(H.picker_stop -> H.set_curwin)
+  child.lua([[
+    local win_id = 1000 -- vim.api.nvim_get_current_win()
+    vim.api.nvim_set_current_win(win_id)
+  ]])
+
+  child.expect_screenshot()
+  close()
+  child.expect_screenshot()
+  eq(#child.api.nvim_list_bufs(), 1)
+end
+
 T['Default explorer']['works in `:vsplit .`'] = function()
   child.cmd('vsplit ' .. test_dir_path)
   child.expect_screenshot()

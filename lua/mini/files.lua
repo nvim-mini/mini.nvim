@@ -1383,7 +1383,7 @@ H.track_dir_edit = function(data)
     -- Smartly delete directory buffer if already visited
     local alt_buf = vim.fn.bufnr('#')
     if alt_buf ~= data.buf and vim.fn.buflisted(alt_buf) == 1 then vim.api.nvim_win_set_buf(0, alt_buf) end
-    return vim.api.nvim_buf_delete(data.buf, { force = true })
+    return
   end
 
   local path = vim.api.nvim_buf_get_name(0)
