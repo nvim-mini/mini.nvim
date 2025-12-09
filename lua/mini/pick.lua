@@ -1698,8 +1698,8 @@ MiniPick.get_picker_query = function() return vim.deepcopy((H.pickers.active or 
 ---
 ---@seealso |MiniPick.get_picker_items()| and |MiniPick.get_picker_stritems()|
 MiniPick.set_picker_items = function(items, opts)
-  if not H.islist(items) then H.error('`items` should be an array.') end
   if not MiniPick.is_picker_active() then return end
+  if not H.islist(items) then H.error('`items` should be an array.') end
   opts = vim.tbl_deep_extend('force', { do_match = true, querytick = nil }, opts or {})
 
   -- Set items in async because computing lower `stritems` can block much time
