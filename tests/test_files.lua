@@ -5777,7 +5777,7 @@ T['Default explorer']['does not crash on external `vim.api.nvim_set_current_win`
 
   -- Mimic MiniPick when stopping the picker(H.picker_stop -> H.set_curwin)
   child.lua([[
-    local win_id = vim.api.nvim_list_wins()[1] -- vim.api.nvim_get_current_win()
+    local win_id = vim.api.nvim_list_wins()[1] -- win id 1000
     vim.api.nvim_set_current_win(win_id)
   ]])
 
