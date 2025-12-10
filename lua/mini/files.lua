@@ -1382,7 +1382,11 @@ H.track_dir_edit = function(data)
   if vim.b.minifiles_processed_dir then
     -- Smartly delete directory buffer if already visited
     local alt_buf = vim.fn.bufnr('#')
-    if alt_buf ~= data.buf and vim.fn.buflisted(alt_buf) == 1 then vim.api.nvim_win_set_buf(0, alt_buf) end
+    if alt_buf ~= data.buf and vim.fn.buflisted(alt_buf) == 1 then
+      vim.api.nvim_win_set_buf(0, alt_buf)
+    else
+      vim.api.nvim_buf_delete(data.buf, { force = true })
+    end
     return
   end
 

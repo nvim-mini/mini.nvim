@@ -5740,6 +5740,35 @@ T['Default explorer']['works in `:edit .`'] = function()
   child.expect_screenshot()
 end
 
+T['Default explorer']['deletes directory buffer if already visited(no alternate)'] = function()
+  -- Starting with empty buffer having id 1, open and close the explorer
+  child.cmd('edit ' .. test_dir_path)
+  close()
+
+  -- There should only be 1 buffer after closing the explorer
+  local bufs = child.api.nvim_list_bufs()
+  eq(#bufs, 1)
+
+  -- Assert that buffer with id 1 has been deleted, otherwise it would be for directory test_dir_path
+  local is_still_one = bufs[1] == 1
+  eq(is_still_one, false)
+end
+
+T['Default explorer']['deletes directory buffer if already visited'] = function()
+  -- Starting with listed buffer having id 1, open and close the explorer
+  child.cmd('edit ' .. test_file_path)
+  child.cmd('edit ' .. test_dir_path)
+  close()
+
+  -- There should only be 1 buffer after closing the explorer
+  local bufs = child.api.nvim_list_bufs()
+  eq(#bufs, 1)
+
+  -- Assert that the buffer id is still 1
+  local bufid = bufs[1]
+  eq(bufid, 1)
+end
+
 T['Default explorer']['does not crash on external `vim.api.nvim_set_current_win`'] = function()
   -- BufEnter Autocommands for "*": Vim(append):Lua callback : Invalid buffer id: 2
 
@@ -5748,7 +5777,7 @@ T['Default explorer']['does not crash on external `vim.api.nvim_set_current_win`
 
   -- Mimic MiniPick when stopping the picker(H.picker_stop -> H.set_curwin)
   child.lua([[
-    local win_id = 1000 -- vim.api.nvim_get_current_win()
+    local win_id = vim.api.nvim_list_wins()[1] -- vim.api.nvim_get_current_win()
     vim.api.nvim_set_current_win(win_id)
   ]])
 
