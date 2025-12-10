@@ -119,6 +119,8 @@ local get_extra_picker_extmarks = function(from, to)
 end
 
 -- Common mocks
+local mock_win_functions = function() child.cmd('source tests/dir-extra/mocks/mock-win-functions.lua') end
+
 local mock_fn_executable = function(available_executables)
   local lua_cmd = string.format(
     'vim.fn.executable = function(x) return vim.tbl_contains(%s, x) and 1 or 0 end',
@@ -3780,7 +3782,13 @@ local setup_visits = function()
   child.fn.chdir(dir)
 end
 
-T['pickers']['visit_paths()'] = new_set({ hooks = { pre_case = setup_visits } })
+T['pickers']['visit_paths()'] =
+  new_set({ hooks = {
+    pre_case = function()
+      mock_win_functions()
+      setup_visits()
+    end,
+  } })
 
 local pick_visit_paths = forward_lua_notify('MiniExtra.pickers.visit_paths')
 
@@ -3878,6 +3886,26 @@ T['pickers']['visit_paths()']["checks for present 'mini.visits'"] = function()
     end
   ]])
   expect.error(function() child.lua('MiniExtra.pickers.visit_paths()') end, '`pickers%.visit_paths`.*mini%.visits')
+end
+
+T['pickers']['visit_paths()']["can open visited directory in 'mini.files'"] = function()
+  child.lua([[require('mini.files').setup()]])
+
+  -- NOTE: 'mini.visits' uses forward slashes in index
+  local dir = test_dir_absolute:gsub('\\', '/')
+  local visit_index = {
+    [dir] = {
+      [dir .. '/real-files'] = { count = 10, latest = 10 },
+    },
+  }
+  child.lua([[require('mini.visits').set_index(...)]], { visit_index })
+  child.fn.chdir(dir)
+
+  child.cmd('edit real-files/a.lua')
+  pick_visit_paths()
+  child.expect_screenshot()
+  type_keys('<CR>')
+  child.expect_screenshot()
 end
 
 T['pickers']['visit_labels()'] = new_set({ hooks = { pre_case = setup_visits } })
