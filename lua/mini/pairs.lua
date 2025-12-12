@@ -311,7 +311,7 @@ end
 MiniPairs.close = function(pair, neigh_pattern)
   local close = H.get_close_char(pair)
   local move_right = not H.is_disabled() and H.neigh_match(neigh_pattern) and H.get_neigh('right') == close
-  return move_right and H.get_arrow_key('right', true) or close
+  return move_right and (H.keys.del .. close) or close
 end
 
 --- Process "closeopen" symbols
@@ -329,7 +329,7 @@ end
 ---@return string Keys performing "closeopen" action.
 MiniPairs.closeopen = function(pair, neigh_pattern)
   local move_right = not H.is_disabled() and H.get_neigh('right') == H.get_close_char(pair)
-  return move_right and H.get_arrow_key('right', true) or MiniPairs.open(pair, neigh_pattern)
+  return move_right and (H.keys.del .. H.get_close_char(pair)) or MiniPairs.open(pair, neigh_pattern)
 end
 
 --- Process |<BS>|
