@@ -143,6 +143,8 @@
 ---
 ---  | Action      | Keys | Description                                    |
 ---  |-------------|------|------------------------------------------------|
+---  | Change cwd  |  *   | Change current working directory               |
+---  |-------------|------|------------------------------------------------|
 ---  | Close       |  q   | Close explorer                                 |
 ---  |-------------|------|------------------------------------------------|
 ---  | Go in       |  l   | Expand entry (show directory or open file)     |
@@ -185,6 +187,9 @@
 ---   of a bookmark id. Example: `ma` sets directory path of focused window as
 ---   bookmark "a"; `'a` jumps (sets as whole branch) to bookmark "a".
 ---   Special bookmark "'" always points to path before the latest bookmark jump.
+---
+--- - "Change cwd" changes |current-directory| to the path of current browsing
+---   directory.
 ---
 --- - "Reset" focuses only on "anchor" directory (the one used to open current
 ---   explorer) and resets all stored directory cursor positions.
@@ -676,6 +681,7 @@ MiniFiles.config = {
   -- Module mappings created only inside explorer.
   -- Use `''` (empty string) to not create one.
   mappings = {
+    change_cwd  = '*',
     close       = 'q',
     go_in       = 'l',
     go_in_plus  = 'L',
@@ -1004,6 +1010,22 @@ MiniFiles.reveal_cwd = function()
   MiniFiles.set_branch(branch, { depth_focus = depth_focus })
 end
 
+--- Change current working directory
+---
+--- - Change Neovim's current working directory to the path of current browsing
+---   directory.
+MiniFiles.change_cwd = function()
+  local explorer = H.explorer_get()
+  if explorer == nil then return end
+
+  local path = explorer.branch[explorer.depth_focus]
+  explorer.anchor = path
+
+  vim.fn.chdir(path)
+  H.notify('Current working directory set to ' .. vim.inspect(path), 'INFO')
+  H.explorer_refresh(explorer)
+end
+
 --- Show help window
 ---
 --- - Open window with helpful information about currently shown explorer and
@@ -1293,6 +1315,7 @@ H.setup_config = function(config)
   H.check_type('content.sort', config.content.sort, 'function', true)
 
   H.check_type('mappings', config.mappings, 'table')
+  H.check_type('mappings.change_cwd', config.mappings.change_cwd, 'string')
   H.check_type('mappings.close', config.mappings.close, 'string')
   H.check_type('mappings.go_in', config.mappings.go_in, 'string')
   H.check_type('mappings.go_in_plus', config.mappings.go_in_plus, 'string')
@@ -1358,6 +1381,7 @@ H.create_default_hl = function()
   hi('MiniFilesNormal',         { link = 'NormalFloat' })
   hi('MiniFilesTitle',          { link = 'FloatTitle'  })
   hi('MiniFilesTitleFocused',   { link = 'FloatTitle' })
+  hi('MiniFilesTitleCWD',       { link = 'DiagnosticWarn' })
 end
 
 H.get_config = function(config)
@@ -1776,14 +1800,24 @@ H.explorer_refresh_depth_window = function(explorer, depth, win_count, win_col)
   views[path] = view
 
   -- Create relevant window config
+  local title = win_count == 1 and H.fs_shorten_path(H.fs_full_path(path)) or H.fs_get_basename(path)
   local config = {
     col = win_col,
     height = vim.api.nvim_buf_line_count(view.buf_id),
     width = cur_width,
     -- Use shortened full path in left most window
-    title = win_count == 1 and H.fs_shorten_path(H.fs_full_path(path)) or H.fs_get_basename(path),
+    title = title,
   }
+
   config.title = ' ' .. H.sanitize_string(config.title) .. ' '
+  local is_cwd = path == H.fs_full_path(vim.fn.getcwd())
+  if is_cwd then
+    config.title = {
+      { ' ' .. H.sanitize_string(title) .. ' ', 'FloatTitle' },
+      { '*', 'MiniFilesTitleCWD' },
+      { ' ', '' },
+    }
+  end
 
   -- Prepare and register window
   local win_id = windows[win_count]
@@ -2218,6 +2252,7 @@ H.buffer_make_mappings = function(buf_id, mappings)
   end
 
   --stylua: ignore start
+  buf_map('n', mappings.change_cwd,  MiniFiles.change_cwd,  'Change cwd')
   buf_map('n', mappings.close,       MiniFiles.close,       'Close')
   buf_map('n', mappings.go_in,       go_in_with_count,      'Go in entry')
   buf_map('n', mappings.go_in_plus,  go_in_plus,            'Go in entry plus')

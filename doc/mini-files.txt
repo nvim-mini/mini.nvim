@@ -146,6 +146,8 @@ Available built-in actions (see "Details" for more information): >
 
  | Action      | Keys | Description                                    |
  |-------------|------|------------------------------------------------|
+ | Change cwd  |  *   | Change current working directory               |
+ |-------------|------|------------------------------------------------|
  | Close       |  q   | Close explorer                                 |
  |-------------|------|------------------------------------------------|
  | Go in       |  l   | Expand entry (show directory or open file)     |
@@ -188,6 +190,9 @@ Details:
   of a bookmark id. Example: `ma` sets directory path of focused window as
   bookmark "a"; `'a` jumps (sets as whole branch) to bookmark "a".
   Special bookmark "'" always points to path before the latest bookmark jump.
+
+- "Change cwd" changes |current-directory| to the path of current browsing
+  directory.
 
 - "Reset" focuses only on "anchor" directory (the one used to open current
   explorer) and resets all stored directory cursor positions.
@@ -578,6 +583,7 @@ Defaults ~
     -- Module mappings created only inside explorer.
     -- Use `''` (empty string) to not create one.
     mappings = {
+      change_cwd  = '*',
       close       = 'q',
       go_in       = 'l',
       go_in_plus  = 'L',
@@ -820,6 +826,14 @@ Reveal current working directory
 
 - Prepend branch with parent paths until current working directory is reached.
   Do nothing if not inside it.
+
+------------------------------------------------------------------------------
+                                                        *MiniFiles.change_cwd()*
+                            `MiniFiles.change_cwd`()
+Change current working directory
+
+- Change Neovim's current working directory to the path of current browsing
+  directory.
 
 ------------------------------------------------------------------------------
                                                          *MiniFiles.show_help()*
