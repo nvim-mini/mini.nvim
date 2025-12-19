@@ -102,6 +102,8 @@ local T = new_set({
 -- Unit tests =================================================================
 T['setup()'] = new_set()
 
+T['setup()']['should fail on Neovim>=0.12'] = function() eq(child.fn.has('nvim-0.12'), 0) end
+
 T['setup()']['creates side effects'] = function()
   -- Global variable
   eq(child.lua_get('type(_G.MiniAi)'), 'table')
