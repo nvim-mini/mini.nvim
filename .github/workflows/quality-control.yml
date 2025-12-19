@@ -1,0 +1,149 @@
+name: Quality Control
+
+on:
+  push:
+    branches-ignore: [ sync, stable ]
+  pull_request:
+    branches-ignore: [ sync, stable ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.actor }}
+  cancel-in-progress: true
+
+jobs:
+  detect-changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            code:
+              - 'colors/**'
+              - 'lua/**'
+              - 'tests/**'
+              - 'scripts/minimal_init.lua'
+
+  tests:
+    name: Run tests
+    needs: detect-changes
+    # Run only if testable code has changed (to save time and resources)
+    if: ${{ needs.detect-changes.outputs.code == 'true' }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest ]
+        neovim_version: [ 'v0.9.5', 'v0.10.4', 'v0.11.5', 'nightly' ]
+        include:
+        - os: macos-latest
+          neovim_version: v0.11.5
+        - os: windows-latest
+          neovim_version: v0.11.5
+    runs-on: ${{ matrix.os }}
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Setup neovim
+        uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: ${{ matrix.neovim_version }}
+
+      - name: Run tests
+        run: make test
+
+  lint-gendoc:
+    name: Lint document generation
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Install Neovim
+        uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: v0.11.5
+
+      - name: Generate documentation
+        run: make --silent documentation
+
+      - name: Check for changes
+        run: if [[ -n $(git status -s) ]]; then exit 1; fi
+
+  lint-formatting:
+    name: Lint formatting
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: JohnnyMorganz/stylua-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: v2.1.0
+          # CLI arguments
+          args: --color always --respect-ignores --check .
+
+  lint-commit:
+    name: Lint commits
+    runs-on: ubuntu-latest
+    env:
+      LINTCOMMIT_STRICT: true
+    steps:
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
+
+      - name: Install Neovim
+        uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: v0.11.5
+
+      - name: Lint new commits
+        run: make --silent lintcommit-ci
+
+  lint-filename:
+    name: Lint filename lengths
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Check filename legnths
+        run: make --silent lint-filename-length-ci
+
+      - name: Check case sensitivity
+        uses: credfeto/action-case-checker@v1.2.1
+
+  check-workflow-status:
+    name: Check workflow status
+    runs-on: ubuntu-latest
+    needs: [ tests, lint-gendoc, lint-formatting, lint-commit, lint-filename ]
+    if: always()
+    steps:
+      - name: Check workflow status
+        run: |
+          exit_on_result() {
+            if [[ "$2" == "failure" || "$2" == "cancelled" ]]; then
+              echo "Job '$1' failed or was cancelled."
+              exit 1
+            fi
+          }
+          exit_on_result "tests" "${{ needs.tests.result }}"
+          exit_on_result "lint-gendoc" "${{ needs.lint-gendoc.result }}"
+          exit_on_result "lint-formatting" "${{ needs.lint-formatting.result }}"
+          exit_on_result "lint-commit" "${{ needs.lint-commit.result }}"
+          exit_on_result "lint-filename" "${{ needs.lint-filename.result }}"
