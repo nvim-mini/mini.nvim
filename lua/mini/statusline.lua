@@ -60,7 +60,7 @@
 --- - `MiniStatuslineFileinfo` - for |MiniStatusline.section_fileinfo()| section.
 ---
 --- Other groups:
---- - `MiniStatuslineInactive` - highliting in not focused window.
+--- - `MiniStatuslineInactive` - highlighting in not focused window.
 ---
 --- To change any highlight group, set it directly with |nvim_set_hl()|.
 ---
