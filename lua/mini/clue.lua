@@ -1324,19 +1324,56 @@ H.get_buf_var = function(buf_id, name)
 end
 
 -- Triggers -------------------------------------------------------------------
+
 H.map_buf_triggers = function(buf_id)
   if not H.is_valid_buf(buf_id) or H.is_disabled(buf_id) then return end
 
+  local apply_trigger_key = function(mode, key)
+    if type(key) == "table" then
+      for _, key in pairs(key) do
+        H.map_trigger(buf_id, { mode = mode, keys = key })
+      end
+    else
+      H.map_trigger(buf_id, { mode = mode, keys = key })
+    end
+  end
+  local apply_trigger_mode = function(trigger)
+    if type(trigger.mode) == "table" then
+      for _, mode in pairs(trigger.mode) do
+        apply_trigger_key(mode, trigger.keys)
+      end
+    else
+      apply_trigger_key(trigger.mode, trigger.keys)
+    end
+  end
   for _, trigger in ipairs(H.get_config(nil, buf_id).triggers) do
-    H.map_trigger(buf_id, trigger)
+    apply_trigger_mode(trigger)
   end
 end
 
 H.unmap_buf_triggers = function(buf_id)
   if not H.is_valid_buf(buf_id) or H.is_disabled(buf_id) then return end
 
+  local unapply_trigger_key = function(mode, key)
+    if type(key) == "table" then
+      for _, key in pairs(key) do
+        H.unmap_trigger(buf_id, { mode = mode, keys = key })
+      end
+    else
+      H.unmap_trigger(buf_id, { mode = mode, keys = key })
+    end
+  end
+  local unpaply_trigger_mode = function(trigger)
+    if type(trigger.mode) == "table" then
+      for _, mode in pairs(trigger.mode) do
+        unapply_trigger_key(mode, trigger.keys)
+      end
+    else
+      unapply_trigger_key(trigger.mode, trigger.keys)
+    end
+  end
   for _, trigger in ipairs(H.get_config(nil, buf_id).triggers) do
-    H.unmap_trigger(buf_id, trigger)
+    unpaply_trigger_mode(trigger)
   end
 end
 
@@ -1949,7 +1986,24 @@ H.make_clues_with_register_contents = function(mode, prefix)
 end
 
 -- Predicates -----------------------------------------------------------------
-H.is_trigger = function(x) return type(x) == 'table' and type(x.mode) == 'string' and type(x.keys) == 'string' end
+H.is_trigger = function(x)
+  if type(x) ~= table then return false end;
+  if type(x.mode) == "string" and type(x.keys) == "string" then
+    return true
+  else
+    if type(x.mode) == "table" then
+      for _, v in ipairs(x.mode) do
+        if type(v) ~= "string" then return false end
+      end
+    end
+    if type(x.keys) == "table" then
+      for _, v in ipairs(x.keys) do
+        if type(v) ~= "string" then return false end
+      end
+    end
+  end
+  return true
+end
 
 H.is_clue = function(x)
   if type(x) ~= 'table' then return false end
