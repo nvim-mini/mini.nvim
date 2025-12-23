@@ -1328,52 +1328,28 @@ end
 H.map_buf_triggers = function(buf_id)
   if not H.is_valid_buf(buf_id) or H.is_disabled(buf_id) then return end
 
-  local apply_trigger_key = function(mode, key)
-    if type(key) == "table" then
-      for _, key in pairs(key) do
-        H.map_trigger(buf_id, { mode = mode, keys = key })
-      end
-    else
-      H.map_trigger(buf_id, { mode = mode, keys = key })
-    end
-  end
-  local apply_trigger_mode = function(trigger)
-    if type(trigger.mode) == "table" then
-      for _, mode in pairs(trigger.mode) do
-        apply_trigger_key(mode, trigger.keys)
-      end
-    else
-      apply_trigger_key(trigger.mode, trigger.keys)
-    end
-  end
   for _, trigger in ipairs(H.get_config(nil, buf_id).triggers) do
-    apply_trigger_mode(trigger)
+    local keys  = type(trigger.keys) == "string" and (  {trigger.keys} ) or ( trigger.keys )
+    local modes = type(trigger.mode) == "string" and (  {trigger.mode} ) or ( trigger.mode )
+    for _, key in ipairs(keys) do
+      for _, mode in ipairs(modes) do
+      H.map_trigger(buf_id, { mode = mode, keys = key })
+      end
+    end
   end
 end
 
 H.unmap_buf_triggers = function(buf_id)
   if not H.is_valid_buf(buf_id) or H.is_disabled(buf_id) then return end
 
-  local unapply_trigger_key = function(mode, key)
-    if type(key) == "table" then
-      for _, key in pairs(key) do
-        H.unmap_trigger(buf_id, { mode = mode, keys = key })
-      end
-    else
-      H.unmap_trigger(buf_id, { mode = mode, keys = key })
-    end
-  end
-  local unpaply_trigger_mode = function(trigger)
-    if type(trigger.mode) == "table" then
-      for _, mode in pairs(trigger.mode) do
-        unapply_trigger_key(mode, trigger.keys)
-      end
-    else
-      unapply_trigger_key(trigger.mode, trigger.keys)
-    end
-  end
   for _, trigger in ipairs(H.get_config(nil, buf_id).triggers) do
-    unpaply_trigger_mode(trigger)
+    local keys  = type(trigger.keys) == "string" and (  {trigger.keys} ) or ( trigger.keys )
+    local modes = type(trigger.mode) == "string" and (  {trigger.mode} ) or ( trigger.mode )
+    for _, key in ipairs(keys) do
+      for _, mode in ipairs(modes) do
+      H.unmap_trigger(buf_id, { mode = mode, keys = key })
+      end
+    end
   end
 end
 
