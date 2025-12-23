@@ -1964,19 +1964,14 @@ end
 -- Predicates -----------------------------------------------------------------
 H.is_trigger = function(x)
   if type(x) ~= table then return false end;
-  if type(x.mode) == "string" and type(x.keys) == "string" then
-    return true
-  else
-    if type(x.mode) == "table" then
-      for _, v in ipairs(x.mode) do
-        if type(v) ~= "string" then return false end
-      end
-    end
-    if type(x.keys) == "table" then
-      for _, v in ipairs(x.keys) do
-        if type(v) ~= "string" then return false end
-      end
-    end
+  local modes = type(x.mode) == "string" and {x.mode} or x.mode
+  local keys  = type(x.keys) == "string" and {x.keys} or x.keys
+  if type(modes) ~= "table" or type(keys) ~= "table" then return false end
+  for _, v in ipairs(modes) do
+    if type(v) ~= "string" then return false end
+  end
+  for _, v in ipairs(modes) do
+    if type(v) ~= "string" then return false end
   end
   return true
 end
