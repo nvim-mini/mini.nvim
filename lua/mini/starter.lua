@@ -894,9 +894,10 @@ MiniStarter.eval_current_item = function(buf_id)
   if not H.validate_starter_buf_id(buf_id, 'eval_current_item()') then return end
 
   -- Reset query before evaluation without query echo (avoids hit-enter-prompt)
-  H.make_query(vim.api.nvim_get_current_buf(), '', false)
+  H.make_query(buf_id, '', false)
 
   local data = H.buffer_data[buf_id]
+  MiniStarter.close(buf_id)
   H.eval_fun_or_string(data.items[data.current_item_id].action, true)
 end
 
