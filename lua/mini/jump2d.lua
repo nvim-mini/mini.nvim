@@ -478,8 +478,8 @@ MiniJump2d.gen_spotter.pattern = function(pattern, side)
 
       -- Unify how spot is chosen in case of multibyte characters
       -- Use `+-1` to make sure that result is at start of multibyte character
-      local utf_index = vim.str_utfindex(line, spot) - 1
-      spot = vim.str_byteindex(line, utf_index) + 1
+      local utf_index = H.str_utfindex(line, spot) - 1
+      spot = H.str_byteindex(line, utf_index) + 1
 
       -- Add spot only if it referces new actually visible column
       if spot ~= res[#res] then table.insert(res, spot) end
@@ -1225,5 +1225,11 @@ H.merge_unique = function(tbl_1, tbl_2)
 
   return res
 end
+
+H.str_utfindex = function(s, i) return vim.str_utfindex(s, 'utf-32', i) end
+if vim.fn.has('nvim-0.11') == 0 then H.str_utfindex = function(s, i) return (vim.str_utfindex(s, i)) end end
+
+H.str_byteindex = function(s, i) return vim.str_byteindex(s, 'utf-32', i) end
+if vim.fn.has('nvim-0.11') == 0 then H.str_byteindex = function(s, i) return vim.str_byteindex(s, i) end end
 
 return MiniJump2d

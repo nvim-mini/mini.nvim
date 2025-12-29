@@ -1917,6 +1917,9 @@ H.fit_to_width = function(text, width)
   return t_width <= width and text or ('…' .. vim.fn.strcharpart(text, t_width - width + 1, width - 1))
 end
 
+H.str_byteindex = function(s, i) return vim.str_byteindex(s, 'utf-32', i) end
+if vim.fn.has('nvim-0.11') == 0 then H.str_byteindex = function(s, i) return vim.str_byteindex(s, i) end end
+
 -- Simulate splitting single line `l` like how it would look inside window with
 -- `wrap` and `linebreak` set to `true`
 H.wrap_line = function(l, width)
@@ -1928,7 +1931,7 @@ H.wrap_line = function(l, width)
     -- Simulate wrap by looking at breaking character from end of current break
     -- Use `pcall()` to handle complicated multibyte characters (like Chinese)
     -- for which even `strdisplaywidth()` seems to return incorrect values.
-    success, width_id = pcall(vim.str_byteindex, l, width)
+    success, width_id = pcall(H.str_byteindex, l, width)
 
     if success then
       local break_match = vim.fn.match(l:sub(1, width_id):reverse(), '[- \t.,;:!?]')

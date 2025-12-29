@@ -1488,12 +1488,15 @@ H.compute_worddiff_changed_parts = function(ref_line, buf_line)
   return ref_ranges, buf_ranges
 end
 
+H.str_utfindex = function(s, i) return vim.str_utfindex(s, 'utf-32', i) end
+if vim.fn.has('nvim-0.11') == 0 then H.str_utfindex = function(s, i) return (vim.str_utfindex(s, i)) end end
+
 H.slice_line = function(line)
   -- Intertwine every proper character with '\n'
   local line_len = line:len()
   local sliced, starts, ends
   -- Make short route for a very common case of no multibyte characters
-  if vim.str_utfindex(line) == line_len then
+  if H.str_utfindex(line) == line_len then
     sliced, starts, ends = line:gsub('(.)', '%1\n'), {}, {}
     for i = 1, string.len(line) do
       starts[i], ends[i] = i, i

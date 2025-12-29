@@ -1159,7 +1159,7 @@ H.mask_from_strings = function(strings, _)
     local mask_row = H.tbl_repeat(true, n_cols)
 
     -- Detect whitespace
-    s_ext:gsub('()%s', function(j) mask_row[vim.str_utfindex(s_ext, j)] = false end)
+    s_ext:gsub('()%s', function(j) mask_row[H.str_utfindex(s_ext, j)] = false end)
     res[i] = mask_row
   end
 
@@ -1679,11 +1679,10 @@ end
 
 H.set_extmark_safely = function(...) pcall(vim.api.nvim_buf_set_extmark, ...) end
 
-H.str_width = function(x)
-  -- Use first returned value (UTF-32 index, and not UTF-16 one)
-  local res = vim.str_utfindex(x)
-  return res
-end
+H.str_utfindex = function(s, i) return vim.str_utfindex(s, 'utf-32', i) end
+if vim.fn.has('nvim-0.11') == 0 then H.str_utfindex = function(s, i) return (vim.str_utfindex(s, i)) end end
+
+H.str_width = function(x) return H.str_utfindex(x) end
 
 H.tbl_repeat = function(x, n)
   local res = {}

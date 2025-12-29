@@ -1211,10 +1211,16 @@ H.get_mark = function(mark_name) return vim.api.nvim_buf_get_mark(0, mark_name) 
 
 H.set_mark = function(mark_name, mark_data) vim.api.nvim_buf_set_mark(0, mark_name, mark_data[1], mark_data[2], {}) end
 
+H.str_utfindex = function(s, i) return vim.str_utfindex(s, 'utf-32', i) end
+if vim.fn.has('nvim-0.11') == 0 then H.str_utfindex = function(s, i) return (vim.str_utfindex(s, i)) end end
+
+H.str_byteindex = function(s, i) return vim.str_byteindex(s, 'utf-32', i) end
+if vim.fn.has('nvim-0.11') == 0 then H.str_byteindex = function(s, i) return vim.str_byteindex(s, i) end end
+
 H.get_next_char_bytecol = function(markcoords)
   local line = vim.fn.getline(markcoords[1])
-  local utf_index = vim.str_utfindex(line, math.min(line:len(), markcoords[2] + 1))
-  return vim.str_byteindex(line, utf_index)
+  local utf_index = H.str_utfindex(line, math.min(line:len(), markcoords[2] + 1))
+  return H.str_byteindex(line, utf_index)
 end
 
 -- Indent ---------------------------------------------------------------------

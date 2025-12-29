@@ -2031,9 +2031,12 @@ if vim.fn.has('nvim-0.10') == 0 then
   end
 end
 
+H.str_utfindex = function(s, i) return vim.str_utfindex(s, 'utf-32', i) end
+if vim.fn.has('nvim-0.11') == 0 then H.str_utfindex = function(s, i) return (vim.str_utfindex(s, i)) end end
+
 H.str_utf_end = function(s, n) return n >= s:len() and 0 or vim.str_utf_end(s, n) end
 if vim.fn.has('nvim-0.10') == 0 then
-  H.str_utf_end = function(s, n) return n >= s:len() and 0 or (vim.str_byteindex(s, vim.str_utfindex(s, n)) - n) end
+  H.str_utf_end = function(s, n) return n >= s:len() and 0 or (vim.str_byteindex(s, H.str_utfindex(s, n)) - n) end
 end
 
 H.is_any_point_inside_any_span = function(points, spans)

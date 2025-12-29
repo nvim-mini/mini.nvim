@@ -3662,10 +3662,16 @@ H.seq_along = function(arr)
   return res
 end
 
+H.str_utfindex = function(s, i) return vim.str_utfindex(s, 'utf-32', i) end
+if vim.fn.has('nvim-0.11') == 0 then H.str_utfindex = function(s, i) return (vim.str_utfindex(s, i)) end end
+
+H.str_byteindex = function(s, i) return vim.str_byteindex(s, 'utf-32', i) end
+if vim.fn.has('nvim-0.11') == 0 then H.str_byteindex = function(s, i) return vim.str_byteindex(s, i) end end
+
 H.get_next_char_bytecol = function(line_str, col)
   if type(line_str) ~= 'string' then return col end
-  local utf_index = vim.str_utfindex(line_str, math.min(line_str:len(), col))
-  return vim.str_byteindex(line_str, utf_index)
+  local utf_index = H.str_utfindex(line_str, math.min(line_str:len(), col))
+  return H.str_byteindex(line_str, utf_index)
 end
 
 H.is_file_text = function(path)

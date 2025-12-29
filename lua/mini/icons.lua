@@ -2132,10 +2132,13 @@ H.get_impl = {
   os = function(name) return H.os_icons[name] end,
 }
 
+H.str_byteindex = function(s, i) return vim.str_byteindex(s, 'utf-32', i) end
+if vim.fn.has('nvim-0.11') == 0 then H.str_byteindex = function(s, i) return vim.str_byteindex(s, i) end end
+
 H.style_icon = function(glyph, name)
   if MiniIcons.config.style ~= 'ascii' then return glyph end
   -- Use `vim.str_byteindex()` and `vim.fn.toupper()` for multibyte characters
-  return vim.fn.toupper(name:sub(1, vim.str_byteindex(name, 1)))
+  return vim.fn.toupper(name:sub(1, H.str_byteindex(name, 1)))
 end
 
 H.filetype_match = function(filename)
