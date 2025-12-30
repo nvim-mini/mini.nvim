@@ -23,6 +23,13 @@
 ---     - "Hunk range under cursor" textobject to be used as operator target.
 ---     - Navigate to first/previous/next/last hunk. See |MiniDiff.goto_hunk()|.
 ---
+--- - Supports three diff sources:
+---     - |MiniDiff.gen_source.git()|: Use git repository as the source to diff
+---       the current buffer.
+---     - |MiniDiff.gen_source.mercurial()|: Use mercurial repository as the
+---       source to diff the current buffer.
+---     - |MiniDiff.gen_source.save()|: Diff with respect to the file on disk.
+---
 --- What it doesn't do:
 ---
 --- - Provide functionality to work directly with Git outside of visualizing
@@ -626,7 +633,11 @@ end
 ---   diff.setup({ source = diff.gen_source.save() })
 ---
 ---   -- Multiple sources (attempted to attach in order)
----   diff.setup({ source = { diff.gen_source.git(), diff.gen_source.save() } })
+---   diff.setup({ source = {
+---     diff.gen_source.git(),
+---     diff.gen_source.mercurial(),
+---     diff.gen_source.save()
+---   } })
 --- <
 MiniDiff.gen_source = {}
 
@@ -646,19 +657,28 @@ MiniDiff.gen_source = {}
 MiniDiff.gen_source.git = function()
   local attach = function(buf_id)
     -- Try attaching to a buffer only once
-    if H.git_cache[buf_id] ~= nil then return false end
+    if H.vcs_cache[buf_id] ~= nil then return false end
     -- - Possibly resolve symlinks to get data from the original repo
     local path = H.get_buf_realpath(buf_id)
     if path == '' then return false end
 
-    H.git_cache[buf_id] = {}
-    H.git_start_watching_index(buf_id, path)
+    H.vcs_cache[buf_id] = {}
+    local opts = {
+      command = 'git',
+      vcs_dir_cmd_args = { 'rev-parse', '--path-format=absolute', '--git-dir' },
+      index_name = 'index',
+      vcs_file_test_spawn_args_fn = function(local_path)
+        local basename = vim.fn.fnamemodify(local_path, ':t')
+        return { 'show', ':0:./' .. basename }
+      end,
+    }
+    H.vcs_start_watching_index(buf_id, path, opts)
   end
 
   local detach = function(buf_id)
-    local cache = H.git_cache[buf_id]
-    H.git_cache[buf_id] = nil
-    H.git_invalidate_cache(cache)
+    local cache = H.vcs_cache[buf_id]
+    H.vcs_cache[buf_id] = nil
+    H.vcs_invalidate_cache(cache)
   end
 
   local apply_hunks = function(buf_id, hunks)
@@ -669,6 +689,45 @@ MiniDiff.gen_source.git = function()
   end
 
   return { name = 'git', attach = attach, detach = detach, apply_hunks = apply_hunks }
+end
+
+--- Merurial source
+---
+--- Uses file text from mercurial's `dirstate` as reference. This results in:
+--- - "Add" hunks represent text present in current buffer, but not in
+---   mercurial repo.
+--- - "Change" hunks represent modified text not in mercurial repo.
+--- - "Delete" hunks represent text deleted from repo.
+---
+---@return table Source. See |MiniDiff-source-specification|.
+MiniDiff.gen_source.mercurial = function()
+  local attach = function(buf_id)
+    -- Try attaching to a buffer only once
+    if H.vcs_cache[buf_id] ~= nil then return false end
+    -- - Possibly resolve symlinks to get data from the original repo
+    local path = H.get_buf_realpath(buf_id)
+    if path == '' then return false end
+
+    H.vcs_cache[buf_id] = {}
+    local opts = {
+      command = 'hg',
+      vcs_dir_cmd_args = { 'root', '--template', '{reporoot}/.hg' },
+      index_name = 'dirstate',
+      vcs_file_test_spawn_args_fn = function(local_path)
+        local basename = vim.fn.fnamemodify(local_path, ':t')
+        return { 'cat', basename }
+      end,
+    }
+    H.vcs_start_watching_index(buf_id, path, opts)
+  end
+
+  local detach = function(buf_id)
+    local cache = H.vcs_cache[buf_id]
+    H.vcs_cache[buf_id] = nil
+    H.vcs_invalidate_cache(cache)
+  end
+
+  return { name = 'mercurial', attach = attach, detach = detach }
 end
 
 --- "Do nothing" source
@@ -888,7 +947,7 @@ MiniDiff.fail_attach = function(buf_id)
 
   -- Try attaching next source
   buf_cache.source_id = buf_cache.source_id + 1
-  local attach_output = H.get_active_source(H.cache[buf_id]).attach(buf_id)
+  local attach_output = H.get_active_source(buf_cache).attach(buf_id)
   if attach_output == false then MiniDiff.fail_attach(buf_id) end
 end
 
@@ -914,7 +973,7 @@ H.bufs_to_update = {}
 H.cache = {}
 
 -- Cache per buffer for attached `git` source
-H.git_cache = {}
+H.vcs_cache = {}
 
 -- Cache for operator
 H.operator_cache = {}
@@ -1672,25 +1731,28 @@ H.export_qf = function(opts)
   return res
 end
 
--- Git ------------------------------------------------------------------------
-H.git_start_watching_index = function(buf_id, path)
+-- VCS ------------------------------------------------------------------------
+H.vcs_start_watching_index = function(buf_id, path, opts)
   -- NOTE: Watching single 'index' file is not enough as staging by Git is done
   -- via "create fresh 'index.lock' file, apply modifications, change file name
   -- to 'index'". Hence watch the whole '.git' (first level) and react only if
   -- change was in 'index' file.
   local stdout = vim.loop.new_pipe()
-  local args = { 'rev-parse', '--path-format=absolute', '--git-dir' }
-  local spawn_opts = { args = args, cwd = vim.fn.fnamemodify(path, ':h'), stdio = { nil, stdout, nil } }
+  local spawn_opts = {
+    args = opts.vcs_dir_cmd_args,
+    cwd = vim.fn.fnamemodify(path, ':h'),
+    stdio = { nil, stdout, nil },
+  }
 
-  -- If path is not in Git, disable buffer but make sure that it will not try
+  -- If path is not in VCS, disable buffer but make sure that it will not try
   -- to re-attach until buffer is properly disabled
-  local on_not_in_git = vim.schedule_wrap(function()
+  local on_not_in_vcs = vim.schedule_wrap(function()
     if not vim.api.nvim_buf_is_valid(buf_id) then
       H.cache[buf_id] = nil
       return
     end
+    H.vcs_cache[buf_id] = nil
     MiniDiff.fail_attach(buf_id)
-    H.git_cache[buf_id] = {}
   end)
 
   local process, stdout_feed = nil, {}
@@ -1698,48 +1760,51 @@ H.git_start_watching_index = function(buf_id, path)
     process:close()
 
     -- Watch index only if there was no error retrieving path to it
-    if exit_code ~= 0 or stdout_feed[1] == nil then return on_not_in_git() end
+    if exit_code ~= 0 or stdout_feed[1] == nil then return on_not_in_vcs() end
 
     -- Set up index watching
-    local git_dir_path = table.concat(stdout_feed, ''):gsub('\n+$', '')
-    H.git_setup_index_watch(buf_id, git_dir_path)
+    local vcs_dir_path = table.concat(stdout_feed, ''):gsub('\n+$', '')
+    H.vcs_setup_index_watch(buf_id, vcs_dir_path, opts)
 
     -- Set reference text immediately
-    H.git_set_ref_text(buf_id)
+    H.vcs_set_ref_text(buf_id, opts)
   end
 
-  process = vim.loop.spawn('git', spawn_opts, on_exit)
-  H.git_read_stream(stdout, stdout_feed)
+  process = vim.loop.spawn(opts.command, spawn_opts, on_exit)
+  H.vcs_read_stream(stdout, stdout_feed)
 end
 
-H.git_setup_index_watch = function(buf_id, git_dir_path)
+H.vcs_setup_index_watch = function(buf_id, vcs_dir_path, opts)
   local buf_fs_event, timer = vim.loop.new_fs_event(), vim.loop.new_timer()
-  local buf_git_set_ref_text = function() H.git_set_ref_text(buf_id) end
+  local buf_vcs_set_ref_text = function() H.vcs_set_ref_text(buf_id, opts) end
 
   local watch_index = function(_, filename, _)
-    if filename ~= 'index' then return end
+    if filename ~= opts.index_name then return end
     -- Debounce to not overload during incremental staging (like in script)
     timer:stop()
-    timer:start(50, 0, buf_git_set_ref_text)
+    timer:start(50, 0, buf_vcs_set_ref_text)
   end
-  buf_fs_event:start(git_dir_path, { recursive = false }, watch_index)
+  buf_fs_event:start(vcs_dir_path, { recursive = false }, watch_index)
 
-  H.git_invalidate_cache(H.git_cache[buf_id])
-  H.git_cache[buf_id] = { fs_event = buf_fs_event, timer = timer }
+  H.vcs_invalidate_cache(H.vcs_cache[buf_id])
+  H.vcs_cache[buf_id] = { fs_event = buf_fs_event, timer = timer }
 end
 
-H.git_set_ref_text = vim.schedule_wrap(function(buf_id)
+H.vcs_set_ref_text = vim.schedule_wrap(function(buf_id, opts)
   if not vim.api.nvim_buf_is_valid(buf_id) then return end
   local buf_set_ref_text = vim.schedule_wrap(function(text) pcall(MiniDiff.set_ref_text, buf_id, text) end)
 
   -- NOTE: Do not cache buffer's name to react to its possible rename
   local path = H.get_buf_realpath(buf_id)
   if path == '' then return buf_set_ref_text({}) end
-  local cwd, basename = vim.fn.fnamemodify(path, ':h'), vim.fn.fnamemodify(path, ':t')
 
   -- Set
   local stdout = vim.loop.new_pipe()
-  local spawn_opts = { args = { 'show', ':0:./' .. basename }, cwd = cwd, stdio = { nil, stdout, nil } }
+  local spawn_opts = {
+    args = opts.vcs_file_test_spawn_args_fn(path),
+    cwd = vim.fn.fnamemodify(path, ':h'),
+    stdio = { nil, stdout, nil },
+  }
 
   local process, stdout_feed = nil, {}
   local on_exit = function(exit_code)
@@ -1750,7 +1815,7 @@ H.git_set_ref_text = vim.schedule_wrap(function(buf_id)
     -- - 'Not in index' files (new, ignored, etc.).
     -- - 'Neither in index nor on disk' files (after checking out commit which
     --   does not yet have file created).
-    -- - 'Relative can not be used outside working tree' (when opening file
+    -- - 'Relative can not be used outside working tree' (e.g. when opening file
     --   inside '.git' directory).
     if exit_code ~= 0 or stdout_feed[1] == nil then return buf_set_ref_text({}) end
 
@@ -1759,10 +1824,11 @@ H.git_set_ref_text = vim.schedule_wrap(function(buf_id)
     buf_set_ref_text(text)
   end
 
-  process = vim.loop.spawn('git', spawn_opts, on_exit)
-  H.git_read_stream(stdout, stdout_feed)
+  process = vim.loop.spawn(opts.command, spawn_opts, on_exit)
+  H.vcs_read_stream(stdout, stdout_feed)
 end)
 
+-- Git ------------------------------------------------------------------------
 H.git_get_path_data = function(path)
   -- Get path data needed for proper patch header
   local cwd, basename = vim.fn.fnamemodify(path, ':h'), vim.fn.fnamemodify(path, ':t')
@@ -1782,7 +1848,7 @@ H.git_get_path_data = function(path)
   end
 
   process = vim.loop.spawn('git', spawn_opts, on_exit)
-  H.git_read_stream(stdout, stdout_feed)
+  H.vcs_read_stream(stdout, stdout_feed)
   vim.wait(1000, function() return did_exit end, 1)
   return res
 end
@@ -1833,7 +1899,7 @@ H.git_apply_patch = function(path_data, patch)
   stdin:shutdown(function() stdin:close() end)
 end
 
-H.git_read_stream = function(stream, feed)
+H.vcs_read_stream = function(stream, feed)
   local callback = function(err, data)
     if data ~= nil then return table.insert(feed, data) end
     if err then feed[1] = nil end
@@ -1842,7 +1908,7 @@ H.git_read_stream = function(stream, feed)
   stream:read_start(callback)
 end
 
-H.git_invalidate_cache = function(cache)
+H.vcs_invalidate_cache = function(cache)
   if cache == nil then return end
   pcall(vim.loop.fs_event_stop, cache.fs_event)
   pcall(vim.loop.timer_stop, cache.timer)
