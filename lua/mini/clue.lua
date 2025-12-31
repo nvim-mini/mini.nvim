@@ -233,8 +233,7 @@
 ---   miniclue.setup({
 ---     triggers = {
 ---       -- Leader triggers
----       { mode = 'n', keys = '<Leader>' },
----       { mode = 'x', keys = '<Leader>' },
+---       { mode = { 'n', 'x' }, keys = '<Leader>' },
 ---
 ---       -- `[` and `]` keys
 ---       { mode = 'n', keys = '[' },
@@ -244,27 +243,21 @@
 ---       { mode = 'i', keys = '<C-x>' },
 ---
 ---       -- `g` key
----       { mode = 'n', keys = 'g' },
----       { mode = 'x', keys = 'g' },
+---       { mode = { 'n', 'x' }, keys = 'g' },
 ---
 ---       -- Marks
----       { mode = 'n', keys = "'" },
----       { mode = 'n', keys = '`' },
----       { mode = 'x', keys = "'" },
----       { mode = 'x', keys = '`' },
+---       { mode = { 'n', 'x' }, keys = "'" },
+---       { mode = { 'n', 'x' }, keys = '`' },
 ---
 ---       -- Registers
----       { mode = 'n', keys = '"' },
----       { mode = 'x', keys = '"' },
----       { mode = 'i', keys = '<C-r>' },
----       { mode = 'c', keys = '<C-r>' },
+---       { mode = { 'n', 'x' }, keys = '"' },
+---       { mode = { 'i', 'c' }, keys = '<C-r>' },
 ---
 ---       -- Window commands
 ---       { mode = 'n', keys = '<C-w>' },
 ---
 ---       -- `z` key
----       { mode = 'n', keys = 'z' },
----       { mode = 'x', keys = 'z' },
+---       { mode = { 'n', 'x' }, keys = 'z' },
 ---     },
 ---
 ---     clues = {
@@ -307,8 +300,7 @@
 ---   require('mini.clue').setup({
 ---     -- Register `<Leader>` as trigger
 ---     triggers = {
----       { mode = 'n', keys = '<Leader>' },
----       { mode = 'x', keys = '<Leader>' },
+---       { mode = { 'n', 'x' }, keys = '<Leader>' },
 ---     },
 ---
 ---     -- Add descriptions for mapping groups
@@ -394,20 +386,15 @@
 ---     triggers = {
 ---       -- This can also set up directly `<Leader>m` as a trigger, but make
 ---       -- sure to not also use `<Leader>`, as they would "overlap"
----       { mode = 'n', keys = '<Leader>' },
----       { mode = 'x', keys = '<Leader>' },
+---       { mode = { 'n', 'x' }, keys = '<Leader>' },
 ---     },
 ---     clues = {
 ---       { mode = 'n', keys = '<Leader>m', desc = '+Move' },
 ---
----       { mode = 'n', keys = '<Leader>mh', postkeys = '<Leader>m' },
----       { mode = 'n', keys = '<Leader>mj', postkeys = '<Leader>m' },
----       { mode = 'n', keys = '<Leader>mk', postkeys = '<Leader>m' },
----       { mode = 'n', keys = '<Leader>ml', postkeys = '<Leader>m' },
----       { mode = 'x', keys = '<Leader>mh', postkeys = '<Leader>m' },
----       { mode = 'x', keys = '<Leader>mj', postkeys = '<Leader>m' },
----       { mode = 'x', keys = '<Leader>mk', postkeys = '<Leader>m' },
----       { mode = 'x', keys = '<Leader>ml', postkeys = '<Leader>m' },
+---       { mode = { 'n', 'x' }, keys = '<Leader>mh', postkeys = '<Leader>m' },
+---       { mode = { 'n', 'x' }, keys = '<Leader>mj', postkeys = '<Leader>m' },
+---       { mode = { 'n', 'x' }, keys = '<Leader>mk', postkeys = '<Leader>m' },
+---       { mode = { 'n', 'x' }, keys = '<Leader>ml', postkeys = '<Leader>m' },
 ---     },
 ---   })
 --- <
@@ -529,8 +516,9 @@ end
 --- - Callable (function) returning either of the previous two.
 ---
 --- A clue table is a table with the following fields:
---- - <mode> `(string)` - single character describing **single** mode short-name of
----   key combination as in `nvim_set_keymap()` ('n', 'x', 'i', 'o', 'c', etc.).
+--- - <mode> `(string|table)` - single character describing mode short-name of
+---   key combination as in `nvim_set_keymap()` ('n', 'x', 'i', 'o', 'c', etc.),
+---   or a array thereof.
 --- - <keys> `(string)` - key combination for which clue will be shown.
 ---   "Human-readable" key names as in |key-notation| (like "<Leader>", "<Space>",
 ---   "<Tab>", etc.) are allowed.
@@ -721,8 +709,7 @@ end
 ---
 --- Contains clues for the following triggers: >lua
 ---
----   { mode = 'n', keys = 'g' }
----   { mode = 'x', keys = 'g' }
+---   { mode = { 'n', 'x' }, keys = 'g' }
 --- <
 ---@return table Array of clues.
 MiniClue.gen_clues.g = function()
@@ -874,14 +861,10 @@ end
 ---
 --- Contains clues for the following triggers: >lua
 ---
----   { mode = 'n', keys = "'" }
----   { mode = 'n', keys = "g'" }
----   { mode = 'n', keys = '`' }
----   { mode = 'n', keys = 'g`' }
----   { mode = 'x', keys = "'" }
----   { mode = 'x', keys = "g'" }
----   { mode = 'x', keys = '`' }
----   { mode = 'x', keys = 'g`' }
+---   { mode = { 'n', 'x' }, keys = "'" }
+---   { mode = { 'n', 'x' }, keys = "g'" }
+---   { mode = { 'n', 'x' }, keys = '`' }
+---   { mode = { 'n', 'x' }, keys = 'g`' }
 --- <
 --- Note: if you use "g" as trigger (like to enable |MiniClue.gen_clues.g()|),
 --- don't add "g'" and "g`" as triggers: they already will be taken into account.
@@ -912,17 +895,11 @@ MiniClue.gen_clues.marks = function()
 
   --stylua: ignore
   return {
-    -- Normal mode
-    describe_marks('n', "'"),
-    describe_marks('n', "g'"),
-    describe_marks('n', "`"),
-    describe_marks('n', "g`"),
-
-    -- Visual mode
-    describe_marks('x', "'"),
-    describe_marks('x', "g'"),
-    describe_marks('x', "`"),
-    describe_marks('x', "g`"),
+    -- Normal and visual mode
+    describe_marks({ 'n', 'x' }, "'"),
+    describe_marks({ 'n', 'x' }, "g'"),
+    describe_marks({ 'n', 'x' }, "`"),
+    describe_marks({ 'n', 'x' }, "g`"),
   }
 end
 
@@ -930,10 +907,8 @@ end
 ---
 --- Contains clues for the following triggers: >lua
 ---
----   { mode = 'n', keys = '"' }
----   { mode = 'x', keys = '"' }
----   { mode = 'i', keys = '<C-r>' }
----   { mode = 'c', keys = '<C-r>' }
+---   { mode = { 'n', 'x' }, keys = '"' }
+---   { mode = { 'i', 'c' }, keys = '<C-r>' }
 --- <
 ---@param opts table|nil Options. Possible keys:
 ---   - <show_contents> `(boolean)` - whether to show contents of all possible
@@ -972,11 +947,8 @@ MiniClue.gen_clues.registers = function(opts)
 
   --stylua: ignore
   return {
-    -- Normal mode
-    describe_registers('n', '"'),
-
-    -- Visual mode
-    describe_registers('x', '"'),
+    -- Normal and Visual mode
+    describe_registers({ 'n', 'x' }, '"'),
 
     -- Insert mode
     describe_registers('i', '<C-r>'),
@@ -1084,8 +1056,7 @@ end
 ---
 --- Contains clues for the following triggers: >lua
 ---
----   { mode = 'n', keys = 'z' }
----   { mode = 'x', keys = 'z' }
+---   { mode = { 'n', 'x' }, keys = 'z' }
 --- <
 ---@return table Array of clues.
 MiniClue.gen_clues.z = function()
@@ -1328,7 +1299,10 @@ H.map_buf_triggers = function(buf_id)
   if not H.is_valid_buf(buf_id) or H.is_disabled(buf_id) then return end
 
   for _, trigger in ipairs(H.get_config(nil, buf_id).triggers) do
-    H.map_trigger(buf_id, trigger)
+    local modes = type(trigger.mode) == 'table' and trigger.mode or { trigger.mode }
+    for _, mode in ipairs(modes) do
+      H.map_trigger(buf_id, { mode = mode, keys = trigger.keys })
+    end
   end
 end
 
@@ -1336,7 +1310,10 @@ H.unmap_buf_triggers = function(buf_id)
   if not H.is_valid_buf(buf_id) or H.is_disabled(buf_id) then return end
 
   for _, trigger in ipairs(H.get_config(nil, buf_id).triggers) do
-    H.unmap_trigger(buf_id, trigger)
+    local modes = type(trigger.mode) == 'table' and trigger.mode or { trigger.mode }
+    for _, mode in ipairs(modes) do
+      H.unmap_trigger(buf_id, { mode = mode, keys = trigger.keys })
+    end
   end
 end
 
@@ -1780,7 +1757,8 @@ H.clues_get_all = function(mode)
 
   -- Order of clue precedence: config clues < buffer mappings < global mappings
   local config_clues = H.clues_normalize(H.get_config().clues) or {}
-  local mode_clues = vim.tbl_filter(function(x) return x.mode == mode end, config_clues)
+  local mode_filter = function(x) return type(x.mode) == 'table' and vim.tbl_contains(x.mode, mode) or x.mode == mode end
+  local mode_clues = vim.tbl_filter(mode_filter, config_clues)
   for _, clue in ipairs(mode_clues) do
     local lhsraw = H.replace_termcodes(clue.keys)
 
@@ -1949,11 +1927,13 @@ H.make_clues_with_register_contents = function(mode, prefix)
 end
 
 -- Predicates -----------------------------------------------------------------
-H.is_trigger = function(x) return type(x) == 'table' and type(x.mode) == 'string' and type(x.keys) == 'string' end
+H.is_trigger = function(x)
+  return type(x) == 'table' and (type(x.mode) == 'string' or type(x.mode) == 'table') and type(x.keys) == 'string'
+end
 
 H.is_clue = function(x)
   if type(x) ~= 'table' then return false end
-  local mandatory = type(x.mode) == 'string' and type(x.keys) == 'string'
+  local mandatory = (type(x.mode) == 'string' or type(x.mode) == 'table') and type(x.keys) == 'string'
   local extra = (x.desc == nil or type(x.desc) == 'string' or vim.is_callable(x.desc))
     and (x.postkeys == nil or type(x.postkeys) == 'string')
   return mandatory and extra

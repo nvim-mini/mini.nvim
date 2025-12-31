@@ -237,8 +237,7 @@ this module plus all |<Leader>| mappings in Normal and Visual modes: >lua
   miniclue.setup({
     triggers = {
       -- Leader triggers
-      { mode = 'n', keys = '<Leader>' },
-      { mode = 'x', keys = '<Leader>' },
+      { mode = { 'n', 'x' }, keys = '<Leader>' },
 
       -- `[` and `]` keys
       { mode = 'n', keys = '[' },
@@ -248,27 +247,21 @@ this module plus all |<Leader>| mappings in Normal and Visual modes: >lua
       { mode = 'i', keys = '<C-x>' },
 
       -- `g` key
-      { mode = 'n', keys = 'g' },
-      { mode = 'x', keys = 'g' },
+      { mode = { 'n', 'x' }, keys = 'g' },
 
       -- Marks
-      { mode = 'n', keys = "'" },
-      { mode = 'n', keys = '`' },
-      { mode = 'x', keys = "'" },
-      { mode = 'x', keys = '`' },
+      { mode = { 'n', 'x' }, keys = "'" },
+      { mode = { 'n', 'x' }, keys = '`' },
 
       -- Registers
-      { mode = 'n', keys = '"' },
-      { mode = 'x', keys = '"' },
-      { mode = 'i', keys = '<C-r>' },
-      { mode = 'c', keys = '<C-r>' },
+      { mode = { 'n', 'x' }, keys = '"' },
+      { mode = { 'i', 'c' }, keys = '<C-r>' },
 
       -- Window commands
       { mode = 'n', keys = '<C-w>' },
 
       -- `z` key
-      { mode = 'n', keys = 'z' },
-      { mode = 'x', keys = 'z' },
+      { mode = { 'n', 'x' }, keys = 'z' },
     },
 
     clues = {
@@ -311,8 +304,7 @@ modes and add descriptions to mapping groups: >lua
   require('mini.clue').setup({
     -- Register `<Leader>` as trigger
     triggers = {
-      { mode = 'n', keys = '<Leader>' },
-      { mode = 'x', keys = '<Leader>' },
+      { mode = { 'n', 'x' }, keys = '<Leader>' },
     },
 
     -- Add descriptions for mapping groups
@@ -398,20 +390,15 @@ In this module submode can be implemented following these steps:
     triggers = {
       -- This can also set up directly `<Leader>m` as a trigger, but make
       -- sure to not also use `<Leader>`, as they would "overlap"
-      { mode = 'n', keys = '<Leader>' },
-      { mode = 'x', keys = '<Leader>' },
+      { mode = { 'n', 'x' }, keys = '<Leader>' },
     },
     clues = {
       { mode = 'n', keys = '<Leader>m', desc = '+Move' },
 
-      { mode = 'n', keys = '<Leader>mh', postkeys = '<Leader>m' },
-      { mode = 'n', keys = '<Leader>mj', postkeys = '<Leader>m' },
-      { mode = 'n', keys = '<Leader>mk', postkeys = '<Leader>m' },
-      { mode = 'n', keys = '<Leader>ml', postkeys = '<Leader>m' },
-      { mode = 'x', keys = '<Leader>mh', postkeys = '<Leader>m' },
-      { mode = 'x', keys = '<Leader>mj', postkeys = '<Leader>m' },
-      { mode = 'x', keys = '<Leader>mk', postkeys = '<Leader>m' },
-      { mode = 'x', keys = '<Leader>ml', postkeys = '<Leader>m' },
+      { mode = { 'n', 'x' }, keys = '<Leader>mh', postkeys = '<Leader>m' },
+      { mode = { 'n', 'x' }, keys = '<Leader>mj', postkeys = '<Leader>m' },
+      { mode = { 'n', 'x' }, keys = '<Leader>mk', postkeys = '<Leader>m' },
+      { mode = { 'n', 'x' }, keys = '<Leader>ml', postkeys = '<Leader>m' },
     },
   })
 <
@@ -534,8 +521,9 @@ Each element can be one of:
 - Callable (function) returning either of the previous two.
 
 A clue table is a table with the following fields:
-- <mode> `(string)` - single character describing **single** mode short-name of
-  key combination as in `nvim_set_keymap()` ('n', 'x', 'i', 'o', 'c', etc.).
+- <mode> `(string|table)` - single character describing mode short-name of
+  key combination as in `nvim_set_keymap()` ('n', 'x', 'i', 'o', 'c', etc.),
+  or a array thereof.
 - <keys> `(string)` - key combination for which clue will be shown.
   "Human-readable" key names as in |key-notation| (like "<Leader>", "<Space>",
   "<Tab>", etc.) are allowed.
@@ -671,8 +659,7 @@ Generate clues for `g` key
 
 Contains clues for the following triggers: >lua
 
-  { mode = 'n', keys = 'g' }
-  { mode = 'x', keys = 'g' }
+  { mode = { 'n', 'x' }, keys = 'g' }
 <
 Return ~
 `(table)` Array of clues.
@@ -697,14 +684,10 @@ Generate clues for marks
 
 Contains clues for the following triggers: >lua
 
-  { mode = 'n', keys = "'" }
-  { mode = 'n', keys = "g'" }
-  { mode = 'n', keys = '`' }
-  { mode = 'n', keys = 'g`' }
-  { mode = 'x', keys = "'" }
-  { mode = 'x', keys = "g'" }
-  { mode = 'x', keys = '`' }
-  { mode = 'x', keys = 'g`' }
+  { mode = { 'n', 'x' }, keys = "'" }
+  { mode = { 'n', 'x' }, keys = "g'" }
+  { mode = { 'n', 'x' }, keys = '`' }
+  { mode = { 'n', 'x' }, keys = 'g`' }
 <
 Note: if you use "g" as trigger (like to enable |MiniClue.gen_clues.g()|),
 don't add "g'" and "g`" as triggers: they already will be taken into account.
@@ -722,10 +705,8 @@ Generate clues for registers
 
 Contains clues for the following triggers: >lua
 
-  { mode = 'n', keys = '"' }
-  { mode = 'x', keys = '"' }
-  { mode = 'i', keys = '<C-r>' }
-  { mode = 'c', keys = '<C-r>' }
+  { mode = { 'n', 'x' }, keys = '"' }
+  { mode = { 'i', 'c' }, keys = '<C-r>' }
 <
 Parameters ~
 {opts} `(table|nil)` Options. Possible keys:
@@ -769,8 +750,7 @@ Generate clues for `z` key
 
 Contains clues for the following triggers: >lua
 
-  { mode = 'n', keys = 'z' }
-  { mode = 'x', keys = 'z' }
+  { mode = { 'n', 'x' }, keys = 'z' }
 <
 Return ~
 `(table)` Array of clues.

@@ -15,6 +15,12 @@ There are following change types:
 - Add new plugin integrations:
     - 'folke/snacks.nvim'
 
+## mini.clue
+
+### Expand
+
+- Allow mode arrays for clues and triggers for parity with `modes` parameter of `vim.keymap.set` . By @pkazmier, PR #2202.
+
 ## mini.hues
 
 ### Expand

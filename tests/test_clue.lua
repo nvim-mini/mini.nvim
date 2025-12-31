@@ -314,6 +314,13 @@ T['setup()']['creates triggers for already created buffers'] = function()
   validate_trigger_keymap('n', 'g', other_buf_id)
 end
 
+T['setup()']['creates triggers for an array of modes'] = function()
+  load_module({ triggers = { { mode = { 'n', 'x' }, keys = 'g' } } })
+  validate_trigger_keymap('n', 'g')
+  validate_trigger_keymap('x', 'g')
+  validate_no_trigger_keymap('c', 'g')
+end
+
 T['setup()']['creates triggers only in listed buffers'] = function()
   local buf_id_nolisted = child.api.nvim_create_buf(false, true)
   make_test_map('n', '<Space>a')
@@ -1849,6 +1856,21 @@ T['Clues']['handles no description'] = function()
   })
 
   type_keys(' ')
+  child.expect_screenshot()
+end
+
+T['Clues']['handles an array of modes'] = function()
+  load_module({
+    clues = { { mode = { 'n', 'x' }, keys = '<Space>a', desc = 'Clue <Space>a' } },
+    triggers = { { mode = { 'n', 'x' }, keys = '<Space>' } },
+    window = { delay = 0 },
+  })
+
+  type_keys(' ')
+  child.expect_screenshot()
+
+  type_keys('<Esc>')
+  type_keys('v', ' ')
   child.expect_screenshot()
 end
 
