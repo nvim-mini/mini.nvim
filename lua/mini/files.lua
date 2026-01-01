@@ -2633,6 +2633,14 @@ H.fs_is_imaginary_path = function(path) return path:sub(-1) == '\000' end
 
 H.fs_is_present_path = function(path) return vim.loop.fs_stat(path) ~= nil and not H.fs_is_imaginary_path(path) end
 
+H.fs_is_same_file = function(path1, path2)
+  if path1 == path2 then return true end
+  local stat1 = vim.loop.fs_stat(path1)
+  local stat2 = vim.loop.fs_stat(path2)
+  if stat1 == nil or stat2 == nil then return false end
+  return stat1.ino == stat2.ino and stat1.dev == stat2.dev
+end
+
 H.fs_child_path = function(dir, name) return H.fs_normalize_path(string.format('%s/%s', dir, name)) end
 
 H.fs_full_path = function(path) return H.fs_normalize_path(vim.fn.fnamemodify(path, ':p')) end
@@ -2777,8 +2785,10 @@ H.fs_do.delete = function(from, to)
 end
 
 H.fs_do.move = function(from, to, skip_buf_rename)
-  -- Don't override existing path
-  if H.fs_is_present_path(to) then return H.warn_existing_path(from, 'move or rename') end
+  -- Don't override existing path (unless it's a case-only rename of the same file)
+  if H.fs_is_present_path(to) and not H.fs_is_same_file(from, to) then
+    return H.warn_existing_path(from, 'move or rename')
+  end
 
   -- Move while allowing to create directory
   vim.fn.mkdir(H.fs_get_parent(to), 'p')
