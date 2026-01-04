@@ -1485,6 +1485,78 @@ MiniPick.builtin.help = function(local_opts, opts)
   return MiniPick.start(opts)
 end
 
+--- Man pages picker
+---
+--- Pick from system manpages.
+---
+---@param local_opts __extra_pickers_local_opts
+---   Possible fields:
+---   - <scope> `(string)` - one of "all" (all man sections) or section string.
+---     Default: "all".
+---   - <default_split> `(string)` - direction of a split for `choose` action.
+---     One of "horizontal", "vertical", "tab". Default: "horizontal".
+---@param opts __pick_builtin_opts
+MiniExtra.pickers.man = function(local_opts, opts)
+  local_opts = vim.tbl_deep_extend("force", { scope = "all", default_split = "horizontal" }, local_opts or {})
+  local default_modifier = ({ horizontal = "", vertical = "vert ", tab = "tab " })[local_opts.default_split]
+  if default_modifier == nil then
+    H.error('`opts.default_split` should be one of "horizontal", "vertical", "tab"')
+  end
+
+  local p = ""
+  if local_opts.scope == "all" then
+    p = io.popen("apropos .")
+  else
+    p = io.popen("apropos -s " .. local_opts.scope .. " .")
+  end
+  local manpages = {}
+  for line in p:lines() do
+    manpages[#manpages + 1] = line
+  end
+  local ok, reason, code = p:close()
+  -- ok = true/false, code = exit status
+
+  local choose = function(item, modifier)
+    if item == nil then return end
+    local keyword, cmd, section, desc = item:match("^((.-)%s*%(([^)]+)%).-)%s+%-%s+(.*)$")
+    cmd = vim.split(cmd, ",")[1]
+    vim.cmd((modifier or default_modifier) .. "Man " .. section .. " " .. cmd)
+  end
+
+  local preview = function(buf_id, item)
+    vim.api.nvim_buf_call(buf_id, function()
+      local keyword, cmd, section, desc = item:match("^((.-)%s*%(([^)]+)%).-)%s+%-%s+(.*)$")
+      cmd = vim.split(cmd, ",")[1]
+      vim.cmd("re! man " .. section .. " " .. cmd)
+      vim.cmd("Man!")
+      vim.cmd("norm gg")
+    end)
+  end
+
+  -- Modify default mappings to work with `:Man` command
+  local map_custom = function(char, modifier)
+    local f = function()
+      choose(MiniPick.get_picker_matches().current, modifier)
+      return true
+    end
+    return { char = char, func = f }
+  end
+
+  local config_mappings = H.get_config().mappings
+  local mappings = {
+    choose_in_split = "",
+    show_man_in_split = map_custom(config_mappings.choose_in_split, ""),
+    choose_in_vsplit = "",
+    show_man_in_vsplit = map_custom(config_mappings.choose_in_vsplit, "vertical "),
+    choose_in_tabpage = "",
+    show_man_in_tabpage = map_custom(config_mappings.choose_in_tabpage, "tab "),
+  }
+
+  local source = { items = manpages, name = "Manpages", choose = choose, preview = preview }
+  opts = vim.tbl_deep_extend("force", { source = source, mappings = mappings }, opts or {})
+  return MiniPick.start(opts)
+end
+
 --- Pick from buffers
 ---
 --- Notes:
