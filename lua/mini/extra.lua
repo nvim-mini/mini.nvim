@@ -1627,6 +1627,60 @@ MiniExtra.pickers.visit_labels = function(local_opts, opts)
   return H.pick_start(items, { source = default_source }, opts)
 end
 
+--- Man pages picker
+---
+--- Pick from system manpages.
+---
+---@param local_opts __extra_pickers_local_opts
+---   Possible fields:
+---   - <scope> `(string)` - one of "all" (all man sections) or section string.
+---     Default: "all".
+---@param opts __extra_pickers_opts
+MiniExtra.pickers.man = function(local_opts, opts)
+  local pick = H.validate_pick("man")
+  local_opts = vim.tbl_deep_extend("force", { scope = "all" }, local_opts or {})
+
+  local load_man = function(item)
+    local keyword, cmd, section, desc = item:match("^((.-)%s*%(([^)]+)%).-)%s+%-%s+(.*)$")
+    local width = vim.api.nvim_win_get_width(0)
+    cmd = vim.split(cmd, ",")[1]
+    vim.cmd(string.format("silent re! 2>&- MANWIDTH=%s man %s %s", width, section, cmd))
+    vim.cmd("Man!")
+    vim.cmd("norm gg0")
+  end
+
+  local choose = function(item, splitmode)
+    vim.cmd(splitmode or "new")
+    load_man(item)
+    local win = vim.api.nvim_get_current_win()
+    vim.schedule(function() vim.api.nvim_set_current_win(win) end)
+  end
+
+  local preview = function(buf_id, item)
+    vim.api.nvim_buf_call(buf_id, function() load_man(item) end)
+  end
+
+  local map_custom = function(char, splitmode)
+    local f = function()
+      choose(pick.get_picker_matches().current, splitmode)
+      return true
+    end
+    return { char = char, func = f }
+  end
+
+  local conf_maps = pick.config.mappings
+  local mappings = {
+    choose_in_split   = "", show_man_in_split   = map_custom(conf_maps.choose_in_split, "new"),
+    choose_in_vsplit  = "", show_man_in_vsplit  = map_custom(conf_maps.choose_in_vsplit, "vnew"),
+    choose_in_tabpage = "", show_man_in_tabpage = map_custom(conf_maps.choose_in_tabpage, "tabnew"),
+  }
+
+  local cmd = { "man", "-kls", local_opts.scope == "all" and "" or local_opts.scope, "" }
+  local source = { name = "Manpages", choose = choose, preview = preview }
+  opts = vim.tbl_deep_extend("force", { source = source, mappings = mappings }, opts or {})
+  return pick.builtin.cli({ command = cmd }, opts)
+end
+
 -- Helper data ================================================================
 -- Module default config
 H.default_config = MiniExtra.config
