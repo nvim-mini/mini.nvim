@@ -577,7 +577,7 @@ H.apply_mappings = function(config)
     map(  'x',        'gp', '"+P', { desc = 'Paste from system clipboard' })
 
     -- Reselect latest changed, put, or yanked text
-    map('n', 'gV', '"`[" . strpart(getregtype(), 0, 1) . "`]"', { expr = true, replace_keycodes = false, desc = 'Visually select changed text' })
+    map('n', 'gV', '"g`[" . strpart(getregtype(), 0, 1) . "g`]"', { expr = true, replace_keycodes = false, desc = 'Visually select changed text' })
 
     -- Search inside visually highlighted text. Use `silent = false` for it to
     -- make effect immediately.
