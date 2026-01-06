@@ -1632,13 +1632,9 @@ end
 --- Pick from system manpages.
 ---
 ---@param local_opts __extra_pickers_local_opts
----   Possible fields:
----   - <scope> `(string)` - one of "all" (all man sections) or section string.
----     Default: "all".
 ---@param opts __extra_pickers_opts
 MiniExtra.pickers.man = function(local_opts, opts)
   local pick = H.validate_pick("man")
-  local_opts = vim.tbl_deep_extend("force", { scope = "all" }, local_opts or {})
 
   local load_man = function(item)
     local keyword, cmd, section, desc = item:match("^((.-)%s*%(([^)]+)%).-)%s+%-%s+(.*)$")
@@ -1675,10 +1671,9 @@ MiniExtra.pickers.man = function(local_opts, opts)
     choose_in_tabpage = "", show_man_in_tabpage = map_custom(conf_maps.choose_in_tabpage, "tabnew"),
   }
 
-  local cmd = { "man", "-kls", local_opts.scope == "all" and "" or local_opts.scope, "" }
   local source = { name = "Manpages", choose = choose, preview = preview }
   opts = vim.tbl_deep_extend("force", { source = source, mappings = mappings }, opts or {})
-  return pick.builtin.cli({ command = cmd }, opts)
+  return pick.builtin.cli({ command = { "man", "-kl", "" } }, opts)
 end
 
 -- Helper data ================================================================
