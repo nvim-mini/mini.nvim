@@ -463,6 +463,8 @@ T['Mappings']['Basic']['gV'] = function()
   set_lines({ 'aaa', 'bbb', 'ccc' })
   set_cursor(1, 0)
   type_keys('yy', 'p')
+  -- - Add location to the jumplist
+  type_keys('gg')
 
   -- - Result selection should not depend on latest Visual selection type
   set_cursor(1, 0)
@@ -473,6 +475,10 @@ T['Mappings']['Basic']['gV'] = function()
   eq(child.fn.mode(), 'V')
 
   child.ensure_normal_mode()
+
+  -- - Selection should not have overwritten jumplist
+  type_keys('<C-o>')
+  eq(get_cursor(), { 1, 0 })
 
   -- Blockwise mode
   set_lines({ 'aaa', 'bbb', 'ccc' })
