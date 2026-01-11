@@ -2199,6 +2199,16 @@ H.picker_new = function(opts)
   return picker
 end
 
+MiniPick._with_focus_lock = function(fn)
+  if type(H.cache) ~= 'table' then return fn() end
+  local prev = H.cache.is_in_getcharstr
+  H.cache.is_in_getcharstr = true
+  local ok, result = pcall(fn)
+  H.cache.is_in_getcharstr = prev
+  if not ok then error(result) end
+  return result
+end
+
 H.picker_advance = function(picker)
   vim.schedule(function() vim.api.nvim_exec_autocmds('User', { pattern = 'MiniPickStart' }) end)
 
