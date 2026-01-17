@@ -1346,14 +1346,21 @@ MiniPick.builtin.grep = function(local_opts, opts)
   local default_opts = { source = { name = string.format('Grep (%s%s)', tool, name_suffix), show = show } }
   opts = vim.tbl_deep_extend('force', default_opts, opts or {})
 
-  local pattern = type(local_opts.pattern) == 'string' and local_opts.pattern or vim.fn.input('Grep pattern: ')
-  if tool == 'fallback' then
-    local cwd = H.full_path(opts.source.cwd or vim.fn.getcwd())
-    opts.source.items = function() H.grep_fallback_items(pattern, cwd) end
-    return MiniPick.start(opts)
+  local function handle(pattern)
+    if tool == 'fallback' then
+      local cwd = H.full_path(opts.source.cwd or vim.fn.getcwd())
+      opts.source.items = function() H.grep_fallback_items(pattern, cwd) end
+      return MiniPick.start(opts)
+    end
+    return MiniPick.builtin.cli({ command = H.grep_get_command(tool, pattern, globs) }, opts)
   end
 
-  return MiniPick.builtin.cli({ command = H.grep_get_command(tool, pattern, globs) }, opts)
+  if type(local_opts.pattern) == 'string' then
+    handle(local_opts.pattern)
+  else vim.ui.input({ prompt = 'Grep pattern: ' }, function(input)
+    if input ~= nil then handle(input) end
+    end)
+  end
 end
 
 --- Pick from pattern matches with live feedback
