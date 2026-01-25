@@ -121,6 +121,9 @@ MiniComment.config = {
     -- Whether to ignore blank lines in actions and textobject
     ignore_blank_line = false,
 
+    -- Whether to ignore blank lines at beginning or end of range selection
+    ignore_surrounding_blank_line = false,
+
     -- Whether to recognize as comment only lines without indent
     start_of_line = false,
 
@@ -200,6 +203,13 @@ MiniComment.operator = function(mode)
   -- tree-sitter-based 'commentstring'. Recompute every time for a proper
   -- dot-repeat. In Visual and sometimes Normal mode it uses left position.
   local cursor = vim.api.nvim_win_get_cursor(0)
+
+  local config = H.get_config()
+  if (lnum_from ~= lnum_to) and config.options.ignore_surrounding_blank_line then
+    lnum_from = vim.fn.nextnonblank(lnum_from)
+    lnum_to = vim.fn.prevnonblank(lnum_to)
+    cursor = { lnum_from, 1 }
+  end
   MiniComment.toggle_lines(lnum_from, lnum_to, { ref_position = { cursor[1], cursor[2] + 1 } })
   return ''
 end
@@ -413,6 +423,7 @@ H.setup_config = function(config)
   H.check_type('options', config.options, 'table')
   H.check_type('options.custom_commentstring', config.options.custom_commentstring, 'function', true)
   H.check_type('options.ignore_blank_line', config.options.ignore_blank_line, 'boolean')
+  H.check_type('options.ignore_surrounding_blank_line', config.options.ignore_surrounding_blank_line, 'boolean')
   H.check_type('options.start_of_line', config.options.start_of_line, 'boolean')
   H.check_type('options.pad_comment_parts', config.options.pad_comment_parts, 'boolean')
 
