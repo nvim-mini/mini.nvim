@@ -1205,6 +1205,17 @@ T['Exchange']['works with `make_mappings()`'] = function()
   validate_edit1d('aa bb', 0, { 'viwcx', 'w', 'viwcx' }, 'bb aa', 3)
 end
 
+T['Exchange']['works on visual selection with leading newline'] = function()
+  set_lines({ 'a(', '  b', ')', 'c{', '  d,', '}' })
+
+  set_cursor(2, 2)
+  type_keys('vk', 'gx')
+  set_cursor(5, 2)
+  type_keys('vk', 'gx')
+  eq(get_lines(), { 'a(', '  d', ')', 'c{', '  b,', '}' })
+  eq(get_cursor(), { 4, 1 })
+end
+
 T['Exchange']['respects `selection=exclusive`'] = function()
   child.lua([[vim.keymap.set('o', 'ie', function() vim.cmd('normal! \22j') end)]])
   child.o.selection = 'exclusive'
@@ -1584,6 +1595,10 @@ T['Multiply']['works with `make_mappings()`'] = function()
   validate_edit1d('aa bb', 0, { 'cmiw' }, 'aaaa bb', 2)
   validate_edit({ 'aa', 'bb' }, { 1, 0 }, { 'cmm' }, { 'aa', 'aa', 'bb' }, { 2, 0 })
   validate_edit1d('aa bb', 0, { 'viw', 'cm' }, 'aaaa bb', 2)
+end
+
+T['Multiply']['works on visual selection with leading newline'] = function()
+  validate_edit({ 'a(', '  b', ')' }, { 2, 2 }, { 'vk', 'gm' }, { 'a(', '  b', '  b', ')' }, { 2, 2 })
 end
 
 T['Multiply']['respects `selection=exclusive`'] = function()
@@ -2101,6 +2116,14 @@ T['Replace']['works with `make_mappings()`'] = function()
   validate_edit1d('aa bb', 0, { 'yiw', 'w', 'gRiw' }, 'aa aa', 3)
   validate_edit({ 'aa', 'bb' }, { 1, 0 }, { 'yy', 'j', 'gRr' }, { 'aa', 'aa' }, { 2, 0 })
   validate_edit1d('aa bb', 0, { 'yiw', 'w', 'viw', 'gR' }, 'aa aa', 3)
+end
+
+T['Replace']['works on visual selection with leading newline'] = function()
+  validate_edit({ 'a(', '  b', ')' }, { 2, 2 }, { 'vky', 'gvgr' }, { 'a(', '  b', ')' }, { 1, 1 })
+end
+
+T['Replace']['works on visual selection with trailing newline'] = function()
+  validate_edit({ 'a(', '  b', ')' }, { 2, 2 }, { 'vkoly', 'gvgr' }, { 'a(', '  b', '', ')' }, { 1, 1 })
 end
 
 T['Replace']['respects `selection=exclusive`'] = function()

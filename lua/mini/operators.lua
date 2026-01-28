@@ -375,8 +375,13 @@ MiniOperators.exchange = function(mode)
     H.cache.exchange.step_two = H.exchange_set_region_extmark(mode, false)
     if H.cache.exchange.step_two == nil then return end
 
+    local cache_virtualedit = vim.o.virtualedit
+    vim.o.virtualedit = 'onemore'
+
     -- Do exchange
     H.exchange_do()
+
+    vim.o.virtualedit = cache_virtualedit
 
     -- Stop exchange
     H.exchange_stop()
@@ -420,6 +425,9 @@ MiniOperators.multiply = function(mode)
   if data == nil then return end
   local mark_from, mark_to, submode = data.mark_from, data.mark_to, data.submode
 
+  local cache_virtualedit = vim.o.virtualedit
+  vim.o.virtualedit = 'onemore'
+
   H.with_temp_context({ registers = { 'x', '"' } }, function()
     -- Yank to temporary "x" register
     local yank_data = { mark_from = mark_from, mark_to = mark_to, submode = submode, mode = mode, register = 'x' }
@@ -442,6 +450,8 @@ MiniOperators.multiply = function(mode)
     -- already is at first non-blank, while this moves to first column.
     if submode ~= 'V' then vim.cmd('normal! `[') end
   end)
+
+  vim.o.virtualedit = cache_virtualedit
 end
 
 --- Replace text with register
@@ -484,7 +494,12 @@ MiniOperators.replace = function(mode)
   data.register = register
   data.reindent_linewise = H.get_config().replace.reindent_linewise
 
+  local cache_virtualedit = vim.o.virtualedit
+  vim.o.virtualedit = 'onemore'
+
   H.replace_do(data)
+
+  vim.o.virtualedit = cache_virtualedit
 
   return ''
 end
