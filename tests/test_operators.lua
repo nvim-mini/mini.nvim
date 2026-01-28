@@ -1205,6 +1205,39 @@ T['Exchange']['works with `make_mappings()`'] = function()
   validate_edit1d('aa bb', 0, { 'viwcx', 'w', 'viwcx' }, 'bb aa', 3)
 end
 
+T['Exchange']['works on textobject with leading newline'] = function()
+  set_lines({
+    'foo(',
+    '  a,',
+    '  b,',
+    '  c',
+    ')',
+    'bar{',
+    '  d,',
+    '  e,',
+    '  f',
+    '}',
+  })
+
+  set_cursor(4, 2)
+  type_keys('v3k$', 'gx')
+  set_cursor(9, 2)
+  type_keys('v3k$', 'gx')
+  eq(get_lines(), {
+    'foo(',
+    '  d,',
+    '  e,',
+    '  f',
+    ')',
+    'bar{',
+    '  a,',
+    '  b,',
+    '  c',
+    '}',
+  })
+  eq(get_cursor(), { 6, 3 })
+end
+
 T['Exchange']['respects `selection=exclusive`'] = function()
   child.lua([[vim.keymap.set('o', 'ie', function() vim.cmd('normal! \22j') end)]])
   child.o.selection = 'exclusive'
@@ -1584,6 +1617,25 @@ T['Multiply']['works with `make_mappings()`'] = function()
   validate_edit1d('aa bb', 0, { 'cmiw' }, 'aaaa bb', 2)
   validate_edit({ 'aa', 'bb' }, { 1, 0 }, { 'cmm' }, { 'aa', 'aa', 'bb' }, { 2, 0 })
   validate_edit1d('aa bb', 0, { 'viw', 'cm' }, 'aaaa bb', 2)
+end
+
+T['Multiply']['works on textobject with leading newline'] = function()
+  validate_edit({
+    'foo(',
+    '  a,',
+    '  b,',
+    '  c',
+    ')',
+  }, { 4, 2 }, { 'vgg$', 'gm' }, {
+    'foo(',
+    '  a,',
+    '  b,',
+    '  c',
+    '  a,',
+    '  b,',
+    '  c',
+    ')',
+  }, { 4, 2 })
 end
 
 T['Multiply']['respects `selection=exclusive`'] = function()
@@ -2101,6 +2153,22 @@ T['Replace']['works with `make_mappings()`'] = function()
   validate_edit1d('aa bb', 0, { 'yiw', 'w', 'gRiw' }, 'aa aa', 3)
   validate_edit({ 'aa', 'bb' }, { 1, 0 }, { 'yy', 'j', 'gRr' }, { 'aa', 'aa' }, { 2, 0 })
   validate_edit1d('aa bb', 0, { 'yiw', 'w', 'viw', 'gR' }, 'aa aa', 3)
+end
+
+T['Replace']['works on textobject with leading newline'] = function()
+  validate_edit({
+    'foo(',
+    '  a,',
+    '  b,',
+    '  c',
+    ')',
+  }, { 4, 2 }, { 'vgg$y', 'gvgr' }, {
+    'foo(',
+    '  a,',
+    '  b,',
+    '  c',
+    ')',
+  }, { 1, 3 })
 end
 
 T['Replace']['respects `selection=exclusive`'] = function()
