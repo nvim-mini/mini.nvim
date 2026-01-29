@@ -1158,6 +1158,9 @@ H.do_between_marks = function(operator, data)
   local cache_eventignore = vim.o.eventignore
   if is_yank then vim.o.eventignore = 'TextYankPost' end
 
+  local cache_virtualedit = vim.o.virtualedit
+  vim.o.virtualedit = 'onemore'
+
   -- Make sure that marks `[` and `]` don't change after `y`
   local context_marks = { '<', '>' }
   if is_yank then context_marks = vim.list_extend(context_marks, { '[', ']' }) end
@@ -1178,6 +1181,7 @@ H.do_between_marks = function(operator, data)
 
   vim.o.selection = cache_selection
   if is_yank then vim.o.eventignore = cache_eventignore end
+  vim.o.virtualedit = cache_virtualedit
 end
 
 H.is_content = function(x) return type(x) == 'table' and H.islist(x.lines) and type(x.submode) == 'string' end
