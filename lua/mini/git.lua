@@ -161,6 +161,7 @@
 --- Examples of usage:
 --- - `:Git log --oneline` - show compact log of current repository.
 --- - `:vert Git blame -- %` - show latest commits per line in vertical split.
+--- - `:topleft vertical Git status` - forces a vertical split use.
 --- - `:Git help rebase` - show help page for `rebase` subcommand.
 --- - `:Git -C <cwd> status` - execute `git status` inside |current-directory|.
 ---
