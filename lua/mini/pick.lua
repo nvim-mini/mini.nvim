@@ -158,7 +158,8 @@
 ---
 --- UI consists from a single window capable of displaying three different views:
 --- - "Main" - where current query matches are shown.
---- - "Preview" - preview of current item (toggle with `<Tab>`).
+--- - "Preview" - preview of current item (toggle with `<Tab>`). Can be shown
+---   alongside main window depending on `config.window.preview.orientation`.
 --- - "Info" - general info about picker and its state (toggle with `<S-Tab>`).
 ---
 --- Current prompt is displayed at the top left of the window border with vertical
@@ -588,7 +589,9 @@
 --- main view otherwise.
 ---
 --- - `mappings.toggle_info` - toggle info view.
---- - `mappings.toggle_preview` - toggle preview.
+--- - `mappings.toggle_preview` - toggle preview. Can hide/show it alongside
+---   main window or switch between view states depending on
+---   `config.window.preview.orientation`.
 ---
 --- Note:
 --- - Updating query in any way resets window view to show matches.
@@ -660,6 +663,25 @@
 ---     }
 ---   end
 ---   { window = { config = win_config } }
+---
+---   -- Horizontal preview orientation
+---   {
+---     window = {
+---       preview = { orientation = 'horizontal' },
+---       config = { height = math.floor(0.803 * vim.o.lines) },
+---     },
+---   }
+---
+---   -- Vertical preview orientation
+---   {
+---     window = {
+---       preview = { orientation = 'vertical' },
+---       config = {
+---         height = math.floor(0.803 * vim.o.lines),
+---         width = math.floor(0.803 * vim.o.columns),
+---       },
+---     },
+---   }
 --- <
 ---@tag MiniPick-examples
 
@@ -791,6 +813,16 @@ end
 ---
 --- `window.prompt_prefix` defines what prefix is used in window's prompt.
 --- Default: '> '.
+---
+--- `window.preview` defines how preview is shown.
+---
+--- `window.preview.orientation` is a string indicating orientation of the
+--- preview window relative to main window. One of "horizontal", "vertical",
+--- or "none" (replaces main window content). Default: "none".
+---
+--- `window.preview.ratio` is a number from 0 to 1 indicating ratio of
+--- preview window relative to total available space. Applicable when
+--- "horizontal" or "vertical" orientation is set. Default: 0.6.
 MiniPick.config = {
   -- Delays (in ms; should be at least 1)
   delay = {
@@ -873,6 +905,17 @@ MiniPick.config = {
 
     -- String to use as prefix in prompt
     prompt_prefix = '> ',
+
+    -- Settings for preview window
+    preview = {
+      -- Orientation of the preview window. One of 'horizontal', 'vertical', or
+      -- 'none' (replaces main window content).
+      orientation = 'none',
+
+      -- Ratio of the preview window relative to total available space
+      -- Applicable when "horizontal" or "vertical" orientation is set
+      ratio = 0.6,
+    },
   },
 }
 --minidoc_afterlines_end
@@ -1564,8 +1607,8 @@ MiniPick.builtin.resume = function()
   local buf_id = H.picker_new_buf()
   local win_target = vim.api.nvim_get_current_win()
   local win_id = H.picker_new_win(buf_id, picker.opts.window.config, picker.opts.source.cwd)
-  picker.buffers = { main = buf_id }
-  picker.windows = { main = win_id, target = win_target }
+  picker.buffers = { main = buf_id, preview = nil, info = nil }
+  picker.windows = { main = win_id, preview = nil, target = win_target }
   picker.view_state = 'main'
   H.pickers.active = picker
 
@@ -1983,6 +2026,9 @@ H.setup_config = function(config)
   if not is_table_or_callable(config.window.config) then
     H.error('`window.config` should be table or callable, not ' .. type(config.window.config))
   end
+  H.check_type('window.preview', config.window.preview, 'table')
+  H.validate_preview_win_opts(config.window.preview)
+  H.check_type('window.preview.ratio', config.window.preview.ratio, 'number')
   -- TODO: Remove after releasing 'mini.nvim' 0.16.0
   if config.window.prompt_cursor ~= nil then
     local msg = '`prompt_cursor` in `config.window` is renamed to `prompt_caret` for better naming consistency.'
@@ -2147,7 +2193,17 @@ H.validate_picker_opts = function(opts)
   local is_valid_winconfig = win_config == nil or type(win_config) == 'table' or vim.is_callable(win_config)
   if not is_valid_winconfig then H.error('`window.config` should be table or callable.') end
 
+  -- Preview window
+  H.validate_preview_win_opts(opts.window.preview)
+
   return opts
+end
+
+H.validate_preview_win_opts = function(preview)
+  local allowed_orientations = { 'horizontal', 'vertical', 'none' }
+  if not vim.tbl_contains(allowed_orientations, preview.orientation) then
+    H.error('`window.preview.orientation` should be one of "horizontal", "vertical", "none"')
+  end
 end
 
 H.picker_new = function(opts)
@@ -2170,7 +2226,7 @@ H.picker_new = function(opts)
 
     -- Associated Neovim objects
     buffers = { main = buf_id, preview = nil, info = nil },
-    windows = { main = win_id, target = win_target },
+    windows = { main = win_id, preview = nil, target = win_target },
 
     -- Query data
     query = {},
@@ -2245,14 +2301,91 @@ end
 
 H.picker_update = function(picker, do_match, update_window)
   if do_match then H.picker_match(picker) end
-  if update_window then
+
+  local show_side_preview = H.picker_should_show_preview(picker)
+  local update_side_preview = show_side_preview ~= H.is_valid_win(picker.windows.preview)
+  if update_window or update_side_preview then
     local config = H.picker_compute_win_config(picker.opts.window.config)
+
+    if show_side_preview then
+      local preview_config = vim.deepcopy(config)
+
+      -- Calculate border offsets to ensure windows don't overlap or shift
+      local border = config.border
+      local border_offset = type(border) == 'table' and #config.border or 0
+      local border_height = (
+        border_offset == 0 and 2
+        or ((border[1 % border_offset + 1] == '' and 0 or 1) + (border[5 % border_offset + 1] == '' and 0 or 1))
+      )
+      local border_width = (
+        border_offset == 0 and 2
+        or ((border[3 % border_offset + 1] == '' and 0 or 1) + (border[7 % border_offset + 1] == '' and 0 or 1))
+      )
+
+      local preview_opts = picker.opts.window.preview
+
+      if preview_opts.orientation == 'vertical' then
+        -- Vertical split: Main on left, Preview on right
+        local preview_width = math.max(1, math.floor(preview_opts.ratio * (config.width + border_width)) - border_width)
+        local main_width = math.max(1, config.width - preview_width - border_width)
+
+        config.width = main_width
+        preview_config.width = preview_width
+        preview_config.col = config.col + (main_width + border_width)
+      else
+        -- Horizontal split: Main on top, Preview on bottom
+        local preview_height =
+          math.max(1, math.floor(preview_opts.ratio * (config.height + border_height)) - border_height)
+        local main_height = math.max(1, config.height - preview_height - border_height)
+
+        config.height = main_height
+        preview_config.height = preview_height
+
+        if config.anchor == 'SW' then
+          config.row = config.row - (preview_height + border_height)
+        else -- Assuming NW
+          preview_config.row = config.row + (main_height + border_height)
+        end
+      end
+
+      if not H.is_valid_buf(picker.buffers.preview) then
+        picker.buffers.preview = H.create_scratch_buf('preview')
+        vim.bo[picker.buffers.preview].bufhidden = 'wipe'
+      end
+      if not H.is_valid_win(picker.windows.preview) then
+        picker.windows.preview = vim.api.nvim_open_win(picker.buffers.preview, false, preview_config)
+        H.win_update_hl(picker.windows.preview, 'NormalFloat', 'MiniPickNormal')
+        H.win_update_hl(picker.windows.preview, 'FloatBorder', 'MiniPickBorder')
+      else
+        vim.api.nvim_win_set_config(picker.windows.preview, preview_config)
+      end
+
+      local item = H.picker_get_current_item(picker)
+      if item ~= nil then picker.opts.source.preview(picker.buffers.preview, item) end
+    else
+      if H.is_valid_win(picker.windows.preview) then
+        vim.api.nvim_win_close(picker.windows.preview, true)
+        picker.windows.preview = nil
+      end
+    end
+
     vim.api.nvim_win_set_config(picker.windows.main, config)
     H.picker_set_current_ind(picker, picker.current_ind, true)
+  elseif show_side_preview then
+    -- Sync preview content if window already exists
+    local item = H.picker_get_current_item(picker)
+    if item ~= nil then picker.opts.source.preview(picker.buffers.preview, item) end
   end
+
   H.picker_set_bordertext(picker)
   H.picker_set_lines(picker)
   H.redraw()
+end
+
+H.picker_should_show_preview = function(picker)
+  local preview_opts = picker.opts.window.preview
+  local hide_preview = picker.cache.hide_preview or false
+  return preview_opts.orientation ~= 'none' and picker.view_state == 'main' and not hide_preview
 end
 
 H.picker_new_buf = function()
@@ -2413,8 +2546,9 @@ H.picker_set_current_ind = function(picker, ind, force_update)
   local needs_update = H.querytick ~= querytick or from == nil or to == nil or not (from <= ind and ind <= to)
   if (force_update or needs_update) and H.is_valid_win(picker.windows.main) then
     local win_height = vim.api.nvim_win_get_height(picker.windows.main)
-    to = math.min(n_matches, math.floor(ind + 0.5 * win_height))
-    from = math.max(1, to - win_height + 1)
+    -- Calculate `from` by centering the current item and clamping it to valid bounds,
+    -- Ensures the visible range is correctly calculated regardless of window size changes.
+    from = math.max(1, math.min(n_matches - win_height + 1, ind - math.floor(0.5 * win_height) + 1))
     to = from + math.min(win_height, n_matches) - 1
   end
 
@@ -2503,7 +2637,12 @@ H.picker_set_lines = function(picker)
 
   -- - Update cursor if showing item matches (needed for 'scroll_{left,right}')
   local cursor = vim.api.nvim_win_get_cursor(win_id)
-  if picker.view_state == 'main' and cursor[1] ~= cur_line then H.set_cursor(win_id, cur_line, cursor[2] + 1) end
+  if picker.view_state == 'main' and cursor[1] ~= cur_line then
+    H.set_cursor(win_id, cur_line, cursor[2] + 1)
+    -- Ensure vertical scroll position is reset to the top, preventing from
+    -- shifting the item list upwards and leaving empty space at the bottom.
+    vim.api.nvim_win_call(win_id, function() vim.fn.winrestview({ topline = 1 }) end)
+  end
 end
 
 H.picker_match = function(picker)
@@ -2660,6 +2799,7 @@ H.picker_stop = function(picker, abort)
   end
 
   H.set_curwin(picker.windows.target)
+  pcall(vim.api.nvim_win_close, picker.windows.preview, true)
   pcall(vim.api.nvim_win_close, picker.windows.main, true)
   pcall(vim.api.nvim_buf_delete, picker.buffers.main, { force = true })
   pcall(vim.api.nvim_buf_delete, picker.buffers.info, { force = true })
@@ -2737,8 +2877,13 @@ H.actions = {
   end,
 
   toggle_preview = function(picker, _)
-    if picker.view_state == 'preview' then return H.picker_show_main(picker) end
-    H.picker_show_preview(picker)
+    if picker.opts.window.preview.orientation ~= 'none' then
+      picker.cache.hide_preview = not (picker.cache.hide_preview or false)
+      H.picker_update(picker, false, true)
+    else
+      if picker.view_state == 'preview' then return H.picker_show_main(picker) end
+      H.picker_show_preview(picker)
+    end
   end,
 
   stop = function(_, _) return true end,

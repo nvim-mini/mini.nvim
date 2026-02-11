@@ -162,7 +162,8 @@ filter/sort/navigate/preview, and allow to choose one or more items.
 
 UI consists from a single window capable of displaying three different views:
 - "Main" - where current query matches are shown.
-- "Preview" - preview of current item (toggle with `<Tab>`).
+- "Preview" - preview of current item (toggle with `<Tab>`). Can be shown
+  alongside main window depending on `config.window.preview.orientation`.
 - "Info" - general info about picker and its state (toggle with `<S-Tab>`).
 
 Current prompt is displayed at the top left of the window border with vertical
@@ -594,7 +595,9 @@ Toggle action is a way to change view: show if target is not shown, reset to
 main view otherwise.
 
 - `mappings.toggle_info` - toggle info view.
-- `mappings.toggle_preview` - toggle preview.
+- `mappings.toggle_preview` - toggle preview. Can hide/show it alongside
+  main window or switch between view states depending on
+  `config.window.preview.orientation`.
 
 Note:
 - Updating query in any way resets window view to show matches.
@@ -785,6 +788,17 @@ Defaults ~
 
       -- String to use as prefix in prompt
       prompt_prefix = '> ',
+
+      -- Settings for preview window
+      preview = {
+        -- Orientation of the preview. One of "horizontal", "vertical"
+	-- or "none" (replaces main window content)
+        orientation = 'none',
+
+        -- Ratio of the preview window relative to total available space
+	-- Applicable when "horizontal" or "vertical" orientation is set
+        ratio = 0.6,
+      },
     },
   }
 <
@@ -841,6 +855,18 @@ Default: '▏'.
 
 `window.prompt_prefix` defines what prefix is used in window's prompt.
 Default: '> '.
+
+`window.preview` defines how preview is shown.
+
+`window.preview.orientation` is a string indicating orientation of the
+preview window relative to main window. One of "horizontal", "vertical",
+or "none" (replaces main window content).
+Default: "none".
+
+`window.preview.ratio` is a number from 0 to 1 indicating ratio of
+preview window relative to total available space. Applicable when
+"horizontal" or "vertical" orientation is set.
+Default: 0.6.
 
 ------------------------------------------------------------------------------
                                                               *MiniPick.start()*

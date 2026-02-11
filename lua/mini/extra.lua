@@ -988,7 +988,7 @@ MiniExtra.pickers.history = function(local_opts, opts)
 
   opts = vim.tbl_deep_extend('force', opts or {}, { mappings = mappings })
   local default_source = { name = string.format('History (%s)', scope), preview = preview, choose = choose }
-  return H.pick_start(items, { source = default_source }, opts)
+  return H.pick_start(items, { source = default_source, window = { preview = { orientation = 'none' } } }, opts)
 end
 
 --- Highlight groups picker
@@ -1470,8 +1470,13 @@ MiniExtra.pickers.registers = function(local_opts, opts)
   end)
 
   local preview = function(buf_id, item) H.set_buflines(buf_id, vim.split(item.regcontents, '\n')) end
+  local window = { preview = { orientation = 'none' } }
 
-  return H.pick_start(items, { source = { name = 'Registers', preview = preview, choose = choose } }, opts)
+  return H.pick_start(
+    items,
+    { source = { name = 'Registers', preview = preview, choose = choose }, window = window },
+    opts
+  )
 end
 
 --- Neovim spell suggestions picker
@@ -1509,7 +1514,8 @@ MiniExtra.pickers.spellsuggest = function(local_opts, opts)
   local choose = vim.schedule_wrap(function(item) vim.cmd('normal! ' .. item.index .. 'z=') end)
 
   local name = 'Spell suggestions for ' .. vim.inspect(word)
-  return H.pick_start(items, { source = { name = name, preview = preview, choose = choose } }, opts)
+  local window = { preview = { orientation = 'none' } }
+  return H.pick_start(items, { source = { name = name, preview = preview, choose = choose }, window = window }, opts)
 end
 
 --- Tree-sitter nodes picker
