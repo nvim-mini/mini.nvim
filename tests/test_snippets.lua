@@ -2420,6 +2420,34 @@ T['session.stop()']['hides completion popup'] = function()
   eq(child.fn.mode(), 'i')
 end
 
+T['session.stop()']['ensures next nested session is valid'] = function()
+  -- Invalid next session is last
+  set_lines({ '', '' })
+  set_cursor(2, 0)
+  default_insert({ body = 'T1=$1 T0=$0' })
+  type_keys('<Up>')
+  default_insert({ body = 'U1=$1 U0=$0' })
+
+  type_keys('<Esc>', 'G', 'dd', 'gg')
+  stop()
+  validate_no_active_session()
+
+  ensure_clean_state()
+
+  -- Invalid next session is not last
+  set_lines({ '', '', '' })
+  set_cursor(2, 0)
+  default_insert({ body = 'T1=$1 T0=$0' })
+  type_keys('<Down>')
+  default_insert({ body = 'U1=$1 U0=$0' })
+  type_keys('<Up><Up>')
+  default_insert({ body = 'V1=$1 V0=$0' })
+
+  type_keys('<Esc>', 'G', 'dd', 'gg')
+  stop()
+  child.expect_screenshot()
+end
+
 T['parse()'] = new_set()
 
 local parse = forward_lua('MiniSnippets.parse')
@@ -4645,6 +4673,15 @@ T['Session']['nesting']['session stack is properly cleaned when buffer is unload
     { event = 'MiniSnippetsSessionStop',   data = make_ref_data(buf_id_1, body_1), buf_id = get_buf() },
   }
   eq_partial_tbl(get_au_log(), ref_au_log_partial)
+end
+
+T['Session']['nesting']['handles several non-valid session'] = function()
+  start_session('T1=$1 T0=$0')
+  start_session('U1=$1 U0=$0')
+  eq(get_lines(), { 'T1=U1= U0= T0=' })
+  type_keys('<Esc>', 'dd')
+  validate_no_active_session()
+  eq(child.cmd_capture('messages'), '')
 end
 
 T['Interaction with built-in completion'] = new_set()

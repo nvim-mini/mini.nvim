@@ -3550,8 +3550,9 @@ H.set_picker_items_from_feed = function(feed, pattern, opts)
   -- Check active picker as `poke_picker()` will always be `true` in this case
   if not MiniPick.is_picker_active() then return end
 
+  -- Reuse input querytick to preserve intended reaction to query change
   -- NOTE: For intended effect, relies on presence of the active coroutine
-  local poke_picker = H.poke_picker_throttle(H.querytick)
+  local poke_picker = H.poke_picker_throttle(opts.set_items_opts.querytick)
 
   -- Realign feed so that each one ends in a pattern
   for i = 2, #feed do
