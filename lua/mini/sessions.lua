@@ -202,6 +202,9 @@ MiniSessions.read = function(session_name, opts)
   -- Possibly notify
   if opts.verbose then H.message(('Read session %s'):format(session_path)) end
 
+  -- Ensure correct detected local session
+  H.detect_sessions()
+
   -- Execute 'post' hook
   H.possibly_execute(opts.hooks.post, data)
 end

@@ -237,7 +237,11 @@ T['setup()']['detects sessions and respects `config.directory`'] = function()
   eq(type(detected), 'table')
   local keys = vim.tbl_keys(detected)
   table.sort(keys)
-  eq(keys, { '.session', 'Session.vim', 'session1', 'session2.vim', 'session3.lua' })
+  --stylua: ignore
+  eq(keys, {
+    '.session', 'Session.vim', 'session1', 'session2.vim', 'session3.lua',
+    'session_cd_global', 'session_cd_local', 'session_cd_local_2'
+  })
 
   -- Elements should have correct structure
   local cur_dir = child.fn.getcwd()
@@ -340,6 +344,30 @@ T['read()']['accepts only name of detected session'] = function()
     '%(mini%.sessions%) "session%-absent" is not a name for detected session'
   )
   validate_no_session_loaded()
+end
+
+T['read()']['removes stale local session from detected'] = function()
+  -- Start in 'local' directory
+  cd('tests', 'dir-sessions', 'local')
+  reload_module({ autowrite = false, directory = project_root .. '/tests/dir-sessions/global' })
+  eq(child.lua_get([[MiniSessions.detected['Session.vim'] ~= nil]]), true)
+
+  -- Test yes local -> no local
+  child.lua([[MiniSessions.read('session_cd_global')]])
+  validate_session_loaded('global/session_cd_global')
+  eq(child.lua_get([[MiniSessions.detected['Session.vim'] ~= nil]]), false)
+
+  -- Test no local -> yes local
+  child.lua([[MiniSessions.read('session_cd_local')]])
+  validate_session_loaded('global/session_cd_local')
+  eq(child.lua_get([[MiniSessions.detected['Session.vim'] ~= nil]]), true)
+
+  -- Test yes local -> yes other local
+  child.lua([[MiniSessions.read('session_cd_local_2')]])
+  validate_session_loaded('global/session_cd_local_2')
+  eq(child.lua_get([[MiniSessions.detected['Session.vim'] ~= nil]]), true)
+  local other_local_path = project_root .. '/tests/dir-sessions/local-2/Session.vim'
+  eq(child.lua_get([[MiniSessions.detected['Session.vim'].path ]]), other_local_path)
 end
 
 T['read()']['makes detected sessions up to date'] = function()

@@ -1,0 +1,2 @@
+lua _G.session_file = 'tests/dir-sessions/global/session_cd_local_2'
+lua vim.fn.chdir('../local-2') 
