@@ -58,9 +58,11 @@ There are following change types:
 
 ### Expand
 
-- Preview can now be shown alongside main window depending on `config.window.preview.orientation`.
-
-- Add scroll preview actions and their default mappings (`<M-f>` / `<M-b>` / `<M-h>` / `<M-l>`) when preview is shown alongside main window.
+- Add side-by-side preview support:
+    - Introduce `config.window.preview.orientation` ('horizontal', 'vertical', 'none').
+    - Add `config.window.preview.ratio` to control preview size.
+    - Add scroll preview actions and their default mappings (`<M-f>` / `<M-b>` / `<M-h>` / `<M-l>`) when preview is shown alongside main window.
+    - Update `mini.extra` pickers to ensure compatible default behavior.
 
 - Allow `source.preview` to directly set another buffer into picker's main window. The recommended way is still to adjust the provided `buf_id` buffer, but there is now a workaround if this is not reasonably possible.
 
