@@ -334,7 +334,7 @@ T['read()']['works with no detected sessions'] = function()
   reload_module({ directory = '', file = '' })
   eq(child.lua_get('MiniSessions.detected'), {})
   expect.no_error(function() child.lua('MiniSessions.read()') end)
-  expect.match(get_latest_message(), '%(mini%.sessions%) There is no detected sessions')
+  expect.match(get_latest_message(), '%(mini%.sessions%) There are no detected sessions')
 end
 
 T['read()']['accepts only name of detected session'] = function()
@@ -786,7 +786,7 @@ T['delete()']['validates presence of detected sessions'] = function()
 
   expect.error(
     function() child.lua([[MiniSessions.delete('aaa')]]) end,
-    '%(mini%.sessions%) There is no detected sessions'
+    '%(mini%.sessions%) There are no detected sessions'
   )
 end
 
@@ -1030,7 +1030,7 @@ T['get_latest()']['works'] = function()
   eq(child.lua_get('MiniSessions.get_latest()'), 'session_b')
 end
 
-T['get_latest()']['works if there is no detected sessions'] = function()
+T['get_latest()']['works if there are no detected sessions'] = function()
   reload_module({ directory = '', file = '' })
   eq(child.lua_get('MiniSessions.get_latest()'), vim.NIL)
 end

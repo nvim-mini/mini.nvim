@@ -125,7 +125,7 @@ What it does:
   write it with |MiniSessions.write()|.
 - Delete all current buffers with |:bwipeout|. This is needed to correctly
   restore buffers from target session. If `force` is not `true`, checks
-  beforehand for unsaved listed buffers and stops if there is any.
+  beforehand for unsaved listed buffers and stops if there are any.
 - Source session with supplied name.
 
 Parameters ~

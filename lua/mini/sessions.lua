@@ -134,7 +134,7 @@ MiniSessions.detected = {}
 ---   write it with |MiniSessions.write()|.
 --- - Delete all current buffers with |:bwipeout|. This is needed to correctly
 ---   restore buffers from target session. If `force` is not `true`, checks
----   beforehand for unsaved listed buffers and stops if there is any.
+---   beforehand for unsaved listed buffers and stops if there are any.
 --- - Source session with supplied name.
 ---
 ---@param session_name string|nil Name of detected session file to read. Default:
@@ -155,7 +155,7 @@ MiniSessions.read = function(session_name, opts)
   -- Make sessions up to date
   H.detect_sessions()
   if vim.tbl_count(MiniSessions.detected) == 0 then
-    return H.message('There is no detected sessions. Change configuration and rerun `MiniSessions.setup()`.')
+    return H.message('There are no detected sessions. Change configuration and rerun `MiniSessions.setup()`.')
   end
 
   -- Get session data
@@ -291,7 +291,7 @@ end
 MiniSessions.delete = function(session_name, opts)
   if H.is_disabled() then return end
   if vim.tbl_count(MiniSessions.detected) == 0 then
-    H.error('There is no detected sessions. Change configuration and rerun `MiniSessions.setup()`.')
+    H.error('There are no detected sessions. Change configuration and rerun `MiniSessions.setup()`.')
   end
 
   opts = vim.tbl_deep_extend('force', H.default_opts('delete'), opts or {})
