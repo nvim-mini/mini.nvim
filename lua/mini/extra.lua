@@ -988,7 +988,8 @@ MiniExtra.pickers.history = function(local_opts, opts)
 
   opts = vim.tbl_deep_extend('force', opts or {}, { mappings = mappings })
   local default_source = { name = string.format('History (%s)', scope), preview = preview, choose = choose }
-  return H.pick_start(items, { source = default_source, window = { preview = { orientation = 'none' } } }, opts)
+  local window = { preview = { orientation = 'none' } }
+  return H.pick_start(items, { source = default_source, window = window }, opts)
 end
 
 --- Highlight groups picker
