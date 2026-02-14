@@ -278,10 +278,10 @@ Here are code snippets for some common installation methods (use only one):
     scroll_right = '<C-l>',
     scroll_up    = '<C-b>',
 
-    scroll_down_preview  = '<M-f>',
-    scroll_left_preview  = '<M-h>',
-    scroll_right_preview = '<M-l>',
-    scroll_up_preview    = '<M-b>',
+    scroll_preview_down  = '<M-f>',
+    scroll_preview_left  = '<M-h>',
+    scroll_preview_right = '<M-l>',
+    scroll_preview_up    = '<M-b>',
 
     stop = '<Esc>',
 

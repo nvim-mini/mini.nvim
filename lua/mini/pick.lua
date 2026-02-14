@@ -583,10 +583,10 @@
 --- content (see |MiniPick-config-window|). Has no effect when side preview
 --- is not visible.
 ---
---- - `mappings.scroll_down_preview` - scroll preview down as with |CTRL-F|.
---- - `mappings.scroll_left_preview` - scroll preview left as with |zH|.
---- - `mappings.scroll_right_preview` - scroll preview right as with |zL|.
---- - `mappings.scroll_up_preview` - scroll preview up as with |CTRL-B|.
+--- - `mappings.scroll_preview_down` - scroll preview down as with |CTRL-F|.
+--- - `mappings.scroll_preview_left` - scroll preview left as with |zH|.
+--- - `mappings.scroll_preview_right` - scroll preview right as with |zL|.
+--- - `mappings.scroll_preview_up` - scroll preview up as with |CTRL-B|.
 ---
 --- ## Stop ~
 --- *MiniPick-actions-stop*
@@ -878,10 +878,10 @@ MiniPick.config = {
     scroll_right = '<C-l>',
     scroll_up    = '<C-b>',
 
-    scroll_down_preview  = '<M-f>',
-    scroll_left_preview  = '<M-h>',
-    scroll_right_preview = '<M-l>',
-    scroll_up_preview    = '<M-b>',
+    scroll_preview_down  = '<M-f>',
+    scroll_preview_left  = '<M-h>',
+    scroll_preview_right = '<M-l>',
+    scroll_preview_up    = '<M-b>',
 
     stop = '<Esc>',
 
@@ -2020,10 +2020,10 @@ H.setup_config = function(config)
   H.check_type('mappings.scroll_up', config.mappings.scroll_up, 'string')
   H.check_type('mappings.scroll_left', config.mappings.scroll_left, 'string')
   H.check_type('mappings.scroll_right', config.mappings.scroll_right, 'string')
-  H.check_type('mappings.scroll_down_preview', config.mappings.scroll_down_preview, 'string')
-  H.check_type('mappings.scroll_left_preview', config.mappings.scroll_left_preview, 'string')
-  H.check_type('mappings.scroll_right_preview', config.mappings.scroll_right_preview, 'string')
-  H.check_type('mappings.scroll_up_preview', config.mappings.scroll_up_preview, 'string')
+  H.check_type('mappings.scroll_preview_down', config.mappings.scroll_preview_down, 'string')
+  H.check_type('mappings.scroll_preview_left', config.mappings.scroll_preview_left, 'string')
+  H.check_type('mappings.scroll_preview_right', config.mappings.scroll_preview_right, 'string')
+  H.check_type('mappings.scroll_preview_up', config.mappings.scroll_preview_up, 'string')
   H.check_type('mappings.stop', config.mappings.stop, 'string')
   H.check_type('mappings.toggle_info', config.mappings.toggle_info, 'string')
   H.check_type('mappings.toggle_preview', config.mappings.toggle_preview, 'string')
@@ -2899,10 +2899,10 @@ H.actions = {
   scroll_left  = function(picker, _) H.picker_scroll(picker, 'left')  end,
   scroll_right = function(picker, _) H.picker_scroll(picker, 'right') end,
 
-  scroll_down_preview  = function(picker, _) H.picker_scroll_preview(picker, 'down')  end,
-  scroll_up_preview    = function(picker, _) H.picker_scroll_preview(picker, 'up')    end,
-  scroll_left_preview  = function(picker, _) H.picker_scroll_preview(picker, 'left')  end,
-  scroll_right_preview = function(picker, _) H.picker_scroll_preview(picker, 'right') end,
+  scroll_preview_down  = function(picker, _) H.picker_scroll_preview(picker, 'down')  end,
+  scroll_preview_up    = function(picker, _) H.picker_scroll_preview(picker, 'up')    end,
+  scroll_preview_left  = function(picker, _) H.picker_scroll_preview(picker, 'left')  end,
+  scroll_preview_right = function(picker, _) H.picker_scroll_preview(picker, 'right') end,
 
   toggle_info = function(picker, _)
     if picker.view_state == 'info' then return H.picker_show_main(picker) end

@@ -29,13 +29,13 @@
 28|│Refine               │ <C-Space>     │                     
 29|│Refine marked        │ <M-Space>     │                     
 30|│Scroll down          │ <C-f>         │                     
-31|│Scroll down preview  │ <M-f>         │                     
-32|│Scroll left          │ <C-h>         │                     
-33|│Scroll left preview  │ <M-h>         │                     
-34|│Scroll right         │ <C-l>         │                     
-35|│Scroll right preview │ <M-l>         │                     
-36|│Scroll up            │ <C-b>         │                     
-37|│Scroll up preview    │ <M-b>         │                     
+31|│Scroll left          │ <C-h>         │                     
+32|│Scroll preview down  │ <M-f>         │                     
+33|│Scroll preview left  │ <M-h>         │                     
+34|│Scroll preview right │ <M-l>         │                     
+35|│Scroll preview up    │ <M-b>         │                     
+36|│Scroll right         │ <C-l>         │                     
+37|│Scroll up            │ <C-b>         │                     
 38|│Stop                 │ <Esc>         │                     
 39|└ My name ───────────────────── 1|3|3 ┘                     
 40|                                                            
