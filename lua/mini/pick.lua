@@ -680,7 +680,7 @@
 ---   {
 ---     window = {
 ---       preview = { orientation = 'horizontal' },
----       config = { height = math.floor(0.803 * vim.o.lines) },
+---       config = function() return { height = math.floor(0.803 * vim.o.lines) } end,
 ---     },
 ---   }
 ---
@@ -688,10 +688,12 @@
 ---   {
 ---     window = {
 ---       preview = { orientation = 'vertical' },
----       config = {
----         height = math.floor(0.803 * vim.o.lines),
----         width = math.floor(0.803 * vim.o.columns),
----       },
+---       config = function()
+---         return {
+---           height = math.floor(0.803 * vim.o.lines),
+---           width = math.floor(0.803 * vim.o.columns),
+---         }
+---       end,
 ---     },
 ---   }
 --- <

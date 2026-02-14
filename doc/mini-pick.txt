@@ -686,7 +686,7 @@ Disable icons in |MiniPick.builtin| pickers related to paths: >lua
   {
     window = {
       preview = { orientation = 'horizontal' },
-      config = { height = math.floor(0.803 * vim.o.lines) },
+      config = function() return { height = math.floor(0.803 * vim.o.lines) } end,
     },
   }
 
@@ -694,10 +694,12 @@ Disable icons in |MiniPick.builtin| pickers related to paths: >lua
   {
     window = {
       preview = { orientation = 'vertical' },
-      config = {
-        height = math.floor(0.803 * vim.o.lines),
-        width = math.floor(0.803 * vim.o.columns),
-      },
+      config = function()
+        return {
+          height = math.floor(0.803 * vim.o.lines),
+          width = math.floor(0.803 * vim.o.columns),
+        }
+      end,
     },
   }
 <
