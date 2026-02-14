@@ -9,34 +9,34 @@
 08|│Current index │ 1                    │                     
 09|│                                     │                     
 10|│Mappings (built-in)                  │                     
-11|│Caret left        │ <Left>           │                     
-12|│Caret right       │ <Right>          │                     
-13|│Choose            │ <CR>             │                     
-14|│Choose in split   │ <C-s>            │                     
-15|│Choose in tabpage │ <C-t>            │                     
-16|│Choose in vsplit  │ <C-v>            │                     
-17|│Choose marked     │ <M-CR>           │                     
-18|│Delete char       │ <BS>             │                     
-19|│Delete char right │ <Del>            │                     
-20|│Delete left       │ <C-u>            │                     
-21|│Delete word       │ <C-w>            │                     
-22|│Mark              │ <C-x>            │                     
-23|│Mark all          │ <C-a>            │                     
-24|│Move down         │ <C-n>            │                     
-25|│Move start        │ <C-g>            │                     
-26|│Move up           │ <C-p>            │                     
-27|│Paste             │ <C-r>            │                     
-28|│Refine            │ <C-Space>        │                     
-29|│Refine marked     │ <M-Space>        │                     
-30|│Scroll down       │ <C-f>            │                     
-31|│Scroll left       │ <C-h>            │                     
-32|│Scroll right      │ <C-l>            │                     
-33|│Scroll up         │ <C-b>            │                     
-34|│Stop              │ <Esc>            │                     
-35|│Toggle info       │ <S-Tab>          │                     
-36|│Toggle preview    │ <Tab>            │                     
-37|│                                     │                     
-38|│                                     │                     
+11|│Caret left           │ <Left>        │                     
+12|│Caret right          │ <Right>       │                     
+13|│Choose               │ <CR>          │                     
+14|│Choose in split      │ <C-s>         │                     
+15|│Choose in tabpage    │ <C-t>         │                     
+16|│Choose in vsplit     │ <C-v>         │                     
+17|│Choose marked        │ <M-CR>        │                     
+18|│Delete char          │ <BS>          │                     
+19|│Delete char right    │ <Del>         │                     
+20|│Delete left          │ <C-u>         │                     
+21|│Delete word          │ <C-w>         │                     
+22|│Mark                 │ <C-x>         │                     
+23|│Mark all             │ <C-a>         │                     
+24|│Move down            │ <C-n>         │                     
+25|│Move start           │ <C-g>         │                     
+26|│Move up              │ <C-p>         │                     
+27|│Paste                │ <C-r>         │                     
+28|│Refine               │ <C-Space>     │                     
+29|│Refine marked        │ <M-Space>     │                     
+30|│Scroll down          │ <C-f>         │                     
+31|│Scroll down preview  │ <M-f>         │                     
+32|│Scroll left          │ <C-h>         │                     
+33|│Scroll left preview  │ <M-h>         │                     
+34|│Scroll right         │ <C-l>         │                     
+35|│Scroll right preview │ <M-l>         │                     
+36|│Scroll up            │ <C-b>         │                     
+37|│Scroll up preview    │ <M-b>         │                     
+38|│Stop                 │ <Esc>         │                     
 39|└ My name ───────────────────── 1|3|3 ┘                     
 40|                                                            
 
@@ -77,7 +77,7 @@
 34|044444444444444444444444444444444444440555555555555555555555
 35|044444444444444444444444444444444444440555555555555555555555
 36|044444444444444444444444444444444444440555555555555555555555
-37|066666666666666666666666666666666666660555555555555555555555
-38|066666666666666666666666666666666666660555555555555555555555
+37|044444444444444444444444444444444444440555555555555555555555
+38|044444444444444444444444444444444444440555555555555555555555
 39|011111111100000000000000000000011111110555555555555555555555
 40|222222222222222222222222222222222222222222222222222222222222

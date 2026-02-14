@@ -14,12 +14,12 @@
 13|│Dup key action │ <Left>              │                     
 14|│                                     │                     
 15|│Mappings (built-in)                  │                     
-16|│Caret right       │ <Right>          │                     
-17|│Choose            │ a                │                     
-18|│Delete char       │ <BS>             │                     
-19|│Delete char right │ <Del>            │                     
-20|│Delete left       │ <C-u>            │                     
-21|│Delete word       │ <C-w>            │                     
+16|│Caret right          │ <Right>       │                     
+17|│Choose               │ a             │                     
+18|│Delete char          │ <BS>          │                     
+19|│Delete char right    │ <Del>         │                     
+20|│Delete left          │ <C-u>         │                     
+21|│Delete word          │ <C-w>         │                     
 22|└ My name ───────────────────── 1|3|3 ┘                     
 23|                                                            
 

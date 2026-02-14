@@ -49,6 +49,7 @@ https://github.com/nvim-mini/mini.nvim/assets/24854248/65849d1e-3f96-4085-a4cf-f
 - Rich and customizable built-in actions when picker is active:
     - Manually change currently focused item.
     - Scroll vertically and horizontally.
+    - Scroll preview window content.
     - Toggle preview or info view.
     - Mark/unmark items to choose later.
     - Refine current matches (make them part of a new picker).
@@ -151,6 +152,7 @@ When picker is busy (like if there are no items yet set or matching is active) w
     - `<Tab>` toggles preview.
     - `<C-x>` / `<C-a>` toggles current / all item(s) as (un)marked.
     - `<C-Space>` / `<M-Space>` makes all matches or marked items as new picker.
+    - `<M-f>` / `<M-b>` / `<M-h>` / `<M-l>` scrolls preview window.
     - `<CR>` / `<M-CR>` chooses current/marked item(s).
     - `<Esc>` / `<C-c>` stops picker.
 
@@ -275,6 +277,11 @@ Here are code snippets for some common installation methods (use only one):
     scroll_left  = '<C-h>',
     scroll_right = '<C-l>',
     scroll_up    = '<C-b>',
+
+    scroll_down_preview  = '<M-f>',
+    scroll_left_preview  = '<M-h>',
+    scroll_right_preview = '<M-l>',
+    scroll_up_preview    = '<M-b>',
 
     stop = '<Esc>',
 

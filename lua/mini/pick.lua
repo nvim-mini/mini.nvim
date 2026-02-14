@@ -576,6 +576,18 @@
 --- - `mappings.scroll_up` - when matches are shown, go up by the amount of
 ---   visible matches. In preview and info view - scroll up as with |CTRL-B|.
 ---
+--- ## Scroll preview ~
+--- *MiniPick-actions-scroll-preview*
+---
+--- Scroll preview is an action to scroll the side-by-side preview window
+--- content (see |MiniPick-config-window|). Has no effect when side preview
+--- is not visible.
+---
+--- - `mappings.scroll_down_preview` - scroll preview down as with |CTRL-F|.
+--- - `mappings.scroll_left_preview` - scroll preview left as with |zH|.
+--- - `mappings.scroll_right_preview` - scroll preview right as with |zL|.
+--- - `mappings.scroll_up_preview` - scroll preview up as with |CTRL-B|.
+---
 --- ## Stop ~
 --- *MiniPick-actions-stop*
 ---
@@ -865,6 +877,11 @@ MiniPick.config = {
     scroll_left  = '<C-h>',
     scroll_right = '<C-l>',
     scroll_up    = '<C-b>',
+
+    scroll_down_preview  = '<M-f>',
+    scroll_left_preview  = '<M-h>',
+    scroll_right_preview = '<M-l>',
+    scroll_up_preview    = '<M-b>',
 
     stop = '<Esc>',
 
@@ -2003,6 +2020,10 @@ H.setup_config = function(config)
   H.check_type('mappings.scroll_up', config.mappings.scroll_up, 'string')
   H.check_type('mappings.scroll_left', config.mappings.scroll_left, 'string')
   H.check_type('mappings.scroll_right', config.mappings.scroll_right, 'string')
+  H.check_type('mappings.scroll_down_preview', config.mappings.scroll_down_preview, 'string')
+  H.check_type('mappings.scroll_left_preview', config.mappings.scroll_left_preview, 'string')
+  H.check_type('mappings.scroll_right_preview', config.mappings.scroll_right_preview, 'string')
+  H.check_type('mappings.scroll_up_preview', config.mappings.scroll_up_preview, 'string')
   H.check_type('mappings.stop', config.mappings.stop, 'string')
   H.check_type('mappings.toggle_info', config.mappings.toggle_info, 'string')
   H.check_type('mappings.toggle_preview', config.mappings.toggle_preview, 'string')
@@ -2204,6 +2225,7 @@ H.validate_preview_win_opts = function(preview)
   if not vim.tbl_contains(allowed_orientations, preview.orientation) then
     H.error('`window.preview.orientation` should be one of "horizontal", "vertical", "none"')
   end
+  if type(preview.ratio) ~= 'number' then H.error('`window.preview.ratio` should be a number.') end
 end
 
 H.picker_new = function(opts)
@@ -2311,16 +2333,7 @@ H.picker_update = function(picker, do_match, update_window)
       local preview_config = vim.deepcopy(config)
 
       -- Calculate border offsets to ensure windows don't overlap or shift
-      local border = config.border
-      local border_offset = type(border) == 'table' and #config.border or 0
-      local border_height = (
-        border_offset == 0 and 2
-        or ((border[1 % border_offset + 1] == '' and 0 or 1) + (border[5 % border_offset + 1] == '' and 0 or 1))
-      )
-      local border_width = (
-        border_offset == 0 and 2
-        or ((border[3 % border_offset + 1] == '' and 0 or 1) + (border[7 % border_offset + 1] == '' and 0 or 1))
-      )
+      local border_height, border_width = H.compute_border_offsets(config.border)
 
       local preview_opts = picker.opts.window.preview
 
@@ -2361,7 +2374,10 @@ H.picker_update = function(picker, do_match, update_window)
       end
 
       local item = H.picker_get_current_item(picker)
-      if item ~= nil then picker.opts.source.preview(picker.buffers.preview, item) end
+      if item ~= nil then
+        picker.opts.source.preview(picker.buffers.preview, item)
+        picker.cache.preview_item_ind = picker.match_inds[picker.current_ind]
+      end
     else
       if H.is_valid_win(picker.windows.preview) then
         vim.api.nvim_win_close(picker.windows.preview, true)
@@ -2372,9 +2388,15 @@ H.picker_update = function(picker, do_match, update_window)
     vim.api.nvim_win_set_config(picker.windows.main, config)
     H.picker_set_current_ind(picker, picker.current_ind, true)
   elseif show_side_preview then
-    -- Sync preview content if window already exists
-    local item = H.picker_get_current_item(picker)
-    if item ~= nil then picker.opts.source.preview(picker.buffers.preview, item) end
+    -- Sync preview content only if current item changed (preserves scroll position)
+    local item_ind = picker.match_inds[picker.current_ind]
+    if item_ind ~= nil and item_ind ~= picker.cache.preview_item_ind then
+      local item = H.picker_get_current_item(picker)
+      if item ~= nil then
+        picker.opts.source.preview(picker.buffers.preview, item)
+        picker.cache.preview_item_ind = item_ind
+      end
+    end
   end
 
   H.picker_set_bordertext(picker)
@@ -2447,13 +2469,18 @@ H.picker_compute_win_config = function(win_config, is_for_open)
   -- Tweak config values to ensure they are proper
   if (config.border or winborder) == 'none' then config.border = { '', ' ', '', '', '', ' ', '', '' } end
   -- - Adjust dimensions accounting for actually present border parts
-  local bor, n = config.border, type(config.border) == 'table' and #config.border or 0
-  local height_offset = n == 0 and 2 or ((bor[1 % n + 1] == '' and 0 or 1) + (bor[5 % n + 1] == '' and 0 or 1))
-  local width_offset = n == 0 and 2 or ((bor[3 % n + 1] == '' and 0 or 1) + (bor[7 % n + 1] == '' and 0 or 1))
+  local height_offset, width_offset = H.compute_border_offsets(config.border)
   config.height = math.max(math.min(config.height, max_height - height_offset), 1)
   config.width = math.max(math.min(config.width, max_width - width_offset), 1)
 
   return config
+end
+
+H.compute_border_offsets = function(border)
+  local bor, n = border, type(border) == 'table' and #border or 0
+  local height = n == 0 and 2 or ((bor[1 % n + 1] == '' and 0 or 1) + (bor[5 % n + 1] == '' and 0 or 1))
+  local width = n == 0 and 2 or ((bor[3 % n + 1] == '' and 0 or 1) + (bor[7 % n + 1] == '' and 0 or 1))
+  return height, width
 end
 
 H.picker_track_lost_focus = function(picker)
@@ -2546,7 +2573,7 @@ H.picker_set_current_ind = function(picker, ind, force_update)
   local needs_update = H.querytick ~= querytick or from == nil or to == nil or not (from <= ind and ind <= to)
   if (force_update or needs_update) and H.is_valid_win(picker.windows.main) then
     local win_height = vim.api.nvim_win_get_height(picker.windows.main)
-    -- Calculate `from` by centering the current item and clamping it to valid bounds,
+    -- Calculate `from` by centering the current item and clamping it to valid bounds.
     -- Ensures the visible range is correctly calculated regardless of window size changes.
     from = math.max(1, math.min(n_matches - win_height + 1, ind - math.floor(0.5 * win_height) + 1))
     to = from + math.min(win_height, n_matches) - 1
@@ -2802,6 +2829,7 @@ H.picker_stop = function(picker, abort)
   pcall(vim.api.nvim_win_close, picker.windows.preview, true)
   pcall(vim.api.nvim_win_close, picker.windows.main, true)
   pcall(vim.api.nvim_buf_delete, picker.buffers.main, { force = true })
+  pcall(vim.api.nvim_buf_delete, picker.buffers.preview, { force = true })
   pcall(vim.api.nvim_buf_delete, picker.buffers.info, { force = true })
   picker.windows, picker.buffers = {}, {}
 
@@ -2870,6 +2898,11 @@ H.actions = {
   scroll_up    = function(picker, _) H.picker_scroll(picker, 'up')    end,
   scroll_left  = function(picker, _) H.picker_scroll(picker, 'left')  end,
   scroll_right = function(picker, _) H.picker_scroll(picker, 'right') end,
+
+  scroll_down_preview  = function(picker, _) H.picker_scroll_preview(picker, 'down')  end,
+  scroll_up_preview    = function(picker, _) H.picker_scroll_preview(picker, 'up')    end,
+  scroll_left_preview  = function(picker, _) H.picker_scroll_preview(picker, 'left')  end,
+  scroll_right_preview = function(picker, _) H.picker_scroll_preview(picker, 'right') end,
 
   toggle_info = function(picker, _)
     if picker.view_state == 'info' then return H.picker_show_main(picker) end
@@ -3016,6 +3049,12 @@ H.picker_scroll = function(picker, direction)
     local keys = ({ down = '<C-f>', up = '<C-b>', left = 'zH', right = 'zL' })[direction]
     vim.api.nvim_win_call(win_id, function() vim.cmd('normal! ' .. H.replace_termcodes(keys)) end)
   end
+end
+
+H.picker_scroll_preview = function(picker, direction)
+  if not H.is_valid_win(picker.windows.preview) then return end
+  local keys = ({ down = '<C-f>', up = '<C-b>', left = 'zH', right = 'zL' })[direction]
+  vim.api.nvim_win_call(picker.windows.preview, function() vim.cmd('normal! ' .. H.replace_termcodes(keys)) end)
 end
 
 H.picker_get_current_item = function(picker)

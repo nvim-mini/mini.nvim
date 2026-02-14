@@ -298,6 +298,10 @@ T['setup()']['creates `config` field'] = function()
   expect_config('mappings.scroll_left', '<C-h>')
   expect_config('mappings.scroll_right', '<C-l>')
   expect_config('mappings.scroll_up', '<C-b>')
+  expect_config('mappings.scroll_down_preview', '<M-f>')
+  expect_config('mappings.scroll_left_preview', '<M-h>')
+  expect_config('mappings.scroll_right_preview', '<M-l>')
+  expect_config('mappings.scroll_up_preview', '<M-b>')
   expect_config('mappings.stop', '<Esc>')
   expect_config('mappings.toggle_info', '<S-Tab>')
   expect_config('mappings.toggle_preview', '<Tab>')
@@ -373,6 +377,10 @@ T['setup()']['validates `config` argument'] = function()
   expect_config_error({ mappings = { scroll_left = 1 } }, 'mappings.scroll_left', 'string')
   expect_config_error({ mappings = { scroll_right = 1 } }, 'mappings.scroll_right', 'string')
   expect_config_error({ mappings = { scroll_up = 1 } }, 'mappings.scroll_up', 'string')
+  expect_config_error({ mappings = { scroll_down_preview = 1 } }, 'mappings.scroll_down_preview', 'string')
+  expect_config_error({ mappings = { scroll_left_preview = 1 } }, 'mappings.scroll_left_preview', 'string')
+  expect_config_error({ mappings = { scroll_right_preview = 1 } }, 'mappings.scroll_right_preview', 'string')
+  expect_config_error({ mappings = { scroll_up_preview = 1 } }, 'mappings.scroll_up_preview', 'string')
   expect_config_error({ mappings = { stop = 1 } }, 'mappings.stop', 'string')
   expect_config_error({ mappings = { toggle_info = 1 } }, 'mappings.toggle_info', 'string')
   expect_config_error({ mappings = { toggle_preview = 1 } }, 'mappings.toggle_preview', 'string')
@@ -5596,6 +5604,179 @@ T['Preview']["respects global value of 'list' and 'listchars' option"] = functio
 
   validate(true)
   validate(false)
+end
+
+T['Preview']['shows side preview on start for vertical orientation'] = function()
+  child.set_size(15, 60)
+  start({
+    source = { items = { real_file('b.txt') } },
+    window = { preview = { orientation = 'vertical', ratio = 0.5 } },
+  })
+  eq(get_picker_state().windows.preview ~= nil, true)
+  child.expect_screenshot()
+end
+
+T['Preview']['shows side preview on start for horizontal orientation'] = function()
+  child.set_size(15, 60)
+  start({
+    source = { items = { real_file('b.txt') } },
+    window = { preview = { orientation = 'horizontal', ratio = 0.5 } },
+  })
+  eq(get_picker_state().windows.preview ~= nil, true)
+  child.expect_screenshot()
+end
+
+T['Preview']['toggles side preview visibility'] = function()
+  child.set_size(15, 60)
+  start({
+    source = { items = { real_file('b.txt') } },
+    window = { preview = { orientation = 'vertical', ratio = 0.5 } },
+  })
+  eq(get_picker_state().windows.preview ~= nil, true)
+
+  -- Hide preview
+  type_keys('<Tab>')
+  eq(get_picker_state().windows.preview, nil)
+  child.expect_screenshot()
+
+  -- Show preview again
+  type_keys('<Tab>')
+  eq(get_picker_state().windows.preview ~= nil, true)
+  child.expect_screenshot()
+end
+
+T['Preview']['updates side preview on item navigation'] = function()
+  child.set_size(15, 60)
+  start({
+    source = { items = { real_file('a.lua'), real_file('b.txt') } },
+    window = { preview = { orientation = 'vertical', ratio = 0.5 } },
+  })
+  child.expect_screenshot()
+
+  type_keys('<C-n>')
+  child.expect_screenshot()
+end
+
+T['Preview']['hides side preview in info view'] = function()
+  child.set_size(15, 60)
+  start({
+    source = { items = { real_file('b.txt') } },
+    window = { preview = { orientation = 'vertical', ratio = 0.5 } },
+  })
+  eq(get_picker_state().windows.preview ~= nil, true)
+
+  -- Switch to info view - should hide side preview
+  type_keys('<S-Tab>')
+  eq(get_picker_state().windows.preview, nil)
+
+  -- Switch back to main view - should restore side preview
+  type_keys('<S-Tab>')
+  eq(get_picker_state().windows.preview ~= nil, true)
+end
+
+T['Preview']['respects side preview ratio'] = new_set({ parametrize = { { 0.3 }, { 0.7 } } })
+
+T['Preview']['respects side preview ratio']['works'] = function(ratio)
+  child.set_size(15, 60)
+  start({
+    source = { items = { real_file('b.txt') } },
+    window = { preview = { orientation = 'vertical', ratio = ratio } },
+  })
+  child.expect_screenshot()
+end
+
+T['Preview']['cleans up side preview on stop'] = function()
+  child.set_size(15, 60)
+  start({
+    source = { items = { real_file('b.txt') } },
+    window = { preview = { orientation = 'vertical', ratio = 0.5 } },
+  })
+  local preview_win = get_picker_state().windows.preview
+  eq(child.api.nvim_win_is_valid(preview_win), true)
+
+  type_keys('<Esc>')
+  eq(child.api.nvim_win_is_valid(preview_win), false)
+end
+
+T['Preview']['scrolls side preview with scroll_*_preview actions'] = function()
+  child.set_size(15, 60)
+  start({
+    source = { items = { real_file('b.txt') } },
+    window = { preview = { orientation = 'vertical', ratio = 0.5 } },
+  })
+  child.expect_screenshot()
+
+  -- Scroll down should scroll preview content
+  type_keys('<M-f>')
+  child.expect_screenshot()
+
+  -- Scroll up should scroll preview content back
+  type_keys('<M-b>')
+  child.expect_screenshot()
+
+  -- Scroll right should scroll preview content
+  type_keys('<M-l>')
+  child.expect_screenshot()
+
+  -- Scroll left should scroll preview content back
+  type_keys('<M-h>')
+  child.expect_screenshot()
+end
+
+T['Preview']['scroll_*_preview has no effect without side preview'] = function()
+  child.set_size(15, 60)
+  start({
+    source = { items = { real_file('b.txt') } },
+  })
+  child.expect_screenshot()
+
+  -- scroll_*_preview should be a no-op when no side preview is visible
+  type_keys('<M-f>')
+  child.expect_screenshot()
+end
+
+T['Preview']['scroll actions still target main when side preview is open'] = function()
+  child.set_size(15, 60)
+
+  local items = {}
+  for i = 1, 50 do
+    items[i] = 'Item ' .. i
+  end
+  start({
+    source = { items = items },
+    window = { preview = { orientation = 'vertical', ratio = 0.5 } },
+  })
+
+  -- Vertical scroll should page through items even with side preview visible
+  validate_current_ind(1)
+  type_keys('<C-f>')
+  local height = child.api.nvim_win_get_config(get_picker_state().windows.main).height
+  validate_current_ind(height + 1)
+end
+
+T['Preview']['scrolls side preview in horizontal orientation'] = function()
+  child.set_size(15, 60)
+  start({
+    source = { items = { real_file('b.txt') } },
+    window = { preview = { orientation = 'horizontal', ratio = 0.5 } },
+  })
+  child.expect_screenshot()
+
+  -- Scroll down should scroll preview content
+  type_keys('<M-f>')
+  child.expect_screenshot()
+
+  -- Scroll up should scroll preview content back
+  type_keys('<M-b>')
+  child.expect_screenshot()
+
+  -- Scroll right should scroll preview content
+  type_keys('<M-l>')
+  child.expect_screenshot()
+
+  -- Scroll left should scroll preview content back
+  type_keys('<M-h>')
+  child.expect_screenshot()
 end
 
 T['Matching'] = new_set()

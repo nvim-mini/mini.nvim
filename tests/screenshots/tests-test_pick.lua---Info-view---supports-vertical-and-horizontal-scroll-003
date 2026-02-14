@@ -7,11 +7,11 @@
 06|│Current index │ 1       │              
 07|│                        │              
 08|│Mappings (built-in)     │              
-09|│Caret left        │ <Lef│              
-10|│Caret right       │ <Rig│              
-11|│Choose            │ <CR>│              
-12|│Choose in split   │ <C-s│              
-13|│Choose in tabpage │ <C-t│              
+09|│Caret left           │ <│              
+10|│Caret right          │ <│              
+11|│Choose               │ <│              
+12|│Choose in split      │ <│              
+13|│Choose in tabpage    │ <│              
 14|└ <No name> ────── 1|1|1 ┘              
 15|                                        
 
