@@ -16,6 +16,9 @@ Features the following functions:
 
 - |MiniMisc.resize_window()| to resize current window to its editable width.
 
+- |MiniMisc.safely()| to execute a function on a condition and warn on error.
+  Useful to organize |init.lua| in fail-safe sections with simple lazy loading.
+
 - |MiniMisc.setup_auto_root()| to set up automated change of current directory.
 
 - |MiniMisc.setup_termbg_sync()| to set up terminal background synchronization
@@ -189,6 +192,49 @@ Parameters ~
   display. Default: first element of 'colorcolumn' or otherwise 'textwidth'
   (using screen width as its default but not more than 79).
 
+------------------------------------------------------------------------------
+                                                             *MiniMisc.safely()*
+                         `MiniMisc.safely`({when}, {f})
+Execute a function on a condition and warn on error
+
+Input function is executed exactly once. Its possible error is captured and is
+shown as a |vim.notify()| warning.
+
+Useful to organize |init.lua| in fail-safe sections with simple lazy loading.
+
+Parameters ~
+{when} `(string)` When to execute a function. One of:
+  - `'now'` - immediately.
+  - `'later'` - queue to be executed soon without blocking the execution of next
+    code in file. Queued functions are executed in order they are added.
+  - `'delay:<number>'` - after a specified delay with |vim.defer_fn()|.
+  - `'event:<events>'` - on whichever specified event is triggered first.
+  - `'event:<events>~<patterns>` - same as above, but events must match
+    specified |autocmd-pattern|.
+  - `'filetype:<filetypes>'` - same as `'event:FileType~<filetypes>'`, but follow
+    successful function execution with |filetype-detect| for all normal buffers
+    (if new |ftdetect| scripts were added) and sourcing |ftplugin| (for buffers
+    matching `<filetypes>`). Intended to be used for loading "language plugins".
+{f} `(function)` Function to execute (without arguments).
+
+Usage ~
+>lua
+  MiniMisc.safely('later', function()
+    vim.notify('This will be executed after the next "now" call')
+  end)
+  MiniMisc.safely('now', function() error('This will be a warning') end)
+
+  MiniMisc.safely('event:InsertEnter', function()
+    require('mini.completion').setup()
+  end)
+  MiniMisc.safely('event:CmdlineEnter~/', function()
+    vim.notify('Start searching for the first time')
+  end)
+
+  MiniMisc.safely('filetype:tex,plaintex', function()
+    -- Load plugin to improve writing LaTeX
+  end)
+<
 ------------------------------------------------------------------------------
                                                     *MiniMisc.setup_auto_root()*
                 `MiniMisc.setup_auto_root`({names}, {fallback})

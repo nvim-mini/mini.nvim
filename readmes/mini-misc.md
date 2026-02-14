@@ -32,6 +32,7 @@ https://user-images.githubusercontent.com/24854248/173044891-69b0ccfd-3fe8-4639-
 - `log_add()` / `log_show()` and other helper functions to work with a special in-memory log array. Useful when debugging Lua code (instead of `print()`).
 - `put()` and `put_text()` print Lua objects in command line and current buffer respectively.
 - `resize_window()` resizes current window to its editable width.
+- `safely()` to execute a function on a condition and warn on error. Useful to organize 'init.lua' in fail-safe sections with simple lazy loading.
 - `setup_auto_root()` sets up automated change of current directory.
 - `setup_termbg_sync()` to set up terminal background synchronization (removes possible "frame" around current Neovim instance).
 - `setup_restore_cursor()` sets up automated restoration of cursor position on file reopen.

@@ -14,6 +14,9 @@
 ---
 --- - |MiniMisc.resize_window()| to resize current window to its editable width.
 ---
+--- - |MiniMisc.safely()| to execute a function on a condition and warn on error.
+---   Useful to organize |init.lua| in fail-safe sections with simple lazy loading.
+---
 --- - |MiniMisc.setup_auto_root()| to set up automated change of current directory.
 ---
 --- - |MiniMisc.setup_termbg_sync()| to set up terminal background synchronization
@@ -254,6 +257,157 @@ H.default_text_width = function(win_id)
   else
     return textwidth
   end
+end
+
+--- Execute a function on a condition and warn on error
+---
+--- Input function is executed exactly once. Its possible error is captured and is
+--- shown as a |vim.notify()| warning.
+---
+--- Useful to organize |init.lua| in fail-safe sections with simple lazy loading.
+---
+---@param when string When to execute a function. One of:
+---   - `'now'` - immediately.
+---   - `'later'` - queue to be executed soon without blocking the execution of next
+---     code in file. Queued functions are executed in order they are added.
+---   - `'delay:<number>'` - after a specified delay with |vim.defer_fn()|.
+---   - `'event:<events>'` - on whichever specified event is triggered first.
+---   - `'event:<events>~<patterns>` - same as above, but events must match
+---     specified |autocmd-pattern|.
+---   - `'filetype:<filetypes>'` - same as `'event:FileType~<filetypes>'`, but follow
+---     successful function execution with |filetype-detect| for all normal buffers
+---     (if new |ftdetect| scripts were added) and sourcing |ftplugin| (for buffers
+---     matching `<filetypes>`). Intended to be used for loading "language plugins".
+---@param f function Function to execute (without arguments).
+---
+---@usage >lua
+---   MiniMisc.safely('later', function()
+---     vim.notify('This will be executed after the next "now" call')
+---   end)
+---   MiniMisc.safely('now', function() error('This will be a warning') end)
+---
+---   MiniMisc.safely('event:InsertEnter', function()
+---     require('mini.completion').setup()
+---   end)
+---   MiniMisc.safely('event:CmdlineEnter~/', function()
+---     vim.notify('Start searching for the first time')
+---   end)
+---
+---   MiniMisc.safely('filetype:tex,plaintex', function()
+---     -- Load plugin to improve writing LaTeX
+---   end)
+--- <
+MiniMisc.safely = function(when, f)
+  H.check_type('when', when, 'string', false)
+  H.check_type('f', f, 'callable', false)
+
+  if when == 'now' then
+    H.execute_now(f)
+    return
+  end
+
+  -- Compute traceback before delaying execution to provide more info
+  local trace = debug.traceback('', 2)
+
+  if when == 'later' then
+    if #H.safely_cache.later == 0 then vim.schedule(H.execute_later) end
+    table.insert(H.safely_cache.later, { f = f, trace = trace })
+    return
+  end
+
+  local delay = tonumber(when:match('^delay:(%d+)$'))
+  if delay ~= nil then
+    vim.defer_fn(function() H.execute_now(f, trace) end, delay)
+    return
+  end
+
+  local events = when:match('^event:(.+)$')
+  if events then
+    local ev, patt = events:match('^(.+)~(.+)$')
+    local event = vim.split(ev or events, ',', { trimempty = true })
+    local pattern = vim.split(patt or '', ',', { trimempty = true })
+    H.make_defer_autocmd(event, pattern, f, trace)
+    return
+  end
+
+  local filetypes = when:match('^filetype:(.+)$')
+  if filetypes then
+    local ft_arr = vim.split(filetypes, ',')
+    -- NOTE: Needs `vim.schedule_wrap()` for a correct redetect. This also
+    -- prompts using `H.execute_now` and not rely on `H.make_defer_autocmd`.
+    local f_and_redetect = vim.schedule_wrap(function()
+      -- Look out for new 'ftdetect' scripts by comparing before and after
+      local ftdetect_scripts_before = vim.api.nvim_get_runtime_file('ftdetect/*.{vim,lua}', true)
+
+      local ok = H.execute_now(f, trace)
+
+      -- Skip redetect if there was error or detection is disabled
+      if not (ok and vim.g.did_load_filetypes == 1) then return end
+
+      local ftdetect_scripts_after = vim.api.nvim_get_runtime_file('ftdetect/*.{vim,lua}', true)
+      local needs_redetect = not vim.deep_equal(ftdetect_scripts_before, ftdetect_scripts_after)
+      for _, buf_id in ipairs(vim.api.nvim_list_bufs()) do
+        H.redetect_filetypes(buf_id, ft_arr, needs_redetect)
+      end
+    end)
+    return H.make_defer_autocmd('FileType', ft_arr, f_and_redetect)
+  end
+
+  H.error('Could not parse `when` in `safely`')
+end
+
+H.execute_now = function(f, init_trace)
+  local ok, err = xpcall(f, function(e) return debug.traceback(e .. '\n', 2) end)
+  if ok then return true end
+  init_trace = init_trace == nil and '' or ('\n\nTraceback of `MiniMisc.safely()` call:\n' .. init_trace)
+  H.notify('Error during safe execution: ' .. err .. init_trace, 'WARN')
+  return false
+end
+
+H.safely_cache = { later = {} }
+
+H.execute_later = function()
+  local timer = assert(vim.loop.new_timer())
+  local f
+  f = vim.schedule_wrap(function()
+    local cb = H.safely_cache.later[1]
+    if cb == nil then
+      if not timer:is_closing() then timer:close() end
+      return
+    end
+
+    table.remove(H.safely_cache.later, 1)
+    H.execute_now(cb.f, cb.trace)
+    timer:start(1, 0, f)
+  end)
+  -- Space out "later" executions to be sure that they don't block anything
+  timer:start(1, 0, f)
+end
+
+H.make_defer_autocmd = function(event, pattern, f, trace)
+  local au_id
+  local function cb()
+    -- Execute exactly once, not once per event or pattern match
+    -- Delete before executing `f` to account for nested events
+    vim.api.nvim_del_autocmd(au_id)
+    H.execute_now(f, trace)
+  end
+
+  local group = vim.api.nvim_create_augroup('MiniMiscSafely', { clear = false })
+  local opts = { group = group, pattern = pattern, callback = cb, nested = true }
+  au_id = vim.api.nvim_create_autocmd(event, opts)
+end
+
+H.redetect_filetypes = function(buf_id, ft_arr, needs_redetect)
+  if not vim.api.nvim_buf_is_loaded(buf_id) then return end
+
+  vim.api.nvim_buf_call(buf_id, function()
+    -- Try detecting new filetypes
+    if needs_redetect and vim.bo.buftype == '' then vim.cmd('filetype detect') end
+
+    -- Force execution of 'ftplugin' scripts for matched filetypes
+    if vim.tbl_contains(ft_arr, vim.bo.filetype) then vim.bo.filetype = vim.bo.filetype end
+  end)
 end
 
 --- Set up automated change of current directory
