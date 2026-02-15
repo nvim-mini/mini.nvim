@@ -42,6 +42,12 @@ There are following change types:
 
     The previous "reset by explicitly setting initial background color" behavior is available by setting the new `opts.explicit_reset` option to `true`.
 
+### Expand
+
+- Add `safely()` to execute a function reporting its possible error as warning. It can also postpone execution until certain condition (like event, fixed delay, etc.).
+
+    It is intended to be a future replacement for `MiniDeps.now()` and `MiniDeps.later()`.
+
 ## mini.pairs
 
 ### Refine
