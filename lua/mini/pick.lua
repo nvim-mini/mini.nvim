@@ -138,6 +138,8 @@
 --- - `MiniPickMatch` - just after updating query matches or setting items.
 --- - `MiniPickStart` - just after picker has started.
 --- - `MiniPickStop` - just before picker is stopped.
+--- - `MiniPickUpdate` - just after picker UI is updated (on query change,
+---   cursor move, window resize, etc.).
 ---@tag MiniPick-events
 
 --- General idea is to take array of objects, display them with interactive
@@ -1894,6 +1896,14 @@ MiniPick.poke_is_picker_active = function()
   return coroutine.yield()
 end
 
+--- Get picker window configuration
+---
+---@return table Standard Neovim floating window configuration.
+MiniPick.get_window_config = function()
+  local opts = MiniPick.get_picker_opts() or H.get_config()
+  return H.picker_compute_win_config(opts.window.config)
+end
+
 -- Helper data ================================================================
 -- Module default config
 H.default_config = vim.deepcopy(MiniPick.config)
@@ -2253,6 +2263,13 @@ H.picker_update = function(picker, do_match, update_window)
   H.picker_set_bordertext(picker)
   H.picker_set_lines(picker)
   H.redraw()
+
+  -- Trigger relevant event if not already inside it
+  if not H.inside_minipickupdate then
+    H.inside_minipickupdate = true
+    vim.api.nvim_exec_autocmds('User', { pattern = 'MiniPickUpdate' })
+    H.inside_minipickupdate = nil
+  end
 end
 
 H.picker_new_buf = function()
