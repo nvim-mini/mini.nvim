@@ -1061,9 +1061,11 @@ MiniFiles.get_explorer_state = function()
   H.explorer_ensure_target_window(explorer)
   local windows = {}
   for _, win_id in ipairs(explorer.windows) do
-    local buf_id = vim.api.nvim_win_get_buf(win_id)
-    local path = (H.opened_buffers[buf_id] or {}).path
-    table.insert(windows, { win_id = win_id, path = path })
+    if vim.api.nvim_win_is_valid(win_id) then
+      local buf_id = vim.api.nvim_win_get_buf(win_id)
+      local path = (H.opened_buffers[buf_id] or {}).path
+      table.insert(windows, { win_id = win_id, path = path })
+    end
   end
 
   return {
