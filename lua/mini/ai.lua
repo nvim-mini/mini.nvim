@@ -1987,16 +1987,16 @@ end
 -- Work with user input -------------------------------------------------------
 H.user_textobject_id = function(ai_type)
   -- Get from user single character textobject identifier
-  local needs_help_msg = true
+  local needs_reminder = true
   vim.defer_fn(function()
-    if not needs_help_msg then return end
+    if not needs_reminder then return end
 
-    local msg = string.format('Enter `%s` textobject identifier (single character) ', ai_type)
+    local msg = string.format('Reminder to press `%s` textobject id ', ai_type)
     H.echo(msg)
     H.cache.msg_shown = true
   end, 1000)
   local ok, char = pcall(vim.fn.getcharstr)
-  needs_help_msg = false
+  needs_reminder = false
   H.unecho()
 
   -- Terminate if couldn't get input (like with <C-c>) or it is `<Esc>`

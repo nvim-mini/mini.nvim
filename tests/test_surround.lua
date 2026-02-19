@@ -72,7 +72,7 @@ end
 
 -- Time constants
 local default_highlight_duraion = 500
-local helper_message_delay = 1000
+local reminder_delay = 1000
 local small_time = helpers.get_time_const(10)
 
 -- Output test set ============================================================
@@ -669,7 +669,7 @@ T['Add surrounding']['places cursor to the right of left surrounding'] = functio
   validate_edit({ 'aaa', 'bbb', 'ccc' }, { 2, 0 }, { 'myfunc(aaa', 'bbb', 'ccc)' }, { 1, 7 }, f, 'ip', 'V')
 end
 
-T['Add surrounding']['prompts helper message after one idle second'] = function()
+T['Add surrounding']['shows reminder after one idle second'] = function()
   child.set_size(5, 70)
   child.o.cmdheight = 1
 
@@ -678,10 +678,10 @@ T['Add surrounding']['prompts helper message after one idle second'] = function(
 
   -- Execute one time to test if 'needs help message' flag is set per call
   type_keys('sa', 'iw', ')')
-  sleep(0.1 * helper_message_delay)
+  sleep(0.1 * reminder_delay)
 
   type_keys('sa', 'iw')
-  sleep(helper_message_delay + small_time)
+  sleep(reminder_delay + small_time)
 
   -- Should show helper message without adding it to `:messages` and causing
   -- hit-enter-prompt
@@ -840,7 +840,7 @@ T['Add surrounding']['respects `config.silent`'] = function()
 
   -- It should not show helper message after one idle second
   type_keys('sa', 'iw')
-  sleep(helper_message_delay + small_time)
+  sleep(reminder_delay + small_time)
   child.expect_screenshot()
 end
 
@@ -964,21 +964,21 @@ T['Delete surrounding']['places cursor to the right of left surrounding'] = func
   validate_edit({ 'myfunc(aaa', 'bbb', 'ccc)' }, { 3, 2 }, { 'aaa', 'bbb', 'ccc' }, { 1, 0 }, f)
 end
 
-T['Delete surrounding']['prompts helper message after one idle second'] = function()
+T['Delete surrounding']['shows reminder after one idle second'] = function()
   child.set_size(5, 70)
   child.o.cmdheight = 1
 
   -- Mapping is applied only after `timeoutlen` milliseconds, because
   -- there are `sdn`/`sdl` mappings. Wait 1000 seconds after that.
   child.o.timeoutlen = 5 * small_time
-  local total_wait_time = helper_message_delay + child.o.timeoutlen + small_time
+  local total_wait_time = reminder_delay + child.o.timeoutlen + small_time
 
   set_lines({ '((aaa))' })
   set_cursor(1, 1)
 
   -- Execute one time to test if 'needs help message' flag is set per call
   type_keys('sd', ')')
-  sleep(0.1 * helper_message_delay)
+  sleep(0.1 * reminder_delay)
 
   type_keys('sd')
   sleep(total_wait_time)
@@ -1102,7 +1102,7 @@ T['Delete surrounding']['respects `config.silent`'] = function()
   child.set_size(10, 20)
 
   child.o.timeoutlen = 5 * small_time
-  local total_wait_time = helper_message_delay + child.o.timeoutlen + small_time
+  local total_wait_time = reminder_delay + child.o.timeoutlen + small_time
 
   set_lines({ '<aaa>' })
   set_cursor(1, 1)
@@ -1202,21 +1202,21 @@ T['Replace surrounding']['places cursor to the right of left surrounding'] = fun
   validate_edit({ 'myfunc(aaa', 'bbb', 'ccc)' }, { 3, 2 }, { '<aaa', 'bbb', 'ccc>' }, { 1, 1 }, f)
 end
 
-T['Replace surrounding']['prompts helper message after one idle second'] = function()
+T['Replace surrounding']['shows reminder after one idle second'] = function()
   child.set_size(5, 70)
   child.o.cmdheight = 1
 
   -- Mapping is applied only after `timeoutlen` milliseconds, because
   -- there are `srn`/`srl` mappings. Wait 1000 seconds after that.
   child.o.timeoutlen = 5 * small_time
-  local total_wait_time = helper_message_delay + child.o.timeoutlen + small_time
+  local total_wait_time = reminder_delay + child.o.timeoutlen + small_time
 
   set_lines({ '((aaa))' })
   set_cursor(1, 1)
 
   -- Execute one time to test if 'needs help message' flag is set per call
   type_keys('sr', ')', '>')
-  sleep(0.1 * helper_message_delay)
+  sleep(0.1 * reminder_delay)
 
   type_keys('sr')
   sleep(total_wait_time)
@@ -1230,7 +1230,7 @@ T['Replace surrounding']['prompts helper message after one idle second'] = funct
   type_keys(')')
 
   -- Here mapping collision doesn't matter any more
-  sleep(helper_message_delay + small_time)
+  sleep(reminder_delay + small_time)
   eq(get_latest_message(), '')
   child.expect_screenshot()
 
@@ -1362,7 +1362,7 @@ T['Replace surrounding']['respects `config.silent`'] = function()
   child.set_size(10, 20)
 
   child.o.timeoutlen = 5 * small_time
-  local total_wait_time = helper_message_delay + child.o.timeoutlen + small_time
+  local total_wait_time = reminder_delay + child.o.timeoutlen + small_time
 
   set_lines({ '<aaa>' })
   set_cursor(1, 1)
@@ -1552,21 +1552,21 @@ T['Find surrounding']['respects `config.search_method`'] = function()
   validate_find(lines, { 1, 0 }, { { 1, 0 } }, type_keys, 'sf', ')')
 end
 
-T['Find surrounding']['prompts helper message after one idle second'] = function()
+T['Find surrounding']['shows reminder after one idle second'] = function()
   child.set_size(5, 70)
   child.o.cmdheight = 1
 
   -- Mapping is applied only after `timeoutlen` milliseconds, because
   -- there are `sfn`/`sfl` mappings. Wait 1000 seconds after that.
   child.o.timeoutlen = 5 * small_time
-  local total_wait_time = helper_message_delay + child.o.timeoutlen + small_time
+  local total_wait_time = reminder_delay + child.o.timeoutlen + small_time
 
   set_lines({ '(aaa)' })
   set_cursor(1, 2)
 
   -- Execute one time to test if 'needs help message' flag is set per call
   type_keys('sf', ')')
-  sleep(0.1 * helper_message_delay)
+  sleep(0.1 * reminder_delay)
 
   type_keys('sf')
   sleep(total_wait_time)

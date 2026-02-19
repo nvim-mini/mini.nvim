@@ -27,7 +27,7 @@ local example_lines = {
 
 -- Time constants
 local default_highlight_delay = 250
-local helper_message_delay = 1000
+local reminder_delay = 1000
 local small_time = helpers.get_time_const(10)
 
 -- Output test set ============================================================
@@ -661,18 +661,18 @@ T['Jumping with f/t/F/T']['for t/T allows matches on end of line'] = function()
   validate_T({ 3, 2 }, { 2, 1 })
 end
 
-T['Jumping with f/t/F/T']['shows helper message after one idle second'] = function()
+T['Jumping with f/t/F/T']['shows reminder after one idle second'] = function()
   child.set_size(10, 40)
 
   -- Execute one time to test if 'needs help message' flag is set per call
   set_lines(example_lines)
   set_cursor(1, 0)
   type_keys('f', 'e')
-  sleep(0.5 * helper_message_delay)
+  sleep(0.5 * reminder_delay)
 
   -- Start another jump
   type_keys('h', 'f')
-  sleep(helper_message_delay + small_time)
+  sleep(reminder_delay + small_time)
   -- Should show colored helper message without adding it to `:messages` and
   -- causing hit-enter-prompt
   child.expect_screenshot()
@@ -741,7 +741,7 @@ T['Jumping with f/t/F/T']['respects `config.silent`'] = function()
   set_lines({ '1e2e3e4e' })
   set_cursor(1, 0)
   type_keys('f')
-  sleep(helper_message_delay + small_time)
+  sleep(reminder_delay + small_time)
 
   -- Should not show helper message
   child.expect_screenshot()

@@ -683,14 +683,16 @@ end
 --- Defines `spotter`, `allowed_lines.blank`, `allowed_lines.fold`, and
 --- `hooks.before_start`.
 MiniJump2d.builtin_opts.single_character = user_input_opts(
-  function() return H.getcharstr('Enter single character to search') end
+  function() return H.getcharstr('Reminder to press a character to search') end
 )
 
 --- Jump to query taken from user input
 ---
 --- Defines `spotter`, `allowed_lines.blank`, `allowed_lines.fold`, and
 --- `hooks.before_start`.
-MiniJump2d.builtin_opts.query = user_input_opts(function() return H.user_input('Enter query to search') end)
+MiniJump2d.builtin_opts.query = user_input_opts(
+  function() return H.user_input('Reminder to enter a query to search') end
+)
 
 -- Helper data ================================================================
 -- Module default config
@@ -1040,7 +1042,7 @@ H.advance_jump = function(opts)
     return
   end
 
-  local key = H.getcharstr('Enter encoding symbol to advance jump')
+  local key = H.getcharstr('Reminder to press encoding symbol to advance jumping')
 
   if vim.tbl_contains(label_tbl, key) then
     H.spots_unshow(spots)
@@ -1118,10 +1120,10 @@ H.is_operator_pending = function()
 end
 
 H.getcharstr = function(msg)
-  local needs_help_msg = true
+  local needs_reminder = true
   if msg ~= nil then
     vim.defer_fn(function()
-      if not needs_help_msg then return end
+      if not needs_reminder then return end
       H.echo(msg)
       H.cache.msg_shown = true
     end, 1000)
@@ -1130,7 +1132,7 @@ H.getcharstr = function(msg)
   H.cache.is_in_getcharstr = true
   local _, char = pcall(vim.fn.getcharstr)
   H.cache.is_in_getcharstr = false
-  needs_help_msg = false
+  needs_reminder = false
   H.unecho()
 
   return char

@@ -551,16 +551,16 @@ end
 H.get_cursor_data = function() return { vim.api.nvim_get_current_win(), vim.api.nvim_win_get_cursor(0) } end
 
 H.get_target = function()
-  local needs_help_msg = true
+  local needs_reminder = true
   vim.defer_fn(function()
-    if not needs_help_msg then return end
-    H.echo('Enter target single character ')
+    if not needs_reminder then return end
+    H.echo('Reminder to press a target single character ')
     H.cache.msg_shown = true
   end, 1000)
 
   H.trigger_event('MiniJumpGetTarget')
   local ok, char = pcall(vim.fn.getcharstr)
-  needs_help_msg = false
+  needs_reminder = false
   H.unecho()
 
   -- Terminate if couldn't get input (like with <C-c>) or it is `<Esc>`

@@ -196,7 +196,7 @@ Each module's core functionality can be disabled globally or locally to buffer. 
 
 ### Silencing
 
-Each module providing non-error feedback can be configured to not do that by setting `config.silent = true` (either inside `setup()` call or on the fly).
+Each module providing non-error feedback (like a reminder to press a key after some idle time in 'mini.ai', 'mini.jump2d', 'mini.surround') can be configured to not do that by setting `config.silent = true` (either inside `setup()` call or on the fly).
 
 ### Highlighting
 

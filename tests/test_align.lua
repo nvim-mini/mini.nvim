@@ -51,7 +51,7 @@ local eq_tostring = function(var_name1, var_name2)
 end
 
 -- Time constants
-local helper_message_delay, error_message_force_delay = 1000, 500
+local show_state_delay, error_message_force_delay = 1000, 500
 local small_time = helpers.get_time_const(10)
 
 -- Output test set
@@ -1364,7 +1364,7 @@ T['Align']['validates steps after each modifier'] = function()
   expect.error(function() type_keys('e', '_') end, 'pre_split.*array of steps')
 end
 
-T['Align']['prompts helper message after one idle second'] = new_set({
+T['Align']['shows state after one idle second'] = new_set({
   parametrize = { { 'Normal' }, { 'Visual' } },
 }, {
   test = function(test_mode)
@@ -1383,44 +1383,44 @@ T['Align']['prompts helper message after one idle second'] = new_set({
     local keys = test_mode == 'Normal' and { 'ga', 'Vip' } or { 'Vip', 'ga' }
     type_keys(unpack(keys))
 
-    sleep(helper_message_delay - small_time)
-    -- Should show no message
+    sleep(show_state_delay - small_time)
+    -- Should show no state
     expect_screenshot()
     type_keys('j')
-    -- Should show message of modifier 'j'
+    -- Should show state of modifier 'j'
     expect_screenshot()
     type_keys('r')
     -- Should show effect of hitting `r` and redraw if `showmode` is set (which
     -- it is by default)
-    sleep(helper_message_delay - small_time)
-    -- Should still not show helper message
+    sleep(show_state_delay - small_time)
+    -- Should still not show state
     expect_screenshot()
     sleep(small_time + small_time)
-    -- Should now show helper message
+    -- Should now show state
     expect_screenshot()
 
-    -- Should show message immediately if it was already shown
+    -- Should show state immediately if it was already shown
     type_keys('j', 'c')
     expect_screenshot()
 
-    -- Ending alignment should remove shown message
+    -- Ending alignment should remove shown state
     type_keys('_')
     expect_screenshot()
   end,
 })
 
-T['Align']['helper message does not cause hit-enter-prompt'] = function()
+T['Align']['showing state does not cause hit-enter-prompt'] = function()
   child.set_size(6, 20)
   child.o.cmdheight = 2
   set_lines({ 'a_b', 'aa_b' })
   set_cursor(1, 0)
 
   type_keys('ga', 'Vj')
-  sleep(helper_message_delay + small_time)
+  sleep(show_state_delay + small_time)
   child.expect_screenshot()
 end
 
-T['Align']['cleans command line only if helper message was shown'] = function()
+T['Align']['cleans command line only if state was shown'] = function()
   child.set_size(12, 20)
   child.cmd([[echo 'My echo']])
   validate_keys({ 'a_b', 'aa_b' }, { 'ga', 'ip', '_' }, { 'a _b', 'aa_b' })
@@ -1491,7 +1491,7 @@ T['Align']['respects `config.silent`'] = function()
   set_cursor(1, 0)
   type_keys('Vip', 'ga')
 
-  sleep(helper_message_delay + small_time)
+  sleep(show_state_delay + small_time)
   child.expect_screenshot()
 end
 
@@ -1529,7 +1529,7 @@ T['Align with preview']['works'] = new_set({
     })[test_mode]
     type_keys(init_keys)
 
-    -- Should show helper message immediately
+    -- Should show state immediately
     child.expect_screenshot()
 
     -- Should show result and not stop preview
@@ -1542,7 +1542,7 @@ T['Align with preview']['works'] = new_set({
     type_keys('m', '-', '<CR>')
     child.expect_screenshot()
 
-    -- Hitting `<CR>` accepts current result and echoed status helper message
+    -- Hitting `<CR>` accepts current result and echoes status
     type_keys('<CR>')
     -- This should start Insert mode and not right justify by 'a'
     type_keys('a')
@@ -1550,7 +1550,7 @@ T['Align with preview']['works'] = new_set({
   end,
 })
 
-T['Align with preview']['correctly shows all steps in helper message'] = function()
+T['Align with preview']['correctly shows all steps in status'] = function()
   child.set_size(12, 30)
   child.o.cmdheight = 5
 

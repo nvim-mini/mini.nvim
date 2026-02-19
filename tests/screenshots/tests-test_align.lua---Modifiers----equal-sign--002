@@ -8,7 +8,7 @@
 07|[No Name] 2,1                 
 08|(mini.align) Split: "%p*=+[<>~
 09|]*" | Justify: (trim) "left" |
-10| Merge: " " | Enter modifier  
+10| Merge: " " | Press modifier  
 11|                              
 12|-- VISUAL LINE --  2          
 

@@ -81,7 +81,7 @@ local setup_two_windows = function()
 end
 
 -- Time constants
-local helper_message_delay = 1000
+local reminder_delay = 1000
 local small_time = helpers.get_time_const(10)
 
 -- Output test set ============================================================
@@ -356,14 +356,14 @@ T['start()']['jumps immediately to single spot'] = function()
   child.expect_screenshot()
 end
 
-T['start()']['prompts helper message after one idle second'] = function()
+T['start()']['shows reminder after one idle second'] = function()
   -- Helps create hit-enter-prompt
   child.set_size(5, 60)
 
   child.lua([[MiniJump2d.config.labels = 'jk']])
 
   start()
-  sleep(helper_message_delay + small_time)
+  sleep(reminder_delay + small_time)
 
   -- Should show helper message without adding it to `:messages` and causing
   -- hit-enter-prompt
@@ -376,7 +376,7 @@ T['start()']['prompts helper message after one idle second'] = function()
   child.expect_screenshot()
 
   -- Should show message for every key in sequence
-  sleep(helper_message_delay + small_time)
+  sleep(reminder_delay + small_time)
   child.expect_screenshot()
 end
 
@@ -883,7 +883,7 @@ T['start()']['respects `config.silent`'] = function()
   child.set_size(10, 20)
 
   start()
-  sleep(helper_message_delay + small_time)
+  sleep(reminder_delay + small_time)
 
   -- Should not show helper message
   child.expect_screenshot()
@@ -1223,13 +1223,13 @@ T['builtin_opts.single_character']['handles special user input'] = new_set({
   end,
 })
 
-T['builtin_opts.single_character']['prompts helper message after one idle second'] = function()
+T['builtin_opts.single_character']['shows reminder after one idle second'] = function()
   -- Helps create hit-enter-prompt
   child.set_size(5, 50)
 
   start_single_char()
   eq(get_latest_message(), '')
-  sleep(helper_message_delay - small_time)
+  sleep(reminder_delay - small_time)
   eq(get_latest_message(), '')
   sleep(small_time + small_time)
 

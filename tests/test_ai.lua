@@ -84,7 +84,7 @@ end
 local validate_no_tobj1d = function(line, column, keys) validate_no_tobj({ line }, { 1, column }, keys) end
 
 -- Time constants
-local helper_message_delay = 1000
+local reminder_delay = 1000
 local small_time = helpers.get_time_const(10)
 
 -- Output test set
@@ -1895,7 +1895,7 @@ T['Textobject']['opens just enough folds'] = function()
   eq(child.fn.foldclosed(6), -1)
 end
 
-T['Textobject']['prompts helper message after one idle second'] = new_set({ parametrize = { { 'a' }, { 'i' } } }, {
+T['Textobject']['shows reminder after one idle second'] = new_set({ parametrize = { { 'a' }, { 'i' } } }, {
   test = function(key)
     child.set_size(5, 70)
     child.o.cmdheight = 1
@@ -1904,7 +1904,7 @@ T['Textobject']['prompts helper message after one idle second'] = new_set({ para
     -- there are `an`/`in`/`al`/`il` mappings.
     -- Wait fixed time after that.
     child.o.timeoutlen = 2 * small_time
-    local total_wait_time = helper_message_delay + child.o.timeoutlen + small_time
+    local total_wait_time = reminder_delay + child.o.timeoutlen + small_time
 
     set_lines({ '(aaa)' })
     set_cursor(1, 1)
@@ -1980,7 +1980,7 @@ T['Textobject']['respects `config.silent`'] = function()
   child.lua('MiniAi.config.silent = true')
 
   child.o.timeoutlen = 2 * small_time
-  local total_wait_time = helper_message_delay + child.o.timeoutlen + small_time
+  local total_wait_time = reminder_delay + child.o.timeoutlen + small_time
 
   set_lines({ '(aaa)' })
   set_cursor(1, 1)

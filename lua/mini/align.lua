@@ -1797,17 +1797,17 @@ end
 -- Work with user interaction -------------------------------------------------
 H.user_modifier = function(with_preview, msg_chunks)
   -- Get from user single character modifier
-  local needs_help_msg = true
+  local needs_show_state = true
   local delay = (H.cache.msg_shown or with_preview) and 0 or 1000
   vim.defer_fn(function()
-    if not needs_help_msg then return end
+    if not needs_show_state then return end
 
-    table.insert(msg_chunks, { ' Enter modifier' })
+    table.insert(msg_chunks, { ' Press modifier' })
     H.echo(msg_chunks)
     H.cache.msg_shown = true
   end, delay)
   local ok, char = pcall(vim.fn.getcharstr)
-  needs_help_msg = false
+  needs_show_state = false
 
   -- Terminate if couldn't get input (like with <C-c>) or it is `<Esc>`
   if not ok or char == '\27' then return nil end
