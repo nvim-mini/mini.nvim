@@ -2632,7 +2632,11 @@ end
 
 H.fs_normalize_path = function(path) return (path:gsub('/+', '/'):gsub('(.)/$', '%1')) end
 if H.is_windows then
-  H.fs_normalize_path = function(path) return (path:gsub('\\', '/'):gsub('([^/])/+', '%1/'):gsub('(.)[\\/]$', '%1')) end
+  H.fs_normalize_path = function(path)
+    path = path:gsub('\\', '/'):gsub('([^/])/+', '%1/')
+    if path:find('^%w:[\\/].') then path = path:gsub('(.)[\\/]$', '%1') end
+    return path
+  end
 end
 
 H.fs_is_imaginary_path = function(path) return path:sub(-1) == '\000' end

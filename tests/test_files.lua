@@ -1021,6 +1021,12 @@ T['open()']['respects `vim.b.minifiles_config`'] = function()
   child.expect_screenshot()
 end
 
+T['open()']['properly normalizes root directory on Windows'] = function()
+  if child.loop.os_uname().sysname ~= 'Windows_NT' then MiniTest.skip('Test is only for Windows.') end
+  open('C:/')
+  eq(get_explorer_state().branch, { 'C:/' })
+end
+
 T['refresh()'] = new_set()
 
 local refresh = forward_lua('MiniFiles.refresh')
