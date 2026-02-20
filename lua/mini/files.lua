@@ -1061,11 +1061,9 @@ MiniFiles.get_explorer_state = function()
   H.explorer_ensure_target_window(explorer)
   local windows = {}
   for _, win_id in ipairs(explorer.windows) do
-    if vim.api.nvim_win_is_valid(win_id) then
-      local buf_id = vim.api.nvim_win_get_buf(win_id)
-      local path = (H.opened_buffers[buf_id] or {}).path
-      table.insert(windows, { win_id = win_id, path = path })
-    end
+    local buf_id = vim.api.nvim_win_get_buf(win_id)
+    local path = (H.opened_buffers[buf_id] or {}).path
+    table.insert(windows, { win_id = win_id, path = path })
   end
 
   return {
@@ -2634,7 +2632,13 @@ end
 
 H.fs_normalize_path = function(path) return (path:gsub('/+', '/'):gsub('(.)/$', '%1')) end
 if H.is_windows then
-  H.fs_normalize_path = function(path) return (path:gsub('\\', '/'):gsub('([^/])/+', '%1/'):gsub('(.)[\\/]$', '%1')) end
+  H.fs_normalize_path = function(path)
+    path = path:gsub('\\', '/'):gsub('///+', '//')
+    local prefix = path:sub(1, 2)
+    local rest = path:sub(3):gsub('/+', '/'):gsub('/+$', '')
+    if prefix:match('%a:') then prefix = prefix .. '/' end
+    return prefix .. rest
+  end
 end
 
 H.fs_is_imaginary_path = function(path) return path:sub(-1) == '\000' end
