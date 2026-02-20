@@ -66,8 +66,8 @@ Here are code snippets for some common installation methods (use only one):
 
     | Branch | Code snippet                                                   |
     |--------|----------------------------------------------------------------|
-    | Main   | `add(‘nvim-mini/mini.misc’)`                                   |
-    | Stable | `add({ source = ‘nvim-mini/mini.misc’, checkout = ‘stable’ })` |
+    | Main   | `add('nvim-mini/mini.misc')`                                   |
+    | Stable | `add({ source = 'nvim-mini/mini.misc', checkout = 'stable' })` |
 
 </details>
 

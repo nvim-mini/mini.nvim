@@ -73,8 +73,8 @@ Here are code snippets for some common installation methods (use only one):
 
     | Branch | Code snippet                                                       |
     |--------|--------------------------------------------------------------------|
-    | Main   | `add(‘nvim-mini/mini.surround’)`                                   |
-    | Stable | `add({ source = ‘nvim-mini/mini.surround’, checkout = ‘stable’ })` |
+    | Main   | `add('nvim-mini/mini.surround')`                                   |
+    | Stable | `add({ source = 'nvim-mini/mini.surround', checkout = 'stable' })` |
 
 </details>
 

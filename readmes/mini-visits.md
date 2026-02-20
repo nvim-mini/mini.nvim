@@ -132,8 +132,8 @@ Here are code snippets for some common installation methods (use only one):
 
     | Branch | Code snippet                                                     |
     |--------|------------------------------------------------------------------|
-    | Main   | `add(‘nvim-mini/mini.visits’)`                                   |
-    | Stable | `add({ source = ‘nvim-mini/mini.visits’, checkout = ‘stable’ })` |
+    | Main   | `add('nvim-mini/mini.visits')`                                   |
+    | Stable | `add({ source = 'nvim-mini/mini.visits', checkout = 'stable' })` |
 
 </details>
 

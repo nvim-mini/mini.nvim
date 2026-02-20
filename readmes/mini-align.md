@@ -73,8 +73,8 @@ Here are code snippets for some common installation methods (use only one):
 
     | Branch | Code snippet                                                    |
     |--------|-----------------------------------------------------------------|
-    | Main   | `add(‘nvim-mini/mini.align’)`                                   |
-    | Stable | `add({ source = ‘nvim-mini/mini.align’, checkout = ‘stable’ })` |
+    | Main   | `add('nvim-mini/mini.align')`                                   |
+    | Stable | `add({ source = 'nvim-mini/mini.align', checkout = 'stable' })` |
 
 </details>
 

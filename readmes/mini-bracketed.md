@@ -92,8 +92,8 @@ Here are code snippets for some common installation methods (use only one):
 
     | Branch | Code snippet                                                        |
     |--------|---------------------------------------------------------------------|
-    | Main   | `add(‘nvim-mini/mini.bracketed’)`                                   |
-    | Stable | `add({ source = ‘nvim-mini/mini.bracketed’, checkout = ‘stable’ })` |
+    | Main   | `add('nvim-mini/mini.bracketed')`                                   |
+    | Stable | `add({ source = 'nvim-mini/mini.bracketed', checkout = 'stable' })` |
 
 </details>
 

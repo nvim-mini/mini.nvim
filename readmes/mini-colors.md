@@ -91,8 +91,8 @@ Here are code snippets for some common installation methods (use only one):
 
     | Branch | Code snippet                                                     |
     |--------|------------------------------------------------------------------|
-    | Main   | `add(‘nvim-mini/mini.colors’)`                                   |
-    | Stable | `add({ source = ‘nvim-mini/mini.colors’, checkout = ‘stable’ })` |
+    | Main   | `add('nvim-mini/mini.colors')`                                   |
+    | Stable | `add({ source = 'nvim-mini/mini.colors', checkout = 'stable' })` |
 
 </details>
 

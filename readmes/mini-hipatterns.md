@@ -83,8 +83,8 @@ Here are code snippets for some common installation methods (use only one):
 
     | Branch | Code snippet                                                         |
     |--------|----------------------------------------------------------------------|
-    | Main   | `add(‘nvim-mini/mini.hipatterns’)`                                   |
-    | Stable | `add({ source = ‘nvim-mini/mini.hipatterns’, checkout = ‘stable’ })` |
+    | Main   | `add('nvim-mini/mini.hipatterns')`                                   |
+    | Stable | `add({ source = 'nvim-mini/mini.hipatterns', checkout = 'stable' })` |
 
 </details>
 

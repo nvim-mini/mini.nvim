@@ -62,8 +62,8 @@ Here are code snippets for some common installation methods (use only one):
 
     | Branch | Code snippet                                                      |
     |--------|-------------------------------------------------------------------|
-    | Main   | `add(‘nvim-mini/mini.cmdline’)`                                   |
-    | Stable | `add({ source = ‘nvim-mini/mini.cmdline’, checkout = ‘stable’ })` |
+    | Main   | `add('nvim-mini/mini.cmdline')`                                   |
+    | Stable | `add({ source = 'nvim-mini/mini.cmdline', checkout = 'stable' })` |
 
 </details>
 

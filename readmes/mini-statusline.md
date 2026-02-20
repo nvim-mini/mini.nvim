@@ -67,8 +67,8 @@ Here are code snippets for some common installation methods (use only one):
 
     | Branch | Code snippet                                                         |
     |--------|----------------------------------------------------------------------|
-    | Main   | `add(‘nvim-mini/mini.statusline’)`                                   |
-    | Stable | `add({ source = ‘nvim-mini/mini.statusline’, checkout = ‘stable’ })` |
+    | Main   | `add('nvim-mini/mini.statusline')`                                   |
+    | Stable | `add({ source = 'nvim-mini/mini.statusline', checkout = 'stable' })` |
 
 </details>
 

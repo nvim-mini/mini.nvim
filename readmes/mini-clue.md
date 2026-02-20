@@ -163,8 +163,8 @@ Here are code snippets for some common installation methods (use only one):
 
     | Branch | Code snippet                                                   |
     |--------|----------------------------------------------------------------|
-    | Main   | `add(‘nvim-mini/mini.clue’)`                                   |
-    | Stable | `add({ source = ‘nvim-mini/mini.clue’, checkout = ‘stable’ })` |
+    | Main   | `add('nvim-mini/mini.clue')`                                   |
+    | Stable | `add({ source = 'nvim-mini/mini.clue', checkout = 'stable' })` |
 
 </details>
 

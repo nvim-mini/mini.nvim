@@ -187,8 +187,8 @@ Here are code snippets for some common installation methods (use only one):
 
     | Branch | Code snippet                                                   |
     |--------|----------------------------------------------------------------|
-    | Main   | `add(‘nvim-mini/mini.hues’)`                                   |
-    | Stable | `add({ source = ‘nvim-mini/mini.hues’, checkout = ‘stable’ })` |
+    | Main   | `add('nvim-mini/mini.hues')`                                   |
+    | Stable | `add({ source = 'nvim-mini/mini.hues', checkout = 'stable' })` |
 
 </details>
 

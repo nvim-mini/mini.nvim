@@ -76,8 +76,8 @@ Here are code snippets for some common installation methods (use only one):
 
     | Branch | Code snippet                                                  |
     |--------|---------------------------------------------------------------|
-    | Main   | `add(‘nvim-mini/mini.map’)`                                   |
-    | Stable | `add({ source = ‘nvim-mini/mini.map’, checkout = ‘stable’ })` |
+    | Main   | `add('nvim-mini/mini.map')`                                   |
+    | Stable | `add({ source = 'nvim-mini/mini.map', checkout = 'stable' })` |
 
 </details>
 
