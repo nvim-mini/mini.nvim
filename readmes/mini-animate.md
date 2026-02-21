@@ -62,15 +62,15 @@ Here are code snippets for some common installation methods (use only one):
 
     | Branch | Code snippet                                  |
     |--------|-----------------------------------------------|
-    | Main   | *Follow recommended ‘mini.deps’ installation* |
-    | Stable | *Follow recommended ‘mini.deps’ installation* |
+    | Main   | *Follow recommended 'mini.deps' installation* |
+    | Stable | *Follow recommended 'mini.deps' installation* |
 
 - Standalone plugin:
 
     | Branch | Code snippet                                                      |
     |--------|-------------------------------------------------------------------|
-    | Main   | `add(‘nvim-mini/mini.animate’)`                                   |
-    | Stable | `add({ source = ‘nvim-mini/mini.animate’, checkout = ‘stable’ })` |
+    | Main   | `add('nvim-mini/mini.animate')`                                   |
+    | Stable | `add({ source = 'nvim-mini/mini.animate', checkout = 'stable' })` |
 
 </details>
 

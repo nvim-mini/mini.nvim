@@ -101,15 +101,15 @@ Here are code snippets for some common installation methods (use only one):
 
     | Branch | Code snippet                                  |
     |--------|-----------------------------------------------|
-    | Main   | *Follow recommended ‘mini.deps’ installation* |
-    | Stable | *Follow recommended ‘mini.deps’ installation* |
+    | Main   | *Follow recommended 'mini.deps' installation* |
+    | Stable | *Follow recommended 'mini.deps' installation* |
 
 - Standalone plugin:
 
     | Branch | Code snippet                                                     |
     |--------|------------------------------------------------------------------|
-    | Main   | `add(‘nvim-mini/mini.base16’)`                                   |
-    | Stable | `add({ source = ‘nvim-mini/mini.base16’, checkout = ‘stable’ })` |
+    | Main   | `add('nvim-mini/mini.base16')`                                   |
+    | Stable | `add({ source = 'nvim-mini/mini.base16', checkout = 'stable' })` |
 
 </details>
 
