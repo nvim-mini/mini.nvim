@@ -1098,6 +1098,59 @@ T['refresh()']['recomputes window config'] = function()
   child.expect_screenshot()
 end
 
+T['MiniPickUpdate'] = new_set()
+
+T['MiniPickUpdate']['triggers on UI change'] = function()
+  child.lua([[
+    _G.update_log = 0
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'MiniPickUpdate',
+      callback = function() _G.update_log = _G.update_log + 1 end,
+    })
+  ]])
+
+  -- Trigger on start (multiple times: init + set_items)
+  start_with_items({ 'a', 'b', 'c' })
+  local start_count = child.lua_get('_G.update_log')
+  eq(start_count > 0, true)
+
+  -- Trigger on query change and match
+  type_keys('a')
+  eq(child.lua_get('_G.update_log'), start_count + 2)
+
+  -- Trigger on navigation
+  type_keys('<C-n>')
+  eq(child.lua_get('_G.update_log'), start_count + 3)
+
+  -- Trigger on resize
+  child.set_size(15, 20)
+  eq(child.lua_get('_G.update_log'), start_count + 4)
+end
+
+T['get_window_config()'] = new_set()
+
+T['get_window_config()']['works'] = function()
+  child.set_size(20, 100)
+
+  -- Works with default config (no active picker)
+  local config_default = child.lua_get('MiniPick.get_window_config()')
+  eq(config_default.relative, 'editor')
+  eq(config_default.width, math.floor(0.618 * 100))
+  eq(config_default.height, math.floor(0.618 * (20 - 1))) -- Default has no tabline/statusline, but accounts for cmdheight=1
+
+  -- Works with buffer-local config
+  child.b.minipick_config = { window = { config = { width = 20 } } }
+  local config_buffer = child.lua_get('MiniPick.get_window_config()')
+  eq(config_buffer.width, 20)
+  child.b.minipick_config = nil
+
+  -- Works with active picker
+  start_with_items({ 'a' })
+  child.lua('MiniPick.set_picker_opts({ window = { config = { width = 30 } } })')
+  local config_active = child.lua_get('MiniPick.get_window_config()')
+  eq(config_active.width, 30)
+end
+
 T['default_match()'] = new_set()
 
 local default_match = forward_lua('MiniPick.default_match')
