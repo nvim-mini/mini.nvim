@@ -19,9 +19,14 @@ local sleep = function(ms) helpers.sleep(ms, child) end
 -- Test paths helpers
 local test_dir = 'tests/dir-files'
 
+local normalize_path = function(p) return (p:gsub('\\', '/'):gsub('(.)/$', '%1')) end
+if helpers.is_windows() then
+  normalize_path = function(p) return (p:gsub('\\', '/'):gsub('(.)/$', '%1'):gsub('^(%a):/+([^/])', '%1://%2')) end
+end
+
 local join_path = function(...) return table.concat({ ... }, '/') end
-local full_path = function(...) return (vim.fn.fnamemodify(join_path(...), ':p'):gsub('\\', '/'):gsub('(.)/$', '%1')) end
-local short_path = function(...) return (vim.fn.fnamemodify(join_path(...), ':~'):gsub('\\', '/'):gsub('(.)/$', '%1')) end
+local full_path = function(...) return normalize_path(vim.fn.fnamemodify(join_path(...), ':p')) end
+local short_path = function(...) return normalize_path(vim.fn.fnamemodify(join_path(...), ':~')) end
 
 local make_test_path = function(...) return full_path(join_path(test_dir, ...)) end
 
@@ -98,7 +103,9 @@ end
 local make_plain_pattern = function(...) return table.concat(vim.tbl_map(vim.pesc, { ... }), '.*') end
 
 local is_file_in_buffer = function(buf_id, path)
-  return string.find(child.api.nvim_buf_get_name(buf_id):gsub('\\', '/'), vim.pesc(path:gsub('\\', '/')) .. '$') ~= nil
+  local buf_name = normalize_path(child.api.nvim_buf_get_name(buf_id))
+  local path_pattern = vim.pesc(normalize_path(path)) .. '$'
+  return string.find(buf_name, path_pattern) ~= nil
 end
 
 local is_file_in_window = function(win_id, path) return is_file_in_buffer(child.api.nvim_win_get_buf(win_id), path) end
@@ -2250,7 +2257,9 @@ T['set_bookmark()']['works'] = function()
   local res = child.lua([[
     local bookmarks = MiniFiles.get_explorer_state().bookmarks
     for k, v in pairs(bookmarks) do
-      if vim.is_callable(v.path) then v.path = { 'Callable', (v.path():gsub('\\', '/')) } end
+      if vim.is_callable(v.path) then
+        v.path = { 'Callable', (v.path():gsub('\\', '/'):gsub('^(%a):/+([^/])', '%1://%2')) }
+      end
     end
     return bookmarks
   ]])
@@ -3329,7 +3338,7 @@ T['Mappings']['`mark_goto` works with special paths'] = function()
     child.lua('_G.notify_log = {}')
   end
   local warn_level = child.lua_get('vim.log.levels.WARN')
-  local cwd = child.fn.getcwd():gsub('\\', '/')
+  local cwd = normalize_path(child.fn.getcwd())
 
   local path = full_path(test_dir_path)
   open(path)
@@ -5829,6 +5838,55 @@ T['Default explorer']['handles forcing other window as current'] = function()
   child.cmd('edit ' .. test_dir_path)
   expect.no_error(function() child.api.nvim_set_current_win(init_win_id) end)
   if child.fn.has('nvim-0.10') == 1 then eq(child.api.nvim_get_current_win(), init_win_id) end
+end
+
+T['Internal helpers'] = new_set()
+
+T['Internal helpers']['path normalization works'] = function()
+  child.lua([[
+    local name, helpers = debug.getupvalue(MiniFiles.open, 1)
+    if name ~= 'H' then error('Something went wrong when trying to get local `H` table') end
+    _G.fs_normalize_path = helpers.fs_normalize_path
+  ]])
+  local validate = function(path, ref) eq(child.lua_get('_G.fs_normalize_path(...)', { path }), ref) end
+
+  if helpers.is_windows() then
+    validate('C://dir//file/', 'C://dir/file')
+    validate([[C:\\dir\\file\]], 'C://dir/file')
+
+    -- Normalizing pure drive prefix as `C:/` while inside full path as `C://`
+    -- makes it aligned as `C:/` + `/` + <relative path>. It also fixes issues
+    -- with some system files (`C://swapfile.sys`) work only in the "double
+    -- slash" form. The `vim.uv.fs_stat('C:/swapfile.sys')` returns `nil`,
+    -- while `C://swapfile.sys` works.
+    validate('C:///', 'C:/')
+    validate('C://', 'C:/')
+    validate('C:/', 'C:/')
+    validate([[C:\\\]], 'C:/')
+    validate([[C:\\]], 'C:/')
+    validate([[C:\]], 'C:/')
+
+    validate('C:///file', 'C://file')
+    validate('C://file', 'C://file')
+    validate('C:/file', 'C://file')
+    validate([[C:\\\file]], 'C://file')
+    validate([[C:\\file]], 'C://file')
+    validate([[C:\file]], 'C://file')
+
+    -- UNC paths
+    validate('//?/wow', '//?/wow')
+    validate('//?/wow/', '//?/wow')
+    validate([[\\?\wow]], '//?/wow')
+    validate([[\\?\wow\]], '//?/wow')
+    validate('//server/share', '//server/share')
+    validate([[\server\share]], '/server/share')
+    validate([[\\system07\C$\]], '//system07/C$')
+    validate([[\\.\C:\Test\Foo.txt]], '//./C:/Test/Foo.txt')
+  else
+    validate('//many///slashes/', '/many/slashes')
+    validate('//', '/')
+    validate('/', '/')
+  end
 end
 
 return T

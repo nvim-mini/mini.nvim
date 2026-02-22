@@ -2632,7 +2632,9 @@ end
 
 H.fs_normalize_path = function(path) return (path:gsub('/+', '/'):gsub('(.)/$', '%1')) end
 if H.is_windows then
-  H.fs_normalize_path = function(path) return (path:gsub('\\', '/'):gsub('([^/])/+', '%1/'):gsub('(.)[\\/]$', '%1')) end
+  H.fs_normalize_path = function(path)
+    return (path:gsub('\\', '/'):gsub('([^/:])/+', '%1/'):gsub('([^:])/+$', '%1'):gsub('^(%a):/+([^/])', '%1://%2'))
+  end
 end
 
 H.fs_is_imaginary_path = function(path) return path:sub(-1) == '\000' end
@@ -2648,6 +2650,15 @@ H.fs_shorten_path = function(path)
   path = H.fs_normalize_path(path)
   local home_dir = H.fs_normalize_path(vim.loop.os_homedir() or '~')
   return (path:gsub('^' .. vim.pesc(home_dir), '~'))
+end
+
+H.fs_relcwd_path = function(path) return vim.fn.fnamemodify(path, ':.') end
+if H.is_windows then
+  -- Make manually because `C://dir/file` paths conflict with `C:/dir` cwd path
+  H.fs_relcwd_path = function(path)
+    local cwd = H.fs_normalize_path(vim.fn.getcwd())
+    return (H.fs_normalize_path(path):gsub('^' .. vim.pesc(cwd) .. '/', ''))
+  end
 end
 
 H.fs_get_basename = function(path) return H.fs_normalize_path(path):match('[^/]+$') end
@@ -2825,7 +2836,7 @@ H.rename_loaded_buffer = function(buf_id, from, to)
   if cur_name == new_name then return end
 
   -- Rename buffer using relative form (for nicer `:buffers` output)
-  vim.api.nvim_buf_set_name(buf_id, vim.fn.fnamemodify(new_name, ':.'))
+  vim.api.nvim_buf_set_name(buf_id, H.fs_relcwd_path(new_name))
 
   -- Force write to avoid the 'overwrite existing file' error message on write
   -- for normal files
@@ -2905,7 +2916,7 @@ H.edit = function(path, win_id)
   local b = vim.api.nvim_win_get_buf(win_id or 0)
   local try_mimic_buf_reuse = (vim.fn.bufname(b) == '' and vim.bo[b].buftype ~= 'quickfix' and not vim.bo[b].modified)
     and (#vim.fn.win_findbuf(b) == 1 and vim.deep_equal(vim.fn.getbufline(b, 1, '$'), { '' }))
-  local buf_id = vim.fn.bufadd(vim.fn.fnamemodify(path, ':.'))
+  local buf_id = vim.fn.bufadd(H.fs_relcwd_path(path))
   -- Showing in window also loads. Use `pcall` to not error with swap messages.
   pcall(vim.api.nvim_win_set_buf, win_id or 0, buf_id)
   vim.bo[buf_id].buflisted = true
