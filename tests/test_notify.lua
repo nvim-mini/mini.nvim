@@ -558,10 +558,8 @@ T['refresh()']['handles manual buffer/window delete'] = function()
 
   -- Buffer
   child.cmd('%bw')
-  eq(#child.api.nvim_list_bufs(), 1)
   eq(is_notif_window_shown(), false)
   refresh()
-  eq(#child.api.nvim_list_bufs(), 2)
   eq(is_notif_window_shown(), true)
 end
 
@@ -574,6 +572,37 @@ T['refresh()']['can be used inside fast event'] = function()
   ]])
   sleep(small_time + small_time)
   eq(child.cmd_capture('messages'), '')
+end
+
+T['refresh()']['can be used when editor is locked'] = function()
+  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('`SafeState` is present only on Neovim>=0.10') end
+
+  -- `:h :map-expression` lists things that are not allowed to be done when
+  -- the mapping is still active. Editing another buffer (like the one used by
+  -- 'mini.notify') is not allowed.
+  child.lua([[
+    local notif_id = MiniNotify.add("Hello")
+    local a = function()
+      MiniNotify.refresh()
+      MiniNotify.refresh()
+      return "2l"
+    end
+    vim.keymap.set('o', '<C-a>', a, { expr = true })
+
+    local r = function()
+      MiniNotify.remove(notif_id)
+      return "2h"
+    end
+    vim.keymap.set('n', '<C-r>', r, { expr = true })
+  ]])
+
+  child.type_keys('y<C-a>')
+  eq(child.cmd_capture('messages'), '')
+  eq(is_notif_window_shown(), true)
+
+  child.type_keys('<C-r>')
+  eq(child.cmd_capture('messages'), '')
+  eq(is_notif_window_shown(), false)
 end
 
 T['refresh()']['respects `vim.{g,b}.mininotify_disable`'] = new_set({ parametrize = { { 'g' }, { 'b' } } }, {

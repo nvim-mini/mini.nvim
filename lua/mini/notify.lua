@@ -452,6 +452,12 @@ end
 --- Note: effects are delayed if inside fast event (|vim.in_fast_event()|).
 MiniNotify.refresh = function()
   if vim.in_fast_event() then return vim.schedule(MiniNotify.refresh) end
+  if H.is_textlock() and vim.fn.has('nvim-0.10') == 1 then
+    pcall(vim.api.nvim_del_autocmd, H.cache.safestate_au_id)
+    local au_opts = { once = true, nested = true, callback = vim.schedule_wrap(MiniNotify.refresh) }
+    H.cache.safestate_au_id = vim.api.nvim_create_autocmd('SafeState', au_opts)
+    return
+  end
   if H.is_disabled() or type(vim.v.exiting) == 'number' then return H.window_close() end
 
   -- Prepare array of active notifications
@@ -594,6 +600,10 @@ H.cache = {
   -- Notification buffer and window
   buf_id = nil,
   win_id = nil,
+  -- Scratch buffer to test if the editor is in textlock state
+  textlock_buf_id = nil,
+  -- Autocommand identifier when delaying until `SafeState`
+  safestate_au_id = nil,
 }
 
 -- Helper functionality =======================================================
@@ -889,6 +899,15 @@ H.is_valid_buf = function(buf_id) return type(buf_id) == 'number' and vim.api.nv
 H.is_valid_win = function(win_id) return type(win_id) == 'number' and vim.api.nvim_win_is_valid(win_id) end
 
 H.is_win_in_tabpage = function(win_id) return vim.api.nvim_win_get_tabpage(win_id) == vim.api.nvim_get_current_tabpage() end
+
+H.is_textlock = function()
+  if not H.is_valid_buf(H.cache.textlock_buf_id) then
+    H.cache.textlock_buf_id = vim.api.nvim_create_buf(false, true)
+    H.set_buf_name(H.cache.textlock_buf_id, 'textlock-check-scratch')
+  end
+  local ok = pcall(vim.api.nvim_buf_set_lines, H.cache.textlock_buf_id, 0, -1, false, {})
+  return not ok
+end
 
 H.fit_to_width = function(text, width)
   local t_width = vim.fn.strchars(text)
