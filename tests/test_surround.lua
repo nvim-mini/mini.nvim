@@ -477,7 +477,7 @@ T['gen_spec']['input']['treesitter()']['works with row-exclusive, col-0 end rang
   }]])
 
   local lines = get_lines()
-  validate_find(lines, { 4, 0 }, { { 11, 2 }, { 13, 7 }, { 1, 0 }, { 2, 0 } }, type_keys, 'sf', 'c')
+  validate_find(lines, { 4, 0 }, { { 13, 0 }, { 13, 7 }, { 1, 0 }, { 1, 11 } }, type_keys, 'sf', 'c')
 end
 
 T['gen_spec']['input']['treesitter()']['respects plugin options'] = function()
