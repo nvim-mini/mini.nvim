@@ -183,6 +183,12 @@ T['state']['updates `mode`'] = function()
 
   type_keys('d', 't', 'e')
   eq(get_state().mode, 'nov')
+  type_keys('V', 't', 'e')
+  eq(get_state().mode, 'V')
+  child.ensure_normal_mode()
+  -- Ensure dot-repeat does not update mode after the jump
+  type_keys('.')
+  eq(get_state().mode, 'V')
   child.lua('MiniJump.stop_jumping()')
 end
 
@@ -402,7 +408,7 @@ T['Jumping with f/t/F/T']['works in Operator-pending mode'] = new_set({
     type_keys('d', '2', key, 'e')
     eq(get_lines(), { line_seq[3] })
 
-    -- Just typing `key` shouldn't repeat action
+    -- Just typing `key` shouldn't repeat motion
     local cur_pos = get_cursor()
     type_keys(key)
     eq(get_cursor(), cur_pos)
@@ -580,6 +586,32 @@ T['Jumping with f/t/F/T']['can be dot-repeated if did not jump at first'] = func
   validate('dt', 5, 1, 'adefg')
   validate('dF', 1, 5, 'abcg')
   validate('dT', 1, 5, 'abcdg')
+end
+
+T['Jumping with f/t/F/T']['inside dot-repeat is not affected by regular jumping'] = function()
+  -- Normal mode
+  local validate = function(keys, key_antagonist, result)
+    local line = '_xdxdx1x1xdxdx_'
+    local tests_forward = key_antagonist == string.upper(key_antagonist)
+
+    set_lines({ line })
+    set_cursor(1, tests_forward and 0 or (string.len(line) - 1))
+
+    type_keys(keys)
+    type_keys(tests_forward and '$' or '^')
+    type_keys(key_antagonist, '1')
+    type_keys('.')
+    eq(get_lines(), { result })
+
+    -- Ensure there is no jumping
+    child.lua('MiniJump.stop_jumping()')
+    child.ensure_normal_mode()
+  end
+
+  validate('2dfd', 'T', 'x1x1x_')
+  validate('2dtd', 'F', 'dx1xdx_')
+  validate('2dFd', 't', '_x1x1x')
+  validate('2dTd', 'f', '_xdx1xd')
 end
 
 T['Jumping with f/t/F/T']['stops prompting for target if hit `<Esc>` or `<C-c>`'] = new_set({
@@ -878,6 +910,26 @@ T['Repeat jump with ;']['works after jump in Operator-pending mode'] = function(
   type_keys('d', '2f', 'e', ';')
   eq(get_lines(), { '3e4e5e' })
   eq(get_cursor(), { 1, 3 })
+
+  -- Like nvim --clean, it does not use the latest dot repeat
+  set_lines({ '1e2e3e3e4e5e6' })
+  set_cursor(1, 0)
+
+  type_keys('d', '2f', 'e')
+  eq(get_lines(), { '3e3e4e5e6' })
+  eq(get_cursor(), { 1, 0 })
+
+  type_keys('$', 'T', '3')
+  eq(get_lines(), { '3e3e4e5e6' })
+  eq(get_cursor(), { 1, 3 })
+
+  type_keys('.')
+  eq(get_lines(), { '3e36' })
+  eq(get_cursor(), { 1, 3 })
+
+  type_keys(';')
+  eq(get_lines(), { '3e36' })
+  eq(get_cursor(), { 1, 1 })
 end
 
 T['Repeat jump with ;']['works in Operator-pending mode'] = function()

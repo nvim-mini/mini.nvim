@@ -181,6 +181,11 @@ MiniJump.state = {
 MiniJump.jump = function(target, backward, till, n_times)
   if H.is_disabled() then return end
 
+  -- If dot-repeating the state needs to be restored after the jump
+  local needs_restore = MiniJump._is_expr and MiniJump.state.mode ~= 'no'
+  MiniJump._is_expr = nil
+  local state_snapshot = needs_restore and vim.deepcopy(MiniJump.state) or nil
+
   -- Cache inputs for future use
   H.update_state(target, backward, till, n_times)
 
@@ -230,6 +235,12 @@ MiniJump.jump = function(target, backward, till, n_times)
   -- Track cursor position to account for movement not caught by `CursorMoved`
   H.cache.latest_cursor = H.get_cursor_data()
   H.cache.has_changed_cursor = not vim.deep_equal(H.cache.latest_cursor, init_cursor_data)
+
+  -- If dot-repeating restore the state to its value from before this jump
+  if needs_restore then
+    state_snapshot.jumping = true
+    MiniJump.state = state_snapshot
+  end
 end
 
 --- Make smart jump
@@ -383,7 +394,8 @@ H.make_expr_jump = function(backward, till)
   return function()
     if H.is_disabled() then return '' end
 
-    H.update_state(nil, backward, till, vim.v.count1)
+    local count = vim.v.count1
+    H.update_state(nil, backward, till, count)
 
     -- Ask for `target` for non-repeating jump as this will be used only in
     -- operator-pending mode. Dot-repeat is supported via expression-mapping.
@@ -398,7 +410,10 @@ H.make_expr_jump = function(backward, till)
       if H.cache.has_changed_cursor then return end
       vim.cmd('undo!')
     end)
-    return 'v<Cmd>lua MiniJump.jump()<CR>'
+
+    -- Encode state in expression for dot-repeat
+    local args = string.format('%s,%s,%s,%s', vim.inspect(target), backward, till, count)
+    return 'v<Cmd>lua MiniJump._is_expr=true; MiniJump.jump(' .. args .. ')<CR>'
   end
 end
 
