@@ -2118,7 +2118,7 @@ T['Signature help']['adjusts title'] = function()
 end
 
 T['Signature help']['stylizes markdown with concealed characters'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Lua highlighting is different on Neovim<0.10') end
+  if child.fn.has('nvim-0.12') == 0 then MiniTest.skip('Lua highlighting is different on Neovim<0.12') end
 
   child.set_size(10, 65)
   child.bo.filetype = 'lua'
