@@ -1841,7 +1841,7 @@ T['pickers']['git_files()']['works'] = function()
   child.set_size(10, 50)
 
   local repo_dir = test_dir_absolute
-  child.fn.chdir(repo_dir)
+  child.fn.chdir(repo_dir .. '/git-files')
   mock_git_repo(repo_dir)
   mock_cli_return({ 'git-files/git-file-1', 'git-files/git-file-2' })
 
@@ -1857,7 +1857,8 @@ T['pickers']['git_files()']['works'] = function()
 
   -- Should properly choose
   type_keys('<CR>')
-  validate_buf_name(0, join_path('git-files', 'git-file-1'))
+  validate_buf_name(0, join_path('git-file-1'))
+  eq(child.fn.getcwd():gsub('\\', '/'), repo_dir:gsub('\\', '/') .. '/git-files')
 
   -- Should return chosen value
   eq(child.lua_get('_G.return_item'), 'git-files/git-file-1')
@@ -1893,9 +1894,9 @@ T['pickers']['git_files()']['respects `local_opts.path`'] = function()
   -- File path (should use its parent directory path)
   validate(join_path(dir_path, 'git-file-1'), dir_path_full)
 
-  -- By default should not use parent repo and use current directory instead
+  -- Default with different current directory should use repo dir
   child.fn.chdir(dir_path_full)
-  validate(nil, dir_path_full)
+  validate(nil, repo_dir)
 end
 
 T['pickers']['git_files()']['respects `local_opts.scope`'] = function()

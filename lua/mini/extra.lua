@@ -761,7 +761,8 @@ MiniExtra.pickers.git_files = function(local_opts, opts)
 
   -- Compute path to repo with target path (as it might differ from current)
   local path, path_type = H.git_normalize_path(local_opts.path, 'git_files')
-  H.git_get_repo_dir(path, path_type, 'git_files')
+  local repo_dir = H.git_get_repo_dir(path, path_type, 'git_files')
+  if local_opts.path == nil then path = repo_dir end
   local path_dir = path_type == 'directory' and path or vim.fn.fnamemodify(path, ':h')
 
   -- Define source
