@@ -34,6 +34,12 @@ There are following change types:
 - Add new plugin integrations:
     - 'folke/snacks.nvim'
 
+## mini.jump
+
+### Evolve
+
+- Make dot-repeat behave exactly as in clean Neovim, i.e. make it less interfere with regular jumping. This allows doing something like `dte` -> `fx` -> `.` to perform `dte` again and not `dfx` (which is the latest regular jumping state). By @abeldekat, PR #2284.
+
 ## mini.misc
 
 ### Evolve

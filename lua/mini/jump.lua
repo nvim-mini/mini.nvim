@@ -12,8 +12,8 @@
 --- - Highlight (after customizable delay) all possible target characters and
 ---   stop it after some (customizable) idle time.
 ---
---- - Normal, Visual, and Operator-pending (with full dot-repeat) modes are
----   supported.
+--- - Normal, Visual, and Operator-pending (with dot-repeat as in clean Neovim)
+---   modes are supported.
 ---
 --- This module follows vim's 'ignorecase' and 'smartcase' options. When
 --- 'ignorecase' is set, f, F, t, T will match case-insensitively. When
@@ -181,6 +181,11 @@ MiniJump.state = {
 MiniJump.jump = function(target, backward, till, n_times)
   if H.is_disabled() then return end
 
+  -- Dot-repeat should not change the state, so save it to later restore
+  local is_dot_repeat = MiniJump._is_expr and not MiniJump._is_expr_init
+  MiniJump._is_expr, MiniJump._is_expr_init = nil, nil
+  local state_snapshot = is_dot_repeat and vim.deepcopy(MiniJump.state) or nil
+
   -- Cache inputs for future use
   H.update_state(target, backward, till, n_times)
 
@@ -230,6 +235,12 @@ MiniJump.jump = function(target, backward, till, n_times)
   -- Track cursor position to account for movement not caught by `CursorMoved`
   H.cache.latest_cursor = H.get_cursor_data()
   H.cache.has_changed_cursor = not vim.deep_equal(H.cache.latest_cursor, init_cursor_data)
+
+  -- Restore the state if needed
+  if is_dot_repeat then
+    state_snapshot.jumping = true
+    MiniJump.state = state_snapshot
+  end
 end
 
 --- Make smart jump
@@ -383,22 +394,29 @@ H.make_expr_jump = function(backward, till)
   return function()
     if H.is_disabled() then return '' end
 
-    H.update_state(nil, backward, till, vim.v.count1)
+    local count = vim.v.count1
+    H.update_state(nil, backward, till, count)
 
     -- Ask for `target` for non-repeating jump as this will be used only in
     -- operator-pending mode. Dot-repeat is supported via expression-mapping.
-    local is_repeat_jump = backward == nil or till == nil
-    local target = is_repeat_jump and MiniJump.state.target or H.get_target()
-
-    -- Stop if user supplied invalid target
-    if target == nil then return '<Esc>' end
+    local isnt_repeat_jump = backward ~= nil and till ~= nil
+    local target = isnt_repeat_jump and H.get_target() or nil
+    if isnt_repeat_jump and target == nil then return '<Esc>' end
     H.update_state(target)
 
     vim.schedule(function()
       if H.cache.has_changed_cursor then return end
       vim.cmd('undo!')
     end)
-    return 'v<Cmd>lua MiniJump.jump()<CR>'
+
+    -- Set a flag to distinguish first call from dot-repeat
+    MiniJump._is_expr_init = true
+
+    -- Encode state in expression for dot-repeat. Important to use `target=nil`
+    -- for `repeat_jump` case to have it using latest jumping state during
+    -- dot-repeat also (as does `nvim --clean`).
+    local args = string.format('%s,%s,%s,%s', vim.inspect(target), backward, till, count)
+    return 'v<Cmd>lua MiniJump._is_expr=true; MiniJump.jump(' .. args .. ')<CR>'
   end
 end
 

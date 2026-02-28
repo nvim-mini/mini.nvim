@@ -14,8 +14,8 @@ Features:
 - Highlight (after customizable delay) all possible target characters and
   stop it after some (customizable) idle time.
 
-- Normal, Visual, and Operator-pending (with full dot-repeat) modes are
-  supported.
+- Normal, Visual, and Operator-pending (with dot-repeat as in clean Neovim)
+  modes are supported.
 
 This module follows vim's 'ignorecase' and 'smartcase' options. When
 'ignorecase' is set, f, F, t, T will match case-insensitively. When
