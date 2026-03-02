@@ -181,6 +181,14 @@ MiniJump.state = {
 MiniJump.jump = function(target, backward, till, n_times)
   if H.is_disabled() then return end
 
+  -- Ensure to undo "consuming a character" effect if there is no target found
+  -- Do it here to act on dot-repeat
+  local has_changed_cursor = false
+  local undo_no_move = function()
+    if not has_changed_cursor then vim.cmd('undo!') end
+  end
+  if MiniJump._is_expr then vim.schedule(undo_no_move) end
+
   -- Dot-repeat should not change the state, so save it to later restore
   local is_dot_repeat = MiniJump._is_expr and not MiniJump._is_expr_init
   MiniJump._is_expr, MiniJump._is_expr_init = nil, nil
@@ -234,7 +242,7 @@ MiniJump.jump = function(target, backward, till, n_times)
 
   -- Track cursor position to account for movement not caught by `CursorMoved`
   H.cache.latest_cursor = H.get_cursor_data()
-  H.cache.has_changed_cursor = not vim.deep_equal(H.cache.latest_cursor, init_cursor_data)
+  has_changed_cursor = not vim.deep_equal(H.cache.latest_cursor, init_cursor_data)
 
   -- Restore the state if needed
   if is_dot_repeat then
@@ -403,11 +411,6 @@ H.make_expr_jump = function(backward, till)
     local target = isnt_repeat_jump and H.get_target() or nil
     if isnt_repeat_jump and target == nil then return '<Esc>' end
     H.update_state(target)
-
-    vim.schedule(function()
-      if H.cache.has_changed_cursor then return end
-      vim.cmd('undo!')
-    end)
 
     -- Set a flag to distinguish first call from dot-repeat
     MiniJump._is_expr_init = true

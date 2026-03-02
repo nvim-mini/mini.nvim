@@ -531,15 +531,21 @@ end
 
 T['Jumping with f/t/F/T']['does nothing if there is no place to jump'] = function()
   -- Normal mode
-  local validate_normal = function(keys, start_col, ref_mode)
-    set_lines({ 'abcdefg' })
+  local validate_normal = function(keys, start_col, ref_mode, line)
+    set_lines({ line })
     set_cursor(1, start_col)
 
     type_keys(keys, 'd')
 
     -- It shouldn't move anywhere and should not modify text
     eq(get_cursor(), { 1, start_col })
-    eq(get_lines(), { 'abcdefg' })
+    eq(get_lines(), { line })
+    eq(child.fn.mode(), ref_mode)
+
+    -- The above applies to subsequent dot-repeats as well
+    type_keys('.')
+    eq(get_cursor(), { 1, start_col })
+    eq(get_lines(), { line })
     eq(child.fn.mode(), ref_mode)
 
     -- Ensure there is no jumping
@@ -547,20 +553,27 @@ T['Jumping with f/t/F/T']['does nothing if there is no place to jump'] = functio
     child.ensure_normal_mode()
   end
 
-  validate_normal('f', 4, 'n')
-  validate_normal('t', 4, 'n')
-  validate_normal('F', 2, 'n')
-  validate_normal('T', 2, 'n')
+  local validate_by_line = function(line)
+    validate_normal('f', 4, 'n', line)
+    validate_normal('t', 4, 'n', line)
+    validate_normal('F', 2, 'n', line)
+    validate_normal('T', 2, 'n', line)
 
-  validate_normal('vf', 4, 'v')
-  validate_normal('vt', 4, 'v')
-  validate_normal('vF', 2, 'v')
-  validate_normal('vT', 2, 'v')
+    validate_normal('vf', 4, 'v', line)
+    validate_normal('vt', 4, 'v', line)
+    validate_normal('vF', 2, 'v', line)
+    validate_normal('vT', 2, 'v', line)
 
-  validate_normal('df', 4, 'n')
-  validate_normal('dt', 4, 'n')
-  validate_normal('dF', 2, 'n')
-  validate_normal('dT', 2, 'n')
+    validate_normal('df', 4, 'n', line)
+    validate_normal('dt', 4, 'n', line)
+    validate_normal('dF', 2, 'n', line)
+    validate_normal('dT', 2, 'n', line)
+  end
+
+  -- Target d is present but not reachable
+  validate_by_line('abcdefg')
+  -- Target d is not present
+  validate_by_line('abcxefg')
 end
 
 T['Jumping with f/t/F/T']['can be dot-repeated if did not jump at first'] = function()
@@ -720,6 +733,7 @@ T['Jumping with f/t/F/T']['stops jumping if no target is found'] = function()
   -- General idea: there was a bug which didn't reset jumping state if target
   -- was not found by `vim.fn.search()`. In that case, next typing of jumping
   -- key wouldn't make effect, but it should.
+  -- Related test case: 'Enters jumping mode even if first jump is impossible'
   for _, key in ipairs({ 'f', 't', 'F', 'T' }) do
     local start_col = key == key:lower() and 0 or 3
     set_cursor(1, start_col)
