@@ -367,7 +367,6 @@ Callback for each file action event will receive `data` field
 - <to> - full path of entry after action (`nil` for permanent "delete" action).
 
 ------------------------------------------------------------------------------
-                                                            *MiniFiles-examples*
 # Toggle explorer ~
 
 Use a combination of |MiniFiles.open()| and |MiniFiles.close()|: >lua
@@ -404,6 +403,11 @@ updated internally. Use `MiniFilesWindowUpdate` event for them: >lua
 
       -- Ensure fixed height
       config.height = 10
+
+------------------------------------------------------------------------------
+                                                            *MiniFiles-examples*
+      -- Ensure style
+      config.style = nil
 
       -- Ensure no title padding
       local n = #config.title
