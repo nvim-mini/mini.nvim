@@ -5523,6 +5523,8 @@ T['Events']['`MiniFilesWindowUpdate` can customize internally set window config 
         local config = vim.api.nvim_win_get_config(args.data.win_id)
         -- Ensure fixed height
         config.height = 5
+        -- Ensure style
+        config.style = nil
         -- Ensure title padding
         local n = #config.title
         config.title[1][1] = config.title[1][1]:gsub('^ ', '')
