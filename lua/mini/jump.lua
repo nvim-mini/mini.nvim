@@ -181,16 +181,8 @@ MiniJump.state = {
 MiniJump.jump = function(target, backward, till, n_times)
   if H.is_disabled() then return end
 
-  -- Ensure to undo "consuming a character" effect if there is no target found
-  -- Do it here to act on dot-repeat
-  local has_changed_cursor = false
-  local undo_no_move = function()
-    if not has_changed_cursor then vim.cmd('undo!') end
-  end
-  if MiniJump._is_expr then vim.schedule(undo_no_move) end
-
   -- Dot-repeat should not change the state, so save it to later restore
-  local is_dot_repeat = MiniJump._is_expr and not MiniJump._is_expr_init
+  local is_expr, is_dot_repeat = MiniJump._is_expr, MiniJump._is_expr and not MiniJump._is_expr_init
   MiniJump._is_expr, MiniJump._is_expr_init = nil, nil
   local state_snapshot = is_dot_repeat and vim.deepcopy(MiniJump.state) or nil
 
@@ -201,12 +193,6 @@ MiniJump.jump = function(target, backward, till, n_times)
     H.message('Can not jump because there is no recent `target`.')
     return
   end
-
-  -- Determine if target is present anywhere in order to correctly enter
-  -- jumping mode. If not, jumping mode is not possible.
-  local search_pattern = [[\V]] .. vim.fn.escape(MiniJump.state.target, [[\]])
-  local target_is_present = vim.fn.search(search_pattern, 'wn') ~= 0
-  if not target_is_present then return end
 
   -- Construct search and highlight pattern data
   local pattern, hl_pattern, flags = H.make_search_data()
@@ -227,28 +213,33 @@ MiniJump.jump = function(target, backward, till, n_times)
 
   -- Make jump(s)
   H.cache.n_cursor_moved = 0
-  local init_cursor_data = H.get_cursor_data()
   local was_jumping = MiniJump.state.jumping
   MiniJump.state.jumping = true
   if not was_jumping then H.trigger_event('MiniJumpStart') end
   H.trigger_event('MiniJumpJump')
 
+  local has_jumped = false
   for _ = 1, MiniJump.state.n_times do
-    vim.fn.search(pattern, flags)
+    local row = vim.fn.search(pattern, flags)
+    has_jumped = has_jumped or row > 0
   end
 
   -- Open enough folds to show jump
-  vim.cmd('normal! zv')
+  if has_jumped then vim.cmd('normal! zv') end
 
   -- Track cursor position to account for movement not caught by `CursorMoved`
   H.cache.latest_cursor = H.get_cursor_data()
-  has_changed_cursor = not vim.deep_equal(H.cache.latest_cursor, init_cursor_data)
 
   -- Restore the state if needed
-  if is_dot_repeat then
-    state_snapshot.jumping = true
-    MiniJump.state = state_snapshot
-  end
+  MiniJump.state = is_dot_repeat and state_snapshot or MiniJump.state
+  -- Final jumping should only be true if jump was performed or target is present
+  local search_pattern = [[\V]] .. vim.fn.escape(MiniJump.state.target, [[\]])
+  MiniJump.state.jumping = has_jumped or vim.fn.search(search_pattern, 'wn') ~= 0
+
+  -- Ensure to undo "consuming a character" effect if there is no target found
+  -- Do it here to also act on dot-repeat
+  if has_jumped or not is_expr then return end
+  vim.schedule(function() vim.cmd('undo!') end)
 end
 
 --- Make smart jump
