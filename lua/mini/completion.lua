@@ -303,6 +303,7 @@ MiniCompletion.config = {
 
   -- Configuration for action windows:
   -- - `height` and `width` are maximum dimensions.
+  -- - `width_min` is the minimum width dimension.
   -- - `border` defines border (as in `nvim_open_win()`; default "single").
   window = {
     info = { height = 25, width = 80, border = nil, width_min = nil },
