@@ -305,8 +305,8 @@ MiniCompletion.config = {
   -- - `height` and `width` are maximum dimensions.
   -- - `border` defines border (as in `nvim_open_win()`; default "single").
   window = {
-    info = { height = 25, width = 80, border = nil },
-    signature = { height = 25, width = 80, border = nil },
+    info = { height = 25, width = 80, border = nil, width_min = nil },
+    signature = { height = 25, width = 80, border = nil, width_min = nil },
   },
 
   -- Way of how module does LSP completion
@@ -1540,6 +1540,10 @@ H.info_window_options = function()
   -- Compute dimensions based on actually visible lines to be displayed
   local lines = H.compute_visible_md_lines(vim.api.nvim_buf_get_lines(H.info.bufnr, 0, -1, false))
   local info_height, info_width = H.floating_dimensions(lines, win_config.height, win_config.width)
+  
+  if win_config.width_min and info_width < win_config.width_min then
+    info_width = win_config.width_min
+  end
 
   -- Compute position
   local event = H.info.event
@@ -1713,6 +1717,10 @@ H.signature_window_opts = function()
   local border = win_config.border or default_border
   local lines = vim.api.nvim_buf_get_lines(H.signature.bufnr, 0, -1, false)
   local height, width = H.floating_dimensions(lines, win_config.height, win_config.width)
+  
+  if win_config.width_min and width < win_config.width_min then
+    width = win_config.width_min
+  end
 
   -- Compute position
   local win_line = vim.fn.winline()
