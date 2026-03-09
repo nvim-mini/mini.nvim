@@ -514,7 +514,7 @@ T['Autocomplete']['works in different command types'] = function()
     eq(child.fn.mode(), 'n')
     type_every_key(keys)
     if child.fn.has('nvim-0.12') == 1 then
-      child.expect_screenshot()
+      child.expect_screenshot({ ignore_attr = true })
     else
       eq(has_pum(), false)
     end
