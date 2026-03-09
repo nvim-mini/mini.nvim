@@ -399,6 +399,9 @@
 ---       -- Ensure fixed height
 ---       config.height = 10
 ---
+---       -- Ensure style
+---       config.style = nil
+---
 ---       -- Ensure no title padding
 ---       local n = #config.title
 ---       config.title[1][1] = config.title[1][1]:gsub('^ ', '')
