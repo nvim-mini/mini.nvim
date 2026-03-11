@@ -3550,6 +3550,9 @@ T['Session']['persists after `:edit`'] = function()
   child.cmd('edit')
   sleep(small_time)
 
+  -- Ensure expect_screenshot succeeds regardless of actual path
+  child.o.statusline = 'Dummy statusline'
+
   -- Should preserve both highlighting and data
   validate_active_session()
   child.expect_screenshot()

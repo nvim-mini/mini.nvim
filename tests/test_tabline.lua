@@ -356,20 +356,20 @@ T['make_tabline_string()']['deduplicates named labels'] = function()
   eq(eval_tabline(), ' dir1/aaa  dir2/aaa  dir1/dir_nested/aaa  dir2/dir_nested/aaa ')
 
   -- Should work for buffers without initial path
+  local expected = ' dir1/aaa  dir2/aaa  dir1/dir_nested/aaa  dir2/dir_nested/aaa '
   local buf_id = child.api.nvim_create_buf(true, false)
   child.api.nvim_buf_set_name(buf_id, 'aaa')
-  local cur_dir_basename = child.fn.fnamemodify(child.fn.getcwd(), ':t')
-  eq(
-    eval_tabline(),
-    (' dir1/aaa  dir2/aaa  dir1/dir_nested/aaa  dir2/dir_nested/aaa  %s/aaa '):format(cur_dir_basename)
-  )
+  -- Avoid truncation by ensuring that width is large enough to also hold part of cwd
+  expected = expected .. (' %s/aaa '):format(child.fn.fnamemodify(child.fn.getcwd(), ':t'))
+  child.o.columns = #expected
+  eq(eval_tabline(), expected)
 end
 
 T['make_tabline_string()']['deduplicates independent of current working directory'] = function()
   edit_path('dir1/aaa')
   edit_path('dir1/dir_nested/aaa')
 
-  child.cmd('cd tests/dir-tabline/dir1')
+  child.fn.chdir('tests/dir-tabline/dir1')
   eq(eval_tabline(), ' dir1/aaa  dir_nested/aaa ')
 end
 
