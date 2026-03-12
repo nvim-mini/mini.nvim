@@ -701,6 +701,12 @@ MiniFiles.config = {
 
   -- Customization of explorer windows
   windows = {
+    -- Enable/customize line numbers
+    line_numbers = {
+      enabled = false,
+      -- Whether to use relative numbers
+      relative = false,
+    },
     -- Maximum number of windows to show side by side
     max_number = math.huge,
     -- Whether to show preview of file/directory under cursor
@@ -1312,6 +1318,9 @@ H.setup_config = function(config)
   H.check_type('options.permanent_delete', config.options.permanent_delete, 'boolean')
 
   H.check_type('windows', config.windows, 'table')
+  H.check_type('windows.line_number', config.windows.line_numbers, 'table')
+  H.check_type('windows.line_number.enabled', config.windows.line_numbers.enabled, 'boolean')
+  H.check_type('windows.line_number.relative', config.windows.line_numbers.relative, 'boolean')
   H.check_type('windows.max_number', config.windows.max_number, 'number')
   H.check_type('windows.preview', config.windows.preview, 'boolean')
   H.check_type('windows.width_focus', config.windows.width_focus, 'number')
@@ -2478,6 +2487,12 @@ H.window_update = function(win_id, config)
 
   -- Make sure proper `conceallevel` (can be not the case with 'noice.nvim')
   vim.wo[win_id].conceallevel = 3
+
+  -- Remove line numbers if not focused
+  if win_id ~= vim.api.nvim_get_current_win() then
+    vim.wo[win_id].number = false
+    vim.wo[win_id].relativenumber = false
+  end
 end
 
 H.window_update_highlight = function(win_id, new_from, new_to)
@@ -2491,6 +2506,10 @@ end
 
 H.window_focus = function(win_id)
   vim.api.nvim_set_current_win(win_id)
+  vim.wo[win_id].number = MiniFiles.config.windows.line_numbers.enabled
+  vim.wo[win_id].relativenumber = MiniFiles.config.windows.line_numbers.enabled
+      and MiniFiles.config.windows.line_numbers.relative
+    or false
   H.window_update_highlight(win_id, 'FloatTitle', 'MiniFilesTitleFocused')
 end
 
