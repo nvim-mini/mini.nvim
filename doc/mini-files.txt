@@ -603,6 +603,12 @@ Defaults ~
 
     -- Customization of explorer windows
     windows = {
+      -- Enable/customize line numbers
+      line_numbers = {
+        enabled = false,
+        -- Whether to use relative numbers
+        relative = false,
+      },
       -- Maximum number of windows to show side by side
       max_number = math.huge,
       -- Whether to show preview of file/directory under cursor
