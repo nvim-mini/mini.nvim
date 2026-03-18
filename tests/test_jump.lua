@@ -1088,7 +1088,7 @@ T['Delayed highlighting']['implements debounce-style delay'] = function()
   child.expect_screenshot()
 
   sleep(small_time)
-  -- Nothing should yet be shown
+  -- Everything should be shown
   child.expect_screenshot()
 end
 
@@ -1132,6 +1132,28 @@ T['Delayed highlighting']['never highlights in Insert mode'] = function()
   type_keys('ct', 'f')
   sleep(default_highlight_delay + small_time)
   -- Shouldn't start highlighting
+  child.expect_screenshot()
+end
+
+T['Delayed highlighting']['never highlights when jumping has already been stopped'] = function()
+  -- The delay.highlight = 0 is also applied when highlighting is already present
+  child.lua('MiniJump.config.delay.highlight = 0')
+
+  set_cursor(1, 0)
+
+  -- Use an autocommand to create the following situation after the jump:
+  -- Scheduled: a function, which when ran invokes BufLeave -> MiniJump.stop_jumping
+  -- Scheduled: H.highlight, created when highlight timer activates without delay
+  child.lua([[
+    local force_jump_stop = vim.schedule_wrap(function(ev) vim.cmd('doautocmd BufLeave') end)
+    vim.api.nvim_create_autocmd('CursorMoved', { once = true, callback = force_jump_stop })
+  ]])
+  type_keys('f', 'e')
+
+  local state = { mode = 'n', jumping = false, target = 'e', backward = false, till = false, n_times = 1 }
+  eq(child.lua_get('MiniJump.state'), state)
+
+  -- Nothing should be shown
   child.expect_screenshot()
 end
 
