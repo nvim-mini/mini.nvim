@@ -729,6 +729,7 @@ H.apply_config = function(config)
       remove_lsp_mapping('n', 'grn')
       remove_lsp_mapping('n', 'grr')
       remove_lsp_mapping('n', 'grt')
+      remove_lsp_mapping('n', 'grx')
     end
 
     if prefix == 'gx' and vim.fn.has('nvim-0.10') == 1 then
