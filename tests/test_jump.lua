@@ -182,7 +182,7 @@ T['state']['updates `mode`'] = function()
   child.ensure_normal_mode()
 
   type_keys('d', 't', 'e')
-  eq(get_state().mode, 'nov')
+  eq(get_state().mode, 'no')
 
   -- Ensure dot-repeat does not update mode after the jump
   type_keys('V', 't', 'e')
@@ -558,21 +558,21 @@ T['Jumping with f/t/F/T']['enters jumping mode even if first jump is impossible'
 end
 
 T['Jumping with f/t/F/T']['does nothing if there is no place to jump'] = function()
-  local validate_single = function(keys, start_line, start_col, ref_mode)
-    set_lines({ start_line })
-    set_cursor(1, start_col)
+  local validate_single = function(keys, lines, start_line, start_col, ref_mode)
+    set_lines(lines)
+    set_cursor(start_line, start_col)
 
     type_keys(keys, 'd')
 
     -- It shouldn't move anywhere and should not modify text
-    eq(get_cursor(), { 1, start_col })
-    eq(get_lines(), { start_line })
+    eq(get_cursor(), { start_line, start_col })
+    eq(get_lines(), lines)
     eq(child.fn.mode(), ref_mode)
 
     -- The above applies to subsequent dot-repeats as well
     type_keys('.')
-    eq(get_cursor(), { 1, start_col })
-    eq(get_lines(), { start_line })
+    eq(get_cursor(), { start_line, start_col })
+    eq(get_lines(), lines)
     eq(child.fn.mode(), ref_mode)
 
     -- Ensure there is no jumping
@@ -580,28 +580,34 @@ T['Jumping with f/t/F/T']['does nothing if there is no place to jump'] = functio
     child.ensure_normal_mode()
   end
 
-  local validate = function(line)
-    validate_single('f', line, 4, 'n')
-    validate_single('t', line, 4, 'n')
-    validate_single('F', line, 2, 'n')
-    validate_single('T', line, 2, 'n')
+  local validate = function(lines, start_line)
+    start_line = start_line == nil and 1 or start_line
 
-    validate_single('vf', line, 4, 'v')
-    validate_single('vt', line, 4, 'v')
-    validate_single('vF', line, 2, 'v')
-    validate_single('vT', line, 2, 'v')
+    local start_col = start_line > 1 and 0 or 4
+    validate_single('f', lines, start_line, start_col, 'n')
+    validate_single('t', lines, start_line, start_col, 'n')
+    validate_single('vf', lines, start_line, start_col, 'v')
+    validate_single('vt', lines, start_line, start_col, 'v')
+    validate_single('df', lines, start_line, start_col, 'n')
+    validate_single('dt', lines, start_line, start_col, 'n')
 
-    validate_single('df', line, 4, 'n')
-    validate_single('dt', line, 4, 'n')
-    validate_single('dF', line, 2, 'n')
-    validate_single('dT', line, 2, 'n')
+    start_col = start_line > 1 and 0 or 2
+    validate_single('F', lines, start_line, start_col, 'n')
+    validate_single('T', lines, start_line, start_col, 'n')
+    validate_single('vF', lines, start_line, start_col, 'v')
+    validate_single('vT', lines, start_line, start_col, 'v')
+    validate_single('dF', lines, start_line, start_col, 'n')
+    validate_single('dT', lines, start_line, start_col, 'n')
   end
 
   -- Target is present but not reachable
-  validate('abcdefg')
+  validate({ 'abcdefg' })
 
   -- Target is not present
-  validate('abcxefg')
+  validate({ 'abcxefg' })
+
+  -- Target is not present and cursor is on empty line
+  validate({ 'abcxefg', '' }, 2)
 end
 
 T['Jumping with f/t/F/T']['can be dot-repeated if did not jump at first'] = function()
@@ -1322,7 +1328,7 @@ T['Events']['work in Visual and Operator-pending modes'] = function()
     validate_log_and_clean({ { event = 'MiniJumpGetTarget', state = state } })
 
     type_keys('e')
-    state.mode = mode == 'v' and 'v' or 'nov'
+    state.mode = mode == 'v' and 'v' or 'no'
     state.jumping, state.target = true, 'e'
     validate_log_and_clean({
       { event = 'MiniJumpStart', state = state },
@@ -1425,7 +1431,7 @@ T['Events']['work with dot-repeat'] = function()
   child.lua('_G.log = {}')
 
   type_keys('.')
-  local state = { mode = 'nov', jumping = true, target = 'e', backward = false, till = false, n_times = 1 }
+  local state = { mode = 'no', jumping = true, target = 'e', backward = false, till = false, n_times = 1 }
   validate_log_and_clean({
     { event = 'MiniJumpStart', state = state },
     { event = 'MiniJumpJump', state = state },
