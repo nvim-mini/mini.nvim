@@ -953,18 +953,24 @@ local restart = function(vimrc, restart_cmd)
   -- Monkey-patch `vim.cmd` inside child process to intercept `:restart` args
   child.lua([[
     vim.fn.writefile({}, 'track-vim-cmd')
-    local cmd_orig = vim.cmd
+    _G.cmd_orig = vim.cmd
     vim.cmd = function(command)
       -- Log into the file to be available even after child is stopped
       vim.fn.writefile({ command }, 'track-vim-cmd', 'a')
-      cmd_orig(command)
+      _G.cmd_orig(command)
     end
   ]])
 
-  -- Restart within the child. This disconnects, so gather the "aftercommand"
-  -- passed to `:restart` to manually execute it after setting up new child.
-  -- It might be improved on later versions of 0.12.
-  child.lua_notify(restart_cmd or 'MiniSessions.restart()')
+  -- Restart within the child. It disconnects with "ch xxx closed by the peer"
+  -- error, so gather the "aftercommand" passed to `:restart` to execute it by
+  -- hand after setting up new child. It might be improved on later versions.
+  local ok, msg = pcall(child.lua, restart_cmd or 'MiniSessions.restart()')
+  -- Propagate unexpected error after a cleanup
+  if not (ok or vim.endswith(msg, 'closed by the peer')) then
+    child.lua('vim.cmd = _G.cmd_orig')
+    child.fn.delete('track-vim-cmd')
+    error(msg)
+  end
   vim.loop.sleep(10 * small_time)
 
   local cmd_after_restart
@@ -1000,15 +1006,19 @@ local setup_cur_session = function()
   end
 end
 
+local validate_no_restart_sideffects = function()
+  for _, f in ipairs(child.fn.readdir(child.fn.getcwd())) do
+    if f:find('^restart_session_') ~= nil then error('There is a leftover temporary session file: ' .. f) end
+  end
+end
+
 T['restart()']['works without active session'] = function()
   local validate = setup_cur_session()
   restart()
   validate('')
 
   -- Should be no side effects from creating a temporary session file
-  for _, f in ipairs(child.fn.readdir(child.fn.getcwd())) do
-    if f:find('^restart_session_') ~= nil then error('There is a leftover temporary session file: ' .. f) end
-  end
+  validate_no_restart_sideffects()
 end
 
 T['restart()']["works with active 'mini.sessions' session"] = function()
@@ -1048,6 +1058,31 @@ T['restart()']['works without loading the module'] = function()
   local validate = setup_cur_session()
   restart(nil, 'require("mini.sessions").restart()')
   validate('')
+end
+
+T['restart()']['handles the error during restart'] = function()
+  -- No active session
+  child.cmd('edit aaa')
+  set_lines({ 'Modified' })
+
+  expect.error(restart, 'No write since last change')
+  validate_no_restart_sideffects()
+  eq(child.v.this_session, '')
+
+  child.cmd('bwipeout!')
+
+  -- Active session
+  setup_cur_session()
+  child.fn.mkdir(empty_dir_path)
+  local session_path = make_path(empty_dir_path, 'new_session')
+  child.cmd('mksession! ' .. session_path)
+  local ref_this_session = child.v.this_session
+  set_lines({ 'Modified' })
+
+  expect.error(restart, 'No write since last change')
+  validate_no_restart_sideffects()
+  eq(child.v.this_session, ref_this_session)
+  eq(child.fn.filereadable(session_path), 1)
 end
 
 T['select()'] = new_set({

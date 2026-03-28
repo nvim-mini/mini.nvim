@@ -354,7 +354,15 @@ MiniSessions.restart = function()
     table.insert(after, 2, 'pcall(vim.fs.rm, ' .. vim.inspect(this_session) .. ')')
     table.insert(after, 3, 'vim.v.this_session = ""')
   end
-  vim.cmd('restart lua ' .. table.concat(after, ';'))
+  local ok, msg = pcall(vim.cmd, 'restart lua ' .. table.concat(after, ';'))
+
+  -- Ensure cleanup in case of an error restarting (like a modified buffer)
+  if ok then return end
+  if del_session then
+    pcall(vim.fs.rm, this_session)
+    vim.v.this_session = ''
+  end
+  H.error(msg)
 end
 
 --- Select session interactively and perform action
