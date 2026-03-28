@@ -25,6 +25,13 @@ Features:
     - "Hunk range under cursor" textobject to be used as operator target.
     - Navigate to first/previous/next/last hunk. See |MiniDiff.goto_hunk()|.
 
+- Supports three diff sources:
+    - |MiniDiff.gen_source.git()|: Use git repository as the source to diff
+      the current buffer.
+    - |MiniDiff.gen_source.mercurial()|: Use mercurial repository as the
+      source to diff the current buffer.
+    - |MiniDiff.gen_source.save()|: Diff with respect to the file on disk.
+
 What it doesn't do:
 
 - Provide functionality to work directly with Git outside of visualizing
@@ -533,7 +540,11 @@ Examples: >lua
   diff.setup({ source = diff.gen_source.save() })
 
   -- Multiple sources (attempted to attach in order)
-  diff.setup({ source = { diff.gen_source.git(), diff.gen_source.save() } })
+  diff.setup({ source = {
+    diff.gen_source.git(),
+    diff.gen_source.mercurial(),
+    diff.gen_source.save()
+  } })
 <
 ------------------------------------------------------------------------------
                                                      *MiniDiff.gen_source.git()*
@@ -549,6 +560,23 @@ Applying hunks means staging, a.k.a adding to index.
 Notes:
 - Requires Git version at least 2.38.0.
 - There is no capability for unstaging hunks. Use full Git client for that.
+
+Return ~
+`(table)` Source. See |MiniDiff-source-specification|.
+
+------------------------------------------------------------------------------
+                                               *MiniDiff.gen_source.mercurial()*
+                       `MiniDiff.gen_source.mercurial`()
+Merurial source
+
+Uses file text from mercurial's `dirstate` as reference. This results in:
+- "Add" hunks represent text present in current buffer, but not in
+  mercurial repo.
+- "Change" hunks represent modified text not in mercurial repo.
+- "Delete" hunks represent text deleted from repo.
+
+Notes:
+- Requires Git version at least 6.9.4.
 
 Return ~
 `(table)` Source. See |MiniDiff-source-specification|.
