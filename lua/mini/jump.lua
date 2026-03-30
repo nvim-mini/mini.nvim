@@ -233,10 +233,15 @@ MiniJump.jump = function(target, backward, till, n_times)
   local search_pattern = '\\V' .. vim.fn.escape(MiniJump.state.target, '\\')
   MiniJump.state.jumping = has_jumped or vim.fn.search(search_pattern, 'wn') ~= 0
 
-  -- If target not found in Operator-pending expression mapping, charwise-visual
-  -- is reverted, preventing a character from being consumed.
-  -- Do it here to also act on dot-repeat.
-  if is_expr and not has_jumped then vim.cmd('normal! v') end
+  -- Early return, happy flow
+  if has_jumped then return end
+
+  -- No cursor move. Allow jumping mode to stop on next non-jump movement
+  if MiniJump.state.jumping then H.cache.n_cursor_moved = H.cache.n_cursor_moved + 1 end
+
+  -- No jump in Operator-pending expression mapping
+  -- Revert charwise-visual to prevent a character from being consumed
+  if is_expr then vim.cmd('normal! v') end
 end
 
 --- Make smart jump
