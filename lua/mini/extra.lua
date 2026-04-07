@@ -981,7 +981,7 @@ MiniExtra.pickers.history = function(local_opts, opts)
     local cur_match = MiniPick.get_picker_matches().current
     local cur_scope, cur_item = cur_match:match('^(.) (.*)$')
     if not (cur_scope == ':' or cur_scope == '/' or cur_scope == '?') then return end
-    vim.schedule(function() vim.api.nvim_input(cur_scope .. cur_item) end)
+    vim.schedule(function() vim.api.nvim_input(cur_scope .. cur_item:gsub('<', '<lt>')) end)
     return true
   end
   local mappings = { edit_command = { char = '<C-e>', func = edit_command } }

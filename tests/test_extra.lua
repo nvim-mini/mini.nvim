@@ -2339,6 +2339,7 @@ T['pickers']['history()'] = new_set({
       child.lua('_G.n = 0')
       type_keys(':lua _G.n = _G.n + 1<CR>')
       type_keys(':lua _G.n = _G.n + 2<CR>')
+      type_keys(':echo "<CR>"')
 
       -- Search history
       child.api.nvim_buf_set_lines(0, 0, -1, false, { 'aaa', 'bbb' })
@@ -2509,6 +2510,10 @@ T['pickers']['history()']['has custom "edit_command" mapping'] = function()
   pick_history()
   type_keys('@', '<C-e>')
   validate('', '', true)
+
+  pick_history({ scope = ':' })
+  type_keys('<C-e>')
+  validate(':', 'echo "<CR>"', false)
 
   pick_history({ scope = ':' })
   type_keys('<C-e>')
