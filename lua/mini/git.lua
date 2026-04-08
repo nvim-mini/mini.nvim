@@ -300,6 +300,9 @@ MiniGit.config = {
   command = {
     -- Default split direction
     split = 'auto',
+
+    -- Name of the user command (set to another string to avoid conflicts)
+    cmd = 'Git',
   },
 }
 --minidoc_afterlines_end
@@ -645,6 +648,7 @@ H.setup_config = function(config)
 
   H.check_type('job.git_executable', config.job.git_executable, 'string')
   H.check_type('job.timeout', config.job.timeout, 'number')
+  H.check_type('command.cmd', config.command.cmd, 'string')
   if not pcall(H.normalize_split_opt, config.command.split) then
     H.error('`command.split` should be one of "auto", "horizontal", "vertical", "tab"')
   end
@@ -670,7 +674,7 @@ H.is_disabled = function(buf_id) return vim.g.minigit_disable == true or vim.b[b
 
 H.create_user_commands = function()
   local opts = { bang = true, nargs = '+', complete = H.command_complete, desc = 'Execute Git command' }
-  vim.api.nvim_create_user_command('Git', H.command_impl, opts)
+  vim.api.nvim_create_user_command(MiniGit.config.command.cmd, H.command_impl, opts)
 end
 
 -- Autocommands ---------------------------------------------------------------

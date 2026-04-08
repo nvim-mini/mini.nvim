@@ -134,8 +134,8 @@ This workflow can be made more interactive when used with mapping, like this: >l
 <
 ------------------------------------------------------------------------------
                                                                           *:Git*
-The `:Git` user command runs `git` CLI call with extra integration for currently
-opened Neovim process:
+The `:Git` user command (renameable via `command.cmd` in |MiniGit.config|) runs
+`git` CLI call with extra integration for currently opened Neovim process:
 - Command is executed inside repository root of the currently active file
   (or |current-directory| if file is not tracked by this module).
 
@@ -242,6 +242,9 @@ Defaults ~
     command = {
       -- Default split direction
       split = 'auto',
+
+      -- Name of the user command (set to another string to avoid conflicts)
+      cmd = 'Git',
     },
   }
 <
@@ -262,6 +265,12 @@ Default: 30000.
 one of "horizontal", "vertical", "tab", or "auto". Value "auto" uses |:vertical|
 if only 'mini.git' buffers are shown in the tabpage and |:tab| otherwise.
 Default: "auto".
+
+`command.cmd` defines the name of the user command created by the module. This
+can be changed to avoid conflicts with other plugins (e.g. 'vim-fugitive') that
+also define a |:Git| command. For example, setting it to "MiniGit" will create
+a `:MiniGit` command instead of `:Git`.
+Default: "Git".
 
 ------------------------------------------------------------------------------
                                                       *MiniGit.show_at_cursor()*
