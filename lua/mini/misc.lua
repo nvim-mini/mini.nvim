@@ -394,6 +394,8 @@ H.execute_later = function()
 end
 
 H.make_defer_autocmd = function(event, pattern, f, trace)
+  pattern = pattern and #pattern > 0 and pattern or nil
+
   local au_id
   local function cb()
     -- Execute exactly once, not once per event or pattern match
