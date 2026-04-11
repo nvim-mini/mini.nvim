@@ -176,12 +176,6 @@ local get_spawn_log = function() return child.lua_get('_G.spawn_log') end
 
 local clear_spawn_log = function() child.lua('_G.spawn_log = {}') end
 
-local validate_spawn_log = function(ref, index)
-  local present = get_spawn_log()
-  if type(index) == 'number' then present = present[index] end
-  eq(present, ref)
-end
-
 local get_process_log = function() return child.lua_get('_G.process_log') end
 
 local clear_process_log = function() child.lua('_G.process_log = {}') end
@@ -3536,12 +3530,14 @@ end
 
 T['pickers']['oldfiles()']['respects `local_opts.preserve_order`'] = function()
   child.lua('vim.fn.filereadable = function() return 1 end')
-  child.v.oldfiles = { 'axay', 'b', 'aaxy', 'ccc', 'xaa' }
+  local p = function(x) return full_path(make_testpath(x)) end
+
+  child.v.oldfiles = { p('auav'), p('b'), p('aauv'), p('ccc'), p('uaa') }
   pick_oldfiles({ preserve_order = true })
 
-  type_keys('x')
+  type_keys('u')
   eq(get_picker_matches().all_inds, { 1, 3, 5 })
-  type_keys('y')
+  type_keys('v')
   eq(get_picker_matches().all_inds, { 1, 3 })
 end
 
