@@ -269,7 +269,7 @@ T['setup()']['creates `config` field'] = function()
 
   expect_config('path.package', child.fn.stdpath('data') .. '/site')
   expect_config('path.snapshot', child.fn.stdpath('config') .. '/mini-deps-snap')
-  expect_config('path.log', child.fn.stdpath('state') .. '/mini-deps.log')
+  expect_config('path.log', child.fn.stdpath('log') .. '/mini-deps.log')
 
   expect_config('silent', false)
 end
