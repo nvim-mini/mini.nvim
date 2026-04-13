@@ -987,6 +987,9 @@ H.make_draw_function = function(indicator, opts)
     -- Don't put extmark outside of indicator range
     if not (indicator.top <= l and l <= indicator.bottom) then return true end
 
+    -- Don't draw on lines inside a closed fold (would overlay foldtext)
+    if vim.fn.foldclosed(l) ~= -1 then return true end
+
     return pcall(vim.api.nvim_buf_set_extmark, indicator.buf_id, H.ns_id, l - 1, 0, extmark_opts)
   end
 end
