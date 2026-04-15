@@ -359,7 +359,7 @@ MiniSessions.restart = function()
 
   -- Restart Neovim and execute Lua commands to restore necessary session
   local after = {
-    'vim.cmd("source ' .. session_arg .. '")',
+    'vim.cmd("source ' .. session_arg:gsub('\\', '\\\\') .. '")',
     -- Restore 'termguicolors' manually since it is not (yet) autodetected
     'vim.o.termguicolors = ' .. tostring(vim.o.termguicolors),
     'vim.notify("(mini.sessions) Restarted")',
