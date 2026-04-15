@@ -1078,6 +1078,28 @@ T['Manual completion']['applies `additionalTextEdits` from "completionItem/resol
   eq(get_lines(), { 'January' })
 end
 
+T['Manual completion']['executes `command` from completion item'] = function()
+  local command = { title = 'Add import', command = 'add_import', arguments = { 'months' } }
+
+  mock_lsp_items({ { label = 'Hello', command = command } })
+
+  child.lua([[
+    _G.exec_cmd_log = {}
+    local client = vim.lsp.get_client_by_id(_G.months_lsp_client_id)
+    local orig = client.exec_cmd
+    client.exec_cmd = function(self, cmd, ...)
+      table.insert(_G.exec_cmd_log, vim.deepcopy(cmd))
+      return orig(self, cmd, ...)
+    end
+  ]])
+
+  set_lines({})
+  type_keys('i', '<C-Space>', '<C-n>', '<C-y>')
+  eq(get_lines(), { 'Hello' })
+  eq(child.lua_get('#_G.exec_cmd_log'), 1)
+  eq(child.lua_get('_G.exec_cmd_log[1].command'), 'add_import')
+end
+
 T['Manual completion']['prefers completion range from LSP response'] = function()
   set_lines({})
   type_keys('i', 'months.')
