@@ -736,8 +736,8 @@ T['Autocorrect']['works for options'] = function()
   validate_option('setlocal expndtb', 'setlocal expandtab')
 
   -- Should work multiple times
-  type_every_key(':set ET inorecase nowrp invmgic ')
-  validate_cmdline('set et ignorecase nowrap invmagic ')
+  type_every_key(':set ET inorecase nowrtebakp invmgic ')
+  validate_cmdline('set et ignorecase nowritebackup invmagic ')
   type_keys('<Esc>')
 
   -- Correction when option is followed by not space
