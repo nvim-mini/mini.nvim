@@ -1537,6 +1537,8 @@ H.info_window_lines = function(info_id)
 
     -- Still use original item if there was no response (usually due to error)
     result = result or lsp_data.item
+    -- Store client_id match the client making this request
+    result.client_id = result.client_id or lsp_data.item.client_id
 
     H.info.lsp.result = result
     -- - Cache resolved item to not have to send same request on revisit.
