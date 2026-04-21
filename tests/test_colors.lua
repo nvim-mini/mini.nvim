@@ -2233,7 +2233,7 @@ T[':Colorscheme']['accepts several arguments'] = function()
   sleep(default_show_duration - 2 * small_transition_time)
   expect.match(child.cmd_capture('hi Normal'), 'guifg=#5f87af')
 
-  sleep(default_transition_duration + 3 * small_time)
+  sleep(default_transition_duration + small_time + 2 * small_transition_time)
   local blue_normal_fg = '#ffd700'
   expect.match(child.cmd_capture('hi Normal'), 'guifg=' .. blue_normal_fg)
 end
