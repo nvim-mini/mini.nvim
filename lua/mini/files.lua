@@ -9,7 +9,8 @@
 --- - Opt-in preview of file or directory under cursor.
 ---
 --- - Manipulate files and directories by editing text buffers: create, delete,
----   copy, rename, move. See |MiniFiles-manipulation| for overview.
+---   rename (all three are LSP aware), copy, move.
+---   See |MiniFiles-manipulation| for an overview.
 ---
 --- - Use as default file explorer instead of `netrw`.
 ---
@@ -77,6 +78,7 @@
 ---       explored branch.
 ---     - Also uses text editing to manipulate file system entries.
 ---     - Can work for remote file systems, while this module can not (by design).
+---     - Both provide LSP integration.
 ---
 --- - [nvim-neo-tree/neo-tree.nvim](https://github.com/nvim-neo-tree/neo-tree.nvim):
 ---     - Compares to this module mostly the same as 'nvim-tree/nvim-tree.lua'.
@@ -310,6 +312,20 @@
 ---   (not icon or path index to the left of it).
 ---
 --- - Moving directory inside itself is not supported.
+---
+--- # LSP integration ~
+---
+--- Create, delete, and rename are LSP aware (on Neovim>=0.11): the information
+--- is forwarded to all active LSP servers for them to perform additional actions.
+--- This means that LSP servers can, for example, update imports after renaming
+--- a file or populate a file with a boilerplate code after creation.
+---
+--- The actual changes depend entirely on the LSP server and whether it supports
+--- relevant methods:
+--- - `workspace/will{Create,Delete,Rename}Files` before a file system action.
+--- - `workspace/did{Create,Delete,Rename}Files` after a file system action.
+---
+--- It can be disabled by setting `options.lsp_timeout = 0` in |MiniFiles.config|.
 ---@tag MiniFiles-manipulation
 
 --- To allow user customization and integration of external tools, certain |User|
@@ -655,6 +671,10 @@ end
 --- Target directory is 'mini.files/trash' inside standard path of Neovim data
 --- directory (execute `:echo stdpath('data')` to see its path in your case).
 ---
+--- `options.lsp_timeout` is a number that defines a timeout for synchronous
+--- LSP integration requests (see |MiniFiles-manipulation|).
+--- Set to 0 to disable LSP integration.
+---
 --- # Windows ~
 ---
 --- `windows.max_number` is a maximum number of windows allowed to be open
@@ -706,6 +726,8 @@ MiniFiles.config = {
     permanent_delete = true,
     -- Whether to use for editing directories
     use_as_default_explorer = true,
+    -- Timeout for synchronous LSP integration requests
+    lsp_timeout = 1000,
   },
 
   -- Customization of explorer windows
@@ -847,7 +869,7 @@ MiniFiles.synchronize = function()
     local msg = table.concat(H.fs_actions_to_lines(fs_actions), '\n')
     local confirm_res = vim.fn.confirm(msg, '&Yes\n&No\n&Cancel', 1, 'Question')
     if confirm_res == 3 then return false end
-    if confirm_res == 1 then H.fs_actions_apply(fs_actions) end
+    if confirm_res == 1 then H.fs_actions_apply(fs_actions, explorer.opts.options.lsp_timeout) end
   end
 
   H.explorer_refresh(explorer, { force_update = true })
@@ -1331,6 +1353,7 @@ H.setup_config = function(config)
   H.check_type('options', config.options, 'table')
   H.check_type('options.use_as_default_explorer', config.options.use_as_default_explorer, 'boolean')
   H.check_type('options.permanent_delete', config.options.permanent_delete, 'boolean')
+  H.check_type('options.lsp_timeout', config.options.lsp_timeout, 'number')
 
   H.check_type('windows', config.windows, 'table')
   H.check_type('windows.max_number', config.windows.max_number, 'number')
@@ -2766,11 +2789,18 @@ H.fs_actions_to_lines = function(fs_actions)
   return res
 end
 
-H.fs_actions_apply = function(fs_actions)
+H.fs_actions_apply = function(fs_actions, lsp_timeout)
+  H.lsp_fs_hook('willCreate', fs_actions, lsp_timeout)
+  H.lsp_fs_hook('willDelete', fs_actions, lsp_timeout)
+  H.lsp_fs_hook('willRename', fs_actions, lsp_timeout)
+
+  local ok_actions = {}
   for i = 1, #fs_actions do
     local diff, action = fs_actions[i], fs_actions[i].action
     local ok, success = pcall(H.fs_do[action], diff.from, diff.to)
     if ok and success then
+      table.insert(ok_actions, diff)
+
       -- Trigger event
       local to = action == 'create' and diff.to:gsub('/$', '') or diff.to
       local data = { action = action, from = diff.from, to = to }
@@ -2782,6 +2812,97 @@ H.fs_actions_apply = function(fs_actions)
       if has_moved then H.adjust_after_move(diff.from, to, fs_actions, i + 1) end
     end
   end
+
+  H.lsp_fs_hook('didCreate', ok_actions, lsp_timeout)
+  H.lsp_fs_hook('didDelete', ok_actions, lsp_timeout)
+  H.lsp_fs_hook('didRename', ok_actions, lsp_timeout)
+end
+
+H.lsp_fs_hook = function(method, diffs, lsp_timeout)
+  if lsp_timeout == 0 then return end
+
+  local full_method = 'workspace/' .. method .. 'Files'
+  local clients = vim.lsp.get_clients({ method = full_method })
+  if #clients == 0 then return end
+
+  -- Transform 'mini.files' diffs into LSP file actions for the input method
+  -- https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#createFilesParams
+  -- https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#deleteFilesParams
+  -- https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#renameFilesParams
+  local files, to_uri = {}, vim.uri_from_fname
+  local needs_check = method == 'willCreate' or method == 'willRename'
+  local is_create, is_delete, is_rename =
+    vim.endswith(method, 'Create'), vim.endswith(method, 'Delete'), vim.endswith(method, 'Rename')
+  for _, d in ipairs(diffs) do
+    local file = {}
+    if is_create and d.action == 'create' then file = { uri = to_uri(d.to) } end
+    if is_delete and d.action == 'delete' then file = { uri = to_uri(d.from) } end
+    if is_rename and d.action == 'rename' then file = { oldUri = to_uri(d.from), newUri = to_uri(d.to) } end
+
+    -- Precompute LSP file type for filters (path can be not yet on disk)
+    file.fs_type = (d.from or d.to):find('/$') ~= nil and 'folder' or 'file'
+
+    -- Some actions might not succeed, so make best effort check before that
+    local pass_check = not needs_check or (needs_check and d.to ~= nil and not H.fs_is_present_path(d.to))
+    if (file.uri or file.oldUri) ~= nil and pass_check then table.insert(files, file) end
+  end
+
+  -- Execute LSP action for every currently existing client
+  if #files == 0 then return end
+  for _, client in ipairs(clients) do
+    H.lsp_fs_hook_client(client, full_method, files, lsp_timeout)
+  end
+end
+-- TODO: Remove after compatibility with Neovim=0.10 is dropped
+if vim.fn.has('nvim-0.11') == 0 then H.lsp_fs_hook = function() end end
+
+H.lsp_fs_hook_client = function(client, full_method, lsp_files, timeout)
+  -- Compute parameters of the LSP action by filtering all input file actions
+  -- https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#fileOperationFilter
+  local is_scheme = function(uri, scheme) return scheme == nil or vim.startswith(uri, scheme .. ':') end
+  local is_fs_type = function(lsp_file, ref_fs_type) return ref_fs_type == nil or ref_fs_type == lsp_file.fs_type end
+  local make_filter = function(scheme, ref_fs_type, glob, ignore_case)
+    local adjust_case = ignore_case and vim.fn.tolower or function(x) return x end
+    -- On Windows `uri_to_fname` forces `\`, but forcing / seems more robust
+    local to_fname = H.is_windows and function(x) return (vim.uri_to_fname(x):gsub('\\', '/')) end or vim.uri_to_fname
+    local glob_lpeg = vim.glob.to_lpeg(adjust_case(glob) or '**')
+    return function(lsp_file)
+      local uri = lsp_file.uri or lsp_file.oldUri
+      local fname = adjust_case(to_fname(uri))
+      return is_scheme(uri, scheme) and is_fs_type(lsp_file, ref_fs_type) and glob_lpeg:match(fname) ~= nil
+    end
+  end
+
+  local method = full_method:match('^workspace/(.+)Files$')
+  local filter_configs = client.server_capabilities.workspace.fileOperations[method].filters
+  local filters = {}
+  for _, fc in ipairs(filter_configs) do
+    local glob, matches, scheme = fc.pattern.glob, fc.pattern.matches, fc.scheme
+    local ignore_case = type(fc.pattern.options) == 'table' and fc.pattern.options.ignoreCase
+
+    table.insert(filters, make_filter(scheme, matches, glob, ignore_case))
+  end
+
+  local params = { files = {} }
+  for _, f in ipairs(lsp_files) do
+    -- https://github.com/microsoft/language-server-protocol/issues/2203
+    -- Empty filters should match nothing, but this a useful default for misbehaving servers
+    local ok = #filters == 0
+    for _, filt in ipairs(filters) do
+      -- It is not clear from LSP spec if it is `and` or `or`, but it needs to
+      -- handle filters matching both `file` and `folder`. So `or`.
+      ok = ok or filt(f)
+    end
+    -- Remove manually added field to comply with LSP spec
+    f.fs_type = nil
+    if ok then table.insert(params.files, f) end
+  end
+
+  -- Perform an action
+  if vim.startswith(method, 'did') then return client:notify(full_method, params) end
+  -- - Use sync to comply with LSP spec (apply edit before file operations)
+  local response, err = client:request_sync(full_method, params, timeout)
+  if (response or {}).result ~= nil then vim.lsp.util.apply_workspace_edit(response.result, client.offset_encoding) end
 end
 
 H.fs_do = {}

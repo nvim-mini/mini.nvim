@@ -45,6 +45,14 @@ There are following change types:
 
 - Do not treat focus as lost if it has changed from the explorer during `vim.ui.select()` or `vim.ui.input()`. These functions are useful during text editing inside the explorer and are often reimplemented via a separate floating window and dedicated buffer (like in 'mini.pick').
 
+### Expand
+
+- Add LSP integration (on Neovim>=0.11), i.e. make some files system actions (create, delete, rename) LSP aware. The information is forwarded to all active LSP servers for them to perform additional actions (like update imports after renaming a file).
+
+    This also adds `config.options.lsp_timeout` to control or disable LSP integration.
+
+    By @TheLeoP, PR #2340.
+
 ## mini.hipatterns
 
 ### Evolve

@@ -11,7 +11,8 @@ Features:
 - Opt-in preview of file or directory under cursor.
 
 - Manipulate files and directories by editing text buffers: create, delete,
-  copy, rename, move. See |MiniFiles-manipulation| for overview.
+  rename (all three are LSP aware), copy, move.
+  See |MiniFiles-manipulation| for an overview.
 
 - Use as default file explorer instead of `netrw`.
 
@@ -79,6 +80,7 @@ more details.
       explored branch.
     - Also uses text editing to manipulate file system entries.
     - Can work for remote file systems, while this module can not (by design).
+    - Both provide LSP integration.
 
 - [nvim-neo-tree/neo-tree.nvim](https://github.com/nvim-neo-tree/neo-tree.nvim):
     - Compares to this module mostly the same as 'nvim-tree/nvim-tree.lua'.
@@ -314,6 +316,20 @@ Note that order of text manipulation steps does not affect performed actions.
   (not icon or path index to the left of it).
 
 - Moving directory inside itself is not supported.
+
+# LSP integration ~
+
+Create, delete, and rename are LSP aware (on Neovim>=0.11): the information
+is forwarded to all active LSP servers for them to perform additional actions.
+This means that LSP servers can, for example, update imports after renaming
+a file or populate a file with a boilerplate code after creation.
+
+The actual changes depend entirely on the LSP server and whether it supports
+relevant methods:
+- `workspace/will{Create,Delete,Rename}Files` before a file system action.
+- `workspace/did{Create,Delete,Rename}Files` after a file system action.
+
+It can be disabled by setting `options.lsp_timeout = 0` in |MiniFiles.config|.
 
 ------------------------------------------------------------------------------
                                                               *MiniFiles-events*
@@ -599,6 +615,8 @@ Defaults ~
       permanent_delete = true,
       -- Whether to use for editing directories
       use_as_default_explorer = true,
+      -- Timeout for synchronous LSP integration requests
+      lsp_timeout = 1000,
     },
 
     -- Customization of explorer windows
@@ -681,6 +699,10 @@ permanent delete or move into special trash directory.
 This is a module-specific variant of "remove to trash".
 Target directory is 'mini.files/trash' inside standard path of Neovim data
 directory (execute `:echo stdpath('data')` to see its path in your case).
+
+`options.lsp_timeout` is a number that defines a timeout for synchronous
+LSP integration requests (see |MiniFiles-manipulation|).
+Set to 0 to disable LSP integration.
 
 # Windows ~
 

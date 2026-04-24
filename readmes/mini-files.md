@@ -32,7 +32,7 @@ https://github.com/nvim-mini/mini.nvim/assets/24854248/530483a5-fe9a-4e18-9813-a
 
 - Opt-in preview of file or directory under cursor.
 
-- Manipulate files and directories by editing text buffers: create, delete, copy, rename, move. See `:h MiniFiles-manipulation` for overview.
+- Manipulate files and directories by editing text buffers: create, delete, rename (all three are LSP aware), copy, move. See `:h MiniFiles-manipulation` for an overview.
 
 - Use as default file explorer instead of `netrw`.
 
@@ -206,6 +206,8 @@ Here are code snippets for some common installation methods (use only one):
     permanent_delete = true,
     -- Whether to use for editing directories
     use_as_default_explorer = true,
+    -- Timeout for synchronous LSP integration requests
+    lsp_timeout = 1000,
   },
 
   -- Customization of explorer windows

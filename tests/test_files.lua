@@ -154,7 +154,7 @@ local mock_stdpath_data = function()
   local data_dir = make_test_path('data')
   local lua_cmd = string.format(
     [[
-    _G.stdpath_orig = vim.fn.stpath
+    _G.stdpath_orig = vim.fn.stdpath
     vim.fn.stdpath = function(what)
       if what == 'data' then return %s end
       return _G.stdpath_orig(what)
@@ -263,6 +263,7 @@ T['setup()']['creates `config` field'] = function()
 
   expect_config('options.use_as_default_explorer', true)
   expect_config('options.permanent_delete', true)
+  expect_config('options.lsp_timeout', 1000)
 
   expect_config('windows.max_number', math.huge)
   expect_config('windows.preview', false)
@@ -307,6 +308,7 @@ T['setup()']['validates `config` argument'] = function()
   expect_config_error({ options = 'a' }, 'options', 'table')
   expect_config_error({ options = { use_as_default_explorer = 1 } }, 'options.use_as_default_explorer', 'boolean')
   expect_config_error({ options = { permanent_delete = 1 } }, 'options.permanent_delete', 'boolean')
+  expect_config_error({ options = { lsp_timeout = 'a' } }, 'options.lsp_timeout', 'number')
 
   expect_config_error({ windows = 'a' }, 'windows', 'table')
   expect_config_error({ windows = { max_number = 'a' } }, 'windows.max_number', 'number')
@@ -404,6 +406,7 @@ T['open()']['uses icon provider'] = function()
   go_out()
   --stylua: ignore
   eq(get_extmarks_hl(), {
+    'MiniIconsAzure', 'MiniFilesDirectory',
     'MiniIconsAzure', 'MiniFilesDirectory',
     -- 'lua' directory has special highlighting
     'MiniIconsBlue', 'MiniFilesDirectory',
@@ -5885,6 +5888,301 @@ T['Events']['`MiniFilesActionMove` triggers'] = function()
   validate('file', true)
   validate('dir/', false)
   validate('dir/', true)
+end
+
+T['LSP'] = new_set({
+  hooks = {
+    pre_case = function()
+      if child.fn.has('nvim-0.11') == 0 then MiniTest.skip('LSP integration requires Neovim>=0.11') end
+    end,
+  },
+})
+
+local setup_lsp = function(skip_file_open)
+  -- Set up file
+  if not skip_file_open then
+    local file_path = make_test_path('lsp-files', 'main.lua')
+    child.cmd('edit ' .. file_path)
+  end
+
+  -- Mock server
+  child.cmd('luafile tests/mock-lsp/file-ops.lua')
+end
+
+local validate_lsp_will = function(method, files, lines)
+  eq(child.lua_get('_G.lsp_requests["file-methods-lsp"]'), { { method, { files = files } } })
+  eq(get_lines(), lines)
+  child.lua('_G.lsp_requests = {}')
+end
+
+T['LSP']['works with `willCreateFiles`'] = function()
+  child.lua([[
+    local edit_range = { start = { line = 0, character = 0 }, ['end'] = { line = 0, character = 0 } }
+    local path = vim.fn.fnamemodify('tests/dir-files/lsp-files/main.lua', ':p')
+    local uri = vim.uri_from_fname(path)
+    _G.workspace_edit_response = { changes = { [uri] = { { range = edit_range, newText = '-- willCreate\n' } } } }
+  ]])
+  setup_lsp()
+  local temp_dir = make_temp_dir('temp', {})
+
+  open(temp_dir)
+  local file_name = 'something.lua'
+  type_keys('C', file_name, '<Esc>')
+  mock_confirm(1)
+  synchronize()
+  close()
+  local uri = vim.uri_from_fname(make_test_path('temp', file_name))
+  validate_lsp_will('workspace/willCreateFiles', { { uri = uri } }, { '-- willCreate', "require('something')" })
+end
+
+T['LSP']['works with `willRenameFiles`'] = function()
+  child.lua([[
+    local edit_range = { start = { line = 0, character = 9 }, ['end'] = { line = 0, character = 18 } }
+    local path = vim.fn.fnamemodify('tests/dir-files/lsp-files/main.lua', ':p')
+    local uri = vim.uri_from_fname(path)
+    _G.workspace_edit_response = { changes = { [uri] = { { range = edit_range, newText = 'something_else' } } } }
+  ]])
+  setup_lsp()
+  local file_name = 'something.lua'
+  local temp_dir = make_temp_dir('temp', { file_name })
+
+  open(temp_dir)
+  type_keys('C', 'something_else.lua', '<Esc>')
+  mock_confirm(1)
+  synchronize()
+  close()
+  local old_uri = vim.uri_from_fname(make_test_path('temp', file_name))
+  local new_uri = vim.uri_from_fname(make_test_path('temp', 'something_else.lua'))
+  local ref_files = { { oldUri = old_uri, newUri = new_uri } }
+  validate_lsp_will('workspace/willRenameFiles', ref_files, { "require('something_else')" })
+end
+
+T['LSP']['works with `willDeleteFiles`'] = function()
+  child.lua([[
+    local edit_range = { start = { line = 0, character = 0 }, ['end'] = { line = 0, character = 0 } }
+    local path = vim.fn.fnamemodify('tests/dir-files/lsp-files/main.lua', ':p')
+    local uri = vim.uri_from_fname(path)
+    _G.workspace_edit_response = { changes = { [uri] = { { range = edit_range, newText = '-- willDelete\n' } } } }
+  ]])
+  setup_lsp()
+  local file_name = 'something.lua'
+  local temp_dir = make_temp_dir('temp', { file_name })
+
+  open(temp_dir)
+  type_keys('dd')
+  mock_confirm(1)
+  synchronize()
+  close()
+  local uri = vim.uri_from_fname(make_test_path('temp', file_name))
+  validate_lsp_will('workspace/willDeleteFiles', { { uri = uri } }, { '-- willDelete', "require('something')" })
+end
+
+local validate_lsp_did = function(method, files, lines)
+  eq(child.lua_get('_G.lsp_notifications["file-methods-lsp"]'), { { method, { files = files } } })
+  if lines ~= nil then eq(get_lines(), lines) end
+  child.lua('_G.lsp_notifications = {}')
+end
+
+T['LSP']['works with `didCreateFiles`'] = function()
+  setup_lsp()
+  local temp_dir = make_temp_dir('temp', {})
+
+  open(temp_dir)
+  local file_name = 'something.lua'
+  type_keys('C', file_name, '<Esc>')
+  mock_confirm(1)
+  synchronize()
+  close()
+
+  local uri = vim.uri_from_fname(make_test_path('temp', file_name))
+  validate_lsp_did('workspace/didCreateFiles', { { uri = uri } })
+end
+
+T['LSP']['works with `didRenameFiles`'] = function()
+  setup_lsp()
+  local file_name = 'something.lua'
+  local temp_dir = make_temp_dir('temp', { file_name })
+
+  open(temp_dir)
+  type_keys('C', 'something_else.lua', '<Esc>')
+  mock_confirm(1)
+  synchronize()
+  close()
+
+  local old_uri = vim.uri_from_fname(make_test_path('temp', file_name))
+  local new_uri = vim.uri_from_fname(make_test_path('temp', 'something_else.lua'))
+  validate_lsp_did('workspace/didRenameFiles', { { oldUri = old_uri, newUri = new_uri } })
+end
+
+T['LSP']['works with `didRenameFiles` that applies workspace edit'] = function()
+  child.lua([[
+    _G.did_callback = function(_, dispatchers)
+      local path = vim.fn.fnamemodify('tests/dir-files/lsp-files/main.lua', ':p')
+      local uri = vim.uri_from_fname(path)
+      local edit_range = { start = { line = 0, character = 9 }, ['end'] = { line = 0, character = 18 } }
+      local text_edit = { range = edit_range, newText = 'something_else' }
+      dispatchers.server_request('workspace/applyEdit', { edit = { changes = { [uri] = { text_edit } } } })
+    end
+  ]])
+  setup_lsp()
+  local file_name = 'something.lua'
+  local temp_dir = make_temp_dir('temp', { file_name })
+
+  open(temp_dir)
+  type_keys('C', 'something_else.lua', '<Esc>')
+  mock_confirm(1)
+  synchronize()
+  close()
+
+  local old_uri = vim.uri_from_fname(make_test_path('temp', file_name))
+  local new_uri = vim.uri_from_fname(make_test_path('temp', 'something_else.lua'))
+  local ref_files = { { oldUri = old_uri, newUri = new_uri } }
+  validate_lsp_did('workspace/didRenameFiles', ref_files, { "require('something_else')" })
+end
+
+T['LSP']['works with `didRenameFiles` that applies workspace edit after confirmation'] = function()
+  child.lua([[
+    _G.did_callback = function(_, dispatchers)
+      local msg = 'Do you want to modify the require path?'
+      local show_msg_params = { type = 'info', message = msg, actions = { { title = 'Confirm' } } }
+      local selected = dispatchers.server_request('window/showMessageRequest', show_msg_params)
+      if selected.title ~= 'Confirm' then return end
+
+      local path = 'tests/dir-files/lsp-files/main.lua'
+      local uri = vim.uri_from_fname(vim.fn.fnamemodify(path, ':p'))
+      local edit_range = { start = { line = 0, character = 9 }, ['end'] = { line = 0, character = 18 } }
+      local text_edit = { range = edit_range, newText = 'something_else' }
+      dispatchers.server_request('workspace/applyEdit', { edit = { changes = { [uri] = { text_edit } } } })
+    end
+  ]])
+  setup_lsp()
+  local file_name = 'something.lua'
+  local temp_dir = make_temp_dir('temp', { file_name })
+
+  open(temp_dir)
+  type_keys('C', 'something_else.lua', '<Esc>')
+  mock_confirm(1)
+  -- NOTE: Neovim's implementation of 'window/showMessageRequest' seems to use
+  -- `vim.fn.inputlist` directly here instead of `vim.ui.select`
+  child.lua('vim.fn.inputlist = function() return 1 end')
+  synchronize()
+  close()
+
+  local old_uri = vim.uri_from_fname(make_test_path('temp', file_name))
+  local new_uri = vim.uri_from_fname(make_test_path('temp', 'something_else.lua'))
+  local ref_files = { { oldUri = old_uri, newUri = new_uri } }
+  validate_lsp_did('workspace/didRenameFiles', ref_files, { "require('something_else')" })
+end
+
+T['LSP']['works with `didDeleteFiles`'] = function()
+  setup_lsp()
+  local file_name = 'something.lua'
+  local temp_dir = make_temp_dir('temp', { file_name })
+
+  open(temp_dir)
+  type_keys('dd')
+  mock_confirm(1)
+  synchronize()
+  close()
+
+  local uri = vim.uri_from_fname(make_test_path('temp', file_name))
+  validate_lsp_did('workspace/didDeleteFiles', { { uri = uri } })
+end
+
+T['LSP']['works with filters'] = function()
+  child.lua([[
+    _G.filter_configs = {
+      filters = {
+        { pattern = { matches = 'file', glob = '**/*.lua' }, scheme = 'file' },
+        { pattern = { matches = 'folder', glob = '**' }, scheme = 'file' },
+        { pattern = { matches = 'file', glob = '**/{aaa,bbb}' }, scheme = 'file' },
+        { pattern = { matches = 'file', glob = '**/C' }, scheme = 'file' },
+        { pattern = { matches = 'file', glob = '**/D', options = { ignoreCase = true } }, scheme = 'file' },
+      },
+    }
+  ]])
+  setup_lsp()
+  local temp_dir = make_temp_dir('temp', {})
+
+  local validate = function(file_name, should_match)
+    open(temp_dir)
+    type_keys('o', file_name, '<Esc>')
+    mock_confirm(1)
+    synchronize()
+    close()
+
+    local new_file_path = make_test_path('temp', file_name)
+    local new_file_uri = vim.uri_from_fname(new_file_path)
+    if file_name:match('/$') then new_file_uri = new_file_uri .. '/' end
+    local files = should_match and { { uri = new_file_uri } } or {}
+
+    eq(child.lua_get('_G.lsp_requests["file-methods-lsp"]'), { { 'workspace/willCreateFiles', { files = files } } })
+    child.lua('_G.lsp_requests = {}')
+  end
+
+  validate('something.lua', true)
+  validate('something.py', false)
+  validate('some_dir/', true)
+  validate('aaa', true)
+  validate('bbb', true)
+  validate('c', false)
+  validate('d', true)
+
+  if child.fn.has('fname_case') == 1 then
+    validate('BBB', false)
+    validate('D', true)
+  end
+end
+
+T['LSP']['works with multiple language servers'] = function()
+  setup_lsp()
+
+  child.lua([[
+    _G.server_name = 'only-will-rename-lsp'
+    _G.file_operations_config = { willRename = { filters = { { pattern = { glob = '**' } } } } }
+  ]])
+  setup_lsp(true)
+
+  child.lua([[
+    _G.server_name = 'only-did-rename-lsp'
+    _G.file_operations_config = { didRename = { filters = { { pattern = { glob = '**' } } } } }
+  ]])
+  setup_lsp(true)
+  local file_name = 'something.lua'
+  local temp_dir = make_temp_dir('temp', { file_name })
+
+  open(temp_dir)
+  type_keys('C', 'something_else.lua', '<Esc>')
+  mock_confirm(1)
+  synchronize()
+  close()
+
+  local old_uri = vim.uri_from_fname(make_test_path('temp', file_name))
+  local new_uri = vim.uri_from_fname(make_test_path('temp', 'something_else.lua'))
+  local params = { files = { { oldUri = old_uri, newUri = new_uri } } }
+
+  eq(child.lua_get('_G.lsp_requests["file-methods-lsp"]'), { { 'workspace/willRenameFiles', params } })
+  eq(child.lua_get('_G.lsp_notifications["file-methods-lsp"]'), { { 'workspace/didRenameFiles', params } })
+
+  eq(child.lua_get('_G.lsp_requests["only-will-rename-lsp"]'), { { 'workspace/willRenameFiles', params } })
+  eq(child.lua_get('_G.lsp_notifications["only-will-rename-lsp"]'), vim.NIL)
+
+  eq(child.lua_get('_G.lsp_requests["only-did-rename-lsp"]'), vim.NIL)
+  eq(child.lua_get('_G.lsp_notifications["only-did-rename-lsp"]'), { { 'workspace/didRenameFiles', params } })
+end
+
+T['LSP']['respects `options.lsp_timeout`'] = function()
+  child.lua('MiniFiles.config.options.lsp_timeout = 0')
+  setup_lsp()
+  local temp_dir = make_temp_dir('temp', {})
+
+  open(temp_dir)
+  local file_name = 'something.lua'
+  type_keys('C', file_name, '<Esc>')
+  mock_confirm(1)
+  synchronize()
+  close()
+  eq(child.lua_get('_G.lsp_requests'), {})
 end
 
 T['Default explorer'] = new_set()
