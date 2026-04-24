@@ -946,9 +946,8 @@ MiniFiles.close = function()
   end
 
   -- Update histories and unmark as opened
-  local tabpage_id, anchor = vim.api.nvim_get_current_tabpage(), explorer.anchor
-  H.explorer_path_history[anchor] = explorer
-  H.opened_explorers[tabpage_id] = nil
+  H.explorer_path_history[explorer.anchor] = explorer
+  H.opened_explorers[explorer.tabpage_id] = nil
 
   -- Return `true` indicating success in closing
   return true
@@ -1462,6 +1461,7 @@ end
 ---@field windows table Array of currently opened window ids (left to right).
 ---@field anchor string Anchor directory of the explorer. Used as index in
 ---   history and for `reset()` operation.
+---@field tabpage_id number Id of current tabpage
 ---@field target_window number Id of window in which files will be opened.
 ---@field opts table Options used for this particular explorer.
 ---@field is_corrupted boolean Whether this particular explorer can not be
@@ -1474,6 +1474,7 @@ H.explorer_new = function(path)
     views = {},
     windows = {},
     anchor = path,
+    tabpage_id = vim.api.nvim_get_current_tabpage(),
     target_window = vim.api.nvim_get_current_win(),
     bookmarks = {},
     opts = {},
@@ -1575,8 +1576,8 @@ H.explorer_refresh = function(explorer, opts)
   H.window_focus(win_id_focused)
 
   -- Register as currently opened
-  local tabpage_id = vim.api.nvim_win_get_tabpage(win_id_focused)
-  H.opened_explorers[tabpage_id] = explorer
+  explorer.tabpage_id = vim.api.nvim_win_get_tabpage(win_id_focused)
+  H.opened_explorers[explorer.tabpage_id] = explorer
 
   return explorer
 end

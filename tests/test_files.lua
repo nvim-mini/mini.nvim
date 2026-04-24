@@ -367,6 +367,23 @@ T['open()']['works per tabpage'] = function()
   child.expect_screenshot()
 end
 
+T['open()']['works after setting target_window to tab split'] = function()
+  local initial_tabpage_id = child.api.nvim_get_current_tabpage()
+  child.cmd('tab split')
+  local tab_win_id = child.api.nvim_get_current_win()
+
+  child.cmd('tabprev')
+  open(test_dir_path)
+  child.lua(string.format('MiniFiles.set_target_window(%d)', tab_win_id))
+  close()
+  eq(child.api.nvim_get_current_win(), tab_win_id)
+
+  child.cmd('tabprev')
+  open(test_dir_path)
+  eq(child.api.nvim_get_current_tabpage(), initial_tabpage_id)
+  child.expect_screenshot()
+end
+
 T['open()']['handles problematic entry names'] = function()
   local temp_dir = make_temp_dir('temp', { '%a bad-file-name', 'a bad-dir.name/' })
 
@@ -1408,6 +1425,20 @@ T['close()']['works per tabpage'] = function()
   -- On different tabpage explorer should still be present
   child.cmd('tabnext')
   child.expect_screenshot()
+end
+
+T['close()']['works when target_window is set to tab split'] = function()
+  child.cmd('tab split')
+  local tab_win_id = child.api.nvim_get_current_win()
+
+  child.cmd('tabprev')
+  open(test_dir_path)
+  child.lua(string.format('MiniFiles.set_target_window(%d)', tab_win_id))
+  close()
+  eq(child.api.nvim_get_current_win(), tab_win_id)
+
+  child.cmd('tabprev')
+  eq(close(), vim.NIL)
 end
 
 T['close()']['checks for pending file system actions'] = function()
