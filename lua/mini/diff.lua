@@ -1699,7 +1699,6 @@ H.git_start_watching_index = function(buf_id, path)
       return
     end
     MiniDiff.fail_attach(buf_id)
-    H.git_cache[buf_id] = {}
   end)
 
   local process, stdout_feed = nil, {}
