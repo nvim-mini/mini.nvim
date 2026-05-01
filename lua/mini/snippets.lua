@@ -2084,7 +2084,7 @@ H.var_evaluators = {
 -- Session --------------------------------------------------------------------
 H.get_active_session = function() return H.sessions[#H.sessions] end
 
-H.session_new = function(nodes, snippet, opts)
+H.tabstops_from_nodes = function(nodes)
   -- Compute all present tabstops in session traverse order
   local taborder = H.compute_tabstop_order(nodes)
   local tabstops = {}
@@ -2093,9 +2093,15 @@ H.session_new = function(nodes, snippet, opts)
       { prev = taborder[i - 1] or taborder[#taborder], next = taborder[i + 1] or taborder[1], is_visited = false }
   end
 
+  return taborder[1], tabstops
+end
+
+H.session_new = function(nodes, snippet, opts)
+  local first_tabstop, tabstops = H.tabstops_from_nodes(nodes)
+
   return {
     buf_id = vim.api.nvim_get_current_buf(),
-    cur_tabstop = taborder[1],
+    cur_tabstop = first_tabstop,
     extmark_id = H.extmark_new(0, vim.fn.line('.') - 1, vim.fn.col('.') - 1),
     insert_args = vim.deepcopy({ snippet = snippet, opts = opts }),
     nodes = nodes,
@@ -2155,6 +2161,69 @@ H.session_init = function(session, full)
   H.trigger_event('MiniSnippetsSession' .. (full and 'Start' or 'Resume'), { session = vim.deepcopy(session) })
 end
 
+-- Looks through tabstop nodes, checking which ones have been deleted
+-- and removes them to prevent the extmarks from appearing in strange
+-- locations after being deleted.
+--
+-- Intended to be run after the user makes an edit.
+H.prune_tabstops = function(session)
+  local valid_tabstop_nodes = {}
+
+  for i, node in ipairs(session.nodes) do
+    local ok, row, col, end_row, end_col = pcall(H.extmark_get_range, session.buf_id, node.extmark_id)
+
+    if not ok then
+      H.notify('Session contains corrupted data (deleted or out of range extmarks). It is stopped.', 'WARN')
+      return MiniSnippets.session.stop()
+    elseif node.tabstop ~= nil then
+      local extmark_is_empty = row == end_row and col == end_col
+
+      -- When a line is deleted its extmarks wrap to the start of the next line
+      -- due to their gravity setting. We assume that nodes at the start of the
+      -- line are leftovers from a line that was deleted. This heuristic has the
+      -- side effect of removing a node at the start of the line even if the
+      -- the user simply deletes the node's content in insert mode to write
+      -- their own content, however that is a rare edge case and writing at the
+      -- start of a file is very easy in neovim when it happens, anyway.
+      local extmark_at_start_of_line = col == 0 and end_col == 0
+
+      if extmark_is_empty and extmark_at_start_of_line then
+        H.extmark_recursive_del(session.buf_id, node)
+      else
+        table.insert(valid_tabstop_nodes, node)
+      end
+    end
+  end
+
+  if #valid_tabstop_nodes == 0 then
+    MiniSnippets.session.stop()
+  else
+    H.session_set_tabstop_nodes(session, valid_tabstop_nodes)
+  end
+end
+
+-- Override the session's tabstop-corresponding nodes with a new collection
+--
+-- Stops the session if the new tabstop nodes are empty
+H.session_set_tabstop_nodes = function(session, tabstop_nodes)
+  local first_tabstop, tabstops = H.tabstops_from_nodes(tabstop_nodes)
+
+  if first_tabstop == nil then
+    MiniSnippets.session.stop()
+  else
+    local surviving_ids = {}
+    for _, n in ipairs(tabstop_nodes) do surviving_ids[n.extmark_id] = true end
+    session.nodes = vim.tbl_filter(
+      function(n) return n.tabstop == nil or surviving_ids[n.extmark_id] end,
+      session.nodes
+    )
+    session.tabstops = tabstops
+    if session.tabstops[session.cur_tabstop] == nil then
+      session.cur_tabstop = first_tabstop
+    end
+  end
+end
+
 H.track_sessions = function()
   -- Create tracking autocommands only once for all nested sessions
   if #H.sessions > 1 then return end
@@ -2171,11 +2240,10 @@ H.track_sessions = function()
     local session, buf_id = H.get_active_session(), args.buf
     -- React only to text changes in session's buffer for performance
     if session.buf_id ~= buf_id then return end
-    -- Ensure that session is valid, like no extmarks got corrupted
-    if not H.session_is_valid(session) then
-      H.notify('Session contains corrupted data (deleted or out of range extmarks). It is stopped.', 'WARN')
-      return MiniSnippets.session.stop()
-    end
+
+    H.prune_tabstops(session)
+    if H.get_active_session() ~= session then return end
+
     H.session_sync_current_tabstop(session)
   end
   local text_events = { 'TextChanged', 'TextChangedI', 'TextChangedP' }
@@ -2564,6 +2632,16 @@ end
 H.extmark_get_range = function(buf_id, ext_id)
   local row, col, opts = H.extmark_get(buf_id, ext_id)
   return row, col, opts.end_row, opts.end_col
+end
+
+H.extmark_recursive_del = function(buf_id, node)
+  H.extmark_del(buf_id, node.extmark_id)
+
+  if node.placeholder == nil then return end
+
+  for _, nested_node in ipairs(node.placeholder) do
+    H.extmark_recursive_del(buf_id, nested_node)
+  end
 end
 
 H.extmark_del = function(buf_id, ext_id) vim.api.nvim_buf_del_extmark(buf_id, H.ns_id.nodes, ext_id or -1) end
