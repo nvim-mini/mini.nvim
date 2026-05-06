@@ -1544,18 +1544,19 @@ H.get_matched_range_pairs_builtin = function(captures)
   -- Get parser (LanguageTree) at cursor (important for injected languages)
   local pos = vim.api.nvim_win_get_cursor(0)
   local lang_tree = parser:language_for_range({ pos[1] - 1, pos[2], pos[1] - 1, pos[2] })
+  local cur_lang_tree = lang_tree
 
   local missing_query_langs = {}
   -- Compute matched ranges for both outer and inner captures
   -- Maybe go up parent trees to work with injected languages
   local outer_ranges, inner_ranges = {}, {}
-  while (vim.tbl_isempty(inner_ranges) or vim.tbl_isempty(outer_ranges)) and lang_tree ~= nil do
-    local lang = lang_tree:lang()
+  while (vim.tbl_isempty(inner_ranges) or vim.tbl_isempty(outer_ranges)) and cur_lang_tree ~= nil do
+    local lang = cur_lang_tree:lang()
     -- Get query file depending on the local language
     local query = vim.treesitter.query.get(lang, 'textobjects')
 
     if query ~= nil then
-      for _, tree in ipairs(lang_tree:trees()) do
+      for _, tree in ipairs(cur_lang_tree:trees()) do
         local root = tree:root()
         vim.list_extend(outer_ranges, H.get_match_ranges_builtin(root, buf_id, query, captures.outer:sub(2)))
         vim.list_extend(inner_ranges, H.get_match_ranges_builtin(root, buf_id, query, captures.inner:sub(2)))
@@ -1565,7 +1566,21 @@ H.get_matched_range_pairs_builtin = function(captures)
 
     -- `LanguageTree:parent()` was added in Neovim<0.10
     -- TODO: Drop extra check after compatibility with Neovim=0.9 is dropped
-    lang_tree = lang_tree.parent and lang_tree:parent() or nil
+    cur_lang_tree = cur_lang_tree.parent and cur_lang_tree:parent() or nil
+  end
+  if vim.tbl_isempty(inner_ranges) or vim.tbl_isempty(outer_ranges) then
+    for lang, child in pairs(lang_tree:children()) do
+      local query = vim.treesitter.query.get(lang, 'textobjects')
+
+      if query ~= nil then
+        for _, tree in ipairs(child:trees()) do
+          local root = tree:root()
+          vim.list_extend(outer_ranges, H.get_match_ranges_builtin(root, buf_id, query, captures.outer:sub(2)))
+          vim.list_extend(inner_ranges, H.get_match_ranges_builtin(root, buf_id, query, captures.inner:sub(2)))
+        end
+      end
+      if query == nil then missing_query_langs[lang] = true end
+    end
   end
 
   -- Match outer and inner ranges: for each outer range pick the biggest inner
