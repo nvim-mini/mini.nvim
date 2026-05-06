@@ -1266,7 +1266,9 @@ H.create_autocommands = function()
   -- end). Use `vim.schedule()` to make it affect state only after scroll is
   -- done and cursor is already in correct final position.
   au('CursorMoved', '*', vim.schedule_wrap(H.track_scroll_state_partial), 'Track partial scroll state')
-  au('CmdlineLeave', '*', H.on_cmdline_leave, 'On CmdlineLeave')
+
+  -- TODO: Remove after Neovim=0.12 support is dropped
+  if vim.fn.has('nvim-0.13') == 0 then au('CmdlineLeave', '*', H.on_cmdline_leave, 'On CmdlineLeave') end
 
   -- Use `vim.schedule_wrap()` animation to get a window data used for
   -- displaying (and not one after just opening). Useful for 'nvim-tree'.
