@@ -1121,9 +1121,9 @@ end
 
 T['pickers']['commands()']['respects user commands'] = function()
   local expect_screenshot = function(...)
-    -- Screenshots are generated for Neovim>=0.12, since the output structure
+    -- Screenshots are generated for Neovim>=0.13, since the output structure
     -- of `nvim_get_commands()` has changed
-    if child.fn.has('nvim-0.12') == 0 then return end
+    if child.fn.has('nvim-0.13') == 0 then return end
     child.expect_screenshot(...)
   end
 
