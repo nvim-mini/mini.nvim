@@ -24,6 +24,7 @@
 --- `MiniTrailspace.config`. See |mini.nvim-buffer-local-config| for more details.
 ---
 --- # Highlight groups ~
+--- *MiniTrailspace-hl-groups*
 ---
 --- - `MiniTrailspace` - highlight group for trailing space.
 ---

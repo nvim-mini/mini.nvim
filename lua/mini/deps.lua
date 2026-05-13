@@ -93,6 +93,7 @@
 ---     - Has basic lazy-loading built-in, while this module does not (by design).
 ---
 --- # Highlight groups ~
+--- *MiniDeps-hl-groups*
 ---
 --- Highlight groups are used inside confirmation buffers after
 --- default |MiniDeps.update()| and |MiniDeps.clean()|.

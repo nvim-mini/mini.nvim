@@ -77,6 +77,7 @@
 ---       'winheight' / 'winwidth' and 'winminheight' / 'winminwidth').
 ---
 --- # Highlight groups ~
+--- *MiniAnimate-hl-groups*
 ---
 --- - `MiniAnimateCursor` - highlight of cursor during its animated movement.
 --- - `MiniAnimateNormalFloat` - highlight of floating window for `open` and

@@ -119,6 +119,7 @@
 --- - Make test cases from `it` blocks.
 ---
 --- # Highlight groups ~
+--- *MiniTest-hl-groups*
 ---
 --- - `MiniTestEmphasis` - emphasis highlighting. By default it is a bold text.
 --- - `MiniTestFail` - highlighting of failed cases. By default it is a bold

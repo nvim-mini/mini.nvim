@@ -107,6 +107,7 @@
 ---       spots. See |MiniJump2d.default_spotter()|.
 ---
 --- # Highlight groups ~
+--- *MiniJump2d-hl-groups*
 ---
 --- - `MiniJump2dSpot` - highlighting of jump spot's next step. By default it
 ---   uses label with highest contrast while not being too visually demanding:

@@ -54,6 +54,7 @@
 --- - 'showtabline' is set to 2 to always show tabline.
 ---
 --- # Highlight groups ~
+--- *MiniTabline-hl-groups*
 ---
 --- - `MiniTablineCurrent` - buffer is current (has cursor in it).
 --- - `MiniTablineVisible` - buffer is visible (displayed in some window).

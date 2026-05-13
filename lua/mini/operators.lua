@@ -60,6 +60,7 @@
 ---       see |MiniOperators.default_sort_func()|).
 ---
 --- # Highlight groups ~
+--- *MiniOperators-hl-groups*
 ---
 --- - `MiniOperatorsExchangeFrom` - first region to exchange.
 ---

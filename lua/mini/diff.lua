@@ -56,6 +56,7 @@
 ---       This module does not (by design).
 ---
 --- # Highlight groups ~
+--- *MiniDiff-hl-groups*
 ---
 --- - `MiniDiffSignAdd`        - "add" hunk lines visualization.
 --- - `MiniDiffSignChange`     - "change" hunk lines visualization.

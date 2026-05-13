@@ -53,6 +53,7 @@ details.
       lead to one of the visualizations being on top (hiding) of another.
 
 # Highlight groups ~
+*MiniIndentscope-hl-groups*
 
 - `MiniIndentscopeSymbol` - symbol showing on every line of scope if its
   indent is multiple of 'shiftwidth'.

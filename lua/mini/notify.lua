@@ -39,6 +39,7 @@
 ---     - Similar to 'j-hui/fidget.nvim'.
 ---
 --- # Highlight groups ~
+--- *MiniNotify-hl-groups*
 ---
 --- - `MiniNotifyBorder` - window border.
 --- - `MiniNotifyLspProgress` - notifications from built-in LSP progress report.

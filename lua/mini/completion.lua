@@ -195,6 +195,7 @@
 ---   vim.keymap.set('i', '<CR>', 'v:lua.cr_action()', { expr = true })
 --- <
 --- # Highlight groups ~
+--- *MiniCompletion-hl-groups*
 ---
 --- - `MiniCompletionActiveParameter` - signature active parameter.
 --- - `MiniCompletionDeprecated` - candidates that marked as deprecated.

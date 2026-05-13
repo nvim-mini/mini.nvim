@@ -120,6 +120,7 @@
 ---       submodes), while that is this module's main goal.
 ---
 --- # Highlight groups ~
+--- *MiniClue-hl-groups*
 ---
 --- - `MiniClueBorder` - window border.
 --- - `MiniClueDescGroup` - group description in clue window.

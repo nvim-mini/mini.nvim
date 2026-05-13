@@ -36,6 +36,7 @@
 --- To stop module from showing non-error feedback, set `config.silent = true`.
 ---
 --- # Highlight groups ~
+--- *MiniJump-hl-groups*
 ---
 --- - `MiniJump` - all possible cursor positions.
 ---
