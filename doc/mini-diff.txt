@@ -58,6 +58,7 @@ You can override runtime config settings locally to buffer inside
       This module does not (by design).
 
 # Highlight groups ~
+*MiniDiff-hl-groups*
 
 - `MiniDiffSignAdd`        - "add" hunk lines visualization.
 - `MiniDiffSignChange`     - "change" hunk lines visualization.

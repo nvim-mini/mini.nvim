@@ -44,6 +44,7 @@
 --- `MiniStatusline.config`. See |mini.nvim-buffer-local-config| for more details.
 ---
 --- # Highlight groups ~
+--- *MiniStatusline-hl-groups*
 ---
 --- Highlight depending on mode (second |MiniStatusline.section_mode()| output):
 --- - `MiniStatuslineModeNormal` - Normal mode.

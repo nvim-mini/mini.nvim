@@ -62,6 +62,7 @@
 ---       This modules is aimed to improve its workflow without changing UI.
 ---
 --- # Highlight groups ~
+--- *MiniCmdline-hl-groups*
 ---
 --- - `MiniCmdlinePeekBorder` - border of autopeek window.
 --- - `MiniCmdlinePeekLineNr` - line numbers in autopeek window.

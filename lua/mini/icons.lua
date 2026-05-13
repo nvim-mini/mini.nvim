@@ -145,6 +145,7 @@
 ---       to manually implement while anything else is out of scope).
 ---
 --- # Highlight groups ~
+--- *MiniIcons-hl-groups*
 ---
 --- Only the following set of highlight groups is used as icon highlight.
 --- It is recommended that they all only define colored foreground:

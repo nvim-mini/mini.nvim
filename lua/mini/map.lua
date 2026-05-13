@@ -124,6 +124,7 @@
 ---       'satellite.nvim' can display some set of integration highlights.
 ---
 --- # Highlight groups ~
+--- *MiniMap-hl-groups*
 ---
 --- - `MiniMapNormal` - basic highlight of whole window.
 --- - `MiniMapSymbolCount` - counts of per-line integration items.

@@ -111,6 +111,7 @@
 ---       power fuzzy matching, while this module provides built-in Lua matching.
 ---
 --- # Highlight groups ~
+--- *MiniPick-hl-groups*
 ---
 --- - `MiniPickBorder` - window border.
 --- - `MiniPickBorderBusy` - window border while picker is busy processing.

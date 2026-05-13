@@ -55,6 +55,7 @@
 --- To stop module from showing non-error feedback, set `config.silent = true`.
 ---
 --- # Highlight groups ~
+--- *MiniStarter-hl-groups*
 ---
 --- - `MiniStarterCurrent` - current item.
 --- - `MiniStarterFooter` - footer units.

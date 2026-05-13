@@ -84,6 +84,7 @@
 ---     - Compares to this module mostly the same as 'nvim-tree/nvim-tree.lua'.
 ---
 --- # Highlight groups ~
+--- *MiniFiles-hl-groups*
 ---
 --- - `MiniFilesBorder` - border of regular windows.
 --- - `MiniFilesBorderModified` - border of windows showing modified buffer.

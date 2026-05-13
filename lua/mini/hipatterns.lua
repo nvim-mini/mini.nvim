@@ -80,6 +80,7 @@
 ---       this module in the same way as 'NvChad/nvim-colorizer.lua'.
 ---
 --- # Highlight groups ~
+--- *MiniHipatterns-hl-groups*
 ---
 --- - `MiniHipatternsFixme` - suggested group to use for `FIXME`-like patterns.
 --- - `MiniHipatternsHack` - suggested group to use for `HACK`-like patterns.

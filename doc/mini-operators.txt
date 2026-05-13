@@ -62,6 +62,7 @@ as `MiniOperators.config`. See |mini.nvim-buffer-local-config| for more details.
       see |MiniOperators.default_sort_func()|).
 
 # Highlight groups ~
+*MiniOperators-hl-groups*
 
 - `MiniOperatorsExchangeFrom` - first region to exchange.
 

@@ -122,6 +122,7 @@
 ---           textobject, while 'mini.surround' - both.
 ---
 --- # Highlight groups ~
+--- *MiniSurround-hl-groups*
 ---
 --- - `MiniSurround` - highlighting of requested surrounding.
 ---

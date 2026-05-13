@@ -28,6 +28,7 @@
 --- `MiniCursorword.config`. See |mini.nvim-buffer-local-config| for more details.
 ---
 --- # Highlight groups ~
+--- *MiniCursorword-hl-groups*
 ---
 --- - `MiniCursorword` - highlight group of a non-current cursor word.
 ---   Default: plain underline.

@@ -119,6 +119,7 @@
 ---       that integrates 'mini.snippets'.
 ---
 --- # Highlight groups ~
+--- *MiniSnippets-hl-groups*
 ---
 --- - `MiniSnippetsCurrent` - current tabstop.
 --- - `MiniSnippetsCurrentReplace` - current tabstop, placeholder is to be replaced.
