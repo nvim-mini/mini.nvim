@@ -687,8 +687,8 @@ end
 --- - File preview is highlighted if its size is small enough (less than 1K
 ---   bytes per line or 1M bytes in total).
 ---
---- `windows.width_focus` and `windows.width_nofocus` are number of columns used
---- as `width` for focused and non-focused windows respectively.
+--- `windows.width_focus`, `windows.width_nofocus` and `windows.width_preview`
+--- are number of columns used as `width` for the corresponding window type.
 MiniFiles.config = {
   -- Customization of shown content
   content = {
@@ -831,7 +831,8 @@ end
 --- - If in `opts` at least one of `content` entry is not `nil`, all directory
 ---   buffers are forced to update.
 ---
----@param opts table|nil Table of options to update.
+---@param opts table|nil Table of options overriding local options of active
+---   explorer session.
 MiniFiles.refresh = function(opts)
   local explorer = H.explorer_get()
   if explorer == nil then return end
@@ -1134,7 +1135,7 @@ end
 ---@param branch table Array of strings representing actually present on disk paths.
 ---   Each consecutive pair should represent direct parent-child paths.
 ---   Should contain at least one directory path.
----   May end with file path (will be previwed).
+---   May end with file path (will be previewed).
 ---   Relative paths are resolved using |current-directory|.
 ---@param opts table|nil Options. Possible fields:
 ---   - <depth_focus> `(number)` - an index in `branch` for path to focus. Will
