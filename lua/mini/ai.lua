@@ -1612,17 +1612,26 @@ H.get_matched_ranges_builtin = function(captures)
   local missing_query_langs = {}
   local res = {}
   -- Maybe go up parent trees to work with injected languages
-  while vim.tbl_isempty(res) and lang_tree ~= nil do
-    local lang = lang_tree:lang()
+  local cur_lang_tree = lang_tree
+  while vim.tbl_isempty(res) and cur_lang_tree ~= nil do
+    local lang = cur_lang_tree:lang()
     -- Get query file depending on the local language
     local query = vim.treesitter.query.get(lang, 'textobjects')
 
-    if query ~= nil then H.append_ranges(res, buf_id, query, captures, lang_tree) end
+    if query ~= nil then H.append_ranges(res, buf_id, query, captures, cur_lang_tree) end
     if query == nil then missing_query_langs[lang] = true end
 
-    -- `LanguageTree:parent()` was added in Neovim<0.10
+    -- `LanguageTree:parent()` was added in Neovim=0.10
     -- TODO: Drop extra check after compatibility with Neovim=0.9 is dropped
-    lang_tree = lang_tree.parent and lang_tree:parent() or nil
+    cur_lang_tree = cur_lang_tree.parent and cur_lang_tree:parent() or nil
+  end
+  if vim.tbl_isempty(res) then
+    for lang, child in pairs(lang_tree:children()) do
+      local query = vim.treesitter.query.get(lang, 'textobjects')
+
+      if query ~= nil then H.append_ranges(res, buf_id, query, captures, child) end
+      if query == nil then missing_query_langs[lang] = true end
+    end
   end
 
   if vim.tbl_isempty(res) and not vim.tbl_isempty(missing_query_langs) then
