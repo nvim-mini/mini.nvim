@@ -19,6 +19,7 @@ Supported highlight groups:
     - [nvim-mini/mini.nvim](https://nvim-mini.org/mini.nvim)
     - [akinsho/bufferline.nvim](https://github.com/akinsho/bufferline.nvim)
     - [anuvyklack/hydra.nvim](https://github.com/anuvyklack/hydra.nvim)
+    - [saghen/blink.cmp](https://github.com/saghen/blink.cmp)
     - [DanilaMihailov/beacon.nvim](https://github.com/DanilaMihailov/beacon.nvim)
     - [folke/lazy.nvim](https://github.com/folke/lazy.nvim)
     - [folke/noice.nvim](https://github.com/folke/noice.nvim)
