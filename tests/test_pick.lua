@@ -2125,10 +2125,9 @@ T['default_choose()']['works for directory path'] = function()
     validate_buf_name(buf_id_init, path)
 
     -- Cleanup
-    child.api.nvim_buf_delete(buf_id_init, { force = true })
-    child.api.nvim_buf_delete(buf_id_cur, { force = true })
-
     child.lua('if _G.MiniFiles ~= nil then _G.MiniFiles.close() end')
+    pcall(child.api.nvim_buf_delete, buf_id_init, { force = true })
+    pcall(child.api.nvim_buf_delete, buf_id_cur, { force = true })
   end
 
   validate(test_dir, test_dir, 'netrw')
