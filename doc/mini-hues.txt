@@ -70,6 +70,7 @@ Supported highlight groups:
     - [rcarriga/nvim-notify](https://github.com/rcarriga/nvim-notify)
     - [rlane/pounce.nvim](https://github.com/rlane/pounce.nvim)
     - [romgrk/barbar.nvim](https://github.com/romgrk/barbar.nvim)
+    - [saghen/blink.cmp](https://github.com/saghen/blink.cmp)
     - [stevearc/aerial.nvim](https://github.com/stevearc/aerial.nvim)
     - [williamboman/mason.nvim](https://github.com/williamboman/mason.nvim)
 

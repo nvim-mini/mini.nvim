@@ -68,6 +68,7 @@
 ---     - [rcarriga/nvim-notify](https://github.com/rcarriga/nvim-notify)
 ---     - [rlane/pounce.nvim](https://github.com/rlane/pounce.nvim)
 ---     - [romgrk/barbar.nvim](https://github.com/romgrk/barbar.nvim)
+---     - [saghen/blink.cmp](https://github.com/saghen/blink.cmp)
 ---     - [stevearc/aerial.nvim](https://github.com/stevearc/aerial.nvim)
 ---     - [williamboman/mason.nvim](https://github.com/williamboman/mason.nvim)
 ---
@@ -1540,6 +1541,37 @@ MiniHues.apply_palette = function(palette, plugins, opts)
     hi('BufferVisibleMod',     { fg=p.fg,     bg=p.bg_mid,  bold=true })
     hi('BufferVisibleSign',    { link='BufferVisible' })
     hi('BufferVisibleTarget',  { fg=p.fg,     bg=p.bg_mid2, bold=true })
+  end
+
+  if has_integration('saghen/blink.cmp') then
+    hi('BlinkCmpLabelDeprecated', { link='Comment' })
+    hi('BlinkCmpLabelMatch',      { fg=nil,  bg=nil, bold=true })
+
+    hi('BlinkCmpKindClass',         { link='Type' })
+    hi('BlinkCmpKindColor',         { link='Special' })
+    hi('BlinkCmpKindConstant',      { link='Constant' })
+    hi('BlinkCmpKindConstructor',   { link='Type' })
+    hi('BlinkCmpKindEnum',          { link='Structure' })
+    hi('BlinkCmpKindEnumMember',    { link='Structure' })
+    hi('BlinkCmpKindEvent',         { link='Exception' })
+    hi('BlinkCmpKindField',         { link='Structure' })
+    hi('BlinkCmpKindFile',          { link='Tag' })
+    hi('BlinkCmpKindFolder',        { link='Directory' })
+    hi('BlinkCmpKindFunction',      { link='Function' })
+    hi('BlinkCmpKindInterface',     { link='Structure' })
+    hi('BlinkCmpKindKeyword',       { link='Keyword' })
+    hi('BlinkCmpKindMethod',        { link='Function' })
+    hi('BlinkCmpKindModule',        { link='Structure' })
+    hi('BlinkCmpKindOperator',      { link='Operator' })
+    hi('BlinkCmpKindProperty',      { link='Structure' })
+    hi('BlinkCmpKindReference',     { link='Tag' })
+    hi('BlinkCmpKindSnippet',       { link='Special' })
+    hi('BlinkCmpKindStruct',        { link='Structure' })
+    hi('BlinkCmpKindText',          { link='Normal' })
+    hi('BlinkCmpKindTypeParameter', { link='Type' })
+    hi('BlinkCmpKindUnit',          { link='Special' })
+    hi('BlinkCmpKindValue',         { link='Identifier' })
+    hi('BlinkCmpKindVariable',      { link='Delimiter' })
   end
 
   -- stevearc/aerial.nvim

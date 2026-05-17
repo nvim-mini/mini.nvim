@@ -71,6 +71,7 @@ There are following change types:
 
 - Add new plugin integrations:
     - 'folke/snacks.nvim'
+    - 'saghen/blink.cmp'
 
 ## mini.jump
 
