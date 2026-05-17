@@ -314,8 +314,8 @@ end
 --- The `config.autocommands.basic` creates some common autocommands:
 ---
 --- - Starts insert mode when opening terminal (see |:startinsert| and |TermOpen|).
---- - Highlights yanked text for a brief period of time (see |vim.hl.on_yank()|;
----   on Neovim<0.11 - |vim.hl.on_yank()|) and |TextYankPost|).
+--- - Highlights yanked text for a brief period of time. See |vim.hl.on_yank()|
+---   (which is |vim.highlight.on_yank()| on Neovim<0.11) and |TextYankPost|.
 ---
 --- ## autocommands.relnum_in_visual_mode ~
 ---
