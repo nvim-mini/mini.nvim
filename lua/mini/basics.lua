@@ -315,7 +315,8 @@ end
 ---
 --- - Starts insert mode when opening terminal (see |:startinsert| and |TermOpen|).
 --- - Highlights yanked text for a brief period of time. See |vim.hl.on_yank()|
----   (which is |vim.highlight.on_yank()| on Neovim<0.11) and |TextYankPost|.
+---   (which is |vim.hl.hl_op()| on Neovim>=0.13 and |vim.highlight.on_yank()|
+---   on Neovim<0.11) and |TextYankPost|.
 ---
 --- ## autocommands.relnum_in_visual_mode ~
 ---
@@ -716,7 +717,8 @@ H.apply_autocommands = function(config)
   end
 
   if config.autocommands.basic then
-    local f = function() vim.hl.on_yank() end
+    local f = function() vim.hl.hl_op() end
+    if vim.fn.has('nvim-0.13') == 0 then f = function() vim.hl.on_yank() end end
     if vim.fn.has('nvim-0.11') == 0 then f = function() vim.highlight.on_yank() end end
     au('TextYankPost', '*', f, 'Highlight yanked text')
 
