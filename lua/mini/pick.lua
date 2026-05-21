@@ -671,6 +671,7 @@
 ---     matching files. Supported only by "rg" and "git" tools, respects their
 ---     specific glob syntax and effects. Default: `{}` (no restriction).
 ---     Example: `{ '*.lua', 'lua/**' }` for Lua files and files in "lua" directory.
+---@alias __pick_builtin_grep_method <method> `(string)` - pattern matching method: `"regex"` (default) or `"plain"`.
 
 ---@diagnostic disable:undefined-field
 ---@diagnostic disable:discard-returns
@@ -1365,14 +1366,15 @@ end
 ---   - <pattern> `(string)` - string pattern to search. If not given, asks user
 ---     interactively with |input()|.
 ---   - __pick_builtin_grep_globs
+---   - __pick_builtin_grep_method
 ---@param opts __pick_builtin_opts
 MiniPick.builtin.grep = function(local_opts, opts)
-  local_opts = vim.tbl_extend('force', { tool = nil, pattern = nil, globs = {} }, local_opts or {})
+  local_opts = vim.tbl_extend('force', { tool = nil, pattern = nil, globs = {}, method = 'regex' }, local_opts or {})
   local tool = local_opts.tool or H.grep_get_tool()
   local globs = H.is_array_of(local_opts.globs, 'string') and local_opts.globs or {}
-  local name_suffix = #globs == 0 and '' or (' | ' .. table.concat(globs, ', '))
-  local show = H.get_config().source.show or H.show_with_icons
-  local default_opts = { source = { name = string.format('Grep (%s%s)', tool, name_suffix), show = show } }
+  local globs_suffix = #globs == 0 and '' or (' | ' .. table.concat(globs, ', '))
+  local name = string.format('Grep (%s %s%s)', tool, local_opts.method, globs_suffix)
+  local default_opts = { source = { name = name, show = H.get_config().source.show or H.show_with_icons } }
   opts = vim.tbl_deep_extend('force', default_opts, opts or {})
 
   local pattern = type(local_opts.pattern) == 'string' and local_opts.pattern or H.user_input('Grep pattern')
@@ -1383,16 +1385,17 @@ MiniPick.builtin.grep = function(local_opts, opts)
     return MiniPick.start(opts)
   end
 
-  return MiniPick.builtin.cli({ command = H.grep_get_command(tool, pattern, globs) }, opts)
+  return MiniPick.builtin.cli({ command = H.grep_get_command(tool, pattern, globs, local_opts.method) }, opts)
 end
 
 --- Pick from pattern matches with live feedback
 ---
 --- Perform pattern matching treating prompt as pattern. Gives live feedback on
 --- which matches are found. Use |MiniPick-actions-refine| to revert to regular
---- matching. Use `<C-o>` to restrict search to files matching glob patterns.
---- Tries to use one of the CLI tools to create items (see |MiniPick-cli-tools|):
---- `rg`, `git`. If none is present, error is thrown (for performance reasons).
+--- matching. Use <C-o> to restrict search to files matching glob patterns.
+--- Use <C-e> to change pattern matching method. Tries to use one of the CLI
+--- tools to create items (see |MiniPick-cli-tools|): `rg`, `git`. If none is
+--- present, error is thrown (for performance reasons).
 ---
 --- To customize search, use tool's global configuration approach.
 --- Options 'ignorecase' and 'smartcase' are respected via forcing appropriate
@@ -1403,17 +1406,20 @@ end
 ---   - <tool> `(string)` - which tool to use. One of "rg", "git".
 ---     Default: whichever tool is present, trying in that same order.
 ---   - __pick_builtin_grep_globs
----     Use `<C-o>` custom mapping to add glob to the array.
+---     Use <C-o> custom mapping to add glob to the array.
+---   - __pick_builtin_grep_method
+---     Use <C-e> custom mapping to add glob to the array.
 ---@param opts __pick_builtin_opts
 MiniPick.builtin.grep_live = function(local_opts, opts)
-  local_opts = vim.tbl_extend('force', { tool = nil, globs = {} }, local_opts or {})
+  local_opts = vim.tbl_extend('force', { tool = nil, globs = {}, method = 'regex' }, local_opts or {})
   local tool = local_opts.tool or H.grep_get_tool()
   if tool == 'fallback' or not H.is_executable(tool) then H.error('`grep_live` needs non-fallback executable tool.') end
 
   local globs = H.is_array_of(local_opts.globs, 'string') and local_opts.globs or {}
-  local name_suffix = #globs == 0 and '' or (' | ' .. table.concat(globs, ', '))
-  local show = H.get_config().source.show or H.show_with_icons
-  local default_source = { name = string.format('Grep live (%s%s)', tool, name_suffix), show = show }
+  local globs_suffix = #globs == 0 and '' or (' | ' .. table.concat(globs, ', '))
+  local method = local_opts.method
+  local get_name = function() return string.format('Grep live (%s %s%s)', tool, method, globs_suffix) end
+  local default_source = { name = get_name(), show = H.get_config().source.show or H.show_with_icons }
   opts = vim.tbl_deep_extend('force', { source = default_source }, opts or {})
 
   local cwd = H.full_path(opts.source.cwd or vim.fn.getcwd())
@@ -1428,18 +1434,23 @@ MiniPick.builtin.grep_live = function(local_opts, opts)
     end
 
     set_items_opts.querytick = H.querytick
-    local command = H.grep_get_command(tool, table.concat(query), globs)
+    local command = H.grep_get_command(tool, table.concat(query), globs, method)
     sys = MiniPick.set_picker_items_from_cli(command, { set_items_opts = set_items_opts, spawn_opts = spawn_opts })
   end
 
-  local add_glob = function()
+  local ag = function()
     local ok, glob = pcall(vim.fn.input, 'Glob pattern: ')
     if ok then table.insert(globs, glob) end
-    name_suffix = #globs == 0 and '' or (' | ' .. table.concat(globs, ', '))
-    MiniPick.set_picker_opts({ source = { name = string.format('Grep live (%s%s)', tool, name_suffix) } })
+    globs_suffix = #globs == 0 and '' or (' | ' .. table.concat(globs, ', '))
+    MiniPick.set_picker_opts({ source = { name = get_name() } })
     MiniPick.set_picker_query(MiniPick.get_picker_query())
   end
-  local mappings = { add_glob = { char = '<C-o>', func = add_glob } }
+  local sm = function()
+    method = method == 'regex' and 'plain' or 'regex'
+    MiniPick.set_picker_opts({ source = { name = get_name() } })
+    MiniPick.set_picker_query(MiniPick.get_picker_query())
+  end
+  local mappings = { add_glob = { char = '<C-o>', func = ag }, switch_method = { char = '<C-e>', func = sm } }
 
   opts = vim.tbl_deep_extend('force', opts or {}, { source = { items = {}, match = match }, mappings = mappings })
   return MiniPick.start(opts)
@@ -3517,11 +3528,10 @@ H.grep_get_tool = function()
 end
 
 --stylua: ignore
-H.grep_get_command = function(tool, pattern, globs)
+H.grep_get_command = function(tool, pattern, globs, method)
   if tool == 'rg' then
-    local res = {
-      'rg', '--column', '--line-number', '--no-heading', '--field-match-separator', '\\x00', '--color=never'
-    }
+    local res = { 'rg', '--column', '--line-number', '--no-heading', '--field-match-separator', '\\x00', '--color=never' }
+    table.insert(res, method == 'regex' and '--no-fixed-strings' or '--fixed-strings')
     for _, g in ipairs(globs) do
       table.insert(res, '--glob')
       -- NOTE: no `*` as default is important to not "override" ignoring files
@@ -3534,6 +3544,7 @@ H.grep_get_command = function(tool, pattern, globs)
   if tool == 'git' then
     local res = { 'git', 'grep', '--column', '--line-number', '--null', '--color=never', '-e', pattern, '--', unpack(globs) }
     if vim.o.ignorecase then table.insert(res, 6, '--ignore-case') end
+    if method == 'plain' then table.insert(res, 7, '--fixed-strings') end
     return res
   end
   H.error([[Wrong 'tool' for `grep` builtin.]])

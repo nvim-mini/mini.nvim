@@ -2829,7 +2829,7 @@ T['builtin.grep()']['works'] = function()
   child.expect_screenshot()
 
   -- Should set correct name
-  validate_picker_option('source.name', 'Grep (rg)')
+  validate_picker_option('source.name', 'Grep (rg regex)')
 
   -- Should return chosen value
   type_keys('<CR>')
@@ -2842,7 +2842,7 @@ T['builtin.grep()']['correctly chooses default tool'] = function()
     mock_cli_return({ real_file('b.txt') .. '\0003\0003\000b' })
     builtin_grep({ pattern = 'b' })
     if ref_tool ~= 'fallback' then eq(child.lua_get('_G.spawn_log[1].executable'), ref_tool) end
-    validate_picker_option('source.name', string.format('Grep (%s)', ref_tool))
+    validate_picker_option('source.name', string.format('Grep (%s regex)', ref_tool))
 
     -- Cleanup
     type_keys('<C-c>')
@@ -2892,7 +2892,18 @@ T['builtin.grep()']['respects `local_opts.pattern`'] = function()
   local spawn_log = get_spawn_log()
   eq(#spawn_log, 1)
   local args = spawn_log[1].options.args
-  eq(vim.list_slice(args, #args - 3), { '--color=never', '--case-sensitive', '--', 'abc' })
+  eq(vim.list_slice(args, #args - 4), { '--color=never', '--no-fixed-strings', '--case-sensitive', '--', 'abc' })
+end
+
+T['builtin.grep()']['respects `local_opts.method`'] = function()
+  mock_fn_executable({ 'rg' })
+  mock_cli_return({})
+  builtin_grep({ tool = 'rg', pattern = 'abc', method = 'plain' })
+  validate_picker_option('source.name', 'Grep (rg plain)')
+  local spawn_log = get_spawn_log()
+  eq(#spawn_log, 1)
+  local args = spawn_log[1].options.args
+  eq(vim.list_slice(args, #args - 3), { '--fixed-strings', '--case-sensitive', '--', 'abc' })
 end
 
 T['builtin.grep()']['can cancel user input'] = function()
@@ -2922,7 +2933,7 @@ T['builtin.grep()']['respects `local_opts.globs`'] = function()
     eq(vim.list_slice(args, #args - #last_args + 1), last_args)
 
     -- Should show glob patterns in picker's name
-    validate_picker_option('source.name', 'Grep (' .. tool .. ' | *.lua, lua/**)')
+    validate_picker_option('source.name', 'Grep (' .. tool .. ' regex | *.lua, lua/**)')
 
     -- Cleanup
     type_keys('<C-c>')
@@ -2937,7 +2948,7 @@ T['builtin.grep()']['respects `local_opts.globs`'] = function()
 
   mock_cli_return({})
   child.lua_notify('MiniPick.builtin.resume()')
-  validate_picker_option('source.name', 'Grep (git | *.lua, lua/**)')
+  validate_picker_option('source.name', 'Grep (git regex | *.lua, lua/**)')
 end
 
 T['builtin.grep()']['has fallback tool'] = new_set({ parametrize = { { 'default' }, { 'supplied' } } }, {
@@ -3072,7 +3083,7 @@ T['builtin.grep_live()']['works'] = function()
   child.expect_screenshot()
 
   -- Should set correct name
-  validate_picker_option('source.name', 'Grep live (rg)')
+  validate_picker_option('source.name', 'Grep live (rg regex)')
 
   -- Should return chosen value
   type_keys('<CR>')
@@ -3144,7 +3155,7 @@ T['builtin.grep_live()']['correctly chooses default tool'] = function()
     builtin_grep_live()
     type_keys('b')
     eq(child.lua_get('_G.spawn_log[1].executable'), ref_tool)
-    validate_picker_option('source.name', string.format('Grep live (%s)', ref_tool))
+    validate_picker_option('source.name', string.format('Grep live (%s regex)', ref_tool))
 
     -- Cleanup
     type_keys('<C-c>')
@@ -3180,7 +3191,7 @@ T['builtin.grep_live()']['respects `local_opts.tool`'] = function()
   --stylua: ignore
   local rg_args = {
     '--column', '--line-number', '--no-heading',
-    '--field-match-separator', '\\x00', '--case-sensitive',
+    '--field-match-separator', '\\x00', '--no-fixed-strings', '--case-sensitive',
     '--', 'b',
   }
   validate('rg', rg_args)
@@ -3207,7 +3218,7 @@ T['builtin.grep_live()']['respects `local_opts.globs`'] = function()
     eq(vim.list_slice(args, #args - #last_args + 1), last_args)
 
     -- Should show glob patterns in picker's name
-    validate_picker_option('source.name', 'Grep live (' .. tool .. ' | *.lua, lua/**)')
+    validate_picker_option('source.name', 'Grep live (' .. tool .. ' regex | *.lua, lua/**)')
 
     -- Cleanup
     type_keys('<C-c>')
@@ -3225,7 +3236,7 @@ T['builtin.grep_live()']['respects `local_opts.globs`'] = function()
   type_keys('b')
   local args = get_spawn_log()[1].options.args
   eq(vim.list_slice(args, #args - 4), { '-e', 'ab', '--', '*.lua', 'lua/**' })
-  validate_picker_option('source.name', 'Grep live (git | *.lua, lua/**)')
+  validate_picker_option('source.name', 'Grep live (git regex | *.lua, lua/**)')
 end
 
 T['builtin.grep_live()']['has custom "add glob" mapping'] = function()
@@ -3237,12 +3248,62 @@ T['builtin.grep_live()']['has custom "add glob" mapping'] = function()
   type_keys('<C-o>')
   child.expect_screenshot()
   type_keys('*.lua', '<CR>')
-  validate_picker_option('source.name', 'Grep live (rg | *.lua)')
+  validate_picker_option('source.name', 'Grep live (rg regex | *.lua)')
 
   mock_cli_return({})
   type_keys('a')
   local args = get_spawn_log()[1].options.args
   eq(vim.list_slice(args, #args - 4), { '--glob', '*.lua', '--case-sensitive', '--', 'a' })
+end
+
+T['builtin.grep_live()']['respects `local_opts.method`'] = function()
+  local validate = function(tool, last_args)
+    mock_fn_executable({ tool })
+    mock_cli_return({})
+    clear_spawn_log()
+    builtin_grep_live({ tool = tool, method = 'plain' })
+    type_keys('a')
+
+    -- Should actually use glob patterns
+    local args = get_spawn_log()[1].options.args
+    eq(vim.list_slice(args, #args - #last_args + 1), last_args)
+
+    -- Should show glob patterns in picker's name
+    validate_picker_option('source.name', 'Grep live (' .. tool .. ' plain)')
+
+    -- Cleanup
+    type_keys('<C-c>')
+    clear_spawn_log()
+  end
+
+  validate('rg', { '--fixed-strings', '--case-sensitive', '--', 'a' })
+  validate('git', { '--fixed-strings', '-e', 'a', '--' })
+
+  -- Should preserve if called as `builtin.resume()`
+  clear_spawn_log()
+
+  child.lua_notify('MiniPick.builtin.resume()')
+  mock_cli_return({})
+  type_keys('b')
+  local args = get_spawn_log()[1].options.args
+  eq(vim.list_slice(args, #args - 3), { '--fixed-strings', '-e', 'ab', '--' })
+  validate_picker_option('source.name', 'Grep live (git plain)')
+end
+
+T['builtin.grep_live()']['has custom "switch method" mapping'] = function()
+  child.set_size(10, 70)
+  mock_fn_executable({ 'rg' })
+  builtin_grep_live({ tool = 'rg' })
+  eq(child.lua_get('MiniPick.get_picker_opts().mappings.switch_method.char'), '<C-e>')
+
+  type_keys('<C-e>')
+  child.expect_screenshot()
+  validate_picker_option('source.name', 'Grep live (rg plain)')
+
+  mock_cli_return({})
+  type_keys('a')
+  local args = get_spawn_log()[1].options.args
+  eq(vim.list_slice(args, #args - 3), { '--fixed-strings', '--case-sensitive', '--', 'a' })
 end
 
 T['builtin.grep_live()']['respects `source.show` from config'] = function()
