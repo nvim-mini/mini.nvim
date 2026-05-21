@@ -574,6 +574,27 @@ end
 ---     }
 ---   })
 --- <
+--- ## Overriding default `al` and `il` ~
+--- *MiniAi-default-al-il*
+---
+--- Default `around_last` / `inside_last` mappings override newly added in Neovim=0.13
+--- built-in mappings |al| and |il|. This is intentional for better usability
+--- and backwards compatibility. There are several ways to work around this:
+---
+--- - Use |MiniExtra.gen_ai_spec.buffer()| and |MiniExtra.gen_ai_spec.line()| to
+---   create custom textobjects for buffer and line: >lua
+---
+---     require('mini.extra').setup()
+---     require('mini.ai').setup({
+---       custom_textobjects = {
+---         -- Makes `aB` equivalent to built-in `al`
+---         B = MiniExtra.gen_ai_spec.buffer(),
+---         -- Makes `iL` equivalent to built-in `il`
+---         L = MiniExtra.gen_ai_spec.line(),
+---       },
+---     })
+--- <
+--- - Use other values for "next" / "last" variants. See |MiniAi-default-an-in|.
 MiniAi.config = {
   -- Table with textobject id as fields, textobject specification as values.
   -- Also use this to disable builtin textobjects. See |MiniAi.config|.
