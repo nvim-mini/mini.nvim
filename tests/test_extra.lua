@@ -545,6 +545,11 @@ T['gen_ai_spec']['line()']['works as `a` textobject'] = function()
 
   -- Should work with dot-repeat
   validate_edit({ 'aa', 'bb' }, { 1, 0 }, { 'caL', 'xx', '<Esc>', 'j', '.' }, { 'xx', 'xx' }, { 2, 1 })
+
+  -- Should support `[count]`
+  local lines = { '  aa', 'bb', '  cc', 'dd' }
+  validate_edit(lines, { 1, 1 }, { 'c2aL', 'xx', '<Esc>' }, { 'xx', '  cc', 'dd' }, { 1, 1 })
+  validate_edit(lines, { 1, 1 }, { 'c2aL', 'xx', '<Esc>', 'j', '.' }, { 'xx', 'xx' }, { 2, 1 })
 end
 
 T['gen_ai_spec']['line()']['works as `i` textobject'] = function()
@@ -563,6 +568,11 @@ T['gen_ai_spec']['line()']['works as `i` textobject'] = function()
 
   -- Should work with dot-repeat
   validate_edit({ '  aa', '  bb' }, { 1, 0 }, { 'ciL', 'xx', '<Esc>', 'j', '.' }, { '  xx', '  xx' }, { 2, 3 })
+
+  -- Should support `[count]`
+  local lines = { '  aa', 'bb', '  cc', 'dd' }
+  validate_edit(lines, { 1, 1 }, { 'c2iL', 'xx', '<Esc>' }, { '  xx', '  cc', 'dd' }, { 1, 3 })
+  validate_edit(lines, { 1, 1 }, { 'c2iL', 'xx', '<Esc>', 'j', '.' }, { '  xx', '  xx' }, { 2, 3 })
 end
 
 T['gen_ai_spec']['number()'] = new_set()

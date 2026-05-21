@@ -208,15 +208,16 @@ MiniExtra.gen_ai_spec.indent = function() return H.ai_indent_spec end
 ---
 ---@return __extra_ai_spec_return
 MiniExtra.gen_ai_spec.line = function()
-  return function(ai_type)
-    local line_num = vim.fn.line('.')
-    local line = vim.fn.getline(line_num)
+  return function(ai_type, _, opts)
+    local lnum_from = vim.fn.line('.')
+    local lnum_to = lnum_from + opts.n_times - 1
+    local line_from, line_to = vim.fn.getline(lnum_from), vim.fn.getline(lnum_to)
     -- Ignore indentation for `i` textobject
-    local from_col = ai_type == 'a' and 1 or (line:match('^(%s*)'):len() + 1)
+    local col_from = ai_type == 'a' and 1 or (line_from:match('^(%s*)'):len() + 1)
     -- Don't select `\n` past the line to operate within a line
-    local to_col = line:len()
+    local col_to = line_to:len()
 
-    return { from = { line = line_num, col = from_col }, to = { line = line_num, col = to_col } }
+    return { from = { line = lnum_from, col = col_from }, to = { line = lnum_to, col = col_to } }
   end
 end
 
