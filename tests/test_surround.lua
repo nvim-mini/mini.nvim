@@ -373,6 +373,23 @@ T['gen_spec']['input']['treesitter()']['works with empty region'] = function()
   eq(get_lines()[13], 'M')
 end
 
+T['gen_spec']['input']['treesitter()']['ensures that inner capture is strictly nested'] = function()
+  child.lua([[MiniSurround.config.custom_surroundings = {
+    C = { input = MiniSurround.gen_spec.input.treesitter({ outer = '@call.outer', inner = '@call.inner' }) },
+  }]])
+  local lines = { 'local aaa = function(x) end', 'local bbb = function(y) end', 'return aaa(bbb(1))' }
+
+  set_lines(lines)
+  set_cursor(3, 7)
+  type_keys('sr', 'C', '>')
+  eq(get_lines()[3], 'return <bbb(1)>')
+
+  set_lines(lines)
+  set_cursor(3, 11)
+  type_keys('sr', 'C', '>')
+  eq(get_lines()[3], 'return aaa(<1>)')
+end
+
 T['gen_spec']['input']['treesitter()']['works with no inner captures'] = function()
   child.lua([[MiniSurround.config.custom_surroundings = {
     o = { input = MiniSurround.gen_spec.input.treesitter({ outer = '@return.outer', inner = '@string' }) },

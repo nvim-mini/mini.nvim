@@ -1616,8 +1616,9 @@ end
 H.get_biggest_nested_range = function(ranges, parent)
   local best_range, best_byte_count = nil, -math.huge
   for _, r in ipairs(ranges) do
+    local is_nested = parent[3] <= r[3] and r[6] <= parent[6] and not (parent[3] == r[3] and r[6] == parent[6])
     local byte_count = r[6] - r[3] + 1
-    if parent[3] <= r[3] and r[6] <= parent[6] and best_byte_count < byte_count then
+    if is_nested and best_byte_count < byte_count then
       best_range, best_byte_count = r, byte_count
     end
   end
