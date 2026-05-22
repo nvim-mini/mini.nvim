@@ -429,6 +429,16 @@ T['gen_spec']['input']['treesitter()']['works with parent of injected language']
   validate_no_find(lines, { 1, 0 }, type_keys, 'sf', 'F')
 end
 
+T['gen_spec']['input']['treesitter()']['works with injected child language'] = function()
+  local lines = {
+    'vim.cmd([[',
+    'set cursorline',
+    'lua local a = function() return true end',
+    ']])',
+  }
+  validate_find(lines, { 1, 0 }, { { 3, 14 } }, type_keys, 'sfn', 'F')
+end
+
 T['gen_spec']['input']['treesitter()']['respects `opts.use_nvim_treesitter`'] = function()
   child.lua([[MiniSurround.config.custom_surroundings = {
     F = { input = MiniSurround.gen_spec.input.treesitter({ outer = '@function.outer', inner = '@function.inner' }) },
