@@ -820,6 +820,11 @@ Notes:
   Verify with `:=vim.treesitter.query.get('lang', 'textobjects')` and see
   if the target capture is recognized as one.
 - It uses buffer's |filetype| to determine query language.
+- It first searches the language under cursor for matches. If no matches are
+  found, it falls back to searching parent languages (up to the buffer's root
+  language). If no matches are found again, it falls back to recursively
+  searching all children languages (from the language under cursor). If no
+  matches again - report no matches.
 - On large files it is slower than pattern-based textobjects. Still very
   fast though (one search should be magnitude of milliseconds or tens of
   milliseconds on really large file).
