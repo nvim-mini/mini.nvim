@@ -1080,6 +1080,7 @@ T['map_multistep()']['built-in steps']['nvimautopairs_cr'] = function()
   eq(get_lines(), { '', '' })
 
   mock_plugin('nvim-autopairs')
+  child.bo.autoindent = false
 
   -- Should respect pairs
   type_keys('()', '<Left>')
