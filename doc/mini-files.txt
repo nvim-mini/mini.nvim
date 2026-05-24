@@ -129,7 +129,8 @@ principles:
   format (not visible for users by default; set |'conceallevel'| to 0 to see it)
 
 - Once directory is shown, its buffer is not updated automatically following
-  external file system changes. Manually use |MiniFiles.synchronize()| for that.
+  external file system changes. Manually use |MiniFiles.synchronize()| (or write
+  the buffer with |:write| or |:update|) for that.
 
 After opening explorer, in-buffer navigation is done the same way as any
 regular buffer, except without some keys reserved for built-in actions.
@@ -232,7 +233,8 @@ General workflow:
   Note: even if directory buffer is hidden, its modifications are preserved,
   so you can navigate in and out of directory with modified buffer.
 
-- Execute |MiniFiles.synchronize()| (default key is `=`). This will prompt
+- Execute |MiniFiles.synchronize()| (default key is `=`) or use |:write|/|:update|
+  commands. This will prompt
   confirmation dialog listing all file system actions (per directory) it is
   about to perform. READ IT CAREFULLY.
 
@@ -777,6 +779,8 @@ Synchronize explorer
   Choosing "No" skips application while "Cancel" stops synchronization.
 - Update all directory buffers with the most relevant file system information.
   Can be used without user edits to account for external file system changes.
+  Note: also invoked automatically when writing the buffer with |:write|
+  or |:update| commands.
 
 Return ~
 `(boolean)` Whether synchronization was done.

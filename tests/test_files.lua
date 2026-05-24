@@ -1361,6 +1361,50 @@ end
 
 T['synchronize()']['works when no explorer is opened'] = function() expect.no_error(synchronize) end
 
+T['synchronize()'][':write can apply file actions'] = function()
+  child.set_size(10, 60)
+  local temp_dir = make_temp_dir('temp', {})
+  open(temp_dir)
+  type_keys('i', 'new-file', '<Esc>')
+
+  mock_confirm(1)
+  validate_tree(temp_dir, {})
+  child.cmd('write')
+  validate_tree(temp_dir, { 'new-file' })
+end
+
+T['synchronize()'][':update can apply file actions when buffer is modified'] = function()
+  child.set_size(10, 60)
+  local temp_dir = make_temp_dir('temp', {})
+  open(temp_dir)
+  type_keys('i', 'new-file', '<Esc>')
+
+  mock_confirm(1)
+  validate_tree(temp_dir, {})
+  child.cmd('update')
+  validate_tree(temp_dir, { 'new-file' })
+end
+
+T['synchronize()'][':update does not apply file actions when buffer is not modified'] = function()
+  child.set_size(10, 60)
+  local temp_dir = make_temp_dir('temp', {})
+  open(temp_dir)
+
+  mock_confirm(1)
+  child.cmd('update')
+  eq(child.lua_get('_G.confirm_args') == vim.NIL, true)
+  validate_tree(temp_dir, {})
+end
+
+T['synchronize()'][':write without changes does not error'] = function()
+  child.set_size(10, 60)
+  local temp_dir = make_temp_dir('temp', {})
+  open(temp_dir)
+
+  expect.no_error(function() child.cmd('write') end)
+  validate_tree(temp_dir, {})
+end
+
 T['reset()'] = new_set()
 
 local reset = forward_lua('MiniFiles.reset')

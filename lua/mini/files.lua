@@ -126,7 +126,8 @@
 ---   format (not visible for users by default; set |'conceallevel'| to 0 to see it)
 ---
 --- - Once directory is shown, its buffer is not updated automatically following
----   external file system changes. Manually use |MiniFiles.synchronize()| for that.
+---   external file system changes. Manually use |MiniFiles.synchronize()| (or write
+---   the buffer with |:write| or |:update|) for that.
 ---
 --- After opening explorer, in-buffer navigation is done the same way as any
 --- regular buffer, except without some keys reserved for built-in actions.
@@ -228,7 +229,8 @@
 ---   Note: even if directory buffer is hidden, its modifications are preserved,
 ---   so you can navigate in and out of directory with modified buffer.
 ---
---- - Execute |MiniFiles.synchronize()| (default key is `=`). This will prompt
+--- - Execute |MiniFiles.synchronize()| (default key is `=`) or use |:write|/|:update|
+---   commands. This will prompt
 ---   confirmation dialog listing all file system actions (per directory) it is
 ---   about to perform. READ IT CAREFULLY.
 ---
@@ -859,6 +861,8 @@ end
 ---   Choosing "No" skips application while "Cancel" stops synchronization.
 --- - Update all directory buffers with the most relevant file system information.
 ---   Can be used without user edits to account for external file system changes.
+---   Note: also invoked automatically when writing the buffer with |:write|
+---   or |:update| commands.
 ---
 ---@return boolean Whether synchronization was done.
 MiniFiles.synchronize = function()
@@ -2149,6 +2153,7 @@ H.view_track_text_change = function(data)
   local buf_id = data.buf
   local new_n_modified = H.opened_buffers[buf_id].n_modified + 1
   H.opened_buffers[buf_id].n_modified = new_n_modified
+  if new_n_modified >= 0 then vim.bo[buf_id].modified = true end
   local win_id = H.opened_buffers[buf_id].win_id
   if new_n_modified > 0 and H.is_valid_win(win_id) then H.window_update_border_hl(win_id) end
 
@@ -2190,6 +2195,7 @@ H.buffer_create = function(path, mappings)
 
   -- Set buffer options
   vim.bo[buf_id].filetype = 'minifiles'
+  vim.bo[buf_id].buftype = 'acwrite'
 
   -- Do not set up tracking behavior for imaginary paths
   if H.fs_is_imaginary_path(path) then return buf_id end
@@ -2205,6 +2211,10 @@ H.buffer_create = function(path, mappings)
 
   au({ 'CursorMoved', 'CursorMovedI', 'TextChangedP' }, 'Tweak cursor position', H.view_track_cursor)
   au({ 'TextChanged', 'TextChangedI', 'TextChangedP' }, 'Track buffer modification', H.view_track_text_change)
+  au({ 'BufWriteCmd' }, 'Synchronize on write', function()
+    local ok = MiniFiles.synchronize()
+    if ok ~= false then vim.bo[buf_id].modified = false end
+  end)
 
   -- Tweak buffer to be used nicely with other 'mini.nvim' modules
   vim.b[buf_id].minicursorword_disable = true
@@ -2319,6 +2329,7 @@ H.buffer_update = function(buf_id, path, opts, is_preview)
 
   -- Reset buffer as not modified
   H.opened_buffers[buf_id].n_modified = -1
+  vim.bo[buf_id].modified = false
 end
 
 H.buffer_update_directory = function(buf_id, path, opts, is_preview)
