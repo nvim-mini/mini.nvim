@@ -289,6 +289,7 @@ T['setup()']['validates `config` argument'] = function()
   expect_config_error('a', 'config', 'table')
   expect_config_error({ content = 'a' }, 'content', 'table')
   expect_config_error({ content = { filter = 1 } }, 'content.filter', 'function')
+  expect_config_error({ content = { collapse_single_child = 1 } }, 'content.collapse_single_child', 'boolean')
   expect_config_error({ content = { highlight = 1 } }, 'content.highlight', 'function')
   expect_config_error({ content = { prefix = 1 } }, 'content.prefix', 'function')
   expect_config_error({ content = { sort = 1 } }, 'content.sort', 'function')
@@ -6358,6 +6359,51 @@ T['Internal helpers']['path normalization works'] = function()
     validate('//', '/')
     validate('/', '/')
   end
+end
+
+T['content.collapse_single_child'] = new_set()
+
+T['content.collapse_single_child']['works'] = function()
+  local temp_dir = make_temp_dir('temp', { 'a/', 'a/b/', 'a/b/c/', 'a/b/c/file.txt' })
+  child.lua('MiniFiles.config.content.collapse_single_child = true')
+  open(temp_dir)
+
+  local lines = get_lines()
+  eq(#lines, 1)
+  expect.match(lines[1], 'a/b/c$')
+
+  type_keys('l')
+  local lines_c = get_lines()
+  eq(#lines_c, 1)
+  expect.match(lines_c[1], 'file.txt$')
+end
+
+T['content.collapse_single_child']['works with reverse navigation'] = function()
+  local temp_dir = make_temp_dir('temp', { 'a/', 'a/b/', 'a/b/c/', 'a/b/c/file.txt', 'other.txt' })
+  child.lua('MiniFiles.config.content.collapse_single_child = true')
+  open(join_path(temp_dir, 'a/b/c'))
+
+  local lines = get_lines()
+  eq(#lines, 1)
+  expect.match(lines[1], 'file.txt$')
+
+  type_keys('h')
+  local lines_parent = get_lines()
+  eq(#lines_parent, 2)
+  expect.match(lines_parent[1], 'a/b/c$')
+  validate_cur_line(1)
+end
+
+T['content.collapse_single_child']['cleans up empty parent directories'] = function()
+  local temp_dir = make_temp_dir('temp', { 'a/', 'a/b/', 'a/b/c/', 'a/b/c/file.txt' })
+  child.lua('MiniFiles.config.content.collapse_single_child = true')
+  open(temp_dir)
+
+  type_keys('dd')
+  mock_confirm(1)
+  type_keys('=')
+
+  validate_tree(temp_dir, {})
 end
 
 return T

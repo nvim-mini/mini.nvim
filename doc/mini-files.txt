@@ -582,6 +582,8 @@ Defaults ~
   MiniFiles.config = {
     -- Customization of shown content
     content = {
+      -- Whether to collapse single-child directory chains
+      collapse_single_child = false,
       -- Predicate for which file system entries to show
       filter = nil,
       -- Highlight group to use for a file system entry
@@ -636,6 +638,11 @@ Defaults ~
   }
 <
 # Content ~
+
+`content.collapse_single_child` is a boolean indicating whether single-child
+directory chains should be collapsed visually (e.g. `app/src/main/java`)
+and jumped through in a single step (`l` / `h`).
+Default: `false`.
 
 `content.filter` is a predicate which takes file system entry data as input
 and returns `true`-ish value if it should be shown.

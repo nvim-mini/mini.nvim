@@ -610,6 +610,11 @@ end
 ---@eval return MiniDoc.afterlines_to_code(MiniDoc.current.eval_section)
 ---@text # Content ~
 ---
+--- `content.collapse_single_child` is a boolean indicating whether single-child
+--- directory chains should be collapsed visually (e.g. `app/src/main/java`)
+--- and jumped through in a single step (`l` / `h`).
+--- Default: `false`.
+---
 --- `content.filter` is a predicate which takes file system entry data as input
 --- and returns `true`-ish value if it should be shown.
 --- Uses |MiniFiles.default_filter()| by default.
@@ -693,6 +698,8 @@ end
 MiniFiles.config = {
   -- Customization of shown content
   content = {
+    -- Whether to collapse single-child directory chains
+    collapse_single_child = false,
     -- Predicate for which file system entries to show
     filter = nil,
     -- Highlight group to use for a file system entry
@@ -1331,6 +1338,7 @@ H.setup_config = function(config)
   config = vim.tbl_deep_extend('force', vim.deepcopy(H.default_config), config or {})
 
   H.check_type('content', config.content, 'table')
+  H.check_type('content.collapse_single_child', config.content.collapse_single_child, 'boolean', true)
   H.check_type('content.filter', config.content.filter, 'function', true)
   H.check_type('content.highlight', config.content.highlight, 'function', true)
   H.check_type('content.prefix', config.content.prefix, 'function', true)
@@ -1531,7 +1539,7 @@ H.explorer_refresh = function(explorer, opts)
       -- Encode cursors to allow them to "stick" to current entry
       view = H.view_encode_cursor(view)
       -- Force update of shown path ids
-      if H.opened_buffers[view.buf_id] then H.opened_buffers[view.buf_id].children_path_ids = nil end
+      if H.opened_buffers[view.buf_id] then H.opened_buffers[view.buf_id].cached_children = nil end
       H.buffer_update(view.buf_id, path, explorer.opts, not view.was_focused)
       explorer.views[path] = view
     end
@@ -1755,7 +1763,7 @@ H.explorer_compute_fs_actions = function(explorer)
     if diff.from == nil then
       table.insert(create, { action = 'create', dir = diff.dir, to = diff.to })
     elseif diff.to == nil then
-      delete_map[diff.from] = true
+      delete_map[diff.from] = diff.dir
     else
       table.insert(raw_copy, diff)
     end
@@ -1784,9 +1792,9 @@ H.explorer_compute_fs_actions = function(explorer)
   -- Compute delete actions accounting for (non) permanent delete
   local delete, is_trash = {}, not explorer.opts.options.permanent_delete
   local trash_dir = H.fs_child_path(vim.fn.stdpath('data'), 'mini.files/trash')
-  for p, _ in pairs(delete_map) do
+  for p, parent_dir in pairs(delete_map) do
     local to = is_trash and H.fs_child_path(trash_dir, H.fs_get_basename(p)) or nil
-    table.insert(delete, { action = 'delete', from = p, to = to })
+    table.insert(delete, { action = 'delete', from = p, to = to, dir = parent_dir })
   end
 
   -- Construct final array with proper order of actions:
@@ -1922,11 +1930,26 @@ H.explorer_open_root_parent = function(explorer)
   local root_parent = H.fs_get_parent(root)
   if root_parent == nil then return explorer end
 
+  local cur_root = root
+  local cur_parent = root_parent
+  if explorer.opts.content.collapse_single_child then
+    while true do
+      local next_parent = H.fs_get_parent(cur_parent)
+      if next_parent == nil then break end
+
+      local single_child = H.fs_get_single_child(cur_parent, explorer.opts.content)
+      if single_child == nil then break end
+
+      cur_root = cur_parent
+      cur_parent = next_parent
+    end
+  end
+
   -- Update branch data
-  table.insert(explorer.branch, 1, root_parent)
+  table.insert(explorer.branch, 1, cur_parent)
 
   -- Focus on previous root entry in its parent
-  return H.explorer_focus_on_entry(explorer, root_parent, H.fs_get_basename(root))
+  return H.explorer_focus_on_entry(explorer, cur_parent, H.fs_get_basename(cur_root))
 end
 
 H.explorer_trim_branch_right = function(explorer)
@@ -2098,7 +2121,8 @@ H.view_decode_cursor = function(view)
   -- Find entry name named as stored in `cursor`. If not - use {1, 0}.
   local lines = vim.api.nvim_buf_get_lines(buf_id, 0, -1, false)
   for i, l in ipairs(lines) do
-    if cursor == H.match_line_entry_name(l) then view.cursor = { i, 0 } end
+    local entry_name = H.match_line_entry_name(l)
+    if cursor == entry_name or vim.startswith(entry_name, cursor .. '/') then view.cursor = { i, 0 } end
   end
 
   if type(view.cursor) ~= 'table' then view.cursor = { 1, 0 } end
@@ -2323,11 +2347,26 @@ end
 
 H.buffer_update_directory = function(buf_id, path, opts, is_preview)
   -- Compute and cache (to use during sync) shown file system entries
-  local children_path_ids = H.opened_buffers[buf_id].children_path_ids
-  local fs_entries = children_path_ids == nil and H.fs_read_dir(path, opts.content)
-    or vim.tbl_map(H.get_fs_entry_from_path_index, children_path_ids)
-  H.opened_buffers[buf_id].children_path_ids = children_path_ids
-    or vim.tbl_map(function(x) return x.path_id end, fs_entries)
+  local cached_children = H.opened_buffers[buf_id].cached_children
+  local fs_entries
+  if cached_children == nil then
+    fs_entries = H.fs_read_dir(path, opts.content)
+    cached_children = vim.tbl_map(function(x) return { id = x.path_id, name = x.name } end, fs_entries)
+    H.opened_buffers[buf_id].cached_children = cached_children
+  else
+    fs_entries = {}
+    for _, cc in ipairs(cached_children) do
+      local p = H.path_index[cc.id]
+      if p ~= nil then
+        table.insert(fs_entries, {
+          fs_type = H.fs_get_type(p),
+          name = cc.name,
+          path = p,
+          path_id = cc.id,
+        })
+      end
+    end
+  end
 
   -- Compute format expression resulting into same width path ids
   local path_width = math.floor(math.log10(#H.path_index)) + 1
@@ -2435,9 +2474,9 @@ H.buffer_compute_fs_diff = function(buf_id)
   end
 
   -- Detect missing file system entries
-  local ref_path_ids = H.opened_buffers[buf_id].children_path_ids
-  for _, ref_id in ipairs(ref_path_ids) do
-    if not present_path_ids[ref_id] then table.insert(res, { from = H.path_index[ref_id], to = nil, dir = path }) end
+  local cached_children = H.opened_buffers[buf_id].cached_children or {}
+  for _, cc in ipairs(cached_children) do
+    if not present_path_ids[cc.id] then table.insert(res, { from = H.path_index[cc.id], to = nil, dir = path }) end
   end
 
   return res
@@ -2640,21 +2679,44 @@ end
 ---@field path string Full path.
 ---@field path_id number Id of full path.
 ---@private
-H.fs_read_dir = function(path, content_opts)
+H.fs_read_dir_entries = function(path, content_opts)
   local fs = vim.loop.fs_scandir(path)
-  local res = {}
-  if not fs then return res end
-
-  -- Read all entries
+  local items = {}
+  if not fs then return items end
   local name, fs_type = vim.loop.fs_scandir_next(fs)
   while name do
     if not (fs_type == 'file' or fs_type == 'directory') then fs_type = H.fs_get_type(H.fs_child_path(path, name)) end
-    table.insert(res, { fs_type = fs_type, name = name, path = H.fs_child_path(path, name) })
+    table.insert(items, { fs_type = fs_type, name = name, path = H.fs_child_path(path, name) })
     name, fs_type = vim.loop.fs_scandir_next(fs)
   end
+  return content_opts.sort(vim.tbl_filter(content_opts.filter, items))
+end
 
-  -- Filter and sort entries
-  res = content_opts.sort(vim.tbl_filter(content_opts.filter, res))
+H.fs_get_single_child = function(path, content_opts)
+  local entries = H.fs_read_dir_entries(path, content_opts)
+  if #entries == 1 and entries[1].fs_type == 'directory' then return entries[1].path end
+  return nil
+end
+
+H.fs_read_dir = function(path, content_opts)
+  local res = H.fs_read_dir_entries(path, content_opts)
+
+  if content_opts.collapse_single_child then
+    for _, entry in ipairs(res) do
+      if entry.fs_type == 'directory' then
+        local cur_path = entry.path
+        local cur_name = entry.name
+        while true do
+          local single_child = H.fs_get_single_child(cur_path, content_opts)
+          if single_child == nil then break end
+          cur_name = cur_name .. '/' .. H.fs_get_basename(single_child)
+          cur_path = single_child
+        end
+        entry.name = cur_name
+        entry.path = cur_path
+      end
+    end
+  end
 
   -- Add new data: absolute file path and its index
   for _, entry in ipairs(res) do
@@ -2792,6 +2854,49 @@ H.fs_actions_to_lines = function(fs_actions)
   return res
 end
 
+H.fs_is_dir_present_in_parent_buf = function(dir)
+  local parent = H.fs_get_parent(dir)
+  if parent == nil then return false end
+
+  local norm_dir = H.fs_normalize_path(dir)
+  local norm_parent = H.fs_normalize_path(parent)
+
+  -- Find if parent has an active buffer
+  for buf_id, buf_data in pairs(H.opened_buffers) do
+    if H.fs_normalize_path(buf_data.path) == norm_parent then
+      if H.is_valid_buf(buf_id) then
+        local lines = vim.api.nvim_buf_get_lines(buf_id, 0, -1, false)
+        for _, l in ipairs(lines) do
+          local path_id = H.match_line_path_id(l)
+          if path_id ~= nil and H.fs_normalize_path(H.path_index[path_id] or '') == norm_dir then return true end
+        end
+      end
+    end
+  end
+  return false
+end
+
+H.fs_clean_empty_parents = function(path, root_path)
+  if path == nil or root_path == nil then return end
+  local cur = H.fs_normalize_path(path)
+  local limit = H.fs_normalize_path(root_path)
+  while cur ~= limit and cur:len() > limit:len() do
+    -- If the directory is still present in its parent's buffer, do not delete it!
+    if H.fs_is_dir_present_in_parent_buf(cur) then break end
+
+    local fs = vim.loop.fs_scandir(cur)
+    if not fs then break end
+    local name = vim.loop.fs_scandir_next(fs)
+    if name ~= nil then break end
+
+    -- Directory is empty, delete it
+    local success = vim.fn.delete(cur, 'd') == 0
+    if not success then break end
+
+    cur = H.fs_get_parent(cur)
+  end
+end
+
 H.fs_actions_apply = function(fs_actions, lsp_timeout)
   H.lsp_fs_hook('willCreate', fs_actions, lsp_timeout)
   H.lsp_fs_hook('willDelete', fs_actions, lsp_timeout)
@@ -2809,6 +2914,12 @@ H.fs_actions_apply = function(fs_actions, lsp_timeout)
       local data = { action = action, from = diff.from, to = to }
       local action_titlecase = action:sub(1, 1):upper() .. action:sub(2)
       H.trigger_event('MiniFilesAction' .. action_titlecase, data)
+
+      -- Clean empty parent directories of deleted/moved paths
+      if diff.from ~= nil and diff.dir ~= nil and (action == 'delete' or action == 'rename' or action == 'move') then
+        local parent = H.fs_get_parent(diff.from)
+        if parent ~= nil then H.fs_clean_empty_parents(parent, diff.dir) end
+      end
 
       -- Modify later actions to account for file movement
       local has_moved = to ~= nil and not (action == 'copy' or action == 'create')
@@ -2937,7 +3048,8 @@ H.fs_do.copy = function(from, to)
   if from_type == 'file' then return vim.loop.fs_copyfile(from, to) end
 
   -- Recursively copy a directory
-  local fs_entries = H.fs_read_dir(from, { filter = function() return true end, sort = function(x) return x end })
+  local fs_entries =
+    H.fs_read_dir_entries(from, { filter = function() return true end, sort = function(x) return x end })
   -- NOTE: Create directory *after* reading entries to allow copy inside itself
   vim.fn.mkdir(to)
 
