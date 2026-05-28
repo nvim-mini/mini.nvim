@@ -1544,14 +1544,8 @@ H.explorer_refresh = function(explorer, opts)
     explorer = H.explorer_sync_cursor_and_branch(explorer, depth)
   end
 
-  -- Unregister windows from showed buffers, as they might get outdated
-  for _, win_id in ipairs(explorer.windows) do
-    -- NOTE: window can be invalid if it was showing buffer that was deleted
-    if H.is_valid_win(win_id) then
-      local buf_id = vim.api.nvim_win_get_buf(win_id)
-      H.opened_buffers[buf_id].win_id = nil
-    end
-  end
+  -- Unregister windows from shown buffers, as they might get outdated
+  explorer = H.explorer_unregister_windows(explorer)
 
   -- Compute depth range which is possible to show in current window
   local depth_range = H.compute_visible_depth_range(explorer, explorer.opts)
@@ -1681,6 +1675,20 @@ H.explorer_sync_cursor_and_branch = function(explorer, depth)
   local is_cur_buf = explorer.depth_focus == depth
   if show_preview and is_cur_buf then table.insert(explorer.branch, cursor_path) end
 
+  return explorer
+end
+
+H.explorer_unregister_windows = function(explorer)
+  local valid_windows = {}
+  for i, win_id in ipairs(explorer.windows) do
+    -- NOTE: window can be invalid if it was showing buffer that was deleted
+    if H.is_valid_win(win_id) then
+      local buf_id = vim.api.nvim_win_get_buf(win_id)
+      H.opened_buffers[buf_id].win_id = nil
+      table.insert(valid_windows, win_id)
+    end
+  end
+  explorer.windows = valid_windows
   return explorer
 end
 

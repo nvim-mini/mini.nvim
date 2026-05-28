@@ -5733,6 +5733,19 @@ T['Events']['`MiniFilesWindowUpdate` can customize internally set window config 
   expect_screenshot()
 end
 
+T['Events']['MiniFilesWindowUpdate with preview works with `get_explorer_state()` after `undo`'] = function()
+  child.lua('MiniFiles.config.windows.preview = true')
+  child.lua([[
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'MiniFilesWindowUpdate',
+      callback = function() MiniFiles.get_explorer_state() end
+    })
+  ]])
+  open()
+  type_keys('o', '<Esc>', 'u')
+  eq(#get_explorer_state().windows, 2)
+end
+
 T['Events']['`MiniFilesActionCreate` triggers'] = function()
   track_event('MiniFilesActionCreate')
 
