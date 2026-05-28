@@ -201,15 +201,22 @@ T['log_add()']['works'] = function()
     { state = 'no desc' },
   })
 
-  -- Should allow function in log entry
+  -- Should allow function and userdata in log entry
   local fun_in_log = child.lua([[
     MiniMisc.log_add('func 1', function() return 1 end)
     MiniMisc.log_add('func 2', { f = function() return 2 end })
+    MiniMisc.log_add('timer 1', vim.loop.new_timer())
+    MiniMisc.log_add('timer 2', { t = vim.loop.new_timer() })
 
     local log = MiniMisc.log_get()
-    return { log[#log - 1].state(), log[#log].state.f() }
+    return {
+      log[#log - 3].state(),
+      log[#log - 2].state.f(),
+      type(log[#log - 1].state),
+      type(log[#log].state.t),
+    }
   ]])
-  eq(fun_in_log, { 1, 2 })
+  eq(fun_in_log, { 1, 2, 'userdata', 'userdata' })
 
   -- Should properly set timestamps
   child.lua('_G.small_time = ' .. vim.inspect(small_time))

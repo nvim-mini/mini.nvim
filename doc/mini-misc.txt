@@ -117,7 +117,7 @@ Parameters ~
 {desc} `(any)` Entry description.
 {state} `(any)` Data about current state.
 {opts} `(table|nil)` Options. Possible fields:
-  - <deepcopy> - (boolean) Whether to apply |vim.deepcopy| to the {state}.
+  - <deepcopy> - (boolean) Whether to create a copy of tables in {state}.
     Usually helpful to record the exact state during code execution and avoid
     side effects of tables being changed in-place. Default `true`.
 

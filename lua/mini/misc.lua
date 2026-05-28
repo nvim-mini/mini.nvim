@@ -137,7 +137,7 @@ end
 ---@param desc any Entry description.
 ---@param state any Data about current state.
 ---@param opts table|nil Options. Possible fields:
----   - <deepcopy> - (boolean) Whether to apply |vim.deepcopy| to the {state}.
+---   - <deepcopy> - (boolean) Whether to create a copy of tables in {state}.
 ---     Usually helpful to record the exact state during code execution and avoid
 ---     side effects of tables being changed in-place. Default `true`.
 ---
@@ -156,7 +156,7 @@ MiniMisc.log_add = function(desc, state, opts)
   opts = vim.tbl_extend('force', { deepcopy = true }, opts or {})
   local entry = {
     desc = desc,
-    state = opts.deepcopy and vim.deepcopy(state) or state,
+    state = opts.deepcopy and H.copy_tables(state) or state,
     timestamp = 0.000001 * (vim.loop.hrtime() - H.log_cache.start_htime),
   }
   table.insert(H.log_cache.log, entry)
@@ -958,6 +958,8 @@ H.fit_to_width = function(text, width)
   local t_width = vim.fn.strchars(text)
   return t_width <= width and text or ('…' .. vim.fn.strcharpart(text, t_width - width + 1, width - 1))
 end
+
+H.copy_tables = function(x) return type(x) == 'table' and vim.tbl_map(H.copy_tables, x) or x end
 
 -- TODO: Remove after compatibility with Neovim=0.9 is dropped
 H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
