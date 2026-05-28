@@ -1027,6 +1027,17 @@ T['expect']['reference_screenshot()']['works'] = function()
   eq(MiniTest.expect.reference_screenshot(nil), true)
 end
 
+T['expect']['reference_screenshot()']['works with double width characters'] = function()
+  local path = get_ref_path('reference-screenshot-double-width')
+  child.set_size(5, 20)
+  set_lines({ '「」' })
+  eq(MiniTest.expect.reference_screenshot(child.get_screenshot(), path), true)
+
+  set_lines({ '「「' })
+  local pattern = 'different `text` cell at line 1 column 3, reference = "」", observed = "「"'
+  expect.error(function() MiniTest.expect.reference_screenshot(child.get_screenshot(), path) end, pattern)
+end
+
 T['expect']['reference_screenshot()']['locates problem'] = function()
   local path = get_ref_path('reference-screenshot')
   local validate = function(screen, pattern)

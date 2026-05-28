@@ -2435,7 +2435,7 @@ H.screenshot_read = function(path)
   local n = 0.5 * (#lines - 3)
   local text_lines, attr_lines = vim.list_slice(lines, 2, n + 1), vim.list_slice(lines, n + 4, 2 * n + 3)
 
-  local f = function(x) return H.string_to_chars(x:gsub('^%d+|', '')) end
+  local f = function(x) return H.string_to_screenchars(x:gsub('^%d+|', '')) end
   return H.screenshot_new({ text = vim.tbl_map(f, text_lines), attr = vim.tbl_map(f, attr_lines) })
 end
 
@@ -2489,11 +2489,18 @@ H.fit_to_width = function(text, width)
   return t_width <= width and text or ('…' .. vim.fn.strcharpart(text, t_width - width + 1, width - 1))
 end
 
-H.string_to_chars = function(s)
+H.string_to_screenchars = function(s)
   -- Can't use `vim.split(s, '')` because of multibyte characters
   local res = {}
   for i = 1, vim.fn.strchars(s) do
-    table.insert(res, vim.fn.strcharpart(s, i - 1, 1))
+    local ch = vim.fn.strcharpart(s, i - 1, 1)
+    table.insert(res, ch)
+    -- Not single-width characters are read as a single char, but result into
+    -- `{ ch, '', ... }` when computing observed screenshot (as this is how
+    -- `vim.fn.screenstring()` works)
+    for _ = 1, vim.fn.strdisplaywidth(ch) - 1 do
+      table.insert(res, '')
+    end
   end
   return res
 end
