@@ -917,6 +917,8 @@ MiniPick.start = function(opts)
     end, 0.5)
   end
 
+  if vim.fn.getcmdwintype() ~= '' then return H.notify('Can not open a picker with active command window', 'WARN') end
+
   H.cache = {}
   opts = H.validate_picker_opts(opts)
   local picker = H.picker_new(opts)

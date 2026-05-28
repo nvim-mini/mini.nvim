@@ -936,6 +936,21 @@ T['start()']['works with language mappings'] = function()
   eq(get_picker_query(), { 'd' })
 end
 
+T['start()']['properly not starts in command line window'] = function()
+  local guicursor = child.o.guicursor
+  type_keys('q:')
+  start_with_items({ 'a' })
+  eq(is_picker_active(), false)
+  if child.fn.has('nvim-0.11') == 1 then
+    eq(child.cmd_capture('messages'), '(mini.pick) Can not open a picker with active command window')
+  end
+
+  -- Should not have side effects
+  eq(child.o.guicursor, guicursor)
+
+  child.cmd('quit')
+end
+
 T['start()']['respects `window.config`'] = function()
   -- As table
   start({ source = { items = { 'a', 'b', 'c' } }, window = { config = { border = 'double' } } })
