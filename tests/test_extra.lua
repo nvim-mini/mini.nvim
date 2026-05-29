@@ -1852,7 +1852,7 @@ T['pickers']['git_files()']['works'] = function()
   child.lua_notify('_G.return_item = MiniExtra.pickers.git_files()')
   validate_picker_name('Git files (tracked)')
   child.expect_screenshot()
-  local ref_args = { '-C', repo_dir, '-c', 'core.quotepath=false', 'ls-files', '--cached' }
+  local ref_args = { '-C', repo_dir, '-c', 'core.quotepath=false', 'ls-files', '--cached', '--exclude-standard' }
   eq(get_spawn_log(), { { executable = 'git', options = { args = ref_args, cwd = repo_dir } } })
 
   -- Should have proper preview
@@ -1881,7 +1881,7 @@ T['pickers']['git_files()']['respects `local_opts.path`'] = function()
 
   local validate = function(path, ref_cwd)
     pick_git_files({ path = path })
-    local ref_args = { '-C', ref_cwd, '-c', 'core.quotepath=false', 'ls-files', '--cached' }
+    local ref_args = { '-C', ref_cwd, '-c', 'core.quotepath=false', 'ls-files', '--cached', '--exclude-standard' }
     eq(get_spawn_log()[1].options, { args = ref_args, cwd = ref_cwd })
     validate_picker_cwd(ref_cwd)
     validate_git_repo_check(dir_path_full)
@@ -1919,11 +1919,11 @@ T['pickers']['git_files()']['respects `local_opts.scope`'] = function()
     clear_spawn_log()
   end
 
-  validate('tracked', { '--cached' }, 'Git files (tracked)')
-  validate('modified', { '--modified' }, 'Git files (modified)')
-  validate('untracked', { '--others' }, 'Git files (untracked)')
+  validate('tracked', { '--cached', '--exclude-standard' }, 'Git files (tracked)')
+  validate('modified', { '--modified', '--exclude-standard' }, 'Git files (modified)')
+  validate('untracked', { '--others', '--exclude-standard' }, 'Git files (untracked)')
   validate('ignored', { '--others', '--ignored', '--exclude-standard' }, 'Git files (ignored)')
-  validate('deleted', { '--deleted' }, 'Git files (deleted)')
+  validate('deleted', { '--deleted', '--exclude-standard' }, 'Git files (deleted)')
 end
 
 T['pickers']['git_files()']['can not show icons'] = function()
