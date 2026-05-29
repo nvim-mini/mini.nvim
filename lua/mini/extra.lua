@@ -746,7 +746,7 @@ end
 --- - `MiniExtra.pickers.git_files({ scope = 'ignored' })` - ignored files from
 ---   parent Git repository of |current-directory|.
 --- - `:Pick git_files path='subdir' scope='modified'` - files from 'subdir'
----   subdirectory which are ignored by Git.
+---   subdirectory which differ from Git index.
 ---
 ---@param local_opts __extra_pickers_local_opts
 ---   Possible fields:
