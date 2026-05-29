@@ -1557,10 +1557,11 @@ H.explorer_refresh = function(explorer, opts)
   local depth_range = H.compute_visible_depth_range(explorer, explorer.opts)
 
   -- Refresh window for every target depth keeping track of position column
-  local cur_win_col, cur_win_count = 0, 0
+  local cur_win_col, cur_win_count, opened_windows = 0, 0, {}
   for depth = depth_range.from, depth_range.to do
     cur_win_count = cur_win_count + 1
-    local cur_width = H.explorer_refresh_depth_window(explorer, depth, cur_win_count, cur_win_col)
+    local cur_width, was_opened = H.explorer_refresh_depth_window(explorer, depth, cur_win_count, cur_win_col)
+    opened_windows[explorer.windows[cur_win_count]] = was_opened
 
     -- Add 2 to account for left and right borders
     cur_win_col = cur_win_col + cur_width + 2
@@ -1580,6 +1581,13 @@ H.explorer_refresh = function(explorer, opts)
   -- Register as currently opened
   explorer.tabpage_id = vim.api.nvim_win_get_tabpage(win_id_focused)
   H.opened_explorers[explorer.tabpage_id] = explorer
+
+  -- Trigger window related events after all windows are fully refreshed
+  for _, win_id in ipairs(explorer.windows) do
+    local data = { buf_id = vim.api.nvim_win_get_buf(win_id), win_id = win_id }
+    if opened_windows[win_id] then H.trigger_event('MiniFilesWindowOpen', data) end
+    H.trigger_event('MiniFilesWindowUpdate', data)
+  end
 
   return explorer
 end
@@ -1854,11 +1862,12 @@ H.explorer_refresh_depth_window = function(explorer, depth, win_count, win_col)
   config.title = ' ' .. H.sanitize_string(config.title) .. ' '
 
   -- Prepare and register window
-  local win_id = windows[win_count]
+  local win_id, was_opened = windows[win_count], false
   if not H.is_valid_win(win_id) then
     H.window_close(win_id)
     win_id = H.window_open(view.buf_id, config)
     windows[win_count] = win_id
+    was_opened = true
   end
 
   H.window_update(win_id, config)
@@ -1866,15 +1875,12 @@ H.explorer_refresh_depth_window = function(explorer, depth, win_count, win_col)
   -- Show view in window
   H.window_set_view(win_id, view)
 
-  -- Trigger dedicated event
-  H.trigger_event('MiniFilesWindowUpdate', { buf_id = vim.api.nvim_win_get_buf(win_id), win_id = win_id })
-
   -- Update explorer data
   explorer.views = views
   explorer.windows = windows
 
   -- Return width of current window to keep track of window column
-  return cur_width
+  return cur_width, was_opened
 end
 
 H.explorer_get_path_depth = function(explorer, path)
@@ -2512,9 +2518,6 @@ H.window_open = function(buf_id, config)
   H.window_update_highlight(win_id, 'NormalFloat', 'MiniFilesNormal')
   H.window_update_highlight(win_id, 'FloatTitle', 'MiniFilesTitle')
   H.window_update_highlight(win_id, 'CursorLine', 'MiniFilesCursorLine')
-
-  -- Trigger dedicated event
-  H.trigger_event('MiniFilesWindowOpen', { buf_id = buf_id, win_id = win_id })
 
   return win_id
 end

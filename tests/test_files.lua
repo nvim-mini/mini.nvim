@@ -2166,6 +2166,25 @@ T['get_explorer_state()']['ensures valid target window'] = function()
   eq(get_explorer_state().target_window, init_win_id)
 end
 
+T['get_explorer_state()']['can be used in events'] = function()
+  child.lua('MiniFiles.config.windows.preview = true')
+  child.lua([[
+    local cb = function() MiniFiles.get_explorer_state() end
+    local pattern = {
+      'MiniFilesExplorerOpen', 'MiniFilesExplorerClose',
+      'MiniFilesBufferCreate', 'MiniFilesBufferUpdate',
+      'MiniFilesWindowOpen',   'MiniFilesWindowUpdate',
+    }
+    vim.api.nvim_create_autocmd('User', { pattern = pattern, callback = cb })
+  ]])
+  open(test_dir_path)
+
+  -- Trigger events in a way that in the past resulted in errors due explorer
+  -- windows being not fully refreshed (like it contained not valid windows)
+  type_keys('o', '<Up>')
+  eq(#get_explorer_state().windows, 2)
+end
+
 T['set_target_window()'] = new_set()
 
 T['set_target_window()']['works'] = function()
