@@ -496,7 +496,7 @@ Steps:
 - Add label to the entry.
 
 Parameters ~
-{label} `(string|nil)` Label string. Default: `nil` to ask from user.
+{label} `(string|nil)` Label string. Default: `nil` to ask with |vim.ui.input()|.
 {path} `(string|nil)` Visit path. Can be empty string to mean "all visited
   paths for `cwd`". Default: path of current buffer if normal, error otherwise.
 {cwd} `(string|nil)` Visit cwd (project directory). Can be empty string to mean
@@ -530,7 +530,7 @@ Steps:
 - If it was last label in an entry, remove `labels` key.
 
 Parameters ~
-{label} `(string|nil)` Label string. Default: `nil` to ask from user.
+{label} `(string|nil)` Label string. Default: `nil` to ask with |vim.ui.input()|.
 {path} `(string|nil)` Visit path. Can be empty string to mean "all visited
   paths for `cwd`". Default: path of current buffer if normal, error otherwise.
 {cwd} `(string|nil)` Visit cwd (project directory). Can be empty string to mean

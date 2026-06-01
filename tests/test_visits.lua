@@ -107,6 +107,18 @@ local mock_ui_select = function(choice_index)
   child.lua(lua_cmd)
 end
 
+local mock_ui_input = function(input)
+  child.lua('_G.mock_input = ' .. vim.inspect(input))
+  child.lua([[
+    _G.ui_input_orig = _G.ui_input_orig or vim.ui.input
+    _G.ui_input_log = {}
+    vim.ui.input = function(opts, on_confirm)
+      table.insert(_G.ui_input_log, opts.prompt)
+      on_confirm(_G.mock_input)
+    end
+  ]])
+end
+
 local get_ui_select_log = function() return child.lua_get('_G.ui_select_log') end
 
 -- Time constants
@@ -446,10 +458,11 @@ T['add_label()']['asks user for label if it is not supplied'] = function()
   local file_full, file_2_full = full_path('file'), full_path('file-2')
   local dir_full, dir_2_full = full_path('dir'), full_path('dir-2')
 
-  child.lua_notify([[MiniVisits.add_label(nil, 'file', 'dir')]])
-  child.expect_screenshot()
-  type_keys('aaa', '<CR>')
+  -- Should use `vim.ui.input`
+  mock_ui_input('aaa')
+  child.lua_notify('MiniVisits.add_label(nil, "file", "dir")')
   eq(get_index(), { [dir_full] = { [file_full] = { count = 0, labels = { aaa = true }, latest = 0 } } })
+  eq(child.lua_get('_G.ui_input_log'), { '(mini.visits) Enter label to add ' })
 
   -- Has completion with all labels from target cwd
   add_label('abb', 'file-2', 'dir')
@@ -457,7 +470,9 @@ T['add_label()']['asks user for label if it is not supplied'] = function()
   add_label('ccc', 'file', 'dir-2')
   add_label('ddd', 'file-2', 'dir-2')
 
-  child.lua_notify([[MiniVisits.add_label(nil, 'file', 'dir')]])
+  -- - Unmock to fully test completion
+  child.lua('vim.ui.input = _G.ui_input_orig')
+  child.lua_notify('MiniVisits.add_label(nil, "file", "dir")')
   type_keys('<Tab>')
   child.expect_screenshot()
 
@@ -667,10 +682,10 @@ T['remove_label()']['asks user for label if it is not supplied'] = function()
   add_label('aaa', 'file', 'dir')
   add_label('bbb', 'file', 'dir')
 
-  child.lua_notify([[MiniVisits.remove_label(nil, 'file', 'dir')]])
-  child.expect_screenshot()
-  type_keys('aaa', '<CR>')
+  mock_ui_input('aaa')
+  child.lua_notify('MiniVisits.remove_label(nil, "file", "dir")')
   eq(get_index(), { [dir_full] = { [file_full] = { count = 0, labels = { bbb = true }, latest = 0 } } })
+  eq(child.lua_get('_G.ui_input_log'), { '(mini.visits) Enter label to remove ' })
 
   -- Has completion with all labels from target path-cwd pair
   add_label('aaa', 'file', 'dir')
@@ -680,7 +695,9 @@ T['remove_label()']['asks user for label if it is not supplied'] = function()
   add_label('ccc', 'file-2', 'dir')
   add_label('ddd', 'file', 'dir-2')
 
-  child.lua_notify([[MiniVisits.remove_label(nil, 'file', 'dir')]])
+  -- - Unmock to fully test completion
+  child.lua('vim.ui.input = _G.ui_input_orig')
+  child.lua_notify('MiniVisits.remove_label(nil, "file", "dir")')
   type_keys('<Tab>')
   child.expect_screenshot()
 

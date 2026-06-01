@@ -150,6 +150,12 @@ There are following change types:
 
 - Update `MiniTest.expect.equality` to show more detailed cause of failed equality. Like which character is different in two string or which values are different in two tables and at what key branch.
 
+## mini.visits
+
+### Refine
+
+- Update `add_label` and `remove_label` to use `vim.ui.input` to ask user for not supplied label instead of previous non-customizable `vim.fn.input()`.
+
 
 # Version 0.17.0
 

@@ -537,31 +537,33 @@ end
 --- - Ensure that there is an entry for path-cwd pair.
 --- - Add label to the entry.
 ---
----@param label string|nil Label string. Default: `nil` to ask from user.
+---@param label string|nil Label string. Default: `nil` to ask with |vim.ui.input()|.
 ---@param path __visits_path
 ---@param cwd __visits_cwd
 MiniVisits.add_label = function(label, path, cwd)
   path = H.validate_path(path)
   cwd = H.validate_cwd(cwd)
+  if label ~= nil then H.validate_string(label, 'label') end
 
-  if label == nil then
-    -- Suggest all labels from cwd in completion
-    label = H.get_label_from_user('Enter label to add', MiniVisits.list_labels('', cwd))
-    if label == nil then return end
+  local on_label = function(l)
+    if l == nil then return end
+
+    -- Add label to all target path-cwd pairs
+    local path_cwd_pairs = H.resolve_path_cwd(path, cwd)
+    for _, pair in ipairs(path_cwd_pairs) do
+      H.ensure_index_entry(pair.path, pair.cwd)
+      local path_tbl = H.index[pair.cwd][pair.path]
+      local labels = path_tbl.labels or {}
+      labels[l] = true
+      path_tbl.labels = labels
+    end
+
+    H.echo(string.format('Added %s label.', vim.inspect(l)))
   end
-  label = H.validate_string(label, 'label')
 
-  -- Add label to all target path-cwd pairs
-  local path_cwd_pairs = H.resolve_path_cwd(path, cwd)
-  for _, pair in ipairs(path_cwd_pairs) do
-    H.ensure_index_entry(pair.path, pair.cwd)
-    local path_tbl = H.index[pair.cwd][pair.path]
-    local labels = path_tbl.labels or {}
-    labels[label] = true
-    path_tbl.labels = labels
-  end
-
-  H.echo(string.format('Added %s label.', vim.inspect(label)))
+  if label ~= nil then return on_label(label) end
+  -- Suggest all labels from cwd in completion
+  H.on_label_from_user('Enter label to add', on_label, MiniVisits.list_labels('', cwd))
 end
 
 --- Remove path
@@ -598,33 +600,35 @@ end
 --- - Remove label from (one or more) index entry.
 --- - If it was last label in an entry, remove `labels` key.
 ---
----@param label string|nil Label string. Default: `nil` to ask from user.
+---@param label string|nil Label string. Default: `nil` to ask with |vim.ui.input()|.
 ---@param path __visits_path
 ---@param cwd __visits_cwd
 MiniVisits.remove_label = function(label, path, cwd)
   path = H.validate_path(path)
   cwd = H.validate_cwd(cwd)
+  if label ~= nil then H.validate_string(label, 'label') end
 
-  if label == nil then
-    -- Suggest only labels from target path-cwd pairs
-    label = H.get_label_from_user('Enter label to remove', MiniVisits.list_labels(path, cwd))
-    if label == nil then return end
-  end
-  label = H.validate_string(label, 'label')
+  local on_label = function(l)
+    if l == nil then return end
 
-  -- Remove label from all target path-cwd pairs (ignoring not present ones and
-  -- collapsing `labels` if removed last label)
-  H.ensure_read_index()
-  local path_cwd_pairs = H.resolve_path_cwd(path, cwd)
-  for _, pair in ipairs(path_cwd_pairs) do
-    local path_tbl = (H.index[pair.cwd] or {})[pair.path]
-    if type(path_tbl) == 'table' and type(path_tbl.labels) == 'table' then
-      path_tbl.labels[label] = nil
-      if vim.tbl_count(path_tbl.labels) == 0 then path_tbl.labels = nil end
+    -- Remove label from all target path-cwd pairs (ignoring not present ones and
+    -- collapsing `labels` if removed last label)
+    H.ensure_read_index()
+    local path_cwd_pairs = H.resolve_path_cwd(path, cwd)
+    for _, pair in ipairs(path_cwd_pairs) do
+      local path_tbl = (H.index[pair.cwd] or {})[pair.path]
+      if type(path_tbl) == 'table' and type(path_tbl.labels) == 'table' then
+        path_tbl.labels[l] = nil
+        if vim.tbl_count(path_tbl.labels) == 0 then path_tbl.labels = nil end
+      end
     end
+
+    H.echo(string.format('Removed %s label.', vim.inspect(l)))
   end
 
-  H.echo(string.format('Removed %s label.', vim.inspect(label)))
+  if label ~= nil then return on_label(label) end
+  -- Suggest only labels from target path-cwd pairs
+  H.on_label_from_user('Enter label to remove', on_label, MiniVisits.list_labels(path, cwd))
 end
 
 --- List visit paths
@@ -1413,16 +1417,15 @@ H.index_decay_cwd = function(cwd_tbl, threshold, target)
   end
 end
 
-H.get_label_from_user = function(prompt, labels_complete)
+H.on_label_from_user = function(prompt, on_label, labels_complete)
   MiniVisits._complete = function(arg_lead)
     return vim.tbl_filter(function(x) return x:find(arg_lead, 1, true) ~= nil end, labels_complete)
   end
   local completion = 'customlist,v:lua.MiniVisits._complete'
-  local input_opts = { prompt = prompt .. ': ', completion = completion, cancelreturn = false }
-  local ok, res = pcall(vim.fn.input, input_opts)
-  MiniVisits._complete = nil
-  if not ok or res == false then return nil end
-  return res
+  vim.ui.input({ prompt = '(mini.visits) ' .. prompt .. ' ', completion = completion }, function(x)
+    MiniVisits._complete = nil
+    on_label(x)
+  end)
 end
 
 -- Validators -----------------------------------------------------------------
