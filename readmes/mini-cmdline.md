@@ -41,7 +41,7 @@ What it doesn't do:
 
 This plugin can be installed as part of 'mini.nvim' library (**recommended**) or as a standalone Git repository.
 
-During beta-testing phase there is only one branch to install from:
+There are two branches to install from:
 
 - `main` (default, **recommended**) will have latest development version of plugin. All changes since last stable release should be perceived as being in beta testing phase (meaning they already passed alpha-testing and are moderately settled).
 - `stable` will be updated only upon releases with code tested during public beta-testing phase in `main` branch.
@@ -180,4 +180,4 @@ Stable branch:
 
 - [folke/noice.nvim](https://github.com/folke/noice.nvim)
 - [nacro90/numb.nvim](https://github.com/nacro90/numb.nvim)
-- Built-in [cmdline-autocompletion](https://neovim.io/doc/user/helptag.html?tag=cmdline-autocompletion) (on Neovim>=0.12):
+- Built-in [cmdline-autocompletion](https://neovim.io/doc/user/helptag.html?tag=cmdline-autocompletion) (on Neovim>=0.12)
