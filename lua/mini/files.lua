@@ -1036,7 +1036,7 @@ MiniFiles.reveal_cwd = function()
   local branch, depth_focus = state.branch, state.depth_focus
 
   local cwd = H.fs_full_path(vim.fn.getcwd())
-  local cwd_ancestor_pattern = string.format('^%s/.', vim.pesc(cwd))
+  local cwd_ancestor_pattern = string.format('^%s%s.', vim.pesc(cwd), cwd == '/' and '' or '/')
   while branch[1]:find(cwd_ancestor_pattern) ~= nil do
     table.insert(branch, 1, H.fs_get_parent(branch[1]))
     depth_focus = depth_focus + 1
@@ -3054,7 +3054,7 @@ H.validate_branch = function(x)
   end
   for i = 2, #res do
     local parent, child = res[i - 1], res[i]
-    if (parent .. '/' .. child:match('[^/]+$')) ~= res[i] then
+    if H.fs_child_path(parent, child:match('[^/]+$')) ~= child then
       H.error('`branch` contains not a parent-child pair: ' .. vim.inspect(parent) .. ' and ' .. vim.inspect(child))
     end
   end

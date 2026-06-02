@@ -1861,6 +1861,20 @@ T['reveal_cwd()']['works when root is already cwd'] = function()
   child.expect_screenshot()
 end
 
+T['reveal_cwd()']['works when cwd is `/`'] = function()
+  if not helpers.is_linux() then MiniTest.skip('Test is only for Linux.') end
+
+  child.fn.chdir('/')
+  open('/usr')
+  eq(get_explorer_state().branch, { '/usr' })
+  eq(get_explorer_state().depth_focus, 1)
+
+  reveal_cwd()
+  eq(get_explorer_state().branch, { '/', '/usr' })
+  eq(#get_explorer_state().windows, 2)
+  eq(get_explorer_state().depth_focus, 2)
+end
+
 T['reveal_cwd()']['properly places cursors'] = function()
   child.lua('MiniFiles.config.windows.width_focus = 20')
   local temp_dir =
@@ -2305,6 +2319,14 @@ T['set_branch()']['works with not absolute paths'] = function()
     set_branch({ '..' })
     eq(get_explorer_state().branch, { full_path(test_dir) })
   end
+end
+
+T['set_branch()']['works with `/` and a subdirectory'] = function()
+  if not helpers.is_linux() then MiniTest.skip('Test is only for Linux.') end
+
+  open('/')
+  set_branch({ '/', '/usr' })
+  expect.no_error(reveal_cwd)
 end
 
 T['set_branch()']['sets cursors on child entries'] = function()
