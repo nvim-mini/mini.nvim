@@ -790,6 +790,15 @@ H.apply_palette = function(palette, use_cterm)
     hi('MiniIndentscopeSymbol',    {fg=p.base0F, bg=nil, attr=nil, sp=nil})
     hi('MiniIndentscopeSymbolOff', {fg=p.base08, bg=nil, attr=nil, sp=nil})
 
+    hi('MiniInputAdded',   {link='DiagnosticFloatingOk'})
+    hi('MiniInputBorder',  {link='FloatBorder'})
+    hi('MiniInputCaret',   {link='MiniInputPrompt'})
+    hi('MiniInputHide',    {link='DiagnosticFloatingWarn'})
+    hi('MiniInputHint',    {link='DiagnosticFloatingHint'})
+    hi('MiniInputNormal',  {link='NormalFloat'})
+    hi('MiniInputPrompt',  {link='DiagnosticFloatingInfo'})
+    hi('MiniInputSpecial', {link='DiagnosticFloatingWarn'})
+
     hi('MiniJump', {link='SpellRare'})
 
     hi('MiniJump2dDim',        {link='Comment'})
