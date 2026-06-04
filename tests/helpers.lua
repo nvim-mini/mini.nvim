@@ -175,6 +175,17 @@ Helpers.new_child_neovim = function()
     opts = opts or {}
     local screenshot_opts = { redraw = opts.redraw }
     opts.redraw = nil
+    if opts.ignore_cmdline and child.o.cmdheight > 0 then
+      local ignore_text, ignore_attr = opts.ignore_text or {}, opts.ignore_attr or {}
+      local height = child.o.lines
+      for i = 1, child.o.cmdheight do
+        local lnum = height - i + 1
+        if not vim.tbl_contains(ignore_text, lnum) then table.insert(ignore_text, lnum) end
+        if not vim.tbl_contains(ignore_attr, lnum) then table.insert(ignore_attr, lnum) end
+      end
+      opts.ignore_text = ignore_text
+      opts.ignore_attr = ignore_attr
+    end
     MiniTest.expect.reference_screenshot(child.get_screenshot(screenshot_opts), path, opts)
   end
 

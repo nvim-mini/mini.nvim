@@ -27,6 +27,7 @@ local modules = {
   'hues',
   'icons',
   'indentscope',
+  'input',
   'jump',
   'jump2d',
   'keymap',

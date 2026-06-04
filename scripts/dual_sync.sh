@@ -92,6 +92,7 @@ sync_module "hipatterns"
 sync_module "hues" colors/miniwinter.lua colors/minispring.lua colors/minisummer.lua colors/miniautumn.lua colors/randomhue.lua
 sync_module "icons"
 sync_module "indentscope"
+sync_module "input"
 sync_module "jump"
 sync_module "jump2d"
 sync_module "keymap"

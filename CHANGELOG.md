@@ -74,6 +74,10 @@ There are following change types:
     - 'folke/snacks.nvim'
     - 'saghen/blink.cmp'
 
+## mini.input
+
+- Introduction of a new module.
+
 ## mini.jump
 
 ### Evolve

@@ -42,6 +42,7 @@ body:
         - mini.hues
         - mini.icons
         - mini.indentscope
+        - mini.input
         - mini.jump
         - mini.jump2d
         - mini.keymap

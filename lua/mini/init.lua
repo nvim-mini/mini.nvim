@@ -37,6 +37,7 @@
 ---   Generate configurable color scheme ............................. |mini.hues|
 ---   Icon provider ................................................. |mini.icons|
 ---   Visualize and work with indent scope .................... |mini.indentscope|
+---   Get user input ................................................ |mini.input|
 ---   Jump to next/previous single character ......................... |mini.jump|
 ---   Jump within visible lines .................................... |mini.jump2d|
 ---   Special key mappings ......................................... |mini.keymap|
@@ -247,6 +248,10 @@
 --- - |mini.indentscope| - visualize and operate on indent scope. Supports
 ---   customization of debounce delay, animation style, and different
 ---   granularity of options for scope computing algorithm.
+---
+--- - |mini.input| - get user input with fully customizable key and view handling.
+---   Can show as floating window, statusline/tabline/winbar, virtual line/text.
+---   Provides |vim.ui.input()| implementation.
 ---
 --- - |mini.jump| - minimal and fast module for smarter jumping to a single
 ---   character.
