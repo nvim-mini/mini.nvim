@@ -1133,7 +1133,7 @@ Parameters ~
   - <tool> `(string)` - which tool to use. One of "rg", "git", "fallback".
     Default: whichever tool is present, trying in that same order.
   - <pattern> `(string)` - string pattern to search. If not given, asks user
-    interactively with |input()|.
+    interactively with |MiniInput.get()| (if enabled) or |input()|.
   - <globs> `(table)` - array of string glob patterns to restrict search to
     matching files. Supported only by "rg" and "git" tools, respects their
     specific glob syntax and effects. Default: `{}` (no restriction).
@@ -1166,7 +1166,9 @@ Parameters ~
     matching files. Supported only by "rg" and "git" tools, respects their
     specific glob syntax and effects. Default: `{}` (no restriction).
     Example: `{ '*.lua', 'lua/**' }` for Lua files and files in "lua" directory.
-    Use <C-o> custom mapping to add glob to the array.
+    Use <C-o> custom mapping to add glob to the array. It uses |MiniInput.get()|
+    (if enabled) to show input in |'winbar'| or |'statusline'| (depending of
+    whether content is from bottom).
   - <method> `(string)` - pattern matching method: `"regex"` (default) or `"plain"`.
     Use <C-e> custom mapping to add glob to the array.
 {opts} `(table|nil)` Options forwarded to |MiniPick.start()|.

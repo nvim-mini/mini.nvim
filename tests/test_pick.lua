@@ -118,6 +118,15 @@ end
 
 local validate_current_ind = function(ref_ind) eq(get_picker_matches().current_ind, ref_ind) end
 
+local validate_miniinput = function(prompt, scope, completion, input)
+  local out = child.lua([[
+    local state = MiniInput.get_state()
+    if state == nil then return {} end
+    return { state.opts.prompt, state.opts.scope, state.opts.completion, state.input }
+  ]])
+  eq(out, { prompt, scope, completion, input })
+end
+
 local seq_along = function(x)
   local res = {}
   for i = 1, #x do
@@ -3064,6 +3073,21 @@ T['builtin.grep()']['can have empty string pattern interactively'] = function()
   eq({ args[#args - 1], args[#args] }, { '--', '' })
 end
 
+T['builtin.grep()']["works with 'mini.input'"] = function()
+  child.lua('require("mini.input").setup()')
+  mock_fn_executable({ 'rg' })
+  mock_cli_return({})
+  builtin_grep({ tool = 'rg' })
+
+  validate_miniinput('(mini.pick) Grep pattern', 'editor', 'file', '')
+  type_keys('ab')
+  validate_miniinput('(mini.pick) Grep pattern', 'editor', 'file', 'ab')
+  type_keys('<CR>')
+
+  local args = child.lua_get('_G.spawn_log[1]').options.args
+  eq({ args[#args - 1], args[#args] }, { '--', 'ab' })
+end
+
 T['builtin.grep_live()'] = new_set({ hooks = { pre_case = mock_spawn } })
 
 local builtin_grep_live = forward_lua_notify('MiniPick.builtin.grep_live')
@@ -3269,6 +3293,48 @@ T['builtin.grep_live()']['has custom "add glob" mapping'] = function()
   type_keys('a')
   local args = get_spawn_log()[1].options.args
   eq(vim.list_slice(args, #args - 4), { '--glob', '*.lua', '--case-sensitive', '--', 'a' })
+end
+
+T['builtin.grep_live()']["'add glob' mapping works with 'mini.input'"] = function()
+  child.set_size(10, 70)
+  child.lua('require("mini.input").setup()')
+  child.o.laststatus = 2
+  child.o.statusline = 'My statusline'
+
+  mock_fn_executable({ 'rg' })
+  builtin_grep_live({ tool = 'rg' })
+
+  type_keys('<C-o>')
+  child.expect_screenshot()
+  validate_miniinput('(mini.pick) Glob pattern', 'window', 'file', '')
+  -- - Should not count using 'mini.input' as lost focus
+  sleep(track_lost_focus_delay + small_time)
+  eq(is_picker_active(), true)
+  -- - Should use 'winbar' for 'mini.input'
+  expect.match(child.wo.winbar, 'MiniInputPrompt')
+  type_keys('*.lua')
+  validate_miniinput('(mini.pick) Glob pattern', 'window', 'file', '*.lua')
+  type_keys('<CR>')
+  validate_miniinput(nil, nil, nil)
+  child.expect_screenshot()
+
+  mock_cli_return({})
+  type_keys('a')
+  local args = get_spawn_log()[1].options.args
+  eq(vim.list_slice(args, #args - 4), { '--glob', '*.lua', '--case-sensitive', '--', 'a' })
+  stop()
+
+  -- Should use 'statusline' if content is from bottom
+  if child.fn.has('nvim-0.12') == 0 then MiniTest.skip('Floating windows can have statusline on Neovim>=0.12') end
+
+  builtin_grep_live({ tool = 'rg' }, { options = { content_from_bottom = true } })
+  type_keys('<C-o>')
+  child.expect_screenshot()
+  validate_miniinput('(mini.pick) Glob pattern', 'window', 'file', '')
+  expect.match(child.wo.statusline, 'MiniInputPrompt')
+  type_keys('*.md', '<CR>')
+  child.expect_screenshot()
+  stop()
 end
 
 T['builtin.grep_live()']['respects `local_opts.method`'] = function()

@@ -41,6 +41,15 @@ local validate_step = function(var_name, step_name)
   eq(child.lua_get(('vim.is_callable(%s.action)'):format(var_name)), true)
 end
 
+local validate_miniinput = function(prompt, scope, input)
+  local out = child.lua([[
+    local state = MiniInput.get_state()
+    if state == nil then return {} end
+    return { state.opts.prompt, state.opts.scope, state.input }
+  ]])
+  eq(out, { prompt, scope, input })
+end
+
 local get_latest_message = function() return child.cmd_capture('1messages') end
 
 local get_mode = function() return child.api.nvim_get_mode()['mode'] end
@@ -1726,6 +1735,22 @@ T['Modifiers']['s']['allows empty input'] = function()
   eq(get_lines(), { '  a_b', 'aaa_b' })
 end
 
+T['Modifiers']['s']["works with 'mini.input'"] = function()
+  child.lua('require("mini.input").setup()')
+
+  set_lines({ 'a_b', 'aaa_b' })
+  set_cursor(1, 0)
+  type_keys('ga', 'ip')
+
+  type_keys('s')
+  validate_miniinput('(mini.align) Enter split Lua pattern', 'editor', '')
+  type_keys('_')
+  validate_miniinput('(mini.align) Enter split Lua pattern', 'editor', '_')
+  type_keys('<CR>')
+  validate_miniinput(nil, nil, nil)
+  eq(get_lines(), { 'a  _b', 'aaa_b' })
+end
+
 T['Modifiers']['j'] = new_set()
 
 T['Modifiers']['j']['works'] = new_set({
@@ -1793,6 +1818,23 @@ T['Modifiers']['m']['allows empty input'] = function()
   eq(get_lines(), { 'a  _b', 'aaa_b' })
 end
 
+T['Modifiers']['m']["works with 'mini.input'"] = function()
+  child.lua('require("mini.input").setup()')
+
+  set_lines({ 'a_b', 'aaa_b' })
+  set_cursor(1, 0)
+  type_keys('ga', 'ip')
+
+  type_keys('m')
+  validate_miniinput('(mini.align) Enter merge delimiter', 'editor', '')
+  type_keys('--')
+  validate_miniinput('(mini.align) Enter merge delimiter', 'editor', '--')
+  type_keys('<CR>')
+  validate_miniinput(nil, nil, nil)
+  type_keys('_')
+  eq(get_lines(), { 'a  --_--b', 'aaa--_--b' })
+end
+
 T['Modifiers']['f'] = new_set()
 
 T['Modifiers']['f']['works'] = function()
@@ -1820,6 +1862,23 @@ T['Modifiers']['f']['allows empty input'] = function()
   -- Should result into having `''` as special input (filter step without actual filtering)
   type_keys('f', '<CR>')
   child.expect_screenshot()
+end
+
+T['Modifiers']['f']["works with 'mini.input'"] = function()
+  child.lua('require("mini.input").setup()')
+
+  set_lines({ 'a_b', 'aa_b', 'aaa_b' })
+  set_cursor(1, 0)
+  type_keys('ga', 'ip')
+
+  type_keys('f')
+  validate_miniinput('(mini.align) Enter filter expression', 'editor', '')
+  type_keys('row ~= 1')
+  validate_miniinput('(mini.align) Enter filter expression', 'editor', 'row ~= 1')
+  type_keys('<CR>')
+  validate_miniinput(nil, nil, nil)
+  type_keys('_')
+  eq(get_lines(), { 'a_b', 'aa _b', 'aaa_b' })
 end
 
 T['Modifiers']['i'] = new_set()

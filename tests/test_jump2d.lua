@@ -1314,4 +1314,26 @@ T['builtin_opts.query']['works in edge cases'] = function()
   eq(get_cursor(), { 1, 4 })
 end
 
+T['builtin_opts.query']["works with 'mini.input'"] = function()
+  child.lua('require("mini.input").setup()')
+  local validate_miniinput = function(prompt, scope, input)
+    local out = child.lua([[
+      local state = MiniInput.get_state()
+      if state == nil then return {} end
+      return { state.opts.prompt, state.opts.scope, state.input }
+    ]])
+    eq(out, { prompt, scope, input })
+  end
+
+  set_lines({ 'xyzxy' })
+  start_query()
+  validate_miniinput('(mini.jump2d) Enter query to search', 'cursor', '')
+  type_keys('xy')
+  validate_miniinput('(mini.jump2d) Enter query to search', 'cursor', 'xy')
+  type_keys('<CR>')
+  validate_miniinput(nil)
+  type_keys('b')
+  eq(get_cursor(), { 1, 3 })
+end
+
 return T

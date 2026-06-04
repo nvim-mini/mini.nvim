@@ -700,9 +700,7 @@ MiniJump2d.builtin_opts.single_character = user_input_opts(
 ---
 --- Defines `spotter`, `allowed_lines.blank`, `allowed_lines.fold`, and
 --- `hooks.before_start`.
-MiniJump2d.builtin_opts.query = user_input_opts(
-  function() return H.user_input('Reminder to enter a query to search') end
-)
+MiniJump2d.builtin_opts.query = user_input_opts(function() return H.user_input('Enter query to search') end)
 
 -- Helper data ================================================================
 -- Module default config
@@ -1149,13 +1147,16 @@ H.getcharstr = function(msg)
 end
 
 H.user_input = function(prompt, text)
+  prompt = '(mini.jump2d) ' .. prompt
+  if _G.MiniInput ~= nil then return MiniInput.get({ prompt = prompt, scope = 'cursor', init_keys = { text } }) end
+
   -- Use `on_key` to distinguish cancel with `<Esc>` and immediate `<CR>`
   local was_cancelled = false
   vim.on_key(function(key) was_cancelled = was_cancelled or key == '\27' end, H.ns_id.input)
 
   -- Ask for input. Use `pcall` to allow `<C-c>` to cancel user input
   vim.cmd('echohl Question')
-  local ok, res = pcall(vim.fn.input, { prompt = '(mini.jump2d) ' .. prompt .. ': ', default = text or '' })
+  local ok, res = pcall(vim.fn.input, { prompt = prompt .. ': ', default = text or '' })
   vim.cmd('echohl None | echo "" | redraw')
 
   vim.on_key(nil, H.ns_id.input)

@@ -70,6 +70,15 @@ local validate_no_find = function(lines, start_pos, f, ...)
   eq(get_cursor(), start_pos)
 end
 
+local validate_miniinput = function(prompt, scope, input)
+  local out = child.lua([[
+    local state = MiniInput.get_state()
+    if state == nil then return {} end
+    return { state.opts.prompt, state.opts.scope, state.input }
+  ]])
+  eq(out, { prompt, scope, input })
+end
+
 -- Time constants
 local default_highlight_duraion = 500
 local reminder_delay = 1000
@@ -2316,6 +2325,19 @@ T['Builtin']['Function call']['colors its prompts'] = function()
   child.expect_screenshot()
 end
 
+T['Builtin']['Function call']["works with 'mini.input'"] = function()
+  child.lua('require("mini.input").setup()')
+  set_lines({ 'aaa' })
+
+  type_keys('sa', 'iw', 'f')
+  validate_miniinput('(mini.surround) Function name', 'cursor', '')
+  type_keys('fun')
+  validate_miniinput('(mini.surround) Function name', 'cursor', 'fun')
+  type_keys('<CR>')
+  validate_miniinput(nil, nil, nil)
+  eq(get_lines(), { 'fun(aaa)' })
+end
+
 T['Builtin']['Tag'] = new_set()
 
 T['Builtin']['Tag']['works'] = function()
@@ -2435,6 +2457,19 @@ T['Builtin']['Tag']['colors its prompts'] = function()
   child.expect_screenshot()
 end
 
+T['Builtin']['Tag']["works with 'mini.input'"] = function()
+  child.lua('require("mini.input").setup()')
+  set_lines({ 'aaa' })
+
+  type_keys('sa', 'iw', 't')
+  validate_miniinput('(mini.surround) Tag', 'cursor', '')
+  type_keys('x')
+  validate_miniinput('(mini.surround) Tag', 'cursor', 'x')
+  type_keys('<CR>')
+  validate_miniinput(nil, nil, nil)
+  eq(get_lines(), { '<x>aaa</x>' })
+end
+
 T['Builtin']['User prompt'] = new_set()
 
 T['Builtin']['User prompt']['works'] = function()
@@ -2530,6 +2565,38 @@ T['Builtin']['User prompt']['colors its prompts'] = function()
 
   -- Should clean command line afterwards
   child.expect_screenshot()
+end
+
+T['Builtin']['User prompt']["works with 'mini.input'"] = function()
+  child.lua('require("mini.input").setup()')
+
+  -- Output surrounding
+  set_lines({ 'aaa' })
+  type_keys('sa', 'iw', '?')
+  validate_miniinput('(mini.surround) Left surrounding', 'cursor', '')
+  type_keys('%*')
+  validate_miniinput('(mini.surround) Left surrounding', 'cursor', '%*')
+  type_keys('<CR>')
+  validate_miniinput('(mini.surround) Right surrounding', 'cursor', '')
+  type_keys('*%')
+  validate_miniinput('(mini.surround) Right surrounding', 'cursor', '*%')
+  type_keys('<CR>')
+  validate_miniinput(nil, nil, nil)
+  eq(get_lines(), { '%*aaa*%' })
+
+  -- Input surrounding
+  set_lines({ '%*aaa*%' })
+  type_keys('sd', '?')
+  validate_miniinput('(mini.surround) Left surrounding', 'cursor', '')
+  type_keys('%*')
+  validate_miniinput('(mini.surround) Left surrounding', 'cursor', '%*')
+  type_keys('<CR>')
+  validate_miniinput('(mini.surround) Right surrounding', 'cursor', '')
+  type_keys('*%')
+  validate_miniinput('(mini.surround) Right surrounding', 'cursor', '*%')
+  type_keys('<CR>')
+  validate_miniinput(nil, nil, nil)
+  eq(get_lines(), { 'aaa' })
 end
 
 local set_custom_surr = function(tbl) child.lua('MiniSurround.config.custom_surroundings = ' .. vim.inspect(tbl)) end

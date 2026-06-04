@@ -1083,6 +1083,7 @@ end
 --- Specification from user prompt
 ---
 --- - Ask user for left and right textobject edges as raw strings (no pattern).
+---   It uses |MiniInput.get()| (if enabled) or |input().
 --- - Construct specification for a textobject that matches from left edge string
 ---   to right edge string: `a` includes both strings, `i` only insides.
 ---
@@ -2081,13 +2082,16 @@ H.user_textobject_id = function(ai_type)
 end
 
 H.user_input = function(prompt, text)
+  prompt = '(mini.ai) ' .. prompt
+  if _G.MiniInput ~= nil then return MiniInput.get({ prompt = prompt, scope = 'cursor', init_keys = { text } }) end
+
   -- Use `on_key` to distinguish cancel with `<Esc>` and immediate `<CR>`
   local was_cancelled = false
   vim.on_key(function(key) was_cancelled = was_cancelled or key == '\27' end, H.ns_id.input)
 
   -- Ask for input. Use `pcall` to allow `<C-c>` to cancel user input
   vim.cmd('echohl Question')
-  local ok, res = pcall(vim.fn.input, { prompt = '(mini.ai) ' .. prompt .. ': ', default = text or '' })
+  local ok, res = pcall(vim.fn.input, { prompt = prompt .. ': ', default = text or '' })
   vim.cmd('echohl None | echo "" | redraw')
 
   vim.on_key(nil, H.ns_id.input)

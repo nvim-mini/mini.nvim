@@ -534,8 +534,8 @@ end
 ---   `output`). Other fields will be taken from builtin surroundings.
 --- - Function returning surround info at <input> or <output> fields of
 ---   specification is helpful when user input is needed (like asking for
----   function name). Use |input()| or |MiniSurround.user_input()|. Return
----   `nil` to stop any current surround operation.
+---   function name). Use |MiniSurround.user_input()| or |MiniInput.get()|.
+---   Return `nil` to stop any current surround operation.
 --- - Keys should use character representation which can be |getcharstr()| output.
 ---   For example, `'\r'` and not `'<CR>'`.
 ---
@@ -919,6 +919,9 @@ end
 --- cancelling with `<Esc>` and `<C-c>`, and slightly modifies prompt. Use it
 --- to ask for input inside function custom surrounding (see |MiniSurround.config|).
 MiniSurround.user_input = function(prompt, text)
+  prompt = '(mini.surround) ' .. prompt
+  if _G.MiniInput ~= nil then return MiniInput.get({ prompt = prompt, scope = 'cursor', init_keys = { text } }) end
+
   -- Major issue with both `vim.fn.input()` is that the only way to distinguish
   -- cancelling with `<Esc>` and entering empty string with immediate `<CR>` is
   -- through `cancelreturn` option (see `:h input()`). In that case the return
@@ -941,7 +944,7 @@ MiniSurround.user_input = function(prompt, text)
   -- simple way to stop execution of this current function until `ui.input()`'s
   -- callback finished execution.
   vim.cmd('echohl Question')
-  local ok, res = pcall(vim.fn.input, { prompt = '(mini.surround) ' .. prompt .. ': ', default = text or '' })
+  local ok, res = pcall(vim.fn.input, { prompt = prompt .. ': ', default = text or '' })
   vim.cmd('echohl None | echo "" | redraw')
 
   vim.on_key(nil, H.ns_id.input)

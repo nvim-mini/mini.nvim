@@ -860,6 +860,7 @@ See also ~
 Specification from user prompt
 
 - Ask user for left and right textobject edges as raw strings (no pattern).
+  It uses |MiniInput.get()| (if enabled) or |input().
 - Construct specification for a textobject that matches from left edge string
   to right edge string: `a` includes both strings, `i` only insides.
 

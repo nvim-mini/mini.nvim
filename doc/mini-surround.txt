@@ -558,8 +558,8 @@ General recommendations:
   `output`). Other fields will be taken from builtin surroundings.
 - Function returning surround info at <input> or <output> fields of
   specification is helpful when user input is needed (like asking for
-  function name). Use |input()| or |MiniSurround.user_input()|. Return
-  `nil` to stop any current surround operation.
+  function name). Use |MiniSurround.user_input()| or |MiniInput.get()|.
+  Return `nil` to stop any current surround operation.
 - Keys should use character representation which can be |getcharstr()| output.
   For example, `'\r'` and not `'<CR>'`.
 

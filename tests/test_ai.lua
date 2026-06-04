@@ -3021,6 +3021,34 @@ T['Builtin']['User prompt']['works in edge cases'] = function()
   validate_tobj1d('aa(bb(cc))', 0, { 'a?', '(<CR>', ')<CR>' }, { 6, 9 })
 end
 
+T['Builtin']['User prompt']["works with 'mini.input'"] = function()
+  child.lua('require("mini.input").setup()')
+  local validate_miniinput = function(prompt, scope, input)
+    local out = child.lua([[
+      local state = MiniInput.get_state()
+      if state == nil then return {} end
+      return { state.opts.prompt, state.opts.scope, state.input }
+    ]])
+    eq(out, { prompt, scope, input })
+  end
+
+  set_lines({ '!!e__o??' })
+  set_cursor(1, 4)
+
+  type_keys('d', 'a?')
+  validate_miniinput('(mini.ai) Left edge', 'cursor', '')
+  type_keys('e')
+  validate_miniinput('(mini.ai) Left edge', 'cursor', 'e')
+  type_keys('<CR>')
+  validate_miniinput('(mini.ai) Right edge', 'cursor', '')
+  type_keys('o')
+  validate_miniinput('(mini.ai) Right edge', 'cursor', 'o')
+  type_keys('<CR>')
+  validate_miniinput(nil, nil, nil)
+
+  eq(get_lines(), { '!!??' })
+end
+
 T['Builtin']['Default'] = new_set()
 
 T['Builtin']['Default']['works'] = function()

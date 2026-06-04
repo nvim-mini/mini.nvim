@@ -10,6 +10,16 @@ There are following change types:
 
 ## All
 
+### Evolve
+
+- Prefer using 'mini.input' functionality (if module is enabled) to get user input asynchronously. Affected modules:
+
+    - mini.ai
+    - mini.align
+    - mini.jump2d
+    - mini.pick
+    - mini.surround
+
 ### Refine
 
 - Soft deprecate support for Neovim 0.9. It will be fully deprecated in next release.
