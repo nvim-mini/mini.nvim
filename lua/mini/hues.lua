@@ -994,6 +994,15 @@ MiniHues.apply_palette = function(palette, plugins, opts)
     hi('MiniIndentscopeSymbol',    { fg=p.accent, bg=nil })
     hi('MiniIndentscopeSymbolOff', { fg=p.red,    bg=nil })
 
+    hi('MiniInputAdded',   { link='DiagnosticFloatingOk' })
+    hi('MiniInputBorder',  { link='FloatBorder' })
+    hi('MiniInputCaret',   { link='MiniInputPrompt' })
+    hi('MiniInputHide',    { link='DiagnosticFloatingWarn' })
+    hi('MiniInputHint',    { link='DiagnosticFloatingHint' })
+    hi('MiniInputNormal',  { link='NormalFloat' })
+    hi('MiniInputPrompt',  { link='DiagnosticFloatingInfo' })
+    hi('MiniInputSpecial', { link='DiagnosticFloatingWarn' })
+
     hi('MiniJump', { fg=nil, bg=nil, sp=p.accent, undercurl=true })
 
     hi('MiniJump2dDim',        { fg=p.bg_mid2,  bg=nil })
