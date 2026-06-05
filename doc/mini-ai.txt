@@ -471,8 +471,8 @@ Defaults ~
 
 User can define own textobjects by supplying `config.custom_textobjects`.
 It should be a table with keys being single character textobject identifier
-(supported by |getcharstr()|) and values - textobject specification
-(see |MiniAi-textobject-specification|).
+(supported by |getcharstr()|, except <Esc> and <C-c> which are used to cancel)
+and values - textobject specification (see |MiniAi-textobject-specification|).
 
 General recommendations:
 - This can be used to override builtin ones (|MiniAi-builtin-textobjects|).

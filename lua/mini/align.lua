@@ -549,10 +549,8 @@ MiniAlign.config = {
         { 'n', 'Question' }, { 'one' }
       })
       local ok, char = pcall(vim.fn.getcharstr)
-      if not ok or char == '\27' then return end
-
       local direction = ({ l = 'left', c = 'center', r = 'right', n = 'none' })[char]
-      if direction == nil then return end
+      if not ok or direction == nil then return end
       opts.justify_side = direction
     end,
     --minidoc_replace_end
@@ -605,7 +603,7 @@ MiniAlign.config = {
         { 'j', 'Question' }, { 'ustify, ' }, { 'm', 'Question' }, { 'erge' },
       })
       local ok, char = pcall(vim.fn.getcharstr)
-      if not ok or char == '\27' then return end
+      if not ok then return nil end
 
       if char == 's' then table.remove(steps.pre_split, #steps.pre_split) end
       if char == 'j' then table.remove(steps.pre_justify, #steps.pre_justify) end
@@ -1818,8 +1816,8 @@ H.user_modifier = function(with_preview, msg_chunks)
   local ok, char = pcall(vim.fn.getcharstr)
   needs_show_state = false
 
-  -- Terminate if couldn't get input (like with <C-c>) or it is `<Esc>`
-  if not ok or char == '\27' then return nil end
+  -- Terminate if couldn't get input (like with <C-c>) or on `<Esc>`
+  if not ok or char == '' or char == '\3' or char == '\27' then return nil end
   return char
 end
 

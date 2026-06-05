@@ -3506,6 +3506,8 @@ T['Mappings']['`mark_goto` works'] = function()
   type_keys("'", '<Esc>')
   eq(get_branch(), ref_branch)
   validate_log({})
+  -- - <C-c> should stop even if it doesn't make `getcharstr` error
+  child.cmd('nnoremap <C-c> <C-\\><C-n>')
   type_keys("'", '<C-c>')
   eq(get_branch(), ref_branch)
   validate_log({})
@@ -3608,6 +3610,8 @@ T['Mappings']['`mark_set` works'] = function()
   -- Does nothing after `<Esc>` or `<C-c>`
   type_keys('m', '<Esc>')
   eq(get_explorer_state().bookmarks, ref_bookmarks)
+  -- - <C-c> should stop even if it doesn't make `getcharstr` error
+  child.cmd('nnoremap <C-c> <C-\\><C-n>')
   type_keys('m', '<C-c>')
   eq(get_explorer_state().bookmarks, ref_bookmarks)
 

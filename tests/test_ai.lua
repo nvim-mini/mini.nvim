@@ -1568,25 +1568,29 @@ T['Textobject']['works in Operator-pending mode'] = function()
 end
 
 T['Textobject']['can be cancelled'] = function()
-  local validate = function(keys, mode)
-    set_lines({ 'aaa' })
+  local validate = function(cancel_key, keys, mode)
+    set_lines({ '\3aaa\3' })
     set_cursor(1, 1)
-    type_keys(keys, '<Esc>')
+    type_keys(keys, cancel_key)
 
     eq(child.api.nvim_get_mode().mode, mode)
     type_keys('<Esc>')
 
-    eq(get_lines(), { 'aaa' })
+    eq(get_lines(), { '\3aaa\3' })
     eq(get_cursor(), { 1, 1 })
 
     child.ensure_normal_mode()
   end
 
+  child.cmd('nnoremap <C-c> <C-\\><C-n>')
+
   -- Visual mode should be cancelled without leaving Visual mode
-  validate({ 'v', 'i' }, 'v')
+  validate('<Esc>', { 'v', 'i' }, 'v')
+  validate('<C-c>', { 'v', 'i' }, 'n')
 
   -- Operator-pending mode should be cancelled into Normal mode
-  validate({ 'd', 'i' }, 'n')
+  validate('<Esc>', { 'd', 'i' }, 'n')
+  validate('<C-c>', { 'd', 'i' }, 'n')
 end
 
 T['Textobject']['works with different mappings'] = function()
@@ -2995,6 +2999,10 @@ T['Builtin']['User prompt']['handles <C-c>, <Esc>, <CR> in user input'] = functi
   validate_nothing('i', '<Esc>')
   validate_nothing('a', '<C-c>')
   validate_nothing('i', '<C-c>')
+  -- - <C-c> should stop even if it doesn't make `getcharstr` error
+  child.cmd('nnoremap <C-c> <C-\\><C-n>')
+  validate_nothing('a', '<C-c>')
+  validate_nothing('i', '<C-c>')
   -- Should stop on `<CR>` because can't use empty string in pattern search
   validate_nothing('a', '<CR>')
   validate_nothing('i', '<CR>')
@@ -3155,12 +3163,17 @@ T['Custom textobject']['supports any identifier which can be `getcharstr()` outp
       ['\22'] = { '@().-()#' },
       ['ы']   = { 'Ы().-()Ы' },
       ['「']  = { '「().-()」' },
+      ['\3']  = { '!!().-()!!' },
     }
   ]])
 
   validate_edit({ '@aaa#' }, { 1, 3 }, { '@#' }, { 1, 1 }, 'd', 'i', '<C-v>')
   validate_edit({ 'ЫaaaЫ' }, { 1, 3 }, { 'ЫЫ' }, { 1, 2 }, 'd', 'i', 'ы')
   validate_edit({ '「aaa」' }, { 1, 3 }, { '「」' }, { 1, 3 }, 'd', 'i', '「')
+
+  -- But not <C-c>, which is reserved for cancelling
+  child.cmd('nnoremap <C-c> <C-\\><C-n>')
+  validate_edit({ '!!aaa!!' }, { 1, 3 }, { '!!aaa!!' }, { 1, 3 }, 'd', 'i', '<C-c>')
 end
 
 T['Custom textobject']['overrides module builtin'] = function()

@@ -3132,7 +3132,8 @@ end
 
 H.getcharstr = function()
   local ok, char = pcall(vim.fn.getcharstr)
-  if not ok or char == '\27' or char == '' then return end
+  -- Terminate if couldn't get input (like with <C-c>) or on `<Esc>`
+  if not ok or char == '' or char == '\3' or char == '\27' then return nil end
   return char
 end
 

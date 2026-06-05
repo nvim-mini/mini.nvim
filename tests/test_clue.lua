@@ -2296,6 +2296,8 @@ end
 
 T['Querying keys']['respects `<Esc>`/`<C-c>`'] = function()
   make_test_map('n', '<Space>f')
+  make_test_map('n', '<Space><C-c>')
+  make_test_map('n', '<Space><Esc>')
   load_module({ triggers = { { mode = 'n', keys = '<Space>' } } })
   validate_trigger_keymap('n', '<Space>')
 
@@ -2304,9 +2306,14 @@ T['Querying keys']['respects `<Esc>`/`<C-c>`'] = function()
     type_keys(' ', key, 'f')
     child.ensure_normal_mode()
     eq(get_test_map_count('n', ' f'), 0)
+    eq(get_test_map_count('n', ' \3'), 0)
+    eq(get_test_map_count('n', ' ' .. replace_termcodes('<Esc>')), 0)
   end
 
   validate('<Esc>')
+
+  -- <C-c> should stop even if it doesn't make `getcharstr` error
+  child.cmd('nnoremap <C-c> <C-\\><C-n>')
   validate('<C-c>')
 end
 

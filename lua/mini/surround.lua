@@ -930,7 +930,7 @@ MiniSurround.user_input = function(prompt, text)
   -- very clean.
   -- Overcome this by adding temporary keystroke listener.
   local was_cancelled = false
-  vim.on_key(function(key) was_cancelled = was_cancelled or key == '\27' end, H.ns_id.input)
+  vim.on_key(function(key) was_cancelled = was_cancelled or key == '\27' or key == '\3' end, H.ns_id.input)
 
   -- Ask for input. Use `pcall` to allow `<C-c>` to cancel user input
   -- NOTE: it would be GREAT to make this work with `vim.ui.input()` but I
@@ -2026,8 +2026,8 @@ H.user_surround_id = function(sur_type)
   needs_reminder = false
   H.unecho()
 
-  -- Terminate if couldn't get input (like with <C-c>) or it is `<Esc>`
-  if not ok or char == '\27' then return nil end
+  -- Terminate if couldn't get input (like with <C-c>) or on `<Esc>`
+  if not ok or char == '' or char == '\3' or char == '\27' then return nil end
   return char
 end
 

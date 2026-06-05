@@ -1138,11 +1138,13 @@ H.getcharstr = function(msg)
   end
 
   H.cache.is_in_getcharstr = true
-  local _, char = pcall(vim.fn.getcharstr)
+  local ok, char = pcall(vim.fn.getcharstr)
   H.cache.is_in_getcharstr = false
   needs_reminder = false
   H.unecho()
 
+  -- Terminate if couldn't get input (like with <C-c>) or on `<Esc>`
+  if not ok or char == '' or char == '\3' or char == '\27' then return nil end
   return char
 end
 

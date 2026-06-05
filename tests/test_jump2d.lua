@@ -381,10 +381,12 @@ T['start()']['shows reminder after one idle second'] = function()
 end
 
 T['start()']['stops jumping if not label was typed'] = new_set({
-  -- <C-c> shouldn't result into error
   parametrize = { { '<Down>' }, { '<Esc>' }, { '<C-c>' } },
 }, {
   test = function(key)
+    -- <C-c> should stop even if it doesn't make `getcharstr` error
+    child.cmd('nnoremap <C-c> <C-\\><C-n>')
+
     set_cursor(1, 0)
     start()
 
@@ -1213,8 +1215,11 @@ T['builtin_opts.single_character']['handles special user input'] = new_set({
   parametrize = { { '<C-c>' }, { '<Esc>' }, { '<CR>' } },
 }, {
   test = function(key)
+    -- <C-c> should stop even if it doesn't make `getcharstr` error
+    child.cmd('nnoremap <C-c> <C-\\><C-n>')
+
     set_cursor(1, 0)
-    set_lines({ 'x_x y_y zzz' })
+    set_lines({ 'x_x y_y zzz \3' })
     start_single_char()
     type_keys(10, key)
 

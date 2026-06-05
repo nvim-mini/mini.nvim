@@ -1332,8 +1332,10 @@ T['Align']['treats non-config modifier as explicit split pattern'] = function()
 end
 
 T['Align']['stops on `<Esc>` and `<C-c>`'] = function()
+  -- <C-c> should stop even if it doesn't make `getcharstr` error
+  child.cmd('nnoremap <C-c> <C-\\><C-n>')
   for _, stop_key in ipairs({ '<Esc>', '<C-c>' }) do
-    validate_keys({ 'a_b', 'aa_b' }, { 'Vj', 'ga', stop_key }, { 'a_b', 'aa_b' })
+    validate_keys({ 'a\3b', 'aa\3b' }, { 'ga', 'ip', stop_key }, { 'a\3b', 'aa\3b' })
     eq(get_mode(), 'n')
   end
 end
@@ -1785,6 +1787,9 @@ T['Modifiers']['j']['stops on `<Esc>` and `<C-c>`'] = function()
   end
 
   validate('<Esc>')
+
+  -- <C-c> should stop even if it doesn't make `getcharstr` error
+  child.cmd('nnoremap <C-c> <C-\\><C-n>')
   validate('<C-c>')
 end
 

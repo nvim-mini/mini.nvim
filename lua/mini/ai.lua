@@ -444,8 +444,8 @@ end
 ---
 --- User can define own textobjects by supplying `config.custom_textobjects`.
 --- It should be a table with keys being single character textobject identifier
---- (supported by |getcharstr()|) and values - textobject specification
---- (see |MiniAi-textobject-specification|).
+--- (supported by |getcharstr()|, except <Esc> and <C-c> which are used to cancel)
+--- and values - textobject specification (see |MiniAi-textobject-specification|).
 ---
 --- General recommendations:
 --- - This can be used to override builtin ones (|MiniAi-builtin-textobjects|).
@@ -2076,8 +2076,8 @@ H.user_textobject_id = function(ai_type)
   needs_reminder = false
   H.unecho()
 
-  -- Terminate if couldn't get input (like with <C-c>) or it is `<Esc>`
-  if not ok or char == '\27' then return nil end
+  -- Terminate if couldn't get input (like with <C-c>) or on `<Esc>`
+  if not ok or char == '' or char == '\3' or char == '\27' then return nil end
   return char
 end
 

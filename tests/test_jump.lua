@@ -677,13 +677,22 @@ T['Jumping with f/t/F/T']['stops prompting for target if hit `<Esc>` or `<C-c>`'
     type_keys(1, key, test_key, 'o')
     eq(get_lines(), { 'oooo', '' })
 
-    child.ensure_normal_mode()
-
     -- Should also work in Operator-pending mode
+    child.ensure_normal_mode()
     set_lines({ 'oooo' })
     set_cursor(1, 0)
     type_keys(1, 'd', key, test_key, 'o')
     eq(get_lines(), { 'oooo', '' })
+
+    -- <C-c> should stop even if it doesn't make `getcharstr` error
+    if test_key == '<C-c>' then
+      child.ensure_normal_mode()
+      child.cmd('nnoremap <C-c> <C-\\><C-n>')
+      set_lines({ 'ooo\3ooo' })
+      set_cursor(1, 0)
+      type_keys(1, key, '<C-c>')
+      eq(get_cursor(), { 1, 0 })
+    end
   end,
 })
 

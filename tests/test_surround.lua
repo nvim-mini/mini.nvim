@@ -791,6 +791,9 @@ T['Add surrounding']['allows cancelling with `<Esc> and <C-c>`'] = function()
   end
 
   validate_cancel('<Esc>')
+
+  -- <C-c> should stop even if it doesn't make `getcharstr` error
+  child.cmd('nnoremap <C-c> <C-\\><C-n>')
   validate_cancel('<C-c>')
 end
 
@@ -1086,15 +1089,18 @@ end
 T['Delete surrounding']['allows cancelling with `<Esc> and <C-c>`'] = function()
   local validate_cancel = function(key)
     child.ensure_normal_mode()
-    set_lines({ '<aaa>' })
+    set_lines({ '\3aaa\3' })
     set_cursor(1, 1)
 
     type_keys(1, 'sd', key)
-    eq(get_lines(), { '<aaa>' })
+    eq(get_lines(), { '\3aaa\3' })
     eq(get_cursor(), { 1, 1 })
   end
 
   validate_cancel('<Esc>')
+
+  -- <C-c> should stop even if it doesn't make `getcharstr` error
+  child.cmd('nnoremap <C-c> <C-\\><C-n>')
   validate_cancel('<C-c>')
 end
 
@@ -1339,22 +1345,27 @@ end
 
 T['Replace surrounding']['allows cancelling with `<Esc> and <C-c>`'] = function()
   local validate_cancel = function(key)
-    child.ensure_normal_mode()
-    set_lines({ '<aaa>' })
-    set_cursor(1, 1)
-
     -- Cancel before input surrounding
-    type_keys(1, 'sr', key)
-    eq(get_lines(), { '<aaa>' })
+    child.ensure_normal_mode()
+    set_lines({ '\3aaa\3' })
+    set_cursor(1, 1)
+    type_keys(1, 'sr', key, '>')
+    eq(get_lines(), { '\3aaa\3' })
     eq(get_cursor(), { 1, 1 })
 
     -- Cancel before output surrounding
+    child.ensure_normal_mode()
+    set_lines({ '<aaa>' })
+    set_cursor(1, 1)
     type_keys(1, 'sr', '>', key)
     eq(get_lines(), { '<aaa>' })
     eq(get_cursor(), { 1, 1 })
   end
 
   validate_cancel('<Esc>')
+
+  -- <C-c> should stop even if it doesn't make `getcharstr` error
+  child.cmd('nnoremap <C-c> <C-\\><C-n>')
   validate_cancel('<C-c>')
 end
 
@@ -1663,22 +1674,25 @@ end
 
 T['Find surrounding']['allows cancelling with `<Esc> and <C-c>`'] = function()
   local validate_cancel = function(key)
-    child.ensure_normal_mode()
-    set_lines({ '<aaa>' })
-    set_cursor(1, 1)
-
     -- It should work with `sf`
+    child.ensure_normal_mode()
+    set_lines({ '\3aaa\3' })
+    set_cursor(1, 1)
     type_keys(1, 'sf', key)
-    eq(get_lines(), { '<aaa>' })
+    eq(get_lines(), { '\3aaa\3' })
     eq(get_cursor(), { 1, 1 })
 
     -- It should work with `sF`
+    child.ensure_normal_mode()
     type_keys(1, 'sF', key)
-    eq(get_lines(), { '<aaa>' })
+    eq(get_lines(), { '\3aaa\3' })
     eq(get_cursor(), { 1, 1 })
   end
 
   validate_cancel('<Esc>')
+
+  -- <C-c> should stop even if it doesn't make `getcharstr` error
+  child.cmd('nnoremap <C-c> <C-\\><C-n>')
   validate_cancel('<C-c>')
 end
 
@@ -2304,7 +2318,8 @@ T['Builtin']['Function call']['has limited support of multibyte characters'] = f
 end
 
 T['Builtin']['Function call']['handles <C-c>, <Esc>, <CR> in user input'] = function()
-  -- Should do nothing on `<C-c>` and `<Esc>`
+  -- Should do always nothing on `<C-c>` and `<Esc>`
+  child.cmd('nnoremap <C-c> <C-\\><C-n>')
   validate_edit({ '(aaa)' }, { 1, 2 }, { '(aaa)' }, { 1, 2 }, type_keys, 1, 'sr', ')', 'f', '<Esc>')
   validate_edit({ '(aaa)' }, { 1, 2 }, { '(aaa)' }, { 1, 2 }, type_keys, 1, 'sr', ')', 'f', '<C-c>')
 
