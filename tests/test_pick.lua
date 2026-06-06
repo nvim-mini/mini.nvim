@@ -428,6 +428,41 @@ T['setup()']['should `MiniExtra.pickers` to registry'] = function()
   eq(child.lua_get('_G.hello'), 'world')
 end
 
+T['setup()']['adjusts `vim.paste`'] = function()
+  child.setup()
+  child.lua([[
+    _G.paste_log = {}
+    vim.paste = function(lines, phase) table.insert(_G.paste_log, { lines, phase }) end
+    _G.notify_log = {}
+    vim.notify = function(...) table.insert(_G.notify_log, { ... }) end
+  ]])
+
+  load_module()
+  start_with_items({ 'uabcv', 'uabv' })
+  type_keys('uv', '<Left>')
+
+  -- Not streaming input should be inserted at caret and processed by handlers
+  child.api.nvim_paste('abc', false, -1)
+  eq(get_picker_query(), { 'u', 'a', 'b', 'c', 'v' })
+  eq(get_picker_state().caret, 5)
+  eq(get_picker_matches().all, { 'uabcv' })
+  eq(child.lua_get('_G.paste_log'), {})
+  eq(child.lua_get('_G.notify_log'), {})
+
+  -- Streaming paste is not supported and should do nothing with active input
+  child.api.nvim_paste('Not supported', false, 1)
+  eq(get_picker_query(), { 'u', 'a', 'b', 'c', 'v' })
+  eq(get_picker_state().caret, 5)
+  eq(child.lua_get('_G.paste_log'), {})
+  local notify_msg = '(mini.pick) There is no streaming paste support. Use `mappings.paste` with "*" or "+" register.'
+  eq(child.lua_get('_G.notify_log'), { { notify_msg, child.lua_get('vim.log.levels.WARN') } })
+
+  -- Should still work as expected outside of active input
+  stop()
+  child.api.nvim_paste('Should work', false, -1)
+  eq(child.lua_get('paste_log'), { { { 'Should work' }, -1 } })
+end
+
 -- This set mostly contains general function testing which doesn't fit into
 -- more specialized integration tests later
 T['start()'] = new_set()

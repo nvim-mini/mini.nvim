@@ -544,6 +544,8 @@
 --- - Supports special cases of register: <C-f> (as |c_CTRL-R_CTRL-F|),
 ---   <C-w> (as |c_CTRL-R_CTRL-W|), <C-a> (as |c_CTRL-R_CTRL-A|),
 ---   <C-l> (as |c_CTRL-R_CTRL-L|).
+--- - Pasting from system |clipboard| is supported for "non-streaming" paste (as
+---   described in |vim.paste()|). Use terminal's key combo instead of this action.
 ---
 --- ## Refine ~
 --- *MiniPick-actions-refine*
@@ -736,12 +738,8 @@ MiniPick.setup = function(config)
   -- Create user commands
   H.create_user_commands()
 
-  -- Disable terminal emulator's pasting with active picker
-  local paste_orig = vim.paste
-  vim.paste = function(...)
-    if not MiniPick.is_picker_active() then return paste_orig(...) end
-    H.notify('Use `mappings.paste` (`<C-r>` by default) with "*" or "+" register.', 'HINT')
-  end
+  -- Adjust terminal emulator's pasting with active picker
+  H.adjust_vim_paste()
 
   -- Set custom implementation
   vim.ui.select = MiniPick.ui_select
@@ -2101,6 +2099,22 @@ H.create_user_commands = function()
   end
   local opts = { nargs = '+', complete = H.command_complete, desc = "Pick from 'mini.pick' registry" }
   vim.api.nvim_create_user_command('Pick', callback, opts)
+end
+
+H.adjust_vim_paste = function()
+  local paste_orig = vim.paste
+  vim.paste = function(lines, phase)
+    local picker = H.pickers.active
+    if picker == nil then return paste_orig(lines, phase) end
+    if phase ~= -1 then
+      return H.notify('There is no streaming paste support. Use `mappings.paste` with "*" or "+" register.', 'WARN')
+    end
+    local text = table.concat(lines, ' '):gsub('[\n\t]', ' ')
+    for i = 1, vim.fn.strchars(text) do
+      H.picker_query_add(picker, vim.fn.strcharpart(text, i - 1, 1))
+    end
+    H.picker_update(picker, true, true)
+  end
 end
 
 -- Command --------------------------------------------------------------------

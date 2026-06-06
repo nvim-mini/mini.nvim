@@ -128,6 +128,8 @@ There are following change types:
 
 - Update `grep` and `grep_live` pickers to allow `method` local option which describes a pattern matching method (`'regex'` or `'plain'`). The `grep_live` picker also has custom `<C-e>` mapping to switch method.
 
+- Allow non-streaming paste from system clipboard when a picker is active. It will insert text at caret similar to built-in `paste` action.
+
 ### Refine
 
 - Stop forcing redraw every `config.delay.async` milliseconds while the picker is active. It added visible CPU usage and code/test lines for its benefit (mostly to show "background" changes/notifications).

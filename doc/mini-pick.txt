@@ -550,6 +550,8 @@ Notes:
 - Supports special cases of register: <C-f> (as |c_CTRL-R_CTRL-F|),
   <C-w> (as |c_CTRL-R_CTRL-W|), <C-a> (as |c_CTRL-R_CTRL-A|),
   <C-l> (as |c_CTRL-R_CTRL-L|).
+- Pasting from system |clipboard| is supported for "non-streaming" paste (as
+  described in |vim.paste()|). Use terminal's key combo instead of this action.
 
 ## Refine ~
 *MiniPick-actions-refine*
