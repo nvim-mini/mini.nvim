@@ -1306,10 +1306,7 @@ H.adjust_vim_paste = function()
   local paste_orig = vim.paste
   vim.paste = function(lines, phase)
     if MiniInput.get_state() == nil then return paste_orig(lines, phase) end
-    if phase ~= -1 then
-      H.notify('There is no streaming paste support. Use `<C-r>+` or `<C-r>*`.', 'HINT')
-      return paste_orig(lines, phase)
-    end
+    if phase ~= -1 then return H.notify('There is no streaming paste support. Use `<C-r>+` or `<C-r>*`.', 'WARN') end
     H.insert_at_caret(H.state, table.concat(lines, '\n'))
     H.handle_step(nil)
   end

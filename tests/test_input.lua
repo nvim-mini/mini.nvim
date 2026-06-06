@@ -305,7 +305,7 @@ T['setup()']['adjusts `vim.paste`'] = function()
 
   get()
 
-  -- Not streaming input should be inserted at caret and processed by handlers
+  -- Not streaming paste should be inserted at caret and processed by handlers
   type_keys('XY', '<Left>')
   child.lua('_G.handlers_log = {}')
   child.api.nvim_paste('Clipboard', false, -1)
@@ -313,12 +313,18 @@ T['setup()']['adjusts `vim.paste`'] = function()
   validate_log('paste_log', {})
   validate_log('handlers_log', { { 'key' }, { 'highlight' }, { 'view' } })
 
-  -- Streaming paste is not supported and should fall back to what was before
+  -- Streaming paste is not supported and should do nothing with active input
   child.api.nvim_paste('Not supported', false, 1)
   validate_input('XClipboardY', 11)
-  validate_log('paste_log', { { { 'Not supported' }, 1 } })
+  validate_log('paste_log', {})
   validate_log('handlers_log', {})
-  validate_log('notify_log', { { '(mini.input) There is no streaming paste support. Use `<C-r>+` or `<C-r>*`.' } })
+  local notify_msg = '(mini.input) There is no streaming paste support. Use `<C-r>+` or `<C-r>*`.'
+  validate_log('notify_log', { { notify_msg, child.lua_get('vim.log.levels.WARN') } })
+
+  -- Should still work as expected outside of active input
+  type_keys('<C-c>')
+  child.api.nvim_paste('Should work', false, -1)
+  validate_log('paste_log', { { { 'Should work' }, -1 } })
 end
 
 T['setup()']['hard-codes special default scopes'] = function()
