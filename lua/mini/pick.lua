@@ -2712,6 +2712,8 @@ H.picker_stop = function(picker, abort)
   picker.windows, picker.buffers = {}, {}
 
   H.querytick = H.querytick + 1
+
+  if H.cache.getcharstr_errmsg ~= nil then error(H.cache.getcharstr_errmsg) end
 end
 
 H.picker_free = function(picker)
@@ -3693,6 +3695,10 @@ H.getcharstr = function(lmap)
   H.cache.is_in_getcharstr = true
   local ok, char = pcall(vim.fn.getcharstr)
   H.cache.is_in_getcharstr = nil
+
+  -- Cache possible error if it doesn't come from pressing <C-c>
+  local is_ctrl_c = (not ok and char == 'Keyboard interrupt') or (ok and char == '\3')
+  if not ok and not is_ctrl_c then H.cache.getcharstr_errmsg = char end
 
   -- Terminate if no input, on hard-coded <C-c>, or outside mouse click
   local main_win_id

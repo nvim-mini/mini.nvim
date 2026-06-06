@@ -537,6 +537,66 @@ T['start()']['tracks lost focus'] = function()
   child.expect_screenshot()
 end
 
+T['start()']['forwards error during user input'] = function()
+  child.lua('_G.small_time = ' .. small_time)
+
+  -- This seems like the only way to test actually throwing an error
+  child.lua_notify([[
+    _G.error_log = {}
+    local error_orig = error
+    error = function(msg)
+      table.insert(_G.error_log, { msg, MiniPick.is_picker_active() })
+      error_orig(msg)
+    end
+  ]])
+
+  local validate = function(start_cmd, error_pattern)
+    child.lua_notify(start_cmd)
+    sleep(small_time + small_time)
+
+    -- Picker is still active after the error but before the key press. This is
+    -- not intentional, but it seems okay.
+    eq(is_picker_active(), true)
+    type_keys('<CR>')
+    eq(is_picker_active(), false)
+
+    -- Should show expected error with the last one after stopping a picker
+    local error_log = child.lua_get('_G.error_log')
+    local n = #error_log
+    eq(n > 1, true)
+    for i = 1, n do
+      expect.match(error_log[i][1], error_pattern)
+      eq(error_log[i][2], i ~= n)
+    end
+    child.lua('_G.error_log = {}')
+
+    -- - Should return nothing in case of an error
+    eq(child.lua_get('_G.item'), vim.NIL)
+  end
+
+  local outside = table.concat({
+    'vim.defer_fn(function() error("Deferred error") end, _G.small_time)',
+    '_G.item = MiniPick.start({ source = { items = { "a" } } })',
+  }, '; ')
+  validate(outside, 'Deferred error')
+
+  local inside = '_G.item = MiniPick.start({ source = { items = { "a" }, show = function() error("Show error") end } })'
+  validate(inside, 'Show error')
+
+  -- Can still work as expected after the error (cache is cleared)
+  child.lua_notify('_G.item = MiniPick.start({ source = { items = { "a" } } })')
+  eq(is_picker_active(), true)
+  type_keys('a', '<CR>')
+  eq(is_picker_active(), false)
+  eq(child.lua_get('_G.item'), 'a')
+
+  -- Should not treat <C-c> as error
+  child.lua('_G.error_log = {}')
+  start_with_items({ 'a' })
+  type_keys('<C-c>')
+  eq(child.lua_get('_G.error_log'), {})
+end
+
 T['start()']['validates `opts`'] = function()
   local validate = function(opts, error_pattern)
     expect.error(function() child.lua('MiniPick.start(...)', { opts }) end, error_pattern)
