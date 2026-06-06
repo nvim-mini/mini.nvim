@@ -20,6 +20,7 @@
 --- - |MiniInput.default_key()|
 --- - |MiniInput-state|
 --- - |MiniInput-examples|
+--- - |MiniInput-in-other-plugins| (for plugin authors)
 ---
 --- # Setup ~
 ---
@@ -208,6 +209,15 @@
 ---   input.setup({ handlers = { view = view_handler } })
 --- <
 --- Change symbols for caret and hidden input: see |MiniInput.gen_view|.
+---
+--- # Using 'mini.input' in other plugins ~
+--- *MiniInput-in-other-plugins*
+---
+--- - Prefer using |vim.ui.input()| for more user coverage. Use |MiniInput.get()|
+---   only when getting input synchronously is absolutely necessary.
+---
+--- - Perform a `_G.MiniInput ~= nil` check before using any feature. This ensures
+---   that user explicitly set up 'mini.input'.
 ---@tag MiniInput-examples
 
 ---@alias __input_to_chunks - <to_chunks> `(function)` - a function that takes a |MiniInput-state| and
