@@ -417,6 +417,31 @@ T['Jumping with f/t/F/T']['works in Operator-pending mode'] = new_set({
   end,
 })
 
+T['Jumping with f/t/F/T']['works in forced Operator-pending mode'] = function()
+  local validate = function(pos, keys, ref_pos, ref_lines)
+    set_lines({ '__e!!', '@@g##', 'xx' })
+    set_cursor(unpack(pos))
+    type_keys(keys)
+    eq(get_cursor(), ref_pos)
+    eq(get_lines(), ref_lines)
+  end
+
+  validate({ 1, 0 }, 'dvfg', { 1, 0 }, { '##', 'xx' })
+  validate({ 1, 0 }, 'dvtg', { 1, 0 }, { 'g##', 'xx' })
+  validate({ 2, 4 }, 'dvFe', { 1, 1 }, { '__', 'xx' })
+  validate({ 2, 4 }, 'dvTe', { 1, 2 }, { '__e', 'xx' })
+
+  validate({ 1, 0 }, 'dVfg', { 1, 0 }, { 'xx' })
+  validate({ 1, 0 }, 'dVtg', { 1, 0 }, { 'xx' })
+  validate({ 2, 4 }, 'dVFe', { 1, 1 }, { 'xx' })
+  validate({ 2, 4 }, 'dVTe', { 1, 1 }, { 'xx' })
+
+  validate({ 1, 0 }, 'd<C-v>fg', { 1, 0 }, { '!!', '##', 'xx' })
+  validate({ 1, 0 }, 'd<C-v>tg', { 1, 0 }, { 'e!!', 'g##', 'xx' })
+  validate({ 2, 4 }, 'd<C-v>Fe', { 1, 1 }, { '__', '@@', 'xx' })
+  validate({ 2, 4 }, 'd<C-v>Te', { 1, 2 }, { '__e', '@@g', 'xx' })
+end
+
 T['Jumping with f/t/F/T']['allows dot-repeat'] = new_set({
   parametrize = { { 'f' }, { 't' }, { 'F' }, { 'T' } },
 }, {

@@ -192,8 +192,8 @@ MiniJump.jump = function(target, backward, till, n_times)
   if H.is_disabled() then return end
 
   -- Dot-repeat should not change the state, so save it to later restore
-  local is_expr, is_dot_repeat = MiniJump._is_expr, MiniJump._is_expr and not MiniJump._is_expr_init
-  MiniJump._is_expr, MiniJump._is_expr_init = nil, nil
+  local expr_mode, is_dot_repeat = MiniJump._expr_mode, MiniJump._expr_mode ~= nil and not MiniJump._is_expr_init
+  MiniJump._expr_mode, MiniJump._is_expr_init = nil, nil
   local state_snapshot = is_dot_repeat and vim.deepcopy(MiniJump.state) or nil
 
   -- Cache inputs for future use
@@ -216,7 +216,7 @@ MiniJump.jump = function(target, backward, till, n_times)
   H.timers.idle_stop:start(config.delay.idle_stop, 0, vim.schedule_wrap(function() MiniJump.stop_jumping() end))
 
   -- Force charwise selection in Operator-pending expression mapping
-  if is_expr then vim.cmd('normal! v') end
+  if expr_mode ~= nil then vim.cmd('normal! ' .. expr_mode) end
 
   -- Make jump(s)
   H.cache.n_cursor_moved = 0
@@ -249,9 +249,9 @@ MiniJump.jump = function(target, backward, till, n_times)
   -- Ensure to stop jumping on next non-jump movement
   if MiniJump.state.jumping then H.cache.n_cursor_moved = H.cache.n_cursor_moved + 1 end
 
-  -- When in Operator-pending mapping, disable charwise selection to prevent
-  -- a character from being consumed (due to selection of a cursor cell)
-  if is_expr then vim.cmd('normal! v') end
+  -- When in Operator-pending mapping, disable selection to prevent a character
+  -- from being consumed (due to selection of a cursor cell)
+  if expr_mode ~= nil then vim.cmd('normal! ' .. expr_mode) end
 end
 
 --- Make smart jump
@@ -419,11 +419,15 @@ H.make_expr_jump = function(backward, till)
     -- Set a flag to distinguish first call from dot-repeat
     MiniJump._is_expr_init = true
 
+    -- Take into account forced Operator-pending modes ('nov', 'noV', 'no<C-V>')
+    local vis_mode = vim.fn.mode(1):match('^no(.+)$') or 'v'
+
     -- Encode state in expression for dot-repeat. Important to use `target=nil`
     -- for `repeat_jump` case to have it using latest jumping state during
     -- dot-repeat also (as does `nvim --clean`).
-    local args = string.format('%s,%s,%s,%s', vim.inspect(target), backward, till, count)
-    return '<Cmd>lua MiniJump._is_expr=true; MiniJump.jump(' .. args .. ')<CR>'
+    local jump_cmd = string.format('MiniJump.jump(%s,%s,%s,%s)', vim.inspect(target), backward, till, count)
+    local expr_mode_cmd = 'MiniJump._expr_mode = ' .. vim.inspect(vis_mode)
+    return string.format('<Cmd>lua %s; %s<CR>', expr_mode_cmd, jump_cmd)
   end
 end
 
