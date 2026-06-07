@@ -986,6 +986,17 @@ T['Textobject']['works in Visual mode'] = new_set({
   end,
 })
 
+T['Textobject']['properly sets cursor in Visual mode'] = function()
+  set_lines({ 'aa', '  bb', '  cc  ', 'ee' })
+  set_cursor(2, 0)
+  type_keys('v', 'ii', 'v')
+  -- Should be on the last non-whitespace character, as it makes forced
+  -- charwise selection more usable
+  eq(get_cursor(), { 3, 3 })
+  type_keys('c')
+  eq(get_lines(), { 'aa', '    ', 'ee' })
+end
+
 T['Textobject']['works in Operator-pending mode'] = new_set({
   parametrize = {
     { 'dii', 'viid' },
@@ -1011,6 +1022,22 @@ T['Textobject']['works in Operator-pending mode'] = new_set({
     eq(data_tried, data_ref)
   end,
 })
+
+T['Textobject']['works in forced Operator-pending mode'] = function()
+  local validate = function(keys, ref_lines)
+    set_lines({ 'aa', '  bb', '  cc  ', 'dd', 'ee' })
+    set_cursor(2, 0)
+    type_keys(keys)
+    eq(get_lines(), ref_lines)
+  end
+
+  validate('dvii', { 'aa', '    ', 'dd', 'ee' })
+  validate('dvai', { '', 'ee' })
+  validate('dVii', { 'aa', 'dd', 'ee' })
+  validate('dVai', { 'ee' })
+  validate('d<C-v>ii', { 'aa', '  ', '    ', 'dd', 'ee' })
+  validate('d<C-v>ai', { '', 'bb', 'cc  ', '', 'ee' })
+end
 
 T['Textobject']['works with different mappings'] = function()
   reload_module({ mappings = { object_scope = 'II', object_scope_with_border = 'AI' } })

@@ -3674,11 +3674,11 @@ T["'mini.nvim' compatibility"]['mini.indentscope'] = function()
   validate_selection(lines, cursor, 'v]i', { 3, 2 }, { 4, 1 })
   validate_selection(lines, cursor, 'v2]i', { 3, 2 }, { 5, 0 })
 
-  validate_selection(lines, cursor, 'vai', { 2, 1 }, { 4, 1 }, 'V')
-  validate_selection(lines, cursor, 'v2ai', { 1, 0 }, { 5, 0 }, 'V')
+  validate_selection(lines, cursor, 'vai', { 2, 1 }, { 4, 2 }, 'V')
+  validate_selection(lines, cursor, 'v2ai', { 1, 0 }, { 5, 1 }, 'V')
 
-  validate_selection(lines, cursor, 'vii', { 3, 2 }, { 3, 2 }, 'V')
-  validate_selection(lines, cursor, 'v2ii', { 3, 2 }, { 3, 2 }, 'V')
+  validate_selection(lines, cursor, 'vii', { 3, 2 }, { 3, 3 }, 'V')
+  validate_selection(lines, cursor, 'v2ii', { 3, 2 }, { 3, 3 }, 'V')
 
   -- Operator-pending mode
   validate_edit(lines, cursor, 'd[i', { 'aa', '\tcc', '\tdd', 'ee' }, { 2, 1 })

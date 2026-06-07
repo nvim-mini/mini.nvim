@@ -540,10 +540,14 @@ MiniIndentscope.textobject = function(use_border)
       start, finish = 'bottom', 'top'
     end
 
+    -- Take into account forced Operator-pending modes ('nov', 'noV', 'no<C-V>')
+    local vis_mode = vim.fn.mode(1):match('^no(.)') or 'V'
     H.exit_visual_mode()
+
     MiniIndentscope.move_cursor(start, use_border, scope)
-    vim.cmd('normal! V')
+    vim.cmd('normal! ' .. vis_mode)
     MiniIndentscope.move_cursor(finish, use_border, scope)
+    vim.cmd('normal! g_')
 
     -- Use `try_as_border = false` to enable chaining
     scope = MiniIndentscope.get_scope(nil, nil, { try_as_border = false })
