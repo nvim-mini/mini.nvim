@@ -3172,6 +3172,10 @@ T['pickers']['lsp()']['works for `workspace_symbol_live`'] = function()
   type_keys('x')
   validate(1, 'ax')
 
+  -- - Should preserve order of the returned symbols
+  local items = get_picker_items()
+  eq({ items[3].lnum, items[4].lnum }, { 4, 3 })
+
   -- Should not make request for empty query and show no items instead
   type_keys('<C-u>')
   validate(0, nil)

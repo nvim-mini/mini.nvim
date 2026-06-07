@@ -2037,7 +2037,8 @@ H.lsp_make_opts = function(source, opts)
       add_decor_data(item)
       item.kind_orig = nil
     end
-    table.sort(items, H.lsp_items_compare)
+    -- Preserve order for queried methods as server can return deliberate order
+    if not vim.startswith(source, 'workspace_symbol') then table.sort(items, H.lsp_items_compare) end
     return items
   end
 

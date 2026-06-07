@@ -42,17 +42,18 @@ local make_symbol_request = function(method)
         range = { start = { line = 1, character = 6 }, ['end'] = { line = 4, character = 1 } },
         selectionRange = { start = { line = 1, character = 6 }, ['end'] = { line = 1, character = 7 } },
         children = {
-          {
-            name = 'x',
-            kind = symbol_kind.Variable,
-            range = { start = { line = 2, character = 2 }, ['end'] = { line = 2, character = 20 } },
-            selectionRange = { start = { line = 2, character = 2 }, ['end'] = { line = 2, character = 3 } },
-          },
+          -- NOTE: Deliberately use not a natural order to test picker's sort
           {
             name = 'y',
             kind = symbol_kind.Variable,
             range = { start = { line = 3, character = 2 }, ['end'] = { line = 3, character = 20 } },
             selectionRange = { start = { line = 3, character = 2 }, ['end'] = { line = 3, character = 3 } },
+          },
+          {
+            name = 'x',
+            kind = symbol_kind.Variable,
+            range = { start = { line = 2, character = 2 }, ['end'] = { line = 2, character = 20 } },
+            selectionRange = { start = { line = 2, character = 2 }, ['end'] = { line = 2, character = 3 } },
           },
         },
       },
