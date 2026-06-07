@@ -62,8 +62,9 @@
 --- - `MiniInputSpecial` - special keys (like literal `\t`, `\n`, etc.) in input.
 ---@tag MiniInput
 
---- Information about the state of the input. It is used as a handler argument and
---- can be get via |MiniInput.get_state()|. A table with the following fields:
+--- Information about the state of the input. It is passed as a handler argument.
+--- Use |MiniInput.get_state()| to get information about the current state (if any).
+--- A table with the following fields:
 ---
 --- - <caret> `(number)` - character (not byte) index at which to modify input.
 ---   Should be from 1 (prepend input) to "input width plus 1" (append input).
@@ -220,7 +221,7 @@
 ---   that user explicitly set up 'mini.input'.
 ---@tag MiniInput-examples
 
----@alias __input_to_chunks - <to_chunks> `(function)` - a function that takes a |MiniInput-state| and
+---@alias __input_to_chunks - <to_chunks> `(function)` - a function that takes |MiniInput-state| and
 ---     `max_width` arguments and returns an array of `{ text, hl }` chunks that fit
 ---     into `max_width` display width. See |MiniInput.state_to_chunks()|.
 
@@ -314,7 +315,7 @@ end
 ---   end
 ---
 ---   require('mini.input').setup({ handlers = { complete = complete_handler } })
----<
+--- <
 --- ## Key ~
 ---
 --- `handlers.key` is a handler intended to process every user key press.
@@ -333,8 +334,8 @@ end
 ---
 --- The suggested overall approach for custom key handler is "if `key` is special -
 --- act on it, if can be used in the input - insert at caret, ignore otherwise".
---- It is also important to never change the current Neovim for |MiniInput.get()| to
---- work as expected.
+--- It is also important to never change the current mode (as in |vim-modes|)
+--- for |MiniInput.get()| to work as expected.
 ---
 --- Here is an example of a basic custom key handler: >lua
 ---
@@ -457,7 +458,7 @@ MiniInput.config = {
 --- *MiniInput-lifecycle*
 ---
 --- This module implements custom lifecycle to interact with the user. It starts
---- when calling |MiniInput.get()| and ends with it returning a value.
+--- when calling |MiniInput.get()| and ends when a value is returned.
 --- Only one active input is allowed simultaneously.
 ---
 --- The basic cycle unit is a step that processes a `key` (string or `nil`). It is
@@ -465,14 +466,14 @@ MiniInput.config = {
 --- argument, highlight handler, view handler. |MiniInput.apply_handler()| is used
 --- to apply each handler and the output of one is used as the input for the next.
 ---
---- During step some state fields are automatically removed:
+--- During a step some state fields are automatically removed:
 --- - <highlight> is removed before applying a key handler to always have the most
 ---   up to date highlighting.
 --- - <complete> is removed if it was not changed after applying a key handler but
----   something else in the state beside <highlight> did change. This is meant as
+---   something else in the state besides <highlight> did change. This is meant as
 ---   an automatic stop of completion when it is not advancing.
 ---
---- If step sets an ending state <status> (i.e. `"accept"` or `"cancel"`), the input
+--- If a step sets an ending state <status> (i.e. `"accept"` or `"cancel"`), the input
 --- is finished by extra finishing step (see below).
 ---
 --- The order of operations is as follows:
@@ -489,7 +490,7 @@ MiniInput.config = {
 --- - Finish the input:
 ---     - Perform a "teardown"' step with `key=nil`.
 ---     - If <errmsg> is set, throw an |error()|.
----     - If input is accepted (even if empty) and not hidden, add to <input> to
+---     - If input is accepted (even if empty) and not hidden, add <input> to
 ---       the history. Get the whole history with |MiniInput.get_history()|.
 ---     - Return <input> if <status> is `"accept"`, `nil` otherwise.
 ---
@@ -1132,7 +1133,7 @@ end
 ---   - <include_hint> `(boolean)` - whether to show complete hint to caret's right.
 ---     Default: `true`.
 ---   - <symbol_caret> `(string)` - string to use for caret. Default: `"▏"`.
----   - <symbol_caret> `(string)` - string to use for each input character when
+---   - <symbol_hide> `(string)` - string to use for each input character when
 ---     input is hidden. Default: `"•"`.
 ---
 ---@return table An array of text-hl chunks that fit `max_width` display width.
