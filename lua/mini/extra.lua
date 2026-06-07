@@ -1809,9 +1809,9 @@ H.pick_start = function(items, default_opts, opts)
   return pick.start(opts_final)
 end
 
-H.pick_highlight_line = function(buf_id, line, hl_group, priority)
+H.pick_highlight_line = function(buf_id, line, hl_group, priority, start_col)
   local opts = { end_row = line, end_col = 0, hl_mode = 'blend', hl_group = hl_group, priority = priority }
-  vim.api.nvim_buf_set_extmark(buf_id, H.ns_id.pickers, line - 1, 0, opts)
+  vim.api.nvim_buf_set_extmark(buf_id, H.ns_id.pickers, line - 1, start_col or 0, opts)
 end
 
 H.pick_prepend_position = function(item)
@@ -1828,6 +1828,7 @@ H.pick_prepend_position = function(item)
   local text = item.text or ''
   local suffix = text == '' and '' or ('│ ' .. text)
   item.text = string.format('%s│%s│%s%s', path, item.lnum or 1, item.col or 1, suffix)
+  item.text_start_col = text ~= '' and (item.text:len() - text:len()) or nil
   return item
 end
 
@@ -2056,7 +2057,8 @@ H.lsp_make_opts = function(source, opts)
 
     H.pick_clear_namespace(buf_id, H.ns_id.pickers)
     for i, item in ipairs(items_to_show) do
-      H.pick_highlight_line(buf_id, i, item.hl, 199)
+      -- Highlight only after position text to emphasize symbol data
+      H.pick_highlight_line(buf_id, i, item.hl, 199, item.text_start_col)
     end
   end
 

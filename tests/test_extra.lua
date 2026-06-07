@@ -2973,6 +2973,7 @@ local validate_location_scope = function(scope)
     end_lnum = 3,
     end_col = 17,
     text = file_path:gsub('\\', '/') .. '│3│16│   x = math.max(a, 2),',
+    text_start_col = 45,
     user_data = {
       range = { start = { line = 2, character = 15 }, ['end'] = { line = 2, character = 16 } },
       uri = 'file://' .. (helpers.is_windows() and '/' or '') .. file_path_full:gsub('\\', '/'),
@@ -2996,21 +2997,23 @@ end
 
 local validate_symbol_scope = function(scope, skip_preview)
   local file_path, file_path_full = setup_lsp()
+  local is_workspace = vim.startswith(scope, 'workspace')
 
   mock_slash_path_sep()
   pick_lsp({ scope = scope })
   validate_picker_name('LSP (' .. scope .. ')')
   eq(child.lua_get('_G.lsp_requests'), { scope_to_request[scope] })
-  if scope == 'workspace_symbol' then eq(child.lua_get('_G.params.query'), '') end
+  if is_workspace then eq(child.lua_get('_G.params.query'), '') end
   child.expect_screenshot()
 
-  -- Should highlight some symbols
+  -- Should highlight symbols without prepended position
   local has_mini_icons = child.lua_get('_G.MiniIcons ~= nil')
+  local col = is_workspace and 44 or 0
   local ref_extmark_data = {
-    { hl_group = '@number', row = 0, col = 0 },
-    { hl_group = '@object', row = 1, col = 0 },
-    { hl_group = '@variable', row = 2, col = 0 },
-    { hl_group = '@variable', row = 3, col = 0 },
+    { hl_group = '@number', row = 0, col = col },
+    { hl_group = '@object', row = 1, col = col },
+    { hl_group = '@variable', row = 2, col = col },
+    { hl_group = '@variable', row = 3, col = col },
   }
   if has_mini_icons then
     ref_extmark_data[1].hl_group = 'MiniIconsOrange'
@@ -3028,7 +3031,7 @@ local validate_symbol_scope = function(scope, skip_preview)
   unmock_slash_path_sep()
 
   -- Should have proper items
-  local text_prefix = scope == 'workspace_symbol' and (file_path:gsub('\\', '/') .. '│1│7│ ') or ''
+  local text_prefix = is_workspace and (file_path:gsub('\\', '/') .. '│1│7│ ') or ''
   local kind_name = child.lua_get('vim.lsp.protocol.SymbolKind[16]')
   -- - Icon should be added only if it is not already assumed to be inside
   --   `SymbolKind` map (as after `MiniIcons.tweak_lsp_kind()`).
@@ -3043,6 +3046,7 @@ local validate_symbol_scope = function(scope, skip_preview)
     kind = 'Number',
     text = text_prefix .. '[' .. kind_name .. '] a',
     hl = ref_extmark_data[1].hl_group,
+    text_start_col = is_workspace and 44 or nil,
   }
   if child.fn.has('nvim-0.11') == 0 then
     ref_item.end_lnum, ref_item.end_col = nil, nil
@@ -3111,6 +3115,7 @@ T['pickers']['lsp()']['works for `references`'] = function()
     end_lnum = 3,
     end_col = 17,
     text = file_path:gsub('\\', '/') .. '│3│16│   x = math.max(a, 2),',
+    text_start_col = 45,
     user_data = {
       uri = 'file://' .. (helpers.is_windows() and '/' or '') .. file_path_full:gsub('\\', '/'),
       range = { start = { line = 2, character = 15 }, ['end'] = { line = 2, character = 16 } },
