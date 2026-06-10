@@ -2160,7 +2160,7 @@ H.get_impl = {
     end
 
     -- Fall back to built-in filetype matching using generic filename
-    local ft = H.filetype_match('aaa.' .. name)
+    local ft = H.filetype_match('/aaa.' .. name)
     if ft ~= nil then return MiniIcons.get('filetype', ft) end
   end,
   file = function(name)
