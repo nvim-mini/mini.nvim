@@ -2216,7 +2216,12 @@ H.filetype_match = function(filename)
     H.set_buf_name(buf_id, 'filetype-match-scratch')
     H.scratch_buf_id = buf_id
   end
-  return vim.filetype.match({ filename = filename, buf = H.scratch_buf_id })
+
+  -- `vim.filetype.match` can error for relative path when cwd does not exist
+  local ok, ft = pcall(vim.filetype.match, { filename = filename, buf = H.scratch_buf_id })
+  if ok then return ft end
+  ok, ft = pcall(vim.filetype.match, { filename = '~/' .. filename, buf = H.scratch_buf_id })
+  return ok and ft or nil
 end
 
 -- Utilities ------------------------------------------------------------------
