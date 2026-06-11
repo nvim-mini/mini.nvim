@@ -2175,7 +2175,9 @@ end
 if vim.fn.has('nvim-0.10') == 0 then H.get_lmap = function() return {} end end
 
 -- A copy of `vim.deepcopy()` that doesn't error on userdata and threads
-H.copy_tables = function(x) return type(x) == 'table' and vim.tbl_map(H.copy_tables, x) or x end
+H.copy_tables = function(x)
+  return type(x) == 'table' and setmetatable(vim.tbl_map(H.copy_tables, x), getmetatable(x)) or x
+end
 
 MiniInput.default_view = MiniInput.gen_view.floatwin()
 return MiniInput

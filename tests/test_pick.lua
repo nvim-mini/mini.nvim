@@ -715,6 +715,16 @@ T['start()']['respects `source.items`'] = function()
     eq(child.lua_get('vim.tbl_map(type, MiniPick.get_picker_items())'), { 'userdata' })
     type_keys('<CR>')
     eq(child.lua_get('type(_G.res)'), 'userdata')
+
+    child.lua_notify([[
+      local items = { setmetatable({ 'a', setmetatable({ 'c' }, { 'd' }) }, { 'b' }) }
+      _G.res = MiniPick.start({ source = { items = items } })
+    ]])
+    eq(child.lua_get('vim.tbl_map(getmetatable, MiniPick.get_picker_items())'), { { 'b' } })
+    eq(child.lua_get('getmetatable(MiniPick.get_picker_items()[1][2])'), { 'd' })
+    type_keys('<CR>')
+    eq(child.lua_get('getmetatable(_G.res)'), { 'b' })
+    eq(child.lua_get('getmetatable(_G.res[2])'), { 'd' })
   end
 end
 

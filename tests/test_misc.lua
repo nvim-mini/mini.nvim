@@ -207,16 +207,22 @@ T['log_add()']['works'] = function()
     MiniMisc.log_add('func 2', { f = function() return 2 end })
     MiniMisc.log_add('timer 1', vim.loop.new_timer())
     MiniMisc.log_add('timer 2', { t = vim.loop.new_timer() })
+    MiniMisc.log_add('metatables 1', setmetatable({ 'a', setmetatable({ 'c' }, { 'd' }) }, { 'b' }))
+    MiniMisc.log_add('metatables 2', { tbl = setmetatable({ 'e', setmetatable({ 'g' }, { 'h' }) }, { 'f' }) })
 
     local log = MiniMisc.log_get()
     return {
-      log[#log - 3].state(),
-      log[#log - 2].state.f(),
-      type(log[#log - 1].state),
-      type(log[#log].state.t),
+      log[#log - 5].state(),
+      log[#log - 4].state.f(),
+      type(log[#log - 3].state),
+      type(log[#log - 2].state.t),
+      getmetatable(log[#log - 1].state),
+      getmetatable(log[#log - 1].state[2]),
+      getmetatable(log[#log].state.tbl),
+      getmetatable(log[#log].state.tbl[2]),
     }
   ]])
-  eq(fun_in_log, { 1, 2, 'userdata', 'userdata' })
+  eq(fun_in_log, { 1, 2, 'userdata', 'userdata', { 'b' }, { 'd' }, { 'f' }, { 'h' } })
 
   -- Should properly set timestamps
   child.lua('_G.small_time = ' .. vim.inspect(small_time))

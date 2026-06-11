@@ -881,6 +881,18 @@ T['get()']['works with non-copyable `data`'] = function()
   expect.no_error(get_and_accept)
 end
 
+T['get()']['preserves metatables in `data`'] = function()
+  child.lua([[
+    MiniInput.config.handlers.key = function(state, key)
+      state.data.tbl = state.data.tbl or setmetatable({ 'a', setmetatable({ 'c' }, { 'd' }) }, { 'b' })
+    end
+  ]])
+
+  get()
+  eq(child.lua_get('getmetatable(MiniInput.get_state().data.tbl)'), { 'b' })
+  eq(child.lua_get('getmetatable(MiniInput.get_state().data.tbl[2])'), { 'd' })
+end
+
 T['get()']['validates arguments'] = function()
   local validate = function(bad_opts, err_pattern)
     expect.error(function() child.lua('MiniInput.get(...)', { bad_opts }) end, err_pattern)
