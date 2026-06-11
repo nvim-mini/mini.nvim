@@ -653,6 +653,22 @@ T['get()']['can be used without `setup()`'] = function()
   eq(child.lua_get('{ require("mini.icons").get("default", "file") }'), { '󰈔', 'MiniIconsGrey', false })
 end
 
+T['get()']['works with deleted cwd'] = function()
+  local temp_dir = 'tests/dir-icons/temp'
+  vim.fn.mkdir(temp_dir, 'p')
+  MiniTest.finally(function() vim.fn.delete(temp_dir, 'rf') end)
+
+  local file_path = child.fn.fnamemodify('tests/dir-icons/file.txt', ':p')
+  child.fn.chdir(temp_dir)
+  vim.fn.delete(temp_dir, 'rf')
+
+  -- Should use `vim.filetype.match` without errors due to missing cwd
+  eq(get('extension', 'xpm'), { '󰍹', 'MiniIconsYellow', false })
+  eq(get('extension', 'unknown'), { '󰈔', 'MiniIconsGrey', true })
+  eq(get('file', 'hello.tcsh'), { '', 'MiniIconsAzure', false })
+  eq(get('file', file_path), { '󰦪', 'MiniIconsYellow', false })
+end
+
 T['get()']['handles deleting all buffers'] = function()
   -- As `vim.filetype.match()` requries a buffer to be more useful, make sure
   -- that there is a persistent helper buffer

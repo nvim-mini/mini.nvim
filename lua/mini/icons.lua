@@ -2216,7 +2216,14 @@ H.filetype_match = function(filename)
     H.set_buf_name(buf_id, 'filetype-match-scratch')
     H.scratch_buf_id = buf_id
   end
-  return vim.filetype.match({ filename = filename, buf = H.scratch_buf_id })
+  local args = { filename = filename, buf = H.scratch_buf_id }
+  local ok, ft = pcall(vim.filetype.match, args)
+  if ok then return ft end
+
+  -- Force absolute path and retry
+  args.filename = '~/' .. args.filename
+  ok, ft = pcall(vim.filetype.match, args)
+  if ok then return ft end
 end
 
 -- Utilities ------------------------------------------------------------------
