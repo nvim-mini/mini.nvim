@@ -236,7 +236,7 @@ name entry. Example: >lua
       file = { glyph = '󰈤' },
     },
     extension = {
-      -- Override highlight group (not necessary from 'mini.icons')
+      -- Override highlight group (not necessarily from 'mini.icons')
       lua = { hl = 'Special' },
 
       -- Add icons for custom extension. This will also be used in
@@ -267,10 +267,10 @@ output if it is not default). Otherwise extension won't be even considered.
 
 The primary use case for this setting is to ensure that some extensions are
 ignored in order for resolution to reach |vim.filetype.match()| stage. This
-is needed if there is a set up filetype detection for files with recognizable
+is needed if filetype detection has been setup for files with recognizable
 extension and conflicting icons (which you want to use). Note: if problematic
-filetype detection involves only known in advance file names, prefer using
-`config.file` customization.
+filetype detection only involves file names that are known in advance, prefer
+using `config.file` customization.
 
 Example: >lua
 
@@ -283,7 +283,7 @@ Example: >lua
     use_file_extension = function(ext) return ext:sub(-3) ~= 'scm' end
   })
 
-  -- Another common choices for extensions to ignore: "yml", "json", "txt".
+  -- Other common choices for extensions to ignore: "yml", "json", "txt".
 <
 ------------------------------------------------------------------------------
                                                                *MiniIcons.get()*
