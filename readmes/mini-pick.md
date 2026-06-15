@@ -87,6 +87,7 @@ For more information see these parts of help:
 - `:h MiniPick-actions`
 - `:h MiniPick-examples`
 - `:h MiniPick.builtin`
+- `:h MiniPick-in-other-plugins` (for plugin authors)
 
 ## Dependencies
 

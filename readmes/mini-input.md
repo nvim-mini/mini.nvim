@@ -41,7 +41,7 @@ For more information see these parts of help:
 - `:h MiniInput.default_key()`
 - `:h MiniInput-state`
 - `:h MiniInput-examples`
-- `:h MiniInput-in-other-plugins`
+- `:h MiniInput-in-other-plugins` (for plugin authors)
 
 ## Installation
 

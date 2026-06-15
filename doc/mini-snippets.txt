@@ -139,6 +139,28 @@ of different scenarios and customization intentions, writing exact rules
 for disabling module's functionality is left to user. See
 |mini.nvim-disabling-recipes| for common recipes.
 
+# Using in other plugins ~
+*MiniSnippets-in-other-plugins*
+
+- Perform a `_G.MiniSnippets ~= nil` check before using any feature. This
+  ensures that user explicitly set up the module.
+
+- To insert snippet given its body (like |vim.snippet.expand()|), use: >lua
+
+     -- Use configured `insert` method with falling back to default
+     local insert = MiniSnippets.config.expand.insert
+       or MiniSnippets.default_insert
+     -- Insert at cursor
+     insert({ body = snippet })
+<
+- To get available snippets, use: >lua
+
+  -- Get snippets matched at cursor
+  MiniSnippets.expand({ insert = false })
+
+  -- Get all snippets available at cursor context
+  MiniSnippets.expand({ match = false, insert = false })
+<
 ------------------------------------------------------------------------------
                                                          *MiniSnippets-glossary*
 POSITION ~
@@ -532,28 +554,6 @@ Define custom `expand.insert` in |MiniSnippets.config| and mappings: >lua
   end
   vim.keymap.set({ 'i', 's' }, '<C-l>', jump_next)
   vim.keymap.set({ 'i', 's' }, '<C-h>', jump_prev)
-<
-# Using 'mini.snippets' in other plugins ~
-*MiniSnippets-in-other-plugins*
-
-- Perform a `_G.MiniSnippets ~= nil` check before using any feature. This
-  ensures that user explicitly set up 'mini.snippets'.
-
-- To insert snippet given its body (like |vim.snippet.expand()|), use: >lua
-
-     -- Use configured `insert` method with falling back to default
-     local insert = MiniSnippets.config.expand.insert
-       or MiniSnippets.default_insert
-     -- Insert at cursor
-     insert({ body = snippet })
-<
-- To get available snippets, use: >lua
-
-  -- Get snippets matched at cursor
-  MiniSnippets.expand({ insert = false })
-
-  -- Get all snippets available at cursor context
-  MiniSnippets.expand({ match = false, insert = false })
 <
 ------------------------------------------------------------------------------
                                                           *MiniSnippets.setup()*

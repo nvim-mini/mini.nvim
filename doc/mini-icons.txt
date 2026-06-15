@@ -32,16 +32,8 @@ Notes:
   built-in in each category (see |MiniIcons.get()|).
   The main supported category is "filetype".
 
-Recommendations for plugin authors using 'mini.icons' as a dependency:
-
-- Check if `_G.MiniIcons` table is present (which means that user explicitly
-  enabled 'mini.icons') and provide icons only if it is.
-
-- Use |MiniIcons.get()| function to get icon string and more data about it.
-
-- For file icons prefer using full path instead of relative or only basename.
-  It makes a difference if path matches pattern that uses parent directories.
-  The |MiniIcons.config| has an example of that.
+Sources with more details:
+- |MiniIcons-in-other-plugins| (for plugin authors)
 
 # Dependencies ~
 
@@ -163,6 +155,18 @@ It is recommended that they all only define colored foreground:
 - `MiniIconsYellow` - yellow.
 
 To change any highlight group, set it directly with |nvim_set_hl()|.
+
+# Using in other plugins ~
+*MiniIcons-in-other-plugins*
+
+- Perform a `_G.MiniIcons ~= nil` check before using any feature. This ensures
+  that user explicitly set up the module.
+
+- Use |MiniIcons.get()| function to get icon string and more data about it.
+
+- For file icons prefer using full path instead of relative or only basename.
+  It makes a difference if path matches pattern that uses parent directories.
+  The |MiniIcons.config| has an example of that.
 
 ------------------------------------------------------------------------------
                                                              *MiniIcons.setup()*

@@ -60,6 +60,7 @@
 --- - |MiniPick-actions|
 --- - |MiniPick-examples|
 --- - |MiniPick.builtin|
+--- - |MiniPick-in-other-plugins| (for plugin authors)
 ---
 --- # Dependencies ~
 ---
@@ -131,6 +132,15 @@
 --- - `MiniPickPromptPrefix` - prefix of the prompt.
 ---
 --- To change any highlight group, set it directly with |nvim_set_hl()|.
+---
+--- # Using in other plugins ~
+--- *MiniPick-in-other-plugins*
+---
+--- - Prefer using |vim.ui.select()| for more user coverage. Use |MiniPick.start()|
+---   when synchronous select or its extra capabilities is absolutely necessary.
+---
+--- - Perform a `_G.MiniPick ~= nil` check before using any feature. This ensures
+---   that user explicitly set up the module.
 ---@tag MiniPick
 
 --- To allow user customization and integration of external tools, certain |User|

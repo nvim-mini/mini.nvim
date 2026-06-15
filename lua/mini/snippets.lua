@@ -136,6 +136,29 @@
 --- of different scenarios and customization intentions, writing exact rules
 --- for disabling module's functionality is left to user. See
 --- |mini.nvim-disabling-recipes| for common recipes.
+---
+--- # Using in other plugins ~
+--- *MiniSnippets-in-other-plugins*
+---
+--- - Perform a `_G.MiniSnippets ~= nil` check before using any feature. This
+---   ensures that user explicitly set up the module.
+---
+--- - To insert snippet given its body (like |vim.snippet.expand()|), use: >lua
+---
+---      -- Use configured `insert` method with falling back to default
+---      local insert = MiniSnippets.config.expand.insert
+---        or MiniSnippets.default_insert
+---      -- Insert at cursor
+---      insert({ body = snippet })
+--- <
+--- - To get available snippets, use: >lua
+---
+---   -- Get snippets matched at cursor
+---   MiniSnippets.expand({ insert = false })
+---
+---   -- Get all snippets available at cursor context
+---   MiniSnippets.expand({ match = false, insert = false })
+--- <
 ---@tag MiniSnippets
 
 --- POSITION ~
@@ -527,28 +550,6 @@
 ---   end
 ---   vim.keymap.set({ 'i', 's' }, '<C-l>', jump_next)
 ---   vim.keymap.set({ 'i', 's' }, '<C-h>', jump_prev)
---- <
---- # Using 'mini.snippets' in other plugins ~
---- *MiniSnippets-in-other-plugins*
----
---- - Perform a `_G.MiniSnippets ~= nil` check before using any feature. This
----   ensures that user explicitly set up 'mini.snippets'.
----
---- - To insert snippet given its body (like |vim.snippet.expand()|), use: >lua
----
----      -- Use configured `insert` method with falling back to default
----      local insert = MiniSnippets.config.expand.insert
----        or MiniSnippets.default_insert
----      -- Insert at cursor
----      insert({ body = snippet })
---- <
---- - To get available snippets, use: >lua
----
----   -- Get snippets matched at cursor
----   MiniSnippets.expand({ insert = false })
----
----   -- Get all snippets available at cursor context
----   MiniSnippets.expand({ match = false, insert = false })
 --- <
 ---@tag MiniSnippets-examples
 
@@ -2773,15 +2774,15 @@ H.ensure_cur_buf = function(buf_id)
 end
 
 H.set_cursor = function(pos)
+  -- NOTE: This won't put cursor past enf of line (for cursor in Insert mode to
+  -- append text to the line). Ensure that Insert mode is active prior.
+  vim.api.nvim_win_set_cursor(0, pos)
+
   -- Ensure no built-in completion window
   -- HACK: Always clearing (and not *only* when pumvisible) accounts for weird
   -- edge case when it is not visible (i.e. candidates *just* got exhausted)
   -- but will still "clear and restore" text leading to squashing of extmarks.
   H.hide_completion()
-
-  -- NOTE: This won't put cursor past enf of line (for cursor in Insert mode to
-  -- append text to the line). Ensure that Insert mode is active prior.
-  vim.api.nvim_win_set_cursor(0, pos)
 end
 
 H.call_in_insert_mode = function(f)

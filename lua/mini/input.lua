@@ -60,6 +60,15 @@
 --- - `MiniInputNormal`  - basic foreground/background.
 --- - `MiniInputPrompt`  - input prompt (intention of the input).
 --- - `MiniInputSpecial` - special keys (like literal `\t`, `\n`, etc.) in input.
+---
+--- # Using in other plugins ~
+--- *MiniInput-in-other-plugins*
+---
+--- - Prefer using |vim.ui.input()| for more user coverage. Use |MiniInput.get()|
+---   only when getting input synchronously is absolutely necessary.
+---
+--- - Perform a `_G.MiniInput ~= nil` check before using any feature. This ensures
+---   that user explicitly set up the module.
 ---@tag MiniInput
 
 --- Information about the state of the input. It is passed as a handler argument.
@@ -210,15 +219,6 @@
 ---   input.setup({ handlers = { view = view_handler } })
 --- <
 --- Change symbols for caret and hidden input: see |MiniInput.gen_view|.
----
---- # Using 'mini.input' in other plugins ~
---- *MiniInput-in-other-plugins*
----
---- - Prefer using |vim.ui.input()| for more user coverage. Use |MiniInput.get()|
----   only when getting input synchronously is absolutely necessary.
----
---- - Perform a `_G.MiniInput ~= nil` check before using any feature. This ensures
----   that user explicitly set up 'mini.input'.
 ---@tag MiniInput-examples
 
 ---@alias __input_to_chunks - <to_chunks> `(function)` - a function that takes |MiniInput-state| and
