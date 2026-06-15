@@ -269,10 +269,10 @@ Stable branch:
 
   -- Various options
   options = {
-    -- Diff algorithm. See `:h vim.diff()`.
+    -- Diff algorithm (see `:h vim.text.diff()`)
     algorithm = 'histogram',
 
-    -- Whether to use "indent heuristic". See `:h vim.diff()`.
+    -- Whether to use "indent heuristic" (see `:h vim.text.diff()`)
     indent_heuristic = true,
 
     -- The amount of second-stage diff to align lines

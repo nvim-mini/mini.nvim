@@ -391,7 +391,8 @@ end
 --- `config.options` contains various customization options.
 ---
 --- `options.algorithm` is a string defining which diff algorithm to use.
---- Default: "histogram". See |vim.diff()| for possible values.
+--- Default: "histogram". See |vim.text.diff()| (|vim.diff()| on Neovim<=0.11)
+--- for possible values.
 ---
 --- `options.indent_heuristic` is a boolean defining whether to use indent
 --- heuristic for a (possibly) more naturally aligned hunks.
@@ -399,7 +400,8 @@ end
 ---
 --- `options.linematch` is a number defining hunk size for which a second
 --- stage diff is executed for a better aligned and more granular hunks.
---- Default: 60. See |vim.diff()| and 'diffopt' for more details.
+--- Default: 60. See |vim.text.diff()| (|vim.diff()| on Neovim<=0.11) and 'diffopt'
+--- for more details.
 ---
 --- `options.wrap_goto` is a boolean indicating whether to wrap around edges during
 --- hunk navigation (with |MiniDiff.goto_hunk()| or `goto_*` mappings). Like if
@@ -450,10 +452,10 @@ MiniDiff.config = {
 
   -- Various options
   options = {
-    -- Diff algorithm. See `:h vim.diff()`.
+    -- Diff algorithm (see `:h vim.text.diff()`)
     algorithm = 'histogram',
 
-    -- Whether to use "indent heuristic". See `:h vim.diff()`.
+    -- Whether to use "indent heuristic" (see `:h vim.text.diff()`)
     indent_heuristic = true,
 
     -- The amount of second-stage diff to align lines
