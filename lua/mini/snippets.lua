@@ -390,7 +390,7 @@
 ---   '`$XDG_CONFIG_HOME`/nvim/snippets/global.json').
 ---   This is compatible with |MiniSnippets.gen_loader.from_runtime()| and
 ---   example from |MiniSnippets-examples|.
---- - Prefer `*.json` files with dict-like content if you want more cross platfrom
+--- - Prefer `*.json` files with dict-like content if you want more cross platform
 ---   setup. Otherwise use `*.lua` files with array-like content.
 --- - To implement "dynamic snippet" that changes data (usually <body>) depending
 ---   on the context, use `*.lua` file with function returning snippet data.
@@ -1523,7 +1523,7 @@ end
 MiniSnippets.start_lsp_server = function(opts)
   local default_opts = { before_attach = H.lsp_default_before_attach, match = nil, server_config = {}, triggers = {} }
   opts = vim.tbl_extend('force', default_opts, opts or {})
-  H.check_type('opts.before_attch', opts.before_attach, 'callable')
+  H.check_type('opts.before_attach', opts.before_attach, 'callable')
   H.check_type('opts.server_config', opts.server_config, 'table')
   H.check_type('opts.triggers', opts.triggers, 'table')
 
@@ -1576,7 +1576,7 @@ H.cache = {
   mappings = {},
 }
 
--- Capabilties of current Neovim version
+-- Capabilities of current Neovim version
 H.nvim_supports_inline_extmarks = vim.fn.has('nvim-0.10') == 1
 
 -- Helper functionality =======================================================
@@ -1890,7 +1890,7 @@ H.parse_processors = {}
 
 H.parse_processors.text = function(c, s, n)
   if n.after_slash then
-    -- Escape `$}\` and allow unescaped '\\' to preceed any character
+    -- Escape `$}\` and allow unescaped '\\' to precede any character
     if not (c == '$' or c == '}' or c == '\\') then table.insert(n.text, '\\') end
     n.text[#n.text + 1], n.after_slash = c, nil
     return
@@ -1972,7 +1972,7 @@ H.parse_processors.choice = function(c, s, n)
 
   local cur = n.choices[#n.choices]
   if n.after_slash then
-    -- Escape `$}\` and allow unescaped '\\' to preceed any character
+    -- Escape `$}\` and allow unescaped '\\' to precede any character
     if not (c == ',' or c == '|' or c == '\\') then table.insert(cur, '\\') end
     cur[#cur + 1], n.after_slash = c, nil
     return
@@ -1996,7 +1996,7 @@ H.parse_processors.transform_format = function(c, s, n)
   if n.after_slash then return s:set_in(n, 'after_slash', nil) end
   if n.after_dollar then
     n.after_dollar = nil
-    -- Inside `${}` wait until the first (unescaped) `}`. Techincally, this
+    -- Inside `${}` wait until the first (unescaped) `}`. Technically, this
     -- breaks LSP spec in `${1:?if:else}` (`if` doesn't have to escape `}`).
     -- Accept this as known limitation and ask to escape `}` in such cases.
     if c == '{' and not n.inside_braces then return s:set_in(n, 'inside_braces', true) end
@@ -2315,7 +2315,7 @@ H.session_is_valid = function(session)
     -- NOTE: Invalid extmark tracking (via `invalidate=true`) should be doable,
     -- but comes with constraints: manually making tabstop empty should be
     -- allowed; deleting placeholder also deletes extmark's range. Both make
-    -- extmark invalid, so deligate to users to see that extmarks are broken.
+    -- extmark invalid, so delegate to users to see that extmarks are broken.
     local ok, row, _, _ = pcall(H.extmark_get, buf_id, n.extmark_id)
     res = res and (ok and row < n_lines)
   end

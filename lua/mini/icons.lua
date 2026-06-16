@@ -439,8 +439,8 @@ MiniIcons.config = {
 ---   - `'lsp'` - icon data for various "LSP kind" values.
 ---     Icon names:
 ---       - <Input>: any string.
----       - <Built-in>: only namesspace entries from LSP specification that are
----         can be displayed to user. Like `CompletionItemKind`, `SymbolKind`, etc.
+---       - <Built-in>: only namespace entries from LSP specification that can
+---         be displayed to the user. Like `CompletionItemKind`, `SymbolKind`, etc.
 ---
 ---     Examples: >lua
 ---
@@ -704,7 +704,7 @@ H.default_icons = {
 }
 
 -- Directory icons. Keys are some popular *language-agnostic* directory
--- basenames. Use only "folder-shaped" glyphs while prefering `nf-md-folder-*`
+-- basenames. Use only "folder-shaped" glyphs while preferring `nf-md-folder-*`
 -- classes (unless glyph is designed specifically for the directory name)
 -- Common sets:
 -- - Use `MiniIconsOrange` for typical HOME directories.
@@ -2119,7 +2119,7 @@ end
 H.cache_get = function(cat, name) return H.cache_index[H.cache[cat][name]] end
 
 H.cache_set = function(cat, name, icon, hl)
-  -- Process category fallback icon separatly
+  -- Process category fallback icon separately
   if icon == nil then
     local fallback_id = H.cache[cat][true]
     H.cache[cat][name] = fallback_id

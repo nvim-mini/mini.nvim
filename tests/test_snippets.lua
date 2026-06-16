@@ -4732,7 +4732,7 @@ T['Interaction with built-in completion']['preserves popup on autoclose'] = func
   validate_pumvisible()
 end
 
-T['Interaction with built-in completion']['no affect of "exausted" popup during jump'] = function()
+T['Interaction with built-in completion']['no affect of "exhausted" popup during jump'] = function()
   default_insert({ body = 'abc $1 $2' })
   type_keys('a', '<C-n>', 'x')
   validate_no_pumvisible()

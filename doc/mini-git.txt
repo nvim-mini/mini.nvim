@@ -316,7 +316,7 @@ buffer evolved through Git history. Essentially a `git log` with `-L` flag.
 
 Notes:
 - Works well with |MiniGit.diff_foldexpr()|.
-- Does not work if there are uncommited changes, as there is no easy way to
+- Does not work if there are uncommitted changes, as there is no easy way to
   compute effective range line numbers.
 
 Parameters ~

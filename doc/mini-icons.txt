@@ -413,8 +413,8 @@ Parameters ~
   - `'lsp'` - icon data for various "LSP kind" values.
     Icon names:
       - <Input>: any string.
-      - <Built-in>: only namesspace entries from LSP specification that are
-        can be displayed to user. Like `CompletionItemKind`, `SymbolKind`, etc.
+      - <Built-in>: only namespace entries from LSP specification that can
+        be displayed to the user. Like `CompletionItemKind`, `SymbolKind`, etc.
 
     Examples: >lua
 

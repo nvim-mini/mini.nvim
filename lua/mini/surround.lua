@@ -1299,29 +1299,29 @@ H.make_action = function(task, direction, search_method)
 end
 
 -- Work with surrounding info -------------------------------------------------
-H.get_surround_spec = function(sur_type, use_cache)
+H.get_surround_spec = function(surr_type, use_cache)
   local res
 
   -- Try using cache
   if use_cache then
-    res = H.cache[sur_type]
+    res = H.cache[surr_type]
     if res ~= nil then return res end
   else
     H.cache = {}
   end
 
   -- Prompt user to enter identifier of surrounding
-  local char = H.user_surround_id(sur_type)
+  local char = H.user_surround_id(surr_type)
   if char == nil then return nil end
 
   -- Get surround specification
-  res = H.make_surrounding_table()[char][sur_type]
+  res = H.make_surrounding_table()[char][surr_type]
 
   -- Allow function returning spec or surrounding region(s)
   if vim.is_callable(res) then res = res() end
 
   -- Do nothing if supplied not appropriate structure
-  if not H.is_surrounding_info(res, sur_type) then return nil end
+  if not H.is_surrounding_info(res, surr_type) then return nil end
 
   -- Wrap callable tables to be an actual functions. Otherwise they might be
   -- confused with list of patterns.
@@ -1331,7 +1331,7 @@ H.get_surround_spec = function(sur_type, use_cache)
   res = setmetatable(res, { __index = { id = char } })
 
   -- Cache result
-  if use_cache then H.cache[sur_type] = res end
+  if use_cache then H.cache[surr_type] = res end
 
   return res
 end
@@ -1359,10 +1359,10 @@ H.get_default_surrounding_info = function(char)
   return { input = { char_esc .. '().-()' .. char_esc }, output = { left = char, right = char } }
 end
 
-H.is_surrounding_info = function(x, sur_type)
-  if sur_type == 'input' then
+H.is_surrounding_info = function(x, surr_type)
+  if surr_type == 'input' then
     return H.is_composed_pattern(x) or H.is_region_pair(x) or H.is_region_pair_array(x)
-  elseif sur_type == 'output' then
+  elseif surr_type == 'output' then
     return (type(x) == 'table' and type(x.left) == 'string' and type(x.right) == 'string')
   end
 end
@@ -2012,13 +2012,13 @@ H.cursor_cycle = function(pos_array, dir)
 end
 
 -- Work with user input -------------------------------------------------------
-H.user_surround_id = function(sur_type)
+H.user_surround_id = function(surr_type)
   -- Get from user single character surrounding identifier
   local needs_reminder = true
   vim.defer_fn(function()
     if not needs_reminder then return end
 
-    local msg = string.format('Reminder to press %s surrounding id ', sur_type)
+    local msg = string.format('Reminder to press %s surrounding id ', surr_type)
     H.echo(msg)
     H.cache.msg_shown = true
   end, 1000)

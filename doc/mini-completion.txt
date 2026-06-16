@@ -462,7 +462,7 @@ Parameters ~
 {opts} `(table|nil)` Options. Possible fields:
   - <resolve_additional_text_edits> `(boolean)` - whether to declare
     `'additionalTextEdits'` as possible to resolve in `'completionitem/resolve'`
-    requrest. See above "Notes" section.
+    request. See above "Notes" section.
     Default: `true`.
 
 Return ~

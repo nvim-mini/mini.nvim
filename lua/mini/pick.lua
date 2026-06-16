@@ -1260,7 +1260,7 @@ end
 --- 'mini.pick' for any "select" type of tasks.
 --- Set automatically in |MiniPick.setup()|.
 ---
---- Implements required by `vim.ui.select()` signature, with some differencies:
+--- Implements required by `vim.ui.select()` signature, with some differences:
 --- - Allows `opts.preview_item` that returns one of:
 ---     - Array of lines for item preview.
 ---     - Preview data described in |vim.ui.select()| (on Neovim>=0.12.3).

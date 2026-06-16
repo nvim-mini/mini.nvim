@@ -624,7 +624,7 @@ end
 ---@param opts table|nil Options. Possible fields:
 ---   - <resolve_additional_text_edits> `(boolean)` - whether to declare
 ---     `'additionalTextEdits'` as possible to resolve in `'completionitem/resolve'`
----     requrest. See above "Notes" section.
+---     request. See above "Notes" section.
 ---     Default: `true`.
 ---
 ---@return table Data about LSP capabilities supported by 'mini.completion'. Has same
@@ -1260,7 +1260,7 @@ H.lsp_completion_response_items_to_complete_items = function(items)
     -- Treat item as snippet only if it has tabstop, variable, tab, or newline.
     -- It is important to make "implicit" expand work with LSP servers that
     -- report even regular words as `InsertTextFormat.Snippet` (like `gopls`).
-    -- Otherwise it will "eat" the next typed non-keyword charater.
+    -- Otherwise it will "eat" the next typed non-keyword character.
     -- Account for tabs and newline to allow `snippet_insert` to deal with
     -- reindenting and tab expansion.
     local has_snippet_features = (word:find('[^\\]%${?%w') or word:find('^%${?%w') or word:find('[\n\t]')) ~= nil

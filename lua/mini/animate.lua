@@ -2107,7 +2107,7 @@ end
 H.get_n_visible_lines = function(from_line, to_line)
   local min_line, max_line = math.min(from_line, to_line), math.max(from_line, to_line)
 
-  -- If `max_line` is inside fold, scrol should stop on the fold (not after)
+  -- If `max_line` is inside fold, scroll should stop on the fold (not after)
   local max_line_fold_start = vim.fn.foldclosed(max_line)
   local target_line = max_line_fold_start == -1 and max_line or max_line_fold_start
 

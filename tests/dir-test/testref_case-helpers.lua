@@ -46,7 +46,7 @@ T['skip() can be called in `pre_case` hooks']['skip two'] = function() error() e
 T['skip() has no effect in not `pre_case` hooks'] = MiniTest.new_set({
   hooks = {
     pre_once = function() MiniTest.skip('pre_once') end,
-    post_csae = function() MiniTest.skip('post_csae') end,
+    post_case = function() MiniTest.skip('post_case') end,
     post_once = function() MiniTest.skip('post_once') end,
   },
 }, { ['skip() in other hooks'] = function() error() end })

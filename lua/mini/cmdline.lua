@@ -750,7 +750,7 @@ H.trigger_complete_scheduled = vim.schedule_wrap(H.trigger_complete)
 H.trigger_wild = function() vim.fn.wildtrigger() end
 if vim.fn.has('nvim-0.12') == 0 then
   H.trigger_wild = function()
-    -- Not triggerring when wildmenu is shown helps avoiding trigger after
+    -- Not triggering when wildmenu is shown helps avoiding trigger after
     -- manually pressing wildchar (as text is also changes).
     if vim.fn.wildmenumode() == 1 then return end
     -- Type `<C-z>` which is "Trigger 'wildmode', but always available."

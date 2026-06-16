@@ -2013,7 +2013,7 @@ H.get_chunks_displaywidth = function(chunks) return vim.fn.strdisplaywidth(H.get
 
 -- Highlight ranges -----------------------------------------------------------
 --- Add new proper highlight range on top of an array of ranges that don't
---- intersect and are orderd from left to right.
+--- intersect and are ordered from left to right.
 ---@private
 H.insert_hl_range = function(arr, max_to, from, to, hl)
   -- Insert only proper range that fits constraints

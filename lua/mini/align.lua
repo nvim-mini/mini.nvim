@@ -1358,7 +1358,7 @@ end
 H.is_disabled = function() return vim.g.minialign_disable == true or vim.b.minialign_disable == true end
 
 H.get_config = function()
-  -- Using `tbl_deep_extend()` works even in presense of `steps.pre_*` arrays
+  -- Using `tbl_deep_extend()` works even in presence of `steps.pre_*` arrays
   -- because default ones are empty.
   return vim.tbl_deep_extend('force', MiniAlign.config, vim.b.minialign_config or {})
 end

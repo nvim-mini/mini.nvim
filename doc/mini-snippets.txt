@@ -393,7 +393,7 @@ For supported snippet syntax see |MiniSnippets-syntax-specification|.
   '`$XDG_CONFIG_HOME`/nvim/snippets/global.json').
   This is compatible with |MiniSnippets.gen_loader.from_runtime()| and
   example from |MiniSnippets-examples|.
-- Prefer `*.json` files with dict-like content if you want more cross platfrom
+- Prefer `*.json` files with dict-like content if you want more cross platform
   setup. Otherwise use `*.lua` files with array-like content.
 - To implement "dynamic snippet" that changes data (usually <body>) depending
   on the context, use `*.lua` file with function returning snippet data.

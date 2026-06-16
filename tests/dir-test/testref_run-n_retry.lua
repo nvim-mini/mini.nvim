@@ -78,7 +78,7 @@ T['calls all `pre_case` and `post_case` hooks on case retry']['inner']['case'] =
 
 T['screenshot number'] = new_set({ n_retry = 2 }, {
   test = function()
-    -- Should compute default path with proper screeshot suffix
+    -- Should compute default path with proper screenshot suffix
     -- Basically a test that cached number of screenshots is reset before
     -- *every* try and not only before first try
     local child = MiniTest.new_child_neovim()

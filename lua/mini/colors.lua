@@ -1058,7 +1058,7 @@ MiniColors.simulate_cvd = function(x, cvd_type, severity)
 
   -- Simulate regular CVD by multiplying with appropriate matrix
   severity = H.clip(H.round(10 * severity), 0, 10)
-  local mat = H.cvd_matricies[cvd_type][severity]
+  local mat = H.cvd_matrices[cvd_type][severity]
   local rgb = MiniColors.convert(x, 'rgb')
   local new_rgb = {
     r = mat[1][1] * rgb.r + mat[1][2] * rgb.g + mat[1][3] * rgb.b,
@@ -1141,7 +1141,7 @@ H.cusps = {
 -- Each first-level entry describes CVD type; second-level - severity times 10.
 -- Source:
 -- https://www.inf.ufrgs.br/~oliveira/pubs_files/CVD_Simulation/CVD_Simulation.html
-H.cvd_matricies = {
+H.cvd_matrices = {
   protan = {
     [00]={{1.000000, 0.000000,  -0.000000}, {0.000000,  1.000000, 0.000000}, {-0.000000, -0.000000, 1.000000}},
     [01]={{0.856167, 0.182038,  -0.038205}, {0.029342,  0.955115, 0.015544}, {-0.002880, -0.001563, 1.004443}},
