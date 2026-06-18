@@ -55,26 +55,26 @@
 ---
 --- - [Neovide](https://neovide.dev/):
 ---     - Neovide is a standalone GUI which has more control over its animations.
----       While 'mini.animate' works inside terminal emulator (with all its
+---       While |mini.animate| works inside terminal emulator (with all its
 ---       limitations, like lack of pixel-size control over animations).
----     - Neovide animates cursor movement across screen, while 'mini.animate' -
+---     - Neovide animates cursor movement across screen, while |mini.animate| -
 ---       as it moves across same buffer.
 ---     - Neovide has fixed number of animation effects per action, while
----       'mini.animate' is fully customizable.
----     - 'mini.animate' implements animations for window open/close, while
+---       |mini.animate| is fully customizable.
+---     - |mini.animate| implements animations for window open/close, while
 ---       Neovide does not.
 --- - [edluffy/specs.nvim](https://github.com/edluffy/specs.nvim):
----     - 'mini.animate' approaches cursor movement visualization via
----       customizable path function (uses extmarks), while 'specs.nvim' can
+---     - |mini.animate| approaches cursor movement visualization via
+---       customizable path function (uses extmarks), while `specs.nvim` can
 ---       customize within its own visual effects (shading and floating
 ---       window resizing).
 --- - [karb94/neoscroll.nvim](https://github.com/karb94/neoscroll.nvim):
 ---     - Scroll animation is triggered only inside dedicated mappings.
----       'mini.animate' animates scroll resulting from any window view change.
+---       |mini.animate| animates scroll resulting from any window view change.
 --- - [anuvyklack/windows.nvim](https://github.com/anuvyklack/windows.nvim):
 ---     - Resize animation is done only within custom commands and mappings,
----       while 'mini.animate' animates any resize with appropriate values of
----       'winheight' / 'winwidth' and 'winminheight' / 'winminwidth').
+---       while |mini.animate| animates any resize with appropriate values of
+---       |'winheight'| / |'winwidth'| and |'winminheight'| / |'winminwidth'|).
 ---
 --- # Highlight groups ~
 --- *MiniAnimate-hl-groups*
@@ -228,11 +228,11 @@ end
 --- - As scroll animation is essentially a precisely scheduled non-blocking
 ---   subscrolls, this has two important interconnected consequences:
 ---     - If another scroll is attempted during the animation, it is done based
----       on the **currently visible** window view. Example: if user presses
----       |CTRL-D| and then |CTRL-U| when animation is half done, window will not
----       display the previous view half of 'scroll' above it. This especially
----       affects mouse wheel scrolling, as each its turn results in a new scroll
----       for number of lines defined by 'mousescroll'. Tweak it to your liking.
+---       on the CURRENTLY VISIBLE window view. Example: if user presses |CTRL-D|
+---       and then |CTRL-U| when animation is half done, window will not display
+---       the previous view half of |'scroll'| above it. This especially affects
+---       mouse wheel scrolling, as each its turn results in a new scroll for
+---       number of lines defined by |'mousescroll'|. Tweak it to your liking.
 ---     - It breaks the use of several relative scrolling commands in the same
 ---       command. Use |MiniAnimate.execute_after()| to schedule action after
 ---       reaching target window view.
@@ -243,7 +243,7 @@ end
 ---           'MiniAnimate.execute_after("scroll", "normal! zvzz")<CR>'
 --- <
 --- - Default timing might conflict with scrolling via holding a key (like `j` or `k`
----   with 'wrap' enabled) due to high key repeat rate: next scroll is done before
+---   with |'wrap'| enabled) due to high key repeat rate: next scroll is done before
 ---   first step of current one finishes. Resolve this by not scrolling like that
 ---   or by ensuring maximum value of step duration to be lower than between
 ---   repeated keys: set timing like `function(_, n) return math.min(250/n, 10) end`
@@ -299,7 +299,7 @@ end
 --- - As resize animation is essentially a precisely scheduled non-blocking
 ---   subresizes, this has two important interconnected consequences:
 ---     - If another resize is attempted during the animation, it is done based
----       on the **currently visible** window sizes. This might affect relative
+---       on the CURRENTLY VISIBLE window sizes. This might affect relative
 ---       resizing.
 ---     - It breaks the use of several relative resizing commands in the same
 ---       command. Use |MiniAnimate.execute_after()| to schedule action after
@@ -358,7 +358,7 @@ end
 --- <
 --- The `winblend` option is similar to `timing` option: it is a callable
 --- which, given current and total step numbers, returns value of floating
---- window's 'winblend' option. Note, that it is called for current step (so
+--- window's |'winblend'| option. Note, that it is called for current step (so
 --- starts from 0), as opposed to `timing` which is called before step.
 --- Example:
 --- - Function `function(s, n) return 80 + 20 * s / n end` results in linear
@@ -641,7 +641,7 @@ end
 ---     },
 ---   })
 --- <
----@seealso |MiniIndentscope.gen_animation| for similar concept in 'mini.indentscope'.
+---@seealso |MiniIndentscope.gen_animation| for similar concept in |mini.indentscope|.
 MiniAnimate.gen_timing = {}
 
 ---@alias __animate_timing_opts table|nil Options that control progression. Possible keys:
@@ -1137,8 +1137,8 @@ MiniAnimate.gen_winblend = {}
 --- Generate linear `winblend` progression
 ---
 ---@param opts table|nil Options that control generator. Possible keys:
----   - <from> `(number)` - initial value of 'winblend'.
----   - <to> `(number)` - final value of 'winblend'.
+---   - <from> `(number)` - initial value of |'winblend'|.
+---   - <to> `(number)` - final value of |'winblend'|.
 ---
 ---@return function Winblend function (see |MiniAnimate.config.open|
 ---   or |MiniAnimate.config.close|).

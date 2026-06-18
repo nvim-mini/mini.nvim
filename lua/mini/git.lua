@@ -43,7 +43,7 @@
 ---     - Mostly a dedicated Git client, while this module is not (by design).
 ---     - Provides buffer-local Git data only through fixed statusline component,
 ---       while this module has richer data in the form of a Lua table.
----     - Both provide |:Git| command with 'vim-fugitive' treating some cases
+---     - Both provide |:Git| command with `vim-fugitive` treating some cases
 ---       extra specially (like `:Git blame`, etc.), while this module mostly
 ---       treats all cases the same. See |MiniGit-examples| for how they can be
 ---       manually customized.
@@ -51,7 +51,7 @@
 ---       completion suggestions.
 ---
 --- - [NeogitOrg/neogit](https://github.com/NeogitOrg/neogit):
----     - Similar to 'tpope/vim-fugitive', but without `:Git` command.
+---     - Similar to `tpope/vim-fugitive`, but without `:Git` command.
 ---
 --- - [lewis6991/gitsigns.nvim](https://github.com/lewis6991/gitsigns.nvim):
 ---     - Provides buffer-local Git data with emphasis on granular diff status,
@@ -205,7 +205,7 @@
 
 ---@alias __git_buf_id number Target buffer identifier. Default: 0 for current buffer.
 ---@alias __git_split_field <split> `(string)` - split direction. One of "horizontal", "vertical",
----     "tab", or "auto" (default). Value "auto" uses |:vertical| if only 'mini.git'
+---     "tab", or "auto" (default). Value "auto" uses |:vertical| if only |mini.git|
 ---     buffers are shown in the tabpage and |:tab| otherwise.
 
 ---@diagnostic disable:undefined-field
@@ -284,7 +284,7 @@ end
 ---
 --- `command.split` defines default split direction for |:Git| command output. Can be
 --- one of "horizontal", "vertical", "tab", or "auto". Value "auto" uses |:vertical|
---- if only 'mini.git' buffers are shown in the tabpage and |:tab| otherwise.
+--- if only |mini.git| buffers are shown in the tabpage and |:tab| otherwise.
 --- Default: "auto".
 MiniGit.config = {
   -- General CLI execution
@@ -579,7 +579,7 @@ end
 ---@return table|nil Table with buffer Git data or `nil` if buffer is not enabled.
 ---   If the file is not part of Git repo, table will be empty.
 ---   Table has the following fields:
----   - <repo> `(string)` - full path to '.git' directory.
+---   - <repo> `(string)` - full path to `.git` directory.
 ---   - <root> `(string)` - full path to worktree root.
 ---   - <head> `(string)` - full commit of current HEAD.
 ---   - <head_name> `(string)` - short name of current HEAD (like "master").

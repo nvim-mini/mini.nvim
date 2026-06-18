@@ -1,8 +1,8 @@
---- *mini.extra* Extra 'mini.nvim' functionality
+--- *mini.extra* Extra mini.nvim functionality
 ---
 --- MIT License Copyright (c) 2023 Evgeni Chasnovski
 
---- Extra useful functionality which is not essential enough for other 'mini.nvim'
+--- Extra useful functionality which is not essential enough for other |mini.nvim|
 --- modules to include directly.
 ---
 --- Features:
@@ -22,8 +22,8 @@
 --- - Various highlighters for |mini.hipatterns|. See |MiniExtra.gen_highlighter|.
 ---
 --- Notes:
---- - This module requires only those 'mini.nvim' modules which are needed for
----   a particular functionality: 'mini.pick' for pickers, etc.
+--- - This module requires only those |mini.nvim| modules which are needed for
+---   a particular functionality: |mini.pick| for pickers, etc.
 ---
 --- # Setup ~
 ---
@@ -39,11 +39,11 @@
 --- # Comparisons ~
 ---
 --- - [nvim-telescope/telescope.nvim](https://github.com/nvim-telescope/telescope.nvim):
----     - With |MiniExtra.pickers|, 'mini.pick' is reasonably on par when it comes
+---     - With |MiniExtra.pickers|, |mini.pick| is reasonably on par when it comes
 ---       to built-in pickers.
 ---
 --- - [ibhagwan/fzf-lua](https://github.com/ibhagwan/fzf-lua):
----     - Same as 'nvim-telescope/telescope.nvim'.
+---     - Same as `nvim-telescope/telescope.nvim`.
 ---@tag MiniExtra
 
 ---@diagnostic disable:undefined-field
@@ -187,11 +187,11 @@ end
 --- - `i` textobject selects the scope charwise.
 --- - Differences with |MiniIndentscope.textobject()|:
 ---     - This textobject always treats blank lines on top and bottom of `i`
----       textobject as part of it, while 'mini.indentscope' can configure that.
----     - This textobject can select non-covering scopes, while 'mini.indentscope'
+---       textobject as part of it, while |mini.indentscope| can configure that.
+---     - This textobject can select non-covering scopes, while |mini.indentscope|
 ---       can not (by design).
 ---     - In this textobject scope computation is done only by "casting rays" from
----       top to bottom and not in both ways as in 'mini.indentscope'.
+---       top to bottom and not in both ways as in |mini.indentscope|.
 ---       This works in most common scenarios and doesn't work only if indent of
 ---       of the bottom border is expected to be larger than the top.
 ---
@@ -307,7 +307,7 @@ end
 
 --- |mini.pick| pickers
 ---
---- A table with 'mini.pick' pickers (which is a hard dependency).
+--- A table with |mini.pick| pickers (which is a hard dependency).
 --- Notes:
 --- - All have the same signature:
 ---     - <local_opts> - optional table with options local to picker.
@@ -450,7 +450,7 @@ end
 
 --- Neovim commands picker
 ---
---- Pick from Neovim built-in (|Ex-commands|) and |user-commands|.
+--- Pick from Neovim built-in (|Ex-command|) and |user-commands|.
 --- Notes:
 --- - Preview shows information about the command (if available).
 --- - Choosing either executes command (if reliably known that it doesn't need
@@ -688,7 +688,7 @@ end
 --- - `MiniExtra.pickers.git_commits()` - all commits from parent Git
 ---   repository of |current-directory|.
 --- - `MiniExtra.pickers.git_commits({ path = 'subdir' })` - commits affecting
----   files from 'subdir' subdirectory.
+---   files from `subdir` subdirectory.
 --- - `:Pick git_commits path='%'` commits affecting current file.
 ---
 ---@param local_opts __extra_pickers_local_opts
@@ -745,7 +745,7 @@ end
 ---
 --- - `MiniExtra.pickers.git_files({ scope = 'ignored' })` - ignored files from
 ---   parent Git repository of |current-directory|.
---- - `:Pick git_files path='subdir' scope='modified'` - files from 'subdir'
+--- - `:Pick git_files path='subdir' scope='modified'` - files from `subdir`
 ---   subdirectory which differ from Git index.
 ---
 ---@param local_opts __extra_pickers_local_opts
@@ -857,16 +857,16 @@ MiniExtra.pickers.git_hunks = function(local_opts, opts)
   return pick.builtin.cli({ command = command, postprocess = postprocess }, opts)
 end
 
---- Matches from 'mini.hipatterns' picker
+--- Matches from |mini.hipatterns| picker
 ---
 --- Pick from |mini.hipatterns| matches using |MiniHipatterns.get_matches()|.
 --- Notes:
---- - Requires 'mini.hipatterns'.
+--- - Requires |mini.hipatterns|.
 --- - Highlighter identifier is highlighted with its highlight group.
 ---
 ---@param local_opts __extra_pickers_local_opts
 ---   Possible fields:
----   - <scope> `(string)` - one of "all" (buffers with enabled 'mini.hipatterns')
+---   - <scope> `(string)` - one of "all" (buffers with enabled |mini.hipatterns|)
 ---     or "current" (buffer). Default: "all".
 ---   - <highlighters> `(table|nil)` - highlighters for which to find matches.
 ---     Forwarded to |MiniHipatterns.get_matches()|. Default: `nil`.
@@ -1565,11 +1565,11 @@ MiniExtra.pickers.treesitter = function(local_opts, opts)
   return H.pick_start(items, { source = { name = 'Tree-sitter nodes' } }, opts)
 end
 
---- Visit paths from 'mini.visits' picker
+--- Visit paths from |mini.visits| picker
 ---
 --- Pick paths from |mini.visits| using |MiniVisits.list_paths()|.
 --- Notes:
---- - Requires 'mini.visits'.
+--- - Requires |mini.visits|.
 ---
 --- Examples:
 ---
@@ -1624,12 +1624,12 @@ MiniExtra.pickers.visit_paths = function(local_opts, opts)
   return H.pick_start(items, { source = default_source }, opts)
 end
 
---- Visit labels from 'mini.visits' picker
+--- Visit labels from |mini.visits| picker
 ---
 --- Pick labels from |mini.visits| using |MiniVisits.list_labels()|
 --- and |MiniVisits.list_paths()|.
 --- Notes:
---- - Requires 'mini.visits'.
+--- - Requires |mini.visits|.
 --- - Preview shows target visit paths filtered to those having previewed label.
 --- - Choosing essentially starts |MiniExtra.pickers.visit_paths()| for paths
 ---   with the chosen label.

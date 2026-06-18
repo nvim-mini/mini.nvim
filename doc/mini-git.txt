@@ -45,7 +45,7 @@ See |MiniGit.config| for `config` structure and default values.
     - Mostly a dedicated Git client, while this module is not (by design).
     - Provides buffer-local Git data only through fixed statusline component,
       while this module has richer data in the form of a Lua table.
-    - Both provide |:Git| command with 'vim-fugitive' treating some cases
+    - Both provide |:Git| command with `vim-fugitive` treating some cases
       extra specially (like `:Git blame`, etc.), while this module mostly
       treats all cases the same. See |MiniGit-examples| for how they can be
       manually customized.
@@ -53,7 +53,7 @@ See |MiniGit.config| for `config` structure and default values.
       completion suggestions.
 
 - [NeogitOrg/neogit](https://github.com/NeogitOrg/neogit):
-    - Similar to 'tpope/vim-fugitive', but without `:Git` command.
+    - Similar to `tpope/vim-fugitive`, but without `:Git` command.
 
 - [lewis6991/gitsigns.nvim](https://github.com/lewis6991/gitsigns.nvim):
     - Provides buffer-local Git data with emphasis on granular diff status,
@@ -260,7 +260,7 @@ Default: 30000.
 
 `command.split` defines default split direction for |:Git| command output. Can be
 one of "horizontal", "vertical", "tab", or "auto". Value "auto" uses |:vertical|
-if only 'mini.git' buffers are shown in the tabpage and |:tab| otherwise.
+if only |mini.git| buffers are shown in the tabpage and |:tab| otherwise.
 Default: "auto".
 
 ------------------------------------------------------------------------------
@@ -277,7 +277,7 @@ Show Git related data at cursor
 Parameters ~
 {opts} `(table|nil)` Options. Possible values:
   - <split> `(string)` - split direction. One of "horizontal", "vertical",
-    "tab", or "auto" (default). Value "auto" uses |:vertical| if only 'mini.git'
+    "tab", or "auto" (default). Value "auto" uses |:vertical| if only |mini.git|
     buffers are shown in the tabpage and |:tab| otherwise.
   - Fields appropriate for forwarding to other functions.
 
@@ -300,7 +300,7 @@ Notes:
 Parameters ~
 {opts} `(table|nil)` Options. Possible values:
   - <split> `(string)` - split direction. One of "horizontal", "vertical",
-    "tab", or "auto" (default). Value "auto" uses |:vertical| if only 'mini.git'
+    "tab", or "auto" (default). Value "auto" uses |:vertical| if only |mini.git|
     buffers are shown in the tabpage and |:tab| otherwise.
   - <target> `(string)` - which file state to show. One of "before", "after",
     "both" (both states in vertical split), "auto" (default). Value "auto"
@@ -327,7 +327,7 @@ Parameters ~
     current line in Normal mode and visual selection in Visual mode.
   - <log_args> `(table)` - array of options to append to `git log` call.
   - <split> `(string)` - split direction. One of "horizontal", "vertical",
-    "tab", or "auto" (default). Value "auto" uses |:vertical| if only 'mini.git'
+    "tab", or "auto" (default). Value "auto" uses |:vertical| if only |mini.git|
     buffers are shown in the tabpage and |:tab| otherwise.
 
 ------------------------------------------------------------------------------
@@ -412,7 +412,7 @@ Return ~
 `(table|nil)` Table with buffer Git data or `nil` if buffer is not enabled.
   If the file is not part of Git repo, table will be empty.
   Table has the following fields:
-  - <repo> `(string)` - full path to '.git' directory.
+  - <repo> `(string)` - full path to `.git` directory.
   - <root> `(string)` - full path to worktree root.
   - <head> `(string)` - full commit of current HEAD.
   - <head_name> `(string)` - short name of current HEAD (like "master").

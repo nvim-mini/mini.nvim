@@ -76,7 +76,7 @@ as `MiniBracketed.config`. See |mini.nvim-buffer-local-config| for more details.
     - Target |MiniBracketed.indent()| target can go to "first" and "last"
       indent change. It also can go not only to line with smaller indent,
       but also bigger or different one.
-    - Mappings from 'mini.indentscope' have more flexibility in computation of
+    - Mappings from |mini.indentscope| have more flexibility in computation of
       indent scope, like how to treat empty lines near border or whether to
       compute indent at cursor.
 
@@ -205,7 +205,7 @@ Parameters ~
 Comment block
 
 Go to next/previous comment block. Only linewise comments using
-'commentsring' are recognized.
+|'commentstring'| are recognized.
 
 Direction "forward" increases line number, "backward" - decreases.
 
@@ -429,7 +429,7 @@ In a nutshell:
 - Keys |u| and |CTRL-R| (although remapped) can be used as usual, but every
   their execution new state is recorded in this module's linear undo history.
 - Advancing this target goes along linear undo history revealing undo states
-  **in order they actually appeared**.
+  IN ORDER THEY ACTUALLY APPEARED.
 - One big difference with built-in methods is that tracked linear history
   can repeat undo states (not consecutively, though).
 
@@ -439,11 +439,11 @@ make new ones, it creates new undo branch while usually (see |'undolevels'|)
 saving previous buffer states in another branch. While there are commands
 to navigate by time of undo state creation (like |:earlier| and |:later|),
 there is no intuitive way to cycle through them. Existing |g-| and |g+|
-cycle through undo states **based on their creation time**, which often
+cycle through undo states BASED ON THEIR CREATION TIME, which often
 gets confusing really guickly in extensively edited buffer.
 
 This `undo()` target provides a way to cycle through linear undo history
-**in order states actually appeared**. It does so by registering any new undo
+IN ORDER STATES ACTUALLY APPEARED. It does so by registering any new undo
 states plus every time |MiniBracketed.register_undo_state()| is called. To have
 more "out of the box" experience, |u| and |CTRL-R| are remapped to call it after
 they perform their undo/redo.
@@ -466,10 +466,10 @@ built-in functionality, here is an example:
       (like `two three` or `one three`) with these two keys.
 
     - Press `g-`. It goes to an empty buffer. Press `g+` 4 times. It cycles
-      through all available undo states **in order they were created**.
+      through all available undo states IN ORDER THEY WERE CREATED.
 
     - Finally, press `[u`. It goes back to `one two` - state which was
-      **previously visited** by the user. Another `[u` restores `one two three`.
+      PREVIOUSLY VISITED by the user. Another `[u` restores `one two three`.
       Use `]U` to go to latest visited undo state.
 
 Parameters ~
@@ -514,7 +514,7 @@ After |MiniBracketed.setup()| is called, on every yank/delete/change operation
 is added to yank history. Advancing this target will replace the region of
 latest put operation with entry from yank history.
 
-By default works best if called **right after** text paste (like with |p| or |P|).
+By default works best if called RIGHT AFTER text paste (like with |p| or |P|).
 
 To better detect "latest put region", use |MiniBracketed.register_put_region()|
 as described later.

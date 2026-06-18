@@ -60,9 +60,9 @@
 ---     - Similar general idea as in `'jump_{after,before}_tsnode'` steps
 ---       of |MiniKeymap.map_multistep()|.
 ---     - Works only with enabled tree-sitter parser. This module provides
----       fallback via 'jump_after_close' and 'jump_before_open' that work
+---       fallback via `'jump_after_close'` and `'jump_before_open'` that work
 ---       without tree-sitter parser.
----     - 'tabout.nvim' has finer control of how the tree-sitter node movement
+---     - `tabout.nvim` has finer control of how the tree-sitter node movement
 ---       is done, while this module has "jump outside of current node" behavior.
 ---
 --- # Disabling ~
@@ -291,7 +291,7 @@ MiniKeymap.config = {}
 ---   a function to be later executed. See usage examples.
 ---
 --- - Some mapped keys (like <Tab>, <CR>) might require disabling smart presets
----   in plugins (like 'nvim-cmp', 'blink-cmp', 'nvim-autopairs').
+---   in plugins (like `nvim-cmp`, `blink-cmp`, `nvim-autopairs`).
 ---
 ---@param mode string|table Same as for |vim.keymap.set()|.
 ---@param lhs string Same as for |vim.keymap.set()|.

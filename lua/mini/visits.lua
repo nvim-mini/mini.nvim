@@ -70,7 +70,7 @@
 ---       in-session sorting.
 ---     - Implements an original frecency algorithm of Firefox's address bar,
 ---       while this module uses own "robust frecency" approach.
----     - Mostly designed to work with 'nvim-telescope/telescope.nvim', while
+---     - Mostly designed to work with `nvim-telescope/telescope.nvim`, while
 ---       this module provides general function to list paths and select
 ---       with |vim.ui.select()|.
 ---     - Does not allow use of custom data (like labels), while this module does.

@@ -18,7 +18,7 @@ Features:
 
 What it doesn't do:
 
-- Customization of command line UI. Use |vim._extui| (on Neovim>=0.12).
+- Customization of command line UI. Use |ui2| (on Neovim>=0.12).
 
 - Customization of autocompletion candidates. They are computed
   via |cmdline-completion|.
@@ -59,7 +59,7 @@ Some options are set automatically (if not set before |MiniCmdline.setup()|):
     - This module on Neovim>=0.12 uses that as its base for autocompletion.
       Ont top of that it also provides customizable delay and predicate.
 
-- Built-in |vim._extui| (on Neovim>=0.12):
+- Built-in |ui2| (on Neovim>=0.12):
     - Mostly focuses on visual aspects of the Command line.
       This modules is aimed to improve its workflow without changing UI.
 

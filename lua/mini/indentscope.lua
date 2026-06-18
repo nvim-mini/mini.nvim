@@ -31,8 +31,8 @@
 ---
 --- This module needs a setup with `require('mini.indentscope').setup({})`
 --- (replace `{}` with your `config` table). It will create global Lua table
---- `MiniIndentscope` which you can use for scripting or manually (with `:lua
---- MiniIndentscope.*`).
+--- `MiniIndentscope` which you can use for scripting or manually (with
+--- `:lua MiniIndentscope.*`).
 ---
 --- See |MiniIndentscope.config| for available config settings.
 ---
@@ -45,8 +45,8 @@
 ---
 --- - [lukas-reineke/indent-blankline.nvim](https://github.com/lukas-reineke/indent-blankline.nvim):
 ---     - Its main functionality is about showing static guides of indent levels.
----     - Implementation of 'mini.indentscope' is similar to
----       'indent-blankline.nvim' (using |extmarks| on first column to be shown
+---     - Implementation of |mini.indentscope| is similar to
+---       `indent-blankline.nvim` (using |extmarks| on first column to be shown
 ---       even on blank lines). They can be used simultaneously, but it will
 ---       lead to one of the visualizations being on top (hiding) of another.
 ---
@@ -54,9 +54,9 @@
 --- *MiniIndentscope-hl-groups*
 ---
 --- - `MiniIndentscopeSymbol` - symbol showing on every line of scope if its
----   indent is multiple of 'shiftwidth'.
+---   indent is multiple of |'shiftwidth'|.
 --- - `MiniIndentscopeSymbolOff` - symbol showing on every line of scope if its
----   indent is not multiple of 'shiftwidth'.
+---   indent is not multiple of |'shiftwidth'|.
 ---   Default: links to `MiniIndentscopeSymbol`.
 ---
 --- To change any highlight group, set it directly with |nvim_set_hl()|.

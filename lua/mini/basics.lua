@@ -2,7 +2,7 @@
 ---
 --- MIT License Copyright (c) 2023 Evgeni Chasnovski
 
---- Install, create 'init.lua', add `require('mini.basics').setup()`, and you
+--- Install, create `init.lua`, add `require('mini.basics').setup()`, and you
 --- are good to go.
 ---
 --- Features:
@@ -44,11 +44,11 @@
 --- # Comparisons ~
 ---
 --- - [tpope/vim-sensible](https://github.com/tpope/vim-sensible):
----     - Most of 'tpope/vim-sensible' is already incorporated as default
+---     - Most of `tpope/vim-sensible` is already incorporated as default
 ---       options in Neovim (see |nvim-defaults|). This module has a much
 ---       broader effect.
 --- - [tpope/vim-unimpaired](https://github.com/tpope/vim-unimpaired):
----     - The 'tpope/vim-unimpaired' has mapping for toggling options with `yo`
+---     - The `tpope/vim-unimpaired` has mapping for toggling options with `yo`
 ---       prefix. This module implements similar functionality with `\` prefix
 ---       (see |MiniBasics.config.mappings|).
 ---@tag MiniBasics
@@ -114,7 +114,7 @@ end
 --- commonly used (judging by study of available Neovim pre-configurations,
 --- public dotfiles, and surveys).
 --- Any option is changed only if it was not set manually beforehand.
---- For exact changes, please see source code ('lua/mini/basics.lua').
+--- For exact changes, please see source code (`lua/mini/basics.lua`).
 ---
 --- Here is the list of affected options (put cursor on it and press |CTRL-]|):
 --- - General:
@@ -155,7 +155,7 @@ end
 --- The `config.options.extra_ui` sets certain options for visual appearance
 --- which might not be aligned with common preferences, but still worth trying.
 --- Any option is changed only if it was not set manually beforehand.
---- For exact changes, please see source code ('lua/mini/basics.lua').
+--- For exact changes, please see source code (`lua/mini/basics.lua`).
 ---
 --- List of affected options:
 --- - |'list'|
@@ -238,7 +238,7 @@ end
 --- Other viable choices for prefix are
 --- - `,` (as a mnemonic for several values to toggle).
 --- - `|` (as a same mnemonic).
---- - `yo` (used in 'tpope/vim-unimpaired')
+--- - `yo` (used in `tpope/vim-unimpaired`)
 --- - Something with |<Leader>| key, like `<Leader>t` (`t` for "toggle"). Note:
 ---   if your prefix contains `<Leader>` key, make sure to set it before
 ---   calling |MiniBasics.setup()| (as is done with default `basic` field of

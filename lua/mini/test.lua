@@ -44,10 +44,10 @@
 ---   complexity. Use |MiniTest.new_expectation()| to create custom ones.
 ---
 --- For more information see:
---- - 'TESTING.md' file for a hands-on introduction based on examples.
+--- - `TESTING.md` file for a hands-on introduction based on examples.
 ---
 --- - Code of this plugin's tests. Consider it to be an example of intended
----   way to use 'mini.test' for test organization and creation.
+---   way to use |mini.test| for test organization and creation.
 ---
 --- # Workflow ~
 ---
@@ -59,10 +59,10 @@
 ---   expectations (see |MiniTest.expect|).
 ---
 --- - Run tests. This does two steps:
----     - *Collect*. This creates single hierarchical test set, flattens into
+---     - Collect. This creates single hierarchical test set, flattens into
 ---       array of test cases (see |MiniTest-test-case|) while expanding with
 ---       parametrization, and possibly filters them.
----     - *Execute*. This safely calls hooks and main test actions in specified
+---     - Execute. This safely calls hooks and main test actions in specified
 ---       order while allowing reporting progress in asynchronous fashion.
 ---       Detected errors means test case fail; otherwise - pass.
 ---
@@ -85,34 +85,34 @@
 --- - Testing infrastructure from
 ---   [nvim-lua/plenary.nvim](https://github.com/nvim-lua/plenary.nvim):
 ---     - Executes each file in separate headless Neovim process with customizable
----       'init.vim' file. While 'mini.test' executes everything in current
+---       `init.vim` file. While |mini.test| executes everything in current
 ---       Neovim process encouraging writing tests with help of manually
 ---       managed child Neovim process (see |MiniTest.new_child_neovim()|).
 ---     - Tests are expected to be written with embedded simplified versions of
----       'lunarmodules/busted' and 'lunarmodules/luassert'. While 'mini.test'
+---       `lunarmodules/busted` and `lunarmodules/luassert`. While |mini.test|
 ---       uses concepts of test set (see |MiniTest.new_set()|) and test case
 ---       (see |MiniTest-test-case|). It also can emulate bigger part of
 ---       "busted" framework.
 ---     - Has single way of reporting progress (shows result after every case
----       without summary). While 'mini.test' can have customized reporters
+---       without summary). While |mini.test| can have customized reporters
 ---       with defaults for interactive and headless usage (provide more
 ---       compact and user-friendly summaries).
----     - Allows parallel execution, while 'mini.test' does not.
----     - Allows making mocks, stubs, and spies, while 'mini.test' does not in
+---     - Allows parallel execution, while |mini.test| does not.
+---     - Allows making mocks, stubs, and spies, while |mini.test| does not in
 ---       favor of manually overwriting functionality in child Neovim process.
 ---
---- Although 'mini.test' supports emulation of "busted style" testing, it will
+--- Although |mini.test| supports emulation of "busted style" testing, it will
 --- be more stable to use its designed approach of defining tests (with
 --- `MiniTest.new_set()` and explicit table fields). Couple of reasons:
---- - "Busted" syntax doesn't support full capabilities offered by 'mini.test'.
+--- - "Busted" syntax doesn't support full capabilities offered by |mini.test|.
 ---   Mainly it is about parametrization and supplying user data to test sets.
 --- - It is an emulation, not full support. So some subtle things might not
 ---   work the way you expect.
 ---
---- Some hints for converting from 'plenary.nvim' tests to 'mini.test':
---- - Rename files from "***_spec.lua" to "test_***.lua" and put them in
+--- Some hints for converting from `plenary.nvim` tests to |mini.test|:
+--- - Rename files from `***_spec.lua` to `test_***.lua` and put them in
 ---   "tests" directory.
---- - Replace `assert` calls with 'mini.test' expectations. See |MiniTest.expect|.
+--- - Replace `assert` calls with |mini.test| expectations. See |MiniTest.expect|.
 --- - Create main test set `T = MiniTest.new_set()` and eventually return it.
 --- - Make new sets (|MiniTest.new_set()|) from `describe` blocks. Convert
 ---   `before_each()` and `after_each` to `pre_case` and `post_case` hooks.
@@ -349,11 +349,11 @@ end
 ---   - <fails> - array of strings with failing information.
 ---   - <notes> - array of strings with non-failing information.
 ---   - <state> - state of test execution. One of:
----       - 'Executing <name of what is being executed>' (during execution).
----       - 'Pass' (no fails, no notes).
----       - 'Pass with notes' (no fails, some notes).
----       - 'Fail' (some fails, no notes).
----       - 'Fail with notes' (some fails, some notes).
+---       - `'Executing <name of what is being executed>'` (during execution).
+---       - `'Pass'` (no fails, no notes).
+---       - `'Pass with notes'` (no fails, some notes).
+---       - `'Fail'` (some fails, no notes).
+---       - `'Fail with notes'` (some fails, some notes).
 ---@field hooks table Hooks to be executed as part of test case. Has fields:
 ---   - <pre> and <post> - arrays of functions to be consecutively executed
 ---     before and after every execution of `test`.
@@ -503,7 +503,7 @@ end
 --- - Add `*_once` hooks to appropriate cases.
 ---
 ---@param opts table|nil Options controlling case collection. Possible fields:
----   - <emulate_busted> - whether to emulate 'lunarmodules/busted' interface.
+---   - <emulate_busted> - whether to emulate `lunarmodules/busted` interface.
 ---     It emulates these global functions: `describe`, `it`, `setup`, `teardown`,
 ---     `before_each`, `after_each`. Use |MiniTest.skip()| instead of `pending()`
 ---     and |MiniTest.finally()| instead of `finally`.
@@ -674,7 +674,7 @@ MiniTest.is_executing = function() return H.cache.is_executing == true end
 --- - Throws an informative error with information helpful for debugging.
 ---   Allows customizable fail reason to provide more context.
 ---
---- Mostly designed to be used within 'mini.test' framework.
+--- Mostly designed to be used within |mini.test| framework.
 ---
 ---@usage >lua
 ---   local x = 1 + 1
@@ -1115,7 +1115,7 @@ end
 -- Exported utility functions -------------------------------------------------
 --- Create child Neovim process
 ---
---- This creates an object designed to be a fundamental piece of 'mini.test'
+--- This creates an object designed to be a fundamental piece of |mini.test|
 --- methodology. It can start/stop/restart a separate (child) Neovim process
 --- (headless, but fully functioning) together with convenience helpers to
 --- interact with it through |RPC| messages.
@@ -1579,7 +1579,7 @@ end
 --- - Can wait after each group of characters.
 --- - Raises error if typing keys resulted into error in child process (i.e. its
 ---   |v:errmsg| was updated).
---- - Key '<' as separate entry may not be escaped as '<LT>'.
+--- - Key `<` as a separate entry may not be escaped as `<LT>`.
 ---
 ---@param wait number|nil Number of milliseconds to wait after each entry. May be
 ---   omitted, in which case no waiting is done.
@@ -1604,7 +1604,7 @@ end
 ---
 --- Compute what is displayed on (default TUI) screen and how it is displayed.
 --- This basically calls |screenstring()| and |screenattr()| for every visible
---- cell (row from 1 to 'lines', column from 1 to 'columns').
+--- cell (row from 1 to |'lines'|, column from 1 to |'columns'|).
 ---
 --- Notes:
 --- - To make output more portable and visually useful, outputs of

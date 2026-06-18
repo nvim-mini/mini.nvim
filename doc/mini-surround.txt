@@ -20,15 +20,15 @@ Features:
 - Surrounding is identified by a single character as both "input" (in
   `delete` and `replace` start, `find`, and `highlight`) and "output" (in
   `add` and `replace` end):
-    - 'f' - function call (string of alphanumeric symbols or '_' or '.'
-      followed by balanced '()'). In "input" finds function call, in
+    - `f` - function call (string of alphanumeric symbols or `_` or `.`
+      followed by balanced `()`). In "input" finds function call, in
       "output" prompts user to enter function name.
-    - 't' - tag. In "input" finds tag with same identifier, in "output"
+    - `t` - tag. In "input" finds tag with same identifier, in "output"
       prompts user to enter tag name with possible attributes.
-    - All symbols in brackets '()', '[]', '{}', '<>". In "input' represents
+    - All symbols in brackets `()`, `[]`, `{}`, `<>`. In "input" represents
       balanced brackets (open - with whitespace pad, close - without), in
       "output" - left and right parts of brackets.
-    - '?' - interactive. Prompts user to enter left and right parts.
+    - `?` - interactive. Prompts user to enter left and right parts.
     - All other single character identifiers (supported by |getcharstr()|)
       represent surrounding with identical left and right parts.
 
@@ -45,11 +45,11 @@ Known issues which won't be resolved:
 
 - When searching for "input" surrounding, there is no distinction if it is
   inside string or comment. So in this case there will be not proper match
-  for a function call: 'f(a = ")", b = 1)'.
+  for a function call: `f(a = ")", b = 1)`.
 
 - Tags are searched using regex-like methods, so issues are inevitable.
   Overall it is pretty good, but certain cases won't work. Like self-nested
-  tags won't match correctly on both ends: '<a><a></a></a>'.
+  tags won't match correctly on both ends: `<a><a></a></a>`.
 
 # Setup ~
 
@@ -74,7 +74,7 @@ Regular mappings:
   surrounding (`?`): `[[` for left and `]]` for right.
 - `2sdf` - delete (`sd`) second (`2`) surrounding function call (`f`).
 - `sr)tdiv<CR>` - replace (`sr`) surrounding parenthesis (`)`) with tag
-  (`t`) with identifier 'div' (`div<CR>` in command line prompt).
+  (`t`) with identifier `div` (`div<CR>` in command line prompt).
 - `sff` - find right (`sf`) part of surrounding function call (`f`).
 - `sh}` - highlight (`sh`) for a brief period of time surrounding curly
   brackets (`}`).
@@ -89,39 +89,39 @@ Extended mappings (temporary force "prev"/"next" search methods):
 # Comparisons ~
 
 - [tpope/vim-surround](https://github.com/tpope/vim-surround):
-    - 'vim-surround' has completely different, with other focus set of
-      default mappings, while 'mini.surround' has a more coherent set.
-    - 'mini.surround' supports dot-repeat, customized search path (see
+    - `vim-surround` has completely different, with other focus set of
+      default mappings, while |mini.surround| has a more coherent set.
+    - |mini.surround| supports dot-repeat, customized search path (see
       |MiniSurround.config|), customized specifications (see
       |MiniSurround-surrounding-specification|) allowing usage of tree-sitter
       queries (see |MiniSurround.gen_spec.input.treesitter()|),
       highlighting and finding surrounding, "last"/"next" extended
-      mappings. While 'vim-surround' does not.
+      mappings. While `vim-surround` does not.
 - [machakann/vim-sandwich](https://github.com/machakann/vim-sandwich):
     - Both have same keybindings for common actions (add, delete, replace).
-    - Otherwise same differences as with 'tpope/vim-surround' (except
-      dot-repeat because 'vim-sandwich' supports it).
+    - Otherwise same differences as with `tpope/vim-surround` (except
+      dot-repeat because `vim-sandwich` supports it).
 - [kylechui/nvim-surround](https://github.com/kylechui/nvim-surround):
-    - 'nvim-surround' is designed after 'tpope/vim-surround' with same
-      default mappings and logic, while 'mini.surround' has mappings
-      similar to 'machakann/vim-sandwich'.
-    - 'mini.surround' has more flexible customization of input surrounding
+    - `nvim-surround` is designed after `tpope/vim-surround` with same
+      default mappings and logic, while |mini.surround| has mappings
+      similar to `machakann/vim-sandwich`.
+    - |mini.surround| has more flexible customization of input surrounding
       (with composed patterns, region pair(s), search methods).
-    - 'mini.surround' supports |[count]| in both input and output
+    - |mini.surround| supports |[count]| in both input and output
       surrounding (see |MiniSurround-count-with-actions|) while
-      'nvim-surround' doesn't.
-    - 'mini.surround' supports "last"/"next" extended mappings.
+      `nvim-surround` doesn't.
+    - |mini.surround| supports "last"/"next" extended mappings.
 - |mini.ai|:
-    - Both use similar logic for finding target: textobject in 'mini.ai'
-      and surrounding pair in 'mini.surround'. While 'mini.ai' uses
+    - Both use similar logic for finding target: textobject in |mini.ai|
+      and surrounding pair in |mini.surround|. While |mini.ai| uses
       extraction pattern for separate `a` and `i` textobjects,
-      'mini.surround' uses it to select left and right surroundings
+      |mini.surround| uses it to select left and right surroundings
       (basically a difference between `a` and `i` textobjects).
     - Some builtin specifications are slightly different:
-        - Quotes in 'mini.ai' are balanced, in 'mini.surround' they are not.
-        - The 'mini.surround' doesn't have argument surrounding.
-        - Default behavior in 'mini.ai' selects one of the edges into `a`
-          textobject, while 'mini.surround' - both.
+        - Quotes in |mini.ai| are balanced, in |mini.surround| they are not.
+        - The |mini.surround| doesn't have argument surrounding.
+        - Default behavior in |mini.ai| selects one of the edges into `a`
+          textobject, while |mini.surround| - both.
 
 # Highlight groups ~
 *MiniSurround-hl-groups*
@@ -309,10 +309,10 @@ Specification for input surrounding has a structure of composed pattern
   how the last string should be processed to extract surrounding parts:
     - Two captures represent left part from start of string to first
       capture and right part - from second capture to end of string.
-      Example: `a()b()c` defines left surrounding as 'a', right - 'c'.
+      Example: `a()b()c` defines left surrounding as `a`, right - `c`.
     - Four captures define left part inside captures 1 and 2, right part -
       inside captures 3 and 4. Example: `a()()b()c()` defines left part as
-      empty, right part as 'c'.
+      empty, right part as `c`.
 - Allows callable objects (see |vim.is_callable()|) in certain places
   (enables more complex surroundings in exchange of increase in configuration
   complexity and computations):
@@ -549,7 +549,7 @@ is a long enough delay between pressing "s" and the next key). Use `cl` instead.
 # Custom surroundings ~
 
 User can define own surroundings by supplying `config.custom_surroundings`.
-It should be a **table** with keys being single character surrounding
+It should be a table with keys being single character surrounding
 identifier (supported by |getcharstr()|) and values - surround specification
 (see |MiniSurround-surrounding-specification|).
 
@@ -656,7 +656,7 @@ on a value of `'config.search_method'` when cursor is inside `bbb` word:
 
 # Search suffixes ~
 
-To provide more searching possibilities, 'mini.surround' creates extended
+To provide more searching possibilities, |mini.surround| creates extended
 mappings force "prev" and "next" methods for particular search. It does so
 by appending mapping with certain suffix: `config.mappings.suffix_last` for
 mappings which will use "prev" search method, `config.mappings.suffix_next`
@@ -675,11 +675,11 @@ and initial line `(aa) (bb) (cc)`.
 - Typing `sdl)` with cursor inside `(cc)` results into `(aa) bb (cc)`.
 - Typing `2srn)]` with cursor inside `(aa)` results into `(aa) (bb) [cc]`.
 
-# Setup similar to 'tpope/vim-surround' ~
+# Setup similar to `tpope/vim-surround` ~
 *MiniSurround-vim-surround-config*
 
-This module is primarily designed after 'machakann/vim-sandwich'. To get
-behavior closest to 'tpope/vim-surround' (but not identical), use this setup: >lua
+This module is primarily designed after `machakann/vim-sandwich`. To get
+behavior closest to `tpope/vim-surround` (but not identical), use this setup: >lua
 
   require('mini.surround').setup({
     mappings = {
@@ -785,18 +785,18 @@ with the biggest match of inner capture inside that node (if any). The result
 region pair is a difference between regions of outer and inner captures.
 
 In order for this to work, apart from working treesitter parser for desired
-language, user should have a reachable language-specific 'textobjects'
+language, user should have a reachable language-specific `'textobjects'`
 query (see |vim.treesitter.query.get()|).
-The most straightforward way for this is to have 'textobjects.scm' query
+The most straightforward way for this is to have `textobjects.scm` query
 file with treesitter captures stored in some recognized path. This is
 primarily designed to be compatible with plugin
-'nvim-treesitter/nvim-treesitter-textobjects', but can be used without it.
+`nvim-treesitter/nvim-treesitter-textobjects`, but can be used without it.
 
 Two most common approaches for having a query file:
-- Install 'nvim-treesitter/nvim-treesitter-textobjects'. It has curated and
+- Install `nvim-treesitter/nvim-treesitter-textobjects`. It has curated and
   well maintained builtin query files for many languages with a standardized
   capture names, like `call.outer`, `call.inner`, etc.
-- Manually create file 'after/queries/<language name>/textobjects.scm' in
+- Manually create file `after/queries/<language-name>/textobjects.scm` in
   your |$XDG_CONFIG_HOME| directory. It should contain queries with
   captures (later used to define surrounding parts). See |lua-treesitter-query|.
 To verify that query file is reachable, run (example for "lua" language,
@@ -805,7 +805,7 @@ output should have at least an intended file): >vim
   :lua print(vim.inspect(vim.treesitter.query.get_files('lua','textobjects')))
 <
 Example configuration for function definition textobject with
-'nvim-treesitter/nvim-treesitter-textobjects' captures: >lua
+`nvim-treesitter/nvim-treesitter-textobjects` captures: >lua
 
   local ts_input = require('mini.surround').gen_spec.input.treesitter
   require('mini.surround').setup({
@@ -840,9 +840,9 @@ Parameters ~
   exclusive, i.e. they won't be a part of surrounding) regions. Each value
   should be a string capture starting with `'@'`.
 {opts} `(table|nil)` Options. Possible values:
-  - <use_nvim_treesitter> - whether to try to use 'nvim-treesitter' plugin
+  - <use_nvim_treesitter> - whether to try to use `nvim-treesitter` plugin
     (if present) to do the query. It used to implement more advanced behavior
-    and more coherent experience if 'nvim-treesitter-textobjects' queries are
+    and more coherent experience if `nvim-treesitter-textobjects` queries are
     used. However, as |lua-treesitter-core| methods are more capable now,
     the option will soon be removed. Only present for backward compatibility.
     Default: `false`.
@@ -856,8 +856,8 @@ See also ~
   surrounding specification is processed.
 - |vim.treesitter.query.get()| for how query is fetched.
 - |Query:iter_captures()| for how all query captures are iterated in case of
-  no 'nvim-treesitter'.
-- |MiniAi.gen_spec.treesitter()| for similar 'mini.ai' generator.
+  no `nvim-treesitter`.
+- |MiniAi.gen_spec.treesitter()| for similar |mini.ai| generator.
 
 
  vim:tw=78:ts=8:noet:ft=help:norl:

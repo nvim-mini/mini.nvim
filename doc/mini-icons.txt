@@ -19,8 +19,8 @@ Features:
 
 - Integration with |vim.filetype.add()| and |vim.filetype.match()|.
 
-- Mocking methods of 'nvim-tree/nvim-web-devicons' for better integrations
-  with plugins outside 'mini.nvim'. See |MiniIcons.mock_nvim_web_devicons()|.
+- Mocking methods of `nvim-tree/nvim-web-devicons` for better integrations
+  with plugins outside |mini.nvim|. See |MiniIcons.mock_nvim_web_devicons()|.
 
 - Tweaking built-in maps for "LSP kind" to include icons. In particular, this
   makes |mini.completion| use icons in LSP step. See |MiniIcons.tweak_lsp_kind()|.
@@ -74,7 +74,7 @@ See |MiniIcons.config| for `config` structure and default values.
       color scheme.
 
     - This module prefers richer set of `nf-md-*` (from "Material design" set)
-      Nerd Fonts icons while 'nvim-web-devicons' mostly prefers `nf-dev-*`
+      Nerd Fonts icons while `nvim-web-devicons` mostly prefers `nf-dev-*`
       (from "devicons" set).
 
     - Supported categories are slightly different (with much overlap).
@@ -88,25 +88,25 @@ See |MiniIcons.config| for `config` structure and default values.
       is present only during first call, as value is cached for later uses.
 
     - This module supports different icon styles (like "ascii" for when using
-      glyphs is not possible), while 'nvim-web-devicons' does not.
+      glyphs is not possible), while `nvim-web-devicons` does not.
 
     - This module provides |MiniIcons.mock_nvim_web_devicons()| function which
-      when called imitates installed 'nvim-web-devicons' plugin to support
-      other plugins which do not provide 'mini.icons' yet.
+      when called imitates installed `nvim-web-devicons` plugin to support
+      other plugins which do not provide |mini.icons| yet.
 
 - [nvim-tree/nvim-web-devicons](https://github.com/nvim-tree/nvim-web-devicons) (for plugin developers):
     - Both have main "get icon" type of function:
         - Both return tuple of icon and highlight group strings.
 
         - This module always returns icon data possibly falling back to
-          user's configured default, while 'nvim-web-devicons' is able to
+          user's configured default, while `nvim-web-devicons` is able to
           return `nil`. This module's approach is more aligned with the most
           common use case of always showing an icon instead or near some data.
           There is a third returned value indicating if output is a result of
           a fallback (see |MiniIcons.get()|).
 
         - This module uses |vim.filetype.match()| as a fallback for "file"
-          and "extension" categories, while 'nvim-web-devicons' completely
+          and "extension" categories, while `nvim-web-devicons` completely
           relies on the manually maintained tables of supported filenames
           and extensions.
           Using fallback results in a wider support and deeper integration
@@ -115,26 +115,26 @@ See |MiniIcons.config| for `config` structure and default values.
           preferring faster file extension resolution over filetype matching.
 
         - This module caches all its return values resulting in really fast
-          next same argument calls, while 'nvim-web-devicons' doesn't do that.
+          next same argument calls, while `nvim-web-devicons` doesn't do that.
 
         - This module works with full file/directory paths as input.
 
     - Different sets of supported categories (see |MiniIcons.config|):
         - Both support "file", "extension", "filetype", "operating system".
-          Albeit in different volumes: 'nvim-web-devicons' covers more
+          Albeit in different volumes: `nvim-web-devicons` covers more
           cases for "operating system", while this module has better eventual
           coverage for other cases.
 
         - This module supports "directory" and "lsp" categories.
 
-        - 'nvim-web-devicons' covers "desktop environment" and "window
+        - `nvim-web-devicons` covers "desktop environment" and "window
           management" categories. This modules does not include them due to
           relatively low demand.
 
 - [onsails/lspkind.nvim](https://github.com/onsails/lspkind.nvim):
     - Provides icons only for `CompletionItemKind`, while this module also has
       icons for `SymbolKind` and other non-LSP categories.
-    - Provides dedicated formatting function for 'hrsh7th/nvim-cmp' while this
+    - Provides dedicated formatting function for `hrsh7th/nvim-cmp` while this
       module intentionally does not (adding icons should be straightforward
       to manually implement while anything else is out of scope).
 
@@ -397,7 +397,7 @@ Parameters ~
       -- Respects full path input in `vim.filetype.match()`
       MiniIcons.get('file', '.git/info/attributes')
 <
-  - `'filetype'` - icon data for 'filetype' values.
+  - `'filetype'` - icon data for |'filetype'| values.
     Icon names:
       - <Input>: any string.
       - <Built-in>: any filetype that is reasonably used in Neovim ecosystem.
@@ -462,22 +462,22 @@ Return ~
 ------------------------------------------------------------------------------
                                             *MiniIcons.mock_nvim_web_devicons()*
                       `MiniIcons.mock_nvim_web_devicons`()
-Mock 'nvim-web-devicons' module
+Mock `nvim-web-devicons` module
 
-Call this function to mock exported functions of 'nvim-tree/nvim-web-devicons'
+Call this function to mock exported functions of `nvim-tree/nvim-web-devicons`
 plugin. It will mock all its functions which return icon data by
 using |MiniIcons.get()| equivalent.
 
 This function is useful if any plugins relevant to you depend solely on
-'nvim-web-devicons' and have not yet added an integration with 'mini.icons'.
+`nvim-web-devicons` and have not yet added an integration with |mini.icons|.
 
 Full example of usage: >lua
 
   require('mini.icons').setup()
   MiniIcons.mock_nvim_web_devicons()
 <
-Works without installed 'nvim-web-devicons' and even with it installed (needs
-to be called after 'nvim-web-devicons' is set up).
+Works without installed `nvim-web-devicons` and even with it installed (needs
+to be called after `nvim-web-devicons` is set up).
 
 ------------------------------------------------------------------------------
                                                     *MiniIcons.tweak_lsp_kind()*

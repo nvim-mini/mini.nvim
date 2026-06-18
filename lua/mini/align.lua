@@ -56,33 +56,33 @@
 --- # Comparisons ~
 ---
 --- - [junegunn/vim-easy-align](https://github.com/junegunn/vim-easy-align):
----     - 'mini.align' is mostly designed after 'junegunn/vim-easy-align', so
+---     - |mini.align| is mostly designed after `junegunn/vim-easy-align`, so
 ---       there are a lot of similarities.
 ---     - Both plugins allow users to change alignment options interactively by
 ---       pressing modifier keys (albeit completely different default ones).
----       'junegunn/vim-easy-align' has those modifiers fixed, while 'mini.align'
+---       `junegunn/vim-easy-align` has those modifiers fixed, while |mini.align|
 ---       allows their full customization. See |MiniAlign.config| for examples.
----     - 'junegunn/vim-easy-align' is designed to treat delimiters differently
----       than other parts of strings. 'mini.align' doesn't distinguish split
+---     - `junegunn/vim-easy-align` is designed to treat delimiters differently
+---       than other parts of strings. |mini.align| doesn't distinguish split
 ---       parts from one another by design: splitting is allowed to be done
 ---       based on some other logic than by splitting on delimiters.
----     - 'junegunn/vim-easy-align' initially aligns by only first delimiter.
----       'mini.align' initially aligns by all delimiter.
----     - 'junegunn/vim-easy-align' implements special filtering by delimiter
----       row number. 'mini.align' has builtin filtering based on Lua code
+---     - `junegunn/vim-easy-align` initially aligns by only first delimiter.
+---       |mini.align| initially aligns by all delimiter.
+---     - `junegunn/vim-easy-align` implements special filtering by delimiter
+---       row number. |mini.align| has builtin filtering based on Lua code
 ---       supplied by user in modifier phase. See |MiniAlign.gen_step.filter()|
----       and 'f' builtin modifier.
----     - 'mini.align' treats any non-registered modifier as a plain delimiter
----       pattern, while 'junegunn/vim-easy-align' does not.
----     - 'mini.align' exports core Lua function used for aligning strings
+---       and `f` builtin modifier.
+---     - |mini.align| treats any non-registered modifier as a plain delimiter
+---       pattern, while `junegunn/vim-easy-align` does not.
+---     - |mini.align| exports core Lua function used for aligning strings
 ---       (|MiniAlign.align_strings()|).
 --- - [godlygeek/tabular](https://github.com/godlygeek/tabular):
----     - 'godlygeek/tabular' is mostly designed around single command which is
----       customized by printing its parameters. 'mini.align' implements
+---     - `godlygeek/tabular` is mostly designed around single command which is
+---       customized by printing its parameters. |mini.align| implements
 ---       different concept of interactive alignment through pressing
 ---       customizable single character modifiers.
----     - 'godlygeek/tabular' can detect region upon which alignment can be
----       desirable. 'mini.align' does not by design: use Visual selection or
+---     - `godlygeek/tabular` can detect region upon which alignment can be
+---       desirable. |mini.align| does not by design: use Visual selection or
 ---       textobject/motion to explicitly define region to align.
 ---
 --- # Disabling ~
@@ -131,7 +131,7 @@
 --- or blockwise ("block", `<C-v>`, |blockwise-visual|)
 ---@tag MiniAlign-glossary
 
---- There are two main processes implemented in 'mini.align': strings alignment
+--- There are two main processes implemented in |mini.align|: strings alignment
 --- and interactive region alignment. See |MiniAlign-glossary| for more information
 --- about used terms.
 ---
@@ -205,9 +205,9 @@
 --- See more in |MiniAlign-modifiers-builtin| and |MiniAlign-examples|.
 ---
 --- Notes:
---- - Visual blockwise selection works best with 'virtualedit' equal to "block"
+--- - Visual blockwise selection works best with |'virtualedit'| equal to "block"
 ---   or "all".
---- - Alignment with preview works best with 'showmode' disabled.
+--- - Alignment with preview works best with |'showmode'| disabled.
 ---@tag MiniAlign-algorithm
 
 --- Overview of builtin modifiers
@@ -371,7 +371,7 @@
 
 --- Copy lines in modifiable buffer, initiate alignment with preview (`gAip`)
 --- and try typing suggested key sequences.
---- These are modified examples taken from 'junegunn/vim-easy-align'.
+--- These are modified examples taken from `junegunn/vim-easy-align`.
 ---
 --- # Equal sign ~
 ---
@@ -466,13 +466,13 @@ end
 --- - Has signature `(steps, opts)` and should modify any of its input in place.
 ---
 --- Examples:
---- - Modifier function used for default 'i' modifier: >lua
+--- - Modifier function used for default `i` modifier: >lua
 ---
 ---   function(steps, _)
 ---     table.insert(steps.pre_split, MiniAlign.gen_step.ignore_split())
 ---   end
 --- <
---- - Tweak 't' modifier to use highest indentation instead of keeping it: >lua
+--- - Tweak `t` modifier to use highest indentation instead of keeping it: >lua
 ---
 ---   require('mini.align').setup({
 ---     modifiers = {
@@ -484,7 +484,7 @@ end
 ---   })
 --- <
 --- - Tweak `j` modifier to cycle through available "justify_side" option
----   values (like in 'junegunn/vim-easy-align'): >lua
+---   values (like in `junegunn/vim-easy-align`): >lua
 ---
 ---   require('mini.align').setup({
 ---     modifiers = {
@@ -1189,7 +1189,7 @@ end
 ---   `split_exclude_patterns` as is. Default: `{ [[".-"]] }` (excludes strings
 ---   for most cases).
 ---@param exclude_comment boolean|nil Whether to add comment pattern to
----   `split_exclude_patterns`. Comment pattern is derived from 'commentstring'
+---   `split_exclude_patterns`. Comment pattern is derived from |'commentstring'|
 ---   option. Default: `true`.
 ---
 ---@return table A step named "ignore" and with appropriate callable action.

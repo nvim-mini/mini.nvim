@@ -39,14 +39,14 @@
 --- match. No special characters or positions (like in fzy and fzf) are used.
 ---
 --- Given non-empty input `word` and target `candidate`:
---- - The goal is to find matching between `word`'s letters and letters in
+--- - The goal is to find matching between letters in `word` and letters in
 ---   `candidate` which minimizes certain score. It is assumed that order of
 ---   letters in `word` and those matched in `candidate` should be the same.
 ---
 --- - Matching is represented by matched positions: an array `positions` of
 ---   integers with length equal to number of letters in `word`. The following
----   should be always true in case of a match: `candidate`'s letter at index
----   `positions[i]` is letters[i]` for all valid `i`.
+---   should be always true in case of a match: `candidate` letter at index
+---   `positions[i]` is `letters[i]` for all valid `i`.
 ---
 --- - Matched positions are evaluated based only on two features: their width
 ---   (number of indexes between first and last positions) and first match
@@ -57,8 +57,8 @@
 ---   `cutoff * min(width, cutoff) + min(first, cutoff)`. It is designed to be
 ---   equivalent to first comparing widths (lower is better) and then comparing
 ---   first match (lower is better). For example, if `word = 'time'`:
----     - '_time' (width 4) will have a better match than 't_ime' (width 5).
----     - 'time_a' (width 4, first 1) will have a better match than 'a_time'
+---     - `_time` (width 4) will have a better match than `t_ime` (width 5).
+---     - `time_a` (width 4, first 1) will have a better match than `a_time`
 ---       (width 4, first 3).
 ---
 --- - Final matched positions are those which minimize score among all possible
@@ -148,7 +148,7 @@ end
 
 --- Fuzzy matching for `lsp_completion.process_items` of |MiniCompletion.config|
 ---
----@param items table Array with LSP 'textDocument/completion' response items.
+---@param items table Array with LSP `'textDocument/completion'` response items.
 ---@param base string Word to complete.
 ---
 ---@return table Array of items with text (`filterText` or `label`) fuzzy matching `base`.
@@ -160,7 +160,7 @@ end
 
 --- Custom getter for `telescope.nvim` sorter
 ---
---- Designed as a value for file and generic sorter of 'telescope.nvim'.
+--- Designed as a value for file and generic sorter of `telescope.nvim`.
 ---
 ---@param opts table|nil Options (currently not used).
 ---

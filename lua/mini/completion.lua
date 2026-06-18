@@ -15,19 +15,19 @@
 ---     - First stage is an LSP completion implemented via
 ---       |MiniCompletion.completefunc_lsp()|. It should be set up as either
 ---       |'completefunc'| or |'omnifunc'|. It tries to get completion items from
----       LSP client (via 'textDocument/completion' request). Custom
+---       LSP client (via `textDocument/completion` request). Custom
 ---       preprocessing of response items is possible (with
 ---       `MiniCompletion.config.lsp_completion.process_items`), for example
 ---       with fuzzy matching. By default items directly starting with completed
 ---       word are kept and are sorted according to LSP specification.
----       Supports `additionalTextEdits`, like auto-import and others (see 'Notes'),
+---       Supports `additionalTextEdits`, like auto-import and others (see `# Notes`),
 ---       and snippet items (best results require |mini.snippets| dependency).
 ---     - If first stage is not set up or resulted into no candidates, fallback
 ---       action is executed. The most tested actions are Neovim's built-in
 ---       insert completion (see |ins-completion|).
 ---
 --- - Automatic display in floating window of completion item info (via
----   'completionItem/resolve' request) and signature help (with highlighting
+---   `completionItem/resolve` request) and signature help (with highlighting
 ---   of active parameter if LSP server provides such information).
 ---   Signature help is shown if character to cursor's left is a dedicated trigger
 ---   character (configured in `signatureHelpProvider.triggerCharacters` of LSP
@@ -54,7 +54,7 @@
 --- What it doesn't do:
 --- - Many configurable sources.
 --- - Automatic mapping of `<CR>`, `<Tab>`, etc. Those tend to have highly
----   variable user expectations. See 'Helpful mappings' for suggestions or
+---   variable user expectations. See `# Helpful mappings` for suggestions or
 ---   use |MiniKeymap.map_multistep()| with `"pmenu_*"` built-in steps.
 ---
 --- # Dependencies ~
@@ -85,11 +85,11 @@
 --- # Suggested option values ~
 ---
 --- Some options are set automatically (if not set before |MiniCompletion.setup()|):
---- - 'completeopt' is set to "menuone,noselect" for less intrusive popup.
+--- - |'completeopt'| is set to "menuone,noselect" for less intrusive popup.
 ---   To enable fuzzy matching, manually set to "menuone,noselect,fuzzy". Consider
 ---   also adding "nosort" flag to preserve initial order when filtering.
---- - 'shortmess' is appended with "c" flag for silent <C-n> fallback.
---- - 'complete' gets removed "t" flag (if fallback action is default), as it
+--- - |'shortmess'| is appended with "c" flag for silent <C-n> fallback.
+--- - |'complete'| gets removed "t" flag (if fallback action is default), as it
 ---   leads to visible lags.
 ---
 --- # Snippets ~
@@ -98,7 +98,7 @@
 --- snippet - a template with both pre-defined text and places (called "tabstops")
 --- for user to interactively change/add text during snippet session.
 ---
---- In 'mini.completion' items that will insert snippet have "S" symbol shown in
+--- In |mini.completion| items that will insert snippet have "S" symbol shown in
 --- the popup (as part of `menu` in |complete-items|). To actually insert a snippet:
 --- - Select an item via <C-n> / <C-p>. This will insert item's label (usually not
 ---   full snippet) first to reduce visual flicker. The full snippet text will be
@@ -128,7 +128,7 @@
 ---
 ---       lsp_completion = { source_func = 'omnifunc', auto_setup = false }
 --- <
----     - Set 'omnifunc' option to exactly `v:lua.MiniCompletion.completefunc_lsp`
+---     - Set |'omnifunc'| option to exactly `v:lua.MiniCompletion.completefunc_lsp`
 ---       for every client attach in an |LspAttach| event. Like this: >lua
 ---
 ---       local on_attach = function(args)
@@ -137,7 +137,7 @@
 ---       vim.api.nvim_create_autocmd('LspAttach', { callback = on_attach })
 --- <
 ---   This setup is not default to allow simultaneous usage of filetype-specific
----   'omnifunc' (with manual |i_CTRL-X_CTRL-O|) and automated LSP completion.
+---   |'omnifunc'| (with manual |i_CTRL-X_CTRL-O|) and automated LSP completion.
 ---
 --- - Use |MiniCompletion.get_lsp_capabilities()| to get/set information about part
 ---   of LSP specification supported by module. See its help for usability notes.
@@ -147,7 +147,7 @@
 ---   If you have |mini.icons| enabled, take a look at |MiniIcons.tweak_lsp_kind()|.
 ---
 --- - If you have trouble using custom (overridden) |vim.ui.input()|, disable
----   'mini.completion' for input buffer (usually based on its 'filetype').
+---   |mini.completion| for input buffer (usually based on its |'filetype'|).
 ---
 --- # Comparisons ~
 ---
@@ -160,7 +160,7 @@
 ---     - Implements own "ghost text" feature, while this module does not.
 ---
 --- - [Saghen/blink.cmp](https://github.com/Saghen/blink.cmp):
----     - Mostly similar to 'nvim-cmp' comparison: provides more features at the
+---     - Mostly similar to `nvim-cmp` comparison: provides more features at the
 ---       cost of more code and config complexity, while this module is designed
 ---       to provide only a handful of "enough" features while relying on Neovim's
 ---       built-in capabilities as much as possible.
@@ -181,7 +181,7 @@
 ---   imap_expr('<S-Tab>', [[pumvisible() ? "\<C-p>" : "\<S-Tab>"]])
 --- <
 --- To get more consistent behavior of `<CR>`, you can use this template in
---- your 'init.lua' to make customized mapping: >lua
+--- your `init.lua` to make customized mapping: >lua
 ---
 ---   _G.cr_action = function()
 ---     -- If there is selected item in popup, accept it with <C-y>
@@ -418,8 +418,8 @@ end
 --- Designed to be used with |autocmd|. No need to use it directly, everything
 --- is setup in |MiniCompletion.setup()|.
 ---
----@param actions table|nil Array containing any of 'completion', 'info', or
----   'signature' string. Default: array containing all of them.
+---@param actions table|nil Array containing any of `'completion'`, `'info'`, or
+---   `'signature'` strings. Default: array containing all of them.
 MiniCompletion.stop = function(actions)
   actions = actions or { 'completion', 'info', 'signature' }
   for _, n in ipairs(actions) do
@@ -528,7 +528,7 @@ end
 ---       - `'fuzzy'` - filter and sort with |matchfuzzy()| using `filterText`.
 ---       - `'none'` - no filter and no sort.
 ---     If callable, should take `items` and `base` arguments and return items array.
----     Default: `'fuzzy'` if 'completeopt' contains "fuzzy", `'prefix'` otherwise.
+---     Default: `'fuzzy'` if |'completeopt'| contains "fuzzy", `'prefix'` otherwise.
 ---   - <kind_priority> `(table)` - map of completion item kinds (like `Variable`,
 ---     `Snippet`; see string keys of `vim.lsp.protocol.CompletionItemKind`) to
 ---     their numerical priority. It will be used after applying <filtersort> to
@@ -577,14 +577,14 @@ end
 ---   between tabstops (see |vim.snippet.jump()|). Neovim>=0.11 sets them up
 ---   automatically to <Tab> / <S-Tab> (if not overridden by user).
 ---
---- End session by navigating all the way to the last tabstop. In 'mini.snippets':
+--- End session by navigating all the way to the last tabstop. In |mini.snippets|:
 --- - Also make any text edit or exit Insert mode to end the session. This allows
 ---   smoother navigation to previous tabstops in case of a lately spotted typo.
 --- - Press `<C-c>` to force session stop.
 ---
 ---@param snippet string Snippet body to insert at cursor.
 ---
----@seealso - |MiniSnippets-session| if 'mini.snippets' is set up.
+---@seealso - |MiniSnippets-session| if |mini.snippets| is set up.
 --- - |vim.snippet| for Neovim's built-in snippet engine.
 MiniCompletion.default_snippet_insert = function(snippet)
   if _G.MiniSnippets then
@@ -627,7 +627,7 @@ end
 ---     request. See above "Notes" section.
 ---     Default: `true`.
 ---
----@return table Data about LSP capabilities supported by 'mini.completion'. Has same
+---@return table Data about LSP capabilities supported by |mini.completion|. Has same
 ---   structure as relevant parts of |vim.lsp.protocol.make_client_capabilities()|.
 ---
 ---@seealso Structures of `completionClientCapabilities` and `signatureHelpClientCapabilities`

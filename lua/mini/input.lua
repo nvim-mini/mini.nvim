@@ -488,7 +488,7 @@ MiniInput.config = {
 ---   to advance a step. Note: <C-c> is hard coded to cancel the input.
 --- - Repeat previous step until the ending <status> (`"accept"` or `"cancel"`).
 --- - Finish the input:
----     - Perform a "teardown"' step with `key=nil`.
+---     - Perform a "teardown" step with `key=nil`.
 ---     - If <errmsg> is set, throw an |error()|.
 ---     - If input is accepted (even if empty) and not hidden, add <input> to
 ---       the history. Get the whole history with |MiniInput.get_history()|.
@@ -975,8 +975,8 @@ end
 ---       caret inside of it.
 ---     - Closing characters `)`, `]`, `}` move caret to the right if there is the same
 ---       character to the right.
----     - Closeopen characters `'`, `"`, <`> perform "close" action if possible and
----       "open" action if not.
+---     - Closeopen characters single+double quotes and backtick perform "close"
+---       action if possible and "open" action if not.
 ---     - In all cases press <C-v> before special character to insert it verbatim.
 ---
 --- - Completion:

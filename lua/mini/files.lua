@@ -81,7 +81,7 @@
 ---     - Both provide LSP integration.
 ---
 --- - [nvim-neo-tree/neo-tree.nvim](https://github.com/nvim-neo-tree/neo-tree.nvim):
----     - Compares to this module mostly the same as 'nvim-tree/nvim-tree.lua'.
+---     - Compares to this module mostly the same as `nvim-tree/nvim-tree.lua`.
 ---
 --- # Highlight groups ~
 --- *MiniFiles-hl-groups*
@@ -187,7 +187,7 @@
 --- - "Set mark" and "Go to mark" both wait for user to press a single character
 ---   of a bookmark id. Example: `ma` sets directory path of focused window as
 ---   bookmark "a"; `'a` jumps (sets as whole branch) to bookmark "a".
----   Special bookmark "'" always points to path before the latest bookmark jump.
+---   Special bookmark `'` always points to path before the latest bookmark jump.
 ---
 --- - "Reset" focuses only on "anchor" directory (the one used to open current
 ---   explorer) and resets all stored directory cursor positions.
@@ -261,12 +261,12 @@
 --- - Create directory by creating new line with directory name followed by `/`.
 ---
 --- - Create file or directory inside nested directories by creating new line
----   with text like 'dir/nested-dir/' or 'dir/nested-dir/file'.
+---   with text like `dir/nested-dir/` or `dir/nested-dir/file`.
 ---   Always use `/` on any OS.
 ---
 --- ## Delete ~
 ---
---- - Delete file or directory by deleting **whole line** describing it.
+--- - Delete file or directory by deleting WHOLE LINE describing it.
 ---
 --- - If `options.permanent_delete` is `true`, delete is permanent. Otherwise
 ---   file system entry is moved to a module-specific trash directory
@@ -293,7 +293,7 @@
 ---
 --- ## Copy ~
 ---
---- - Copy file or directory by copying **whole line** describing it and pasting
+--- - Copy file or directory by copying WHOLE LINE describing it and pasting
 ---   it inside buffer of target directory.
 ---
 --- - Change of target path is allowed. Edit only entry name in target location
@@ -306,7 +306,7 @@
 ---
 --- ## Move ~
 ---
---- - Move file or directory by cutting **whole line** describing it and then
+--- - Move file or directory by cutting WHOLE LINE describing it and then
 ---   pasting it inside target directory.
 ---
 --- - Change of target path is allowed. Edit only entry name in target location
@@ -346,7 +346,7 @@
 ---   Can be used for integrations to set useful |extmarks|.
 ---
 --- - `MiniFilesWindowOpen` - when new window is opened. Can be used to set
----   window-local settings (like border, 'winblend', etc.)
+---   window-local settings (like border, |'winblend'|, etc.)
 ---
 --- - `MiniFilesWindowUpdate` - when a window is updated. Triggers VERY frequently.
 ---   At least after every cursor movement and "go in" / "go out" action.
@@ -669,7 +669,7 @@ end
 --- `options.permanent_delete` is a boolean indicating whether to perform
 --- permanent delete or move into special trash directory.
 --- This is a module-specific variant of "remove to trash".
---- Target directory is 'mini.files/trash' inside standard path of Neovim data
+--- Target directory is `mini.files/trash` inside standard path of Neovim data
 --- directory (execute `:echo stdpath('data')` to see its path in your case).
 ---
 --- `options.lsp_timeout` is a number that defines a timeout for synchronous
@@ -1214,8 +1214,8 @@ MiniFiles.default_filter = function(fs_entry) return true end
 --- - If set up |mini.icons|, use |MiniIcons.get()| for "directory"/"file" category.
 --- - Otherwise:
 ---     - For directory return fixed icon and "MiniFilesDirectory" group name.
----     - For file try to use `get_icon()` from 'nvim-tree/nvim-web-devicons'.
----       If missing, return fixed icon and 'MiniFilesFile' group name.
+---     - For file try to use `get_icon()` from `nvim-tree/nvim-web-devicons`.
+---       If missing, return fixed icon and `MiniFilesFile` group name.
 ---
 ---@param fs_entry table Table with the following fields:
 --- __minifiles_fs_entry_data_fields

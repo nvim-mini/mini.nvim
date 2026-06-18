@@ -9,7 +9,7 @@
 ---     - Each key press narrows down set of possible targets.
 ---       Pressing `<BS>` removes previous user entry.
 ---       Pressing `<Esc>` or `<C-c>` leads to an early stop.
----       Doesn't depend on 'timeoutlen' and has basic support for 'langmap'.
+---       Doesn't depend on |'timeoutlen'| and has basic support for |'langmap'|.
 ---
 ---     - Ends when there is at most one target left or user pressed `<CR>`.
 ---       Results into emulating pressing all query keys plus possible postkeys.
@@ -94,7 +94,7 @@
 --- `{}` with your `config` table). It will create global Lua table `MiniClue`
 --- which you can use for scripting or manually (with `:lua MiniClue.*`).
 ---
---- Config table **needs to have triggers configured**, none is set up by default.
+--- Config table NEEDS TO HAVE TRIGGERS CONFIGURED, none is set up by default.
 ---
 --- See |MiniClue.config| for available config settings.
 ---
@@ -149,11 +149,11 @@
 ---
 --- Main goals of its existence are:
 ---
---- - Allow reaching certain mappings be independent of 'timeoutlen'. That is,
+--- - Allow reaching certain mappings be independent of |'timeoutlen'|. That is,
 ---   there is no fixed timeout after which currently typed keys are executed.
 ---
 --- - Enable automated showing of next key clues after user-supplied delay
----   (also independent of 'timeoutlen').
+---   (also independent of |'timeoutlen'|).
 ---
 --- - Allow emulating configurable key presses after certain key combination is
 ---   reached. This granular control allows creating so called "submodes".
@@ -170,7 +170,7 @@
 ---   mode key combinations are filtered to ones starting with the trigger keys.
 ---
 ---   Note: trigger is implemented as a regular mapping, so if it has at least
----   two keys, they should be pressed within 'timeoutlen' milliseconds.
+---   two keys, they should be pressed within |'timeoutlen'| milliseconds.
 ---
 --- - Wait (indefinitely) for user to press a key. Advance depending on the key:
 ---
@@ -336,7 +336,7 @@
 --- <
 --- # Triggers in special buffers ~
 ---
---- By default triggers are automatically created in listed ('buflisted') and some
+--- By default triggers are automatically created in listed (|'buflisted'|) and some
 --- special non-listed buffers. Use |MiniClue.ensure_buf_triggers()| to manually
 --- enable in when you need them. For example: >vim
 ---
@@ -527,7 +527,7 @@ end
 ---
 --- A clue table is a table with the following fields:
 --- - <mode> `(string|table)` - single character describing mode short-name of
----   key combination as in `nvim_set_keymap()` ('n', 'x', 'i', 'o', 'c', etc.),
+---   key combination as in `nvim_set_keymap()` (`'n'`, `'x'`, `'i'`, `'o'`, `'c'`, etc.),
 ---   or a array thereof.
 --- - <keys> `(string)` - key combination for which clue will be shown.
 ---   "Human-readable" key names as in |key-notation| (like "<Leader>", "<Space>",
@@ -878,8 +878,8 @@ end
 ---   { mode = { 'n', 'x' }, keys = '`' }
 ---   { mode = { 'n', 'x' }, keys = 'g`' }
 --- <
---- Note: if you use "g" as trigger (like to enable |MiniClue.gen_clues.g()|),
---- don't add "g'" and "g`" as triggers: they already will be taken into account.
+--- Note: if you use `g` as trigger (like to enable |MiniClue.gen_clues.g()|),
+--- don't add |g'| and |g`| as triggers: they already will be taken into account.
 ---
 ---@return table Array of clues.
 ---

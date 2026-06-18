@@ -43,8 +43,8 @@
 --- `:lua MiniStarter.*`).
 ---
 --- See |MiniStarter.config| for `config` structure and default values. For
---- some configuration examples (including one similar to 'vim-startify' and
---- 'dashboard-nvim'), see |MiniStarter-example-config|.
+--- some configuration examples (including one similar to `vim-startify` and
+--- `dashboard-nvim`), see |MiniStarter-example-config|.
 ---
 --- You can override runtime config settings locally to buffer inside
 --- `vim.b.ministarter_config` which should have same structure as
@@ -78,7 +78,7 @@
 --- |mini.nvim-disabling-recipes| for common recipes.
 ---@tag MiniStarter
 
---- # Similar to 'mhinz/vim-startify' ~
+--- # Similar to `mhinz/vim-startify` ~
 --- >lua
 ---   local starter = require('mini.starter')
 ---   starter.setup({
@@ -97,7 +97,7 @@
 ---     },
 ---   })
 --- <
---- # Similar to 'glepnir/dashboard-nvim' ~
+--- # Similar to `glepnir/dashboard-nvim` ~
 --- >lua
 ---   local starter = require('mini.starter')
 ---   starter.setup({
@@ -431,9 +431,9 @@ end
 --- Section with |mini.sessions| sessions
 ---
 --- Sessions are taken from |MiniSessions.detected|. Notes:
---- - If it shows "'mini.sessions' is not set up", it means that you didn't
+--- - If it shows `'mini.sessions' is not set up`, it means that you didn't
 ---   call `require('mini.sessions').setup()`.
---- - If it shows "There are no detected sessions in 'mini.sessions'", it means
+--- - If it shows `There are no detected sessions in 'mini.sessions'`, it means
 ---   that there are no sessions at the current sessions directory. Either
 ---   create session or supply different directory where session files are
 ---   stored (see |MiniSessions.setup()|).
@@ -549,10 +549,10 @@ end
 --- Section with |mini.pick| pickers
 ---
 --- Notes:
---- - All actions require 'mini.pick' module of 'mini.nvim'.
+--- - All actions require |mini.pick| module of |mini.nvim|.
 --- - "Command history", "Explorer", and "Visited paths" items
----   require |mini.extra| module of 'mini.nvim'.
---- - "Visited paths" items requires |mini.visits| module of 'mini.nvim'.
+---   require |mini.extra| module of |mini.nvim|.
+--- - "Visited paths" items requires |mini.visits| module of |mini.nvim|.
 ---
 ---@return __starter_section_fun
 MiniStarter.sections.pick = function()
@@ -791,7 +791,7 @@ end
 ---      units with some type).
 ---    - `nil`, all units are kept.
 ---
----@return table Array of resulting units' coordinates. Each coordinate is a
+---@return table Array with coordinates of resulting units. Each coordinate is a
 ---   table with <line> and <unit> keys. To retrieve actual unit from coordinate
 ---   `c`, use `content[c.line][c.unit]`.
 MiniStarter.content_coords = function(content, predicate)

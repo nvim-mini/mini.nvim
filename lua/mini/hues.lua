@@ -75,7 +75,7 @@
 --- # Setup ~
 ---
 --- This module needs a setup with `require('mini.hues').setup({})` and
---- **mandatory `background` and `foreground` fields** (add more fields to fit
+--- MANDATORY `background` AND `foreground` FIELDS (add more fields to fit
 --- your taste). It will create global Lua table `MiniHues` which you can use
 --- for scripting or manually (with `:lua MiniHues.*`).
 ---
@@ -84,8 +84,8 @@
 --- This module doesn't have runtime options, so using `vim.b.minihues_config`
 --- will have no effect here.
 ---
---- Example:
---- >
+--- Example: >lua
+---
 ---   require('mini.hues').setup({
 ---     background = '#11262d',
 ---     foreground = '#c0c8cc',
@@ -103,7 +103,7 @@
 --- - Using `setup()` doesn't actually create a colorscheme. It basically
 ---   creates a coordinated set of |highlight-groups|. To create your own scheme:
 ---     - Put "myscheme.lua" file (name after your chosen theme name) inside
----       any "colors" directory reachable from 'runtimepath' ("colors" inside
+---       any "colors" directory reachable from |'runtimepath'| ("colors" inside
 ---       your Neovim config directory is usually enough).
 ---     - Inside "myscheme.lua" call `require('mini.hues').setup()` with your
 ---       palette and only after that set |g:colors_name| to "myscheme".
@@ -127,8 +127,7 @@
 ---   carefully selected) colors.
 ---
 ---   It is essentially a combination of calls to |MiniHues.setup()| and
----   |MiniHues.gen_random_base_colors()| with a slight adjustments for
----   'background' value.
+---   |MiniHues.gen_random_base_colors()| with slight adjustments for |'background'|.
 ---
 ---   Activate it as regular |:colorscheme|. Get currently active config with
 ---   `:lua print(vim.inspect(MiniHues.config))`.
@@ -251,7 +250,7 @@ end
 ---   setup({ background = '#11262d', foreground = '#c0c8cc', accent = 'blue' })
 --- <
 MiniHues.config = {
-  -- **Required** base colors as '#rrggbb' hex strings
+  -- REQUIRED base colors as '#rrggbb' hex strings
   background = nil,
   foreground = nil,
 
@@ -328,7 +327,7 @@ MiniHues.config = {
 --- Notes:
 --- - Some output colors can have not exact values of generated Oklch channels.
 ---   This is due to actually computed colors being impossible to represent via
----   '#rrggbb' hex string. In this case a process called gamut clipping is done
+---   `'#rrggbb'` hex string. In this case a process called gamut clipping is done
 ---   to reduce lightness and chroma in optimal way while maintaining same hue.
 ---   For more information see |MiniColors-gamut-clip|.
 ---
@@ -1637,7 +1636,7 @@ MiniHues.get_palette = function() return vim.deepcopy(H.palette) end
 --- and heuristically picked lightness-chroma values.
 ---
 --- You can recreate a similar functionality but tweaked to your taste
---- using |mini.colors|: >
+--- using |mini.colors|: >lua
 ---
 ---   local convert = require('mini.colors').convert
 ---   local hue = math.random(0, 359)
@@ -1645,18 +1644,18 @@ MiniHues.get_palette = function() return vim.deepcopy(H.palette) end
 ---     background = convert({ l = 15, c = 3, h = hue }, 'hex'),
 ---     foreground = convert({ l = 80, c = 1, h = hue }, 'hex'),
 ---   }
----
+--- <
 --- Notes:
---- - Respects 'background' (uses different lightness and chroma values for
+--- - Respects |'background'| (uses different lightness and chroma values for
 ---   "dark" and "light" backgrounds).
 ---
 --- - When used during startup, might require usage of `math.randomseed()` for
----   proper random generation. For example: >
+---   proper random generation. For example: >lua
 ---
 ---   local hues = require('mini.hues')
 ---   math.randomseed(vim.loop.hrtime())
 ---   hues.setup(hues.gen_random_base_colors())
----
+--- <
 ---@param opts table|nil Options. Possible values:
 ---   - <gen_hue> `(function)` - callable which will return single number for
 ---     output hue. Can be used to limit which hues will be generated.

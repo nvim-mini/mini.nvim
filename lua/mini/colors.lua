@@ -11,7 +11,7 @@
 ---     - Add transparency by removing background color (requires transparency
 ---       in terminal emulator).
 ---     - Infer cterm attributes (|cterm-colors|) based on gui colors making it
----       compatible with 'notermguicolors'.
+---       compatible with |'notermguicolors'|.
 ---     - Resolve highlight group links (|:highlight-link|).
 ---     - Compress by removing redundant highlight groups.
 ---     - Extract palette of used colors and/or infer terminal colors
@@ -83,19 +83,19 @@
 --- # Comparisons ~
 ---
 --- - [rktjmp/lush.nvim](https://github.com/rktjmp/lush.nvim):
----     - Oriented towards tweaking separate highlight groups, while 'mini.colors'
+---     - Oriented towards tweaking separate highlight groups, while |mini.colors|
 ---       is more designed to work with color scheme as a whole.
----     - Uses HSL and HSLuv color spaces, while 'mini.colors' uses Oklab, Oklch,
+---     - Uses HSL and HSLuv color spaces, while |mini.colors| uses Oklab, Oklch,
 ---       and Okhsl which have slightly better perceptual uniformity properties.
 ---     - Doesn't have functionality to infer and repair missing data in color
 ---       scheme (like cterm attributes, terminal colors, transparency, etc.),
----       while 'mini.colors' does.
+---       while |mini.colors| does.
 ---     - Doesn't implement animation of color scheme transition, while
----       'mini.colors' does.
+---       |mini.colors| does.
 --- - [lifepillar/vim-colortemplate](https://github.com/lifepillar/vim-colortemplate):
----     - Comparisons are similar to that of 'rktjmp/lush.nvim'.
+---     - Comparisons are similar to that of `rktjmp/lush.nvim`.
 --- - [tjdevries/colorbuddy.nvim](https://github.com/tjdevries/colorbuddy.nvim):
----     - Comparisons are similar to that of 'rktjmp/lush.nvim'.
+---     - Comparisons are similar to that of `rktjmp/lush.nvim`.
 ---@tag MiniColors
 
 --- All following code snippets assume to be executed inside interactive buffer
@@ -234,7 +234,7 @@
 --- will lead to a color `{ l = 10, c = 10, h = 90 }` in Oklch space, i.e.
 --- "dark yellow" which is impossible to show in HEX.
 ---
---- **Gamut clipping** is an action of converting color outside of visible gamut
+--- GAMUT CLIPPING is an action of converting color outside of visible gamut
 --- (colors representable with HEX string) to be inside it while preserving
 --- certain perceptual characteristics as much as possible.
 ---
@@ -430,12 +430,12 @@
 ---   sets of highlight groups to update:
 ---   - <general> `(boolean)` - general groups (like `Normal`). Default: `true`.
 ---   - <float> `(boolean)` - built-in groups for floating windows. Default: `false`.
----   - <statuscolumn> `(boolean)` - groups related to 'statuscolumn' (signcolumn,
+---   - <statuscolumn> `(boolean)` - groups related to |'statuscolumn'| (signcolumn,
 ---     numbercolumn, foldcolumn, `DiagnosticSignXxx`, and `XxxMsg` groups). Also
 ---     updates groups for all currently defined signs. Default: `false`.
----   - <statusline> `(boolean)` - built-in groups for 'statusline'. Default: `false`.
----   - <tabline> `(boolean)` - built-in groups for 'tabline'. Default: `false`.
----   - <winbar> `(boolean)` - built-in groups for 'winbar'. Default: `false`.
+---   - <statusline> `(boolean)` - built-in groups for |'statusline'|. Default: `false`.
+---   - <tabline> `(boolean)` - built-in groups for |'tabline'|. Default: `false`.
+---   - <winbar> `(boolean)` - built-in groups for |'winbar'|. Default: `false`.
 ---
 --- ## apply() ~
 --- *MiniColors-colorscheme:apply()*

@@ -15,9 +15,9 @@
 --- - Normal, Visual, and Operator-pending (with dot-repeat as in clean Neovim)
 ---   modes are supported.
 ---
---- This module follows vim's 'ignorecase' and 'smartcase' options. When
---- 'ignorecase' is set, f, F, t, T will match case-insensitively. When
---- 'smartcase' is also set, f, F, t, T will only match lowercase
+--- This module follows vim's |'ignorecase'| and |'smartcase'| options. When
+--- |'ignorecase'| is set, f, F, t, T will match case-insensitively. When
+--- |'smartcase'| is also set, f, F, t, T will only match lowercase
 --- characters case-insensitively.
 ---
 --- # Setup ~

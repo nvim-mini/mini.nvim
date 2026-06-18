@@ -2,7 +2,7 @@
 ---
 --- MIT License Copyright (c) 2021 Evgeni Chasnovski
 
---- Read, write, and delete sessions. Uses |:mksession| (meaning 'sessionoptions'
+--- Read, write, and delete sessions. Uses |:mksession| (meaning |'sessionoptions'|
 --- is fully respected). This is intended as a drop-in Lua replacement for
 --- [mhinz/vim-startify](https://github.com/mhinz/vim-startify) session management
 --- (works out of the box with sessions created by it). Implements both global
@@ -134,7 +134,7 @@ MiniSessions.config = {
 --- - <modify_time> `(number)` modification time (see |getftime()|) of session file.
 --- - <name> `(string)` name of session (should be equal to table key).
 --- - <path> `(string)` full path to session file.
---- - <type> `(string)` type of session ('global' or 'local').
+--- - <type> `(string)` type of session (`'global'` or `'local'`).
 MiniSessions.detected = {}
 
 -- Module functionality =======================================================

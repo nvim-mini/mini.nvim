@@ -19,7 +19,7 @@
 ---       before/at/after cursor line, etc. Example: user can configure to look
 ---       for spots only inside current window at or after cursor line.
 ---     Example: user can configure to look for word starts only inside current
----     window at or after cursor line with 'j' and 'k' labels performing some
+---     window at or after cursor line with `j` and `k` labels performing some
 ---     action after jump.
 ---
 --- - Works in Visual and Operator-pending (with dot-repeat) modes.
@@ -89,21 +89,21 @@
 --- - [phaazon/hop.nvim](https://github.com/phaazon/hop.nvim):
 ---     - Both are fast, customizable, and extensible (user can write their own
 ---       ways to define jump spots).
----     - 'hop.nvim' visualizes all steps at once. While this module can show
+---     - `hop.nvim` visualizes all steps at once. While this module can show
 ---       configurable number of steps ahead.
 ---     - Both have several builtin ways to specify type of jump (word start,
----       line start, one character or query based on user input). 'hop.nvim'
+---       line start, one character or query based on user input). `hop.nvim`
 ---       does that by exporting many targeted Neovim commands, while this
 ---       module has preconfigured basic options leaving others to
 ---       customization with Lua code (see |MiniJump2d.builtin_opts|).
----     - 'hop.nvim' computes labels (called "hints") differently. Contrary to
+---     - `hop.nvim` computes labels (called "hints") differently. Contrary to
 ---       this module deliberately not having preference of one jump spot over
----       another, 'hop.nvim' uses specialized algorithm that produces sequence
+---       another, `hop.nvim` uses specialized algorithm that produces sequence
 ---       of keys in a slightly biased manner: some sequences are intentionally
 ---       shorter than the others (leading to fewer average keystrokes). They
 ---       are put near cursor (by default) and highlighted differently. Final
 ---       order of sequences is based on distance to the cursor.
----     - 'mini.jump2d' has opinionated default algorithm of computing jump
+---     - |mini.jump2d| has opinionated default algorithm of computing jump
 ---       spots. See |MiniJump2d.default_spotter()|.
 ---
 --- # Highlight groups ~
@@ -111,7 +111,7 @@
 ---
 --- - `MiniJump2dSpot` - highlighting of jump spot's next step. By default it
 ---   uses label with highest contrast while not being too visually demanding:
----   white on black for dark 'background', black on white for light. If it
+---   white on black for dark |'background'|, black on white for light. If it
 ---   doesn't suit your liking, try couple of these alternatives (or choose
 ---   your own, of course): >lua
 ---
@@ -427,8 +427,8 @@ MiniJump2d.gen_spotter = {}
 ---   of "non-whitespace non-punctuation characters" (basically a way of saying
 ---   "group of alphanumeric characters" that works with multibyte characters).
 ---@param side string|nil Which side of pattern match should be considered as
----   jumping spot. Should be one of 'start' (start of match, default), 'end'
----   (inclusive end of match), or 'none' (match for spot is done manually
+---   jumping spot. Should be one of `'start'` (start of match, default), `'end'`
+---   (inclusive end of match), or `'none'` (match for spot is done manually
 ---   inside pattern with plain `()` matching group).
 ---
 ---@return function Spotter function.
@@ -510,7 +510,7 @@ end
 --- Generate spotter for Vimscript pattern
 ---
 ---@param pattern string|nil Vimscript |pattern|. Default: `\k\+` to match group
----   of "keyword characters" (see 'iskeyword').
+---   of "keyword characters" (see |'iskeyword'|).
 ---
 ---@return function Spotter function.
 ---
@@ -665,7 +665,7 @@ MiniJump2d.builtin_opts.line_start = {
 
 --- Jump to word start
 ---
---- Respects 'iskeyword' when computing word start.
+--- Respects |'iskeyword'| when computing word start.
 ---
 --- Defines `spotter`.
 MiniJump2d.builtin_opts.word_start = { spotter = MiniJump2d.gen_spotter.vimpattern('\\k\\+') }

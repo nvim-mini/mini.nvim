@@ -622,7 +622,7 @@ end
 ---
 --- - Pad pattern in `split_patterns` with `%s*` to include whitespace into separator.
 ---   Example: line "b _ a" with "_" pattern will be sorted as " a_b " (because
----   it is split as "b ", "_", " a" ) while with "%s*_%s*" pattern it results
+---   it is split as "b ", "_", " a" ) while with `%s*_%s*` pattern it results
 ---   into "a _ b" (split as "b", " _ ", "a").
 ---
 ---@param content __operators_content

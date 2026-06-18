@@ -29,7 +29,7 @@
 ---   Plugin manager ................................................. |mini.deps|
 ---   Work with diff hunks ........................................... |mini.diff|
 ---   Generate Neovim help files ...................................... |mini.doc|
----   Extra 'mini.nvim' functionality ............................... |mini.extra|
+---   Extra mini.nvim functionality ................................. |mini.extra|
 ---   Navigate and manipulate file system ........................... |mini.files|
 ---   Fuzzy matching ................................................ |mini.fuzzy|
 ---   Git integration ................................................. |mini.git|
@@ -86,7 +86,7 @@
 ---   `_G.MiniSurround`. This allows for a simpler usage of plugin available
 ---   from `v:lua` like `v:lua.MiniSurround`. Considering this, "module" and
 ---   "Lua object" names can be used interchangeably:
----   'mini.surround' and 'MiniSurround' will mean the same thing.
+---   `mini.surround` and `MiniSurround` will mean the same thing.
 ---
 --- - Each supplied `config` table (after extending with default values) is
 ---   stored in `config` field of global object. Like `MiniSurround.config`.
@@ -195,8 +195,8 @@
 ---
 --- - |mini.comment| - fast and familiar per-line code commenting.
 ---
---- - |mini.completion| - async (with customizable 'debounce' delay) 'two-stage
----   chain completion': first builtin LSP, then configurable fallback. Also
+--- - |mini.completion| - async (with customizable "debounce" delay) "two-stage
+---   chain completion": first builtin LSP, then configurable fallback. Also
 ---   has functionality for completion item info and function signature (both
 ---   in floating window appearing after customizable delay).
 ---
@@ -204,7 +204,7 @@
 ---   after customizable delay). Current word under cursor can be highlighted
 ---   differently.
 ---
---- - |mini.deps| - plugin manager for plugins outside of 'mini.nvim'. Uses Git and
+--- - |mini.deps| - plugin manager for plugins outside of |mini.nvim|. Uses Git and
 ---   built-in packages to install, update, clean, and snapshot plugins.
 ---
 --- - |mini.diff| - visualize difference between buffer text and its reference
@@ -216,8 +216,8 @@
 ---   Allows flexible customization of output via hook functions. Used for
 ---   documenting this plugin.
 ---
---- - |mini.extra| - extra 'mini.nvim' functionality. Contains 'mini.pick' pickers,
----   'mini.ai' textobjects, and more.
+--- - |mini.extra| - extra mini.nvim functionality. Contains |mini.pick| pickers,
+---   |mini.ai| textobjects, and more.
 ---
 --- - |mini.files| - navigate and manipulate file system. A file explorer with
 ---   column view capable of manipulating file system by editing text. Can
@@ -227,7 +227,7 @@
 ---
 --- - |mini.fuzzy| - functions for fast and simple fuzzy matching. It has
 ---   not only functions to perform fuzzy matching of one string to others, but
----   also a sorter for 'nvim-telescope/telescope.nvim'.
+---   also a sorter for `nvim-telescope/telescope.nvim`.
 ---
 --- - |mini.git| - Git integration (https://git-scm.com/). Implements tracking of
 ---   Git related data (root, branch, etc.), |:Git| command for better integration
@@ -331,7 +331,7 @@
 ---   customizable reporters, and more. Designed to be used with provided
 ---   wrapper for managing child Neovim processes.
 ---
---- - |mini.tabline| - minimal tabline which always shows listed (see 'buflisted')
+--- - |mini.tabline| - minimal tabline which always shows listed (see |'buflisted'|)
 ---   buffers. Allows showing extra information section in case of multiple vim
 ---   tabpages. For full experience needs enabled |mini.icons| module (but works
 ---   without it).
@@ -352,7 +352,7 @@
 --- Variable names have the same structure: `{g,b}:mini*_disable` where `*` is
 --- module's lowercase name. For example, `g:minianimate_disable` disables
 --- |mini.animate| globally and `b:minianimate_disable` - for current buffer.
---- Note: in this section disabling 'mini.animate' is used as example;
+--- Note: in this section disabling |mini.animate| is used as example;
 --- everything holds for other module variables.
 ---
 --- Considering high number of different scenarios and customization intentions,

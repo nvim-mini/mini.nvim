@@ -7,7 +7,7 @@
 --- Features:
 --- - Buffers are listed in the order of their identifier (see |bufnr()|).
 ---
---- - Different highlight groups for "states" of buffer affecting 'buffer tabs'.
+--- - Different highlight groups for "states" of buffer affecting "buffer tabs".
 ---
 --- - Buffer names are made unique by extending paths to files or appending
 ---   unique identifier to buffers without name.
@@ -16,13 +16,13 @@
 ---   while maximizing the total number of buffers shown) when there are many
 ---   buffers open.
 ---
---- - 'Buffer tabs' are clickable if Neovim allows it.
+--- - "Buffer tabs" are clickable if Neovim allows it.
 ---
 --- - Extra information section in case of multiple Neovim tabpages.
 ---
 --- - Truncation symbols which show if there are tabs to the left and/or right.
----   Exact characters are taken from 'listchars' global value (`precedes` and
----   `extends` fields) and are shown only if 'list' option is enabled.
+---   Exact characters are taken from |'listchars'| global value (`precedes` and
+---   `extends` fields) and are shown only if |'list'| option is enabled.
 ---
 --- What it doesn't do:
 --- - Custom buffer order is not supported.
@@ -51,7 +51,7 @@
 --- # Suggested option values ~
 ---
 --- Some options are set automatically by |MiniTabline.setup()|:
---- - 'showtabline' is set to 2 to always show tabline.
+--- - |'showtabline'| is set to 2 to always show tabline.
 ---
 --- # Highlight groups ~
 --- *MiniTabline-hl-groups*
@@ -130,7 +130,7 @@ end
 ---
 --- `config.format` is a callable that takes buffer identifier and pre-computed
 --- label as arguments and returns a string with formatted label. Output will be
---- treated strictly as text (i.e. no 'statusline' like constructs is allowed).
+--- treated strictly as text (i.e. no |'statusline'| like constructs is allowed).
 --- This function will be called for all displayable in tabline buffers.
 --- Default: |MiniTabline.default_format()|.
 ---

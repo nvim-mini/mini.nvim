@@ -32,7 +32,7 @@ Notes:
 - If you experience flicker when typing near highlighted pattern in Insert
   mode, it might be due to `delay` configuration of |mini.completion| or
   using built-in completion.
-  For better experience with 'mini.completion', make sure that its
+  For better experience with |mini.completion|, make sure that its
   `delay.completion` is less than this module's `delay.text_change` (which
   it is by default).
   The reason for this is (currently unresolvable) limitations of Neovim's
@@ -47,7 +47,7 @@ Setting up highlights can be done in two ways:
 
 - Globally with `require('mini.hipatterns').setup({})` (replace `{}` with
   your `config` table). This will auto-enable highlighting in "normal"
-  buffers (see 'buftype'). Use |MiniHipatterns.enable()| to manually enable
+  buffers (see |'buftype'|). Use |MiniHipatterns.enable()| to manually enable
   in other buffers.
   It will also create global Lua table `MiniHipatterns` which you can use
   for scripting or manually (with `:lua MiniHipatterns.*`).
@@ -79,7 +79,7 @@ See |mini.nvim-buffer-local-config| for more details.
       also possible to implement.
 - [uga-rosa/ccc.nvim](https://github.com/uga-rosa/ccc.nvim):
     - Has more than color highlighting functionality, which is compared to
-      this module in the same way as 'NvChad/nvim-colorizer.lua'.
+      this module in the same way as `NvChad/nvim-colorizer.lua`.
 
 # Highlight groups ~
 *MiniHipatterns-hl-groups*
@@ -120,8 +120,8 @@ left to user. See |mini.nvim-disabling-recipes| for common recipes.
 <
 - To match only when pattern appears as a standalone word, use frontier
   patterns `%f`. For example, instead of `'TODO'` pattern use
-  `'%f[%w]()TODO()%f[%W]'`. In this case, for example, 'TODOING' or 'MYTODO'
-  won't match, but 'TODO' and 'TODO:' will.
+  `'%f[%w]()TODO()%f[%W]'`. In this case, for example, `TODOING` or `MYTODO`
+  won't match, but `TODO` and `TODO:` will.
 
 - Color hex (like `#rrggbb`) highlighting: >lua
 

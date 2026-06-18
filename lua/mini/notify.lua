@@ -36,7 +36,7 @@
 ---       does not (by design).
 ---
 --- - [rcarriga/nvim-notify](https://github.com/rcarriga/nvim-notify):
----     - Similar to 'j-hui/fidget.nvim'.
+---     - Similar to `j-hui/fidget.nvim`.
 ---
 --- # Highlight groups ~
 --- *MiniNotify-hl-groups*
@@ -177,8 +177,8 @@ end
 --- `config.lsp_progress` defines automated notifications for LSP progress.
 --- It is implemented as a single updating notification per progress with all
 --- information about it.
---- Setting up is done inside |MiniNotify.setup()| via |vim.schedule()|'ed setting
---- of |lsp-handler| for "$/progress" method.
+--- Setting up is done inside |MiniNotify.setup()| via shceduled (|vim.schedule()|)
+--- setting of |lsp-handler| for "$/progress" method.
 ---
 --- `lsp_progress.enable` is a boolean indicating whether LSP progress should
 --- be shown in notifications. Can be disabled in current session.
@@ -211,16 +211,16 @@ end
 --- structure as in |nvim_open_win()|. It has the following default values
 --- which show notifications in the upper right corner with upper limit on width:
 --- - `width` is chosen to fit buffer content but at most `window.max_width_share`
----   share of 'columns'.
+---   share of |'columns'|.
 ---   To have higher maximum width, use function in `config.window` which computes
 ---   dimensions inside of it (based on buffer content).
---- - `height` is chosen to fit buffer content with enabled 'wrap' (assuming
+--- - `height` is chosen to fit buffer content with enabled |'wrap'| (assuming
 ---   default value of `width`).
---- - `anchor`, `col`, and `row` are "NE", 'columns', and 0 or 1 (depending on tabline).
+--- - `anchor`, `col`, and `row` are "NE", |'columns'|, and 0 or 1 (depending on tabline).
 --- - `border` is "single".
 --- - `zindex` is 999 to be as much on top as reasonably possible.
 ---
---- `window.max_width_share` defines maximum window width as a share of 'columns'.
+--- `window.max_width_share` defines maximum window width as a share of |'columns'|.
 --- Should be a number between 0 (not included) and 1.
 --- Default: 0.382.
 ---
@@ -233,7 +233,7 @@ end
 ---   end
 ---   require('mini.notify').setup({ window = { config = win_config } })
 --- <
---- `window.winblend` defines 'winblend' value for notification window.
+--- `window.winblend` defines |'winblend'| value for notification window.
 --- Default: 25.
 MiniNotify.config = {
   -- Content management

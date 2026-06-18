@@ -239,7 +239,7 @@ end
 ---@param win_id number|nil Window identifier (see |win_getid()|) to be resized.
 ---   Default: 0 for current.
 ---@param text_width number|nil Number of editable columns resized window will
----   display. Default: first element of 'colorcolumn' or otherwise 'textwidth'
+---   display. Default: first element of |'colorcolumn'| or otherwise |'textwidth'|
 ---   (using screen width as its default but not more than 79).
 MiniMisc.resize_window = function(win_id, text_width)
   win_id = win_id or 0
@@ -630,16 +630,16 @@ end
 ---
 --- When reopening a file this will make sure the cursor is placed back to the
 --- position where you left before. This implements |restore-cursor| in a nicer way.
---- File should have a recognized file type (see 'filetype') and be opened in
---- a normal buffer (see 'buftype').
+--- File should have a recognized file type (see |'filetype'|) and be opened in
+--- a normal buffer (see |'buftype'|).
 ---
---- Note: it relies on file mark data stored in 'shadafile' (see |shada-f|).
+--- Note: it relies on file mark data stored in |'shadafile'| (see |shada-f|).
 --- Be sure to enable it.
 ---
 ---@param opts table|nil Options. Possible fields:
 ---   - <center> - (boolean) Center the window after we restored the cursor.
 ---     Default: `true`.
----   - <ignore_filetype> - Array with file types to be ignored (see 'filetype').
+---   - <ignore_filetype> - Array with file types to be ignored (see |'filetype'|).
 ---     Default: `{ "gitcommit", "gitrebase" }`.
 ---
 ---@usage >lua
@@ -794,15 +794,15 @@ end
 
 --- Add possibility of nested comment leader
 ---
---- This works by parsing 'commentstring' buffer option, extracting
+--- This works by parsing |'commentstring'| buffer option, extracting
 --- non-whitespace comment leader (symbols on the left of commented line), and
---- locally modifying 'comments' option (by prepending `n:<leader>`). Does
---- nothing if 'commentstring' is empty or has comment symbols both in front
---- and back (like "/*%s*/").
+--- locally modifying |'comments'| option (by prepending `n:<leader>`). Does
+--- nothing if |'commentstring'| is empty or has comment symbols both in front
+--- and back (like `/*%s*/`).
 ---
 --- Nested comment leader added with this function is useful for formatting
---- nested comments. For example, have in Lua "first-level" comments with '--'
---- and "second-level" comments with '----'. With nested comment leader second
+--- nested comments. For example, have in Lua "first-level" comments with `--`
+--- and "second-level" comments with `----`. With nested comment leader second
 --- type can be formatted with `gq` in the same way as first one.
 ---
 --- Recommended usage is with |autocmd|: >lua
@@ -810,7 +810,7 @@ end
 ---   local use_nested_comments = function() MiniMisc.use_nested_comments() end
 ---   vim.api.nvim_create_autocmd('BufEnter', { callback = use_nested_comments })
 --- <
---- Note: for most filetypes 'commentstring' option is added only when buffer
+--- Note: for most filetypes |'commentstring'| option is added only when buffer
 --- with this filetype is entered, so using non-current `buf_id` can not lead
 --- to desired effect.
 ---

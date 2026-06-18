@@ -68,7 +68,7 @@
 ---       module intntionally deals with more generic text-related functionality.
 --- - [Wansmer/treesj](https://github.com/Wansmer/treesj):
 ---     - Operates based on tree-sitter nodes. This is more accurate in
----       some edge cases, but **requires** tree-sitter parser.
+---       some edge cases, but REQUIRES tree-sitter parser.
 ---     - Doesn't work inside comments or strings.
 ---
 --- # Disabling ~
@@ -202,7 +202,7 @@ end
 --- and quotes.
 ---
 --- Default: `nil`; inferred as `{ '%b()', '%b[]', '%b{}', '%b""', "%b''" }`.
---- So a separator **can not** be inside a balanced `()`, `[]`, `{}` (representing
+--- So a separator CAN NOT be inside a balanced `()`, `[]`, `{}` (representing
 --- nested argument regions) or `""`, `''` (representing strings).
 ---
 --- Example: `exclude_regions = {}` will not exclude any regions. So in case of
@@ -323,7 +323,7 @@ end
 ---   Output of last one is used as function return value.
 ---
 --- Note:
---- - By design, it doesn't detect if argument **should** be split, so application
+--- - By design, it doesn't detect if argument SHOULD be split, so application
 ---   on arguments spanning multiple lines can lead to undesirable result.
 ---
 ---@param opts __splitjoin_options
@@ -424,7 +424,7 @@ end
 --- All generated post-hooks return updated versions of their input reflecting
 --- changes done inside hook.
 ---
---- Example for `lua` filetype (place it in 'lua.lua' filetype plugin, |ftplugin|): >lua
+--- Example for `lua` filetype (place it in `lua.lua` filetype plugin, |ftplugin|): >lua
 ---
 ---   local gen_hook = MiniSplitjoin.gen_hook
 ---   local curly = { brackets = { '%b{}' } }

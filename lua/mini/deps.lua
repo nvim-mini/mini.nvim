@@ -89,7 +89,7 @@
 ---
 --- - [junegunn/vim-plug](https://github.com/junegunn/vim-plug):
 ---     - Written in Vimscript, while this module is in Lua.
----     - Similar approach to defining and installing plugins as 'savq/paq-nvim'.
+---     - Similar approach to defining and installing plugins as `savq/paq-nvim`.
 ---     - Has basic lazy-loading built-in, while this module does not (by design).
 ---
 --- # Highlight groups ~
@@ -217,7 +217,7 @@
 --- # Freeze ~
 ---
 --- Modify plugin's specification to have `checkout` pointing to a static
---- target: tag, state (commit hash), or 'HEAD' (to freeze in current state).
+--- target: tag, state (commit hash), or `'HEAD'` (to freeze in current state).
 ---
 --- Frozen plugins will not receive updates. You can monitor any new changes from
 --- its source by "subscribing" to `monitor` branch which will be shown inside
@@ -709,7 +709,7 @@ end
 ---
 --- Plugin is registered in current session if it either:
 --- - Was added with |MiniDeps.add()| (preserving order of calls).
---- - Is a "start" plugin and present in 'runtimpath'.
+--- - Is a "start" plugin and present in |'runtimepath'|.
 ---
 ---@return table Array with specifications of all plugins registered in
 ---   current session.

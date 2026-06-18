@@ -55,7 +55,7 @@
 ---
 --- What it doesn't (and probably won't) do:
 --- - Have special operators to specially handle whitespace (like `I` and `A`
----   in 'targets.vim'). Whitespace handling is assumed to be done inside
+---   in `wellle/targets.vim`). Whitespace handling is assumed to be done inside
 ---   textobject specification (like `i(` and `i)` handle whitespace differently).
 ---
 --- # Setup ~
@@ -76,20 +76,20 @@
 ---
 --- - [wellle/targets.vim](https://github.com/wellle/targets.vim):
 ---     - Has limited support for creating own textobjects: it is constrained
----       to pre-defined detection rules. 'mini.ai' allows creating own rules
+---       to pre-defined detection rules. |mini.ai| allows creating own rules
 ---       via Lua patterns and functions (see |MiniAi-textobject-specification|).
 ---     - Doesn't provide any programmatical API for getting information about
----       textobjects. 'mini.ai' does it via |MiniAi.find_textobject()|.
----     - Has no implementation of "moving to edge of textobject". 'mini.ai'
+---       textobjects. |mini.ai| does it via |MiniAi.find_textobject()|.
+---     - Has no implementation of "moving to edge of textobject". |mini.ai|
 ---       does it via |MiniAi.move_cursor()| and `g[` and `g]` default mappings.
 ---     - Both implement the notion of manual "next"/"last" search directions.
----     - Implements `A`, `I` operators. 'mini.ai' does not by design: it is
+---     - Implements `A`, `I` operators. |mini.ai| does not by design: it is
 ---       assumed to be a property of textobject, not operator.
 ---     - Doesn't implement "function call" and "user prompt" textobjects.
----       'mini.ai' does (with `f` and `?` identifiers).
+---       |mini.ai| does (with `f` and `?` identifiers).
 ---     - Has limited support for "argument" textobject. Although it works in
 ---       most situations, it often misdetects commas as argument separator
----       (like if it is inside quotes or `{}`). 'mini.ai' deals with these cases.
+---       (like if it is inside quotes or `{}`). |mini.ai| deals with these cases.
 --- - [nvim-treesitter/nvim-treesitter-textobjects](https://github.com/nvim-treesitter/nvim-treesitter-textobjects):
 ---     - Along with textobject functionality provides a curated and maintained
 ---       set of popular textobject queries for many languages (which can power
@@ -98,7 +98,7 @@
 ---       fine-tuned textobjects.
 ---     - Implements only textobjects based on treesitter.
 ---     - Doesn't support |v:count|.
----     - Doesn't support multiple search method (basically, only 'cover').
+---     - Doesn't support multiple search method (basically, only `'cover'`).
 ---     - Doesn't support consecutive application of target textobject.
 ---
 --- # Disabling ~
@@ -774,7 +774,7 @@ MiniAi.gen_spec = {}
 ---   - <separator> - separator pattern. Default: `','`.
 ---     One of the practical usages of this option is to include whitespace
 ---     around character to be a part of separator. For example, `'%s*,%s*'`
----     will treat as separator not only ',', but its possible surrounding
+---     will treat as separator not only `,`, but its possible surrounding
 ---     whitespace. This has both positive and negative effects. On one hand,
 ---     `daa` executed over the first argument will delete whitespace after
 ---     first comma, leading to a more expected outcome. On the other hand it
@@ -928,14 +928,14 @@ end
 --- examples are for default search method, `a` textobject, and use `'_'` as
 --- both `left` and `right`:
 --- - Non-balanced (`{ type = 'non-balanced' }`), default. Equivalent to using
----   `x.-y` as first pattern. Example: on line '_a_b_c_' it consecutively
----   matches '_a_', '_b_', '_c_'.
+---   `x.-y` as first pattern. Example: on line `_a_b_c_` it consecutively
+---   matches `_a_`, `_b_`, `_c_`.
 --- - Balanced (`{ type = 'balanced' }`). Equivalent to using `%bxy` as first
----   pattern. Example: on line '_a_b_c_' it consecutively matches '_a_', '_c_'.
+---   pattern. Example: on line `_a_b_c_` it consecutively matches `_a_`, `_c_`.
 ---   Note: both `left` and `right` should be single character.
 --- - Greedy (`{ type = 'greedy' }`). Like non-balanced but will select maximum
----   consecutive `left` and `right` edges. Example: on line '__a__b_' it
----   consecutively selects '__a__' and '__b_'. Note: both `left` and `right`
+---   consecutive `left` and `right` edges. Example: on line `__a__b_` it
+---   consecutively selects `__a__` and `__b_`. Note: both `left` and `right`
 ---   should be single character.
 ---
 ---@param left string Left edge.
@@ -974,18 +974,18 @@ end
 --- array of regions that match corresponding (`a` or `i`) capture.
 ---
 --- In order for this to work, apart from working treesitter parser for desired
---- language, user should have a reachable language-specific 'textobjects'
+--- language, user should have a reachable language-specific `'textobjects'`
 --- query (see |vim.treesitter.query.get()|).
---- The most straightforward way for this is to have 'textobjects.scm' query
+--- The most straightforward way for this is to have `textobjects.scm` query
 --- file with treesitter captures stored in some recognized path. This is
 --- primarily designed to be compatible with plugin
---- 'nvim-treesitter/nvim-treesitter-textobjects', but can be used without it.
+--- `nvim-treesitter/nvim-treesitter-textobjects`, but can be used without it.
 ---
 --- Two most common approaches for having a query file:
---- - Install 'nvim-treesitter/nvim-treesitter-textobjects'. It has curated and
+--- - Install `nvim-treesitter/nvim-treesitter-textobjects`. It has curated and
 ---   well maintained builtin query files for many languages with a standardized
 ---   capture names, like `function.outer`, `function.inner`, etc.
---- - Manually create file 'after/queries/<language name>/textobjects.scm' in
+--- - Manually create file `after/queries/<language-name>/textobjects.scm` in
 ---   your |$XDG_CONFIG_HOME| directory. It should contain queries with
 ---   captures (later used to define textobjects). See |lua-treesitter-query|.
 --- To verify that query file is reachable, run (example for "lua" language,
@@ -994,7 +994,7 @@ end
 ---   :lua print(vim.inspect(vim.treesitter.query.get_files('lua','textobjects')))
 --- <
 --- Example configuration for function definition textobject with
---- 'nvim-treesitter/nvim-treesitter-textobjects' captures:
+--- `nvim-treesitter/nvim-treesitter-textobjects` captures:
 --- >lua
 ---   local spec_treesitter = require('mini.ai').gen_spec.treesitter
 ---   require('mini.ai').setup({
@@ -1028,9 +1028,9 @@ end
 ---   Each value can be either a string capture (should start with `'@'`) or an
 ---   array of such captures (best among all matches will be chosen).
 ---@param opts table|nil Options. Possible values:
----   - <use_nvim_treesitter> - whether to try to use 'nvim-treesitter' plugin
+---   - <use_nvim_treesitter> - whether to try to use `nvim-treesitter` plugin
 ---     (if present) to do the query. It used to implement more advanced behavior
----     and more coherent experience if 'nvim-treesitter-textobjects' queries are
+---     and more coherent experience if `nvim-treesitter-textobjects` queries are
 ---     used. However, as |lua-treesitter-core| methods are more capable now,
 ---     the option will soon be removed. Only present for backward compatibility.
 ---     Default: `false`.
@@ -1043,7 +1043,7 @@ end
 ---   specification is processed.
 --- - |vim.treesitter.query.get()| for how query is fetched.
 --- - |Query:iter_captures()| for how all query captures are iterated in case of
----   no 'nvim-treesitter'.
+---   no `nvim-treesitter`.
 MiniAi.gen_spec.treesitter = function(ai_captures, opts)
   -- TODO: Remove after releasing 'mini.nvim' 0.17.0
   opts = vim.tbl_deep_extend('force', { use_nvim_treesitter = false }, opts or {})

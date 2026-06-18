@@ -15,26 +15,43 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for how to generate help files, run tests
     - There was an intended change in Neovim Nightly to which affected module(s) should adapt. Update module and/or tests.
     - There was a change in Neovim Nightly disrupting only tests (usually screenshots due to changed way of how highlight attributes are computed). Update test: ideally so that it passes on all versions (by adjusting test logic or by selectively ignoring attributes / text of not matching lines with `ignore_text` / `ignore_attr` *behind narrowest Neovim version check*), but testing some parts only on Nightly is allowed if needed (regenerate screenshot on Nightly and verify it only on versions starting from it).
     - There was an unintended change in Neovim Nightly which breaks functionality it should not break. Create an issue in ['neovim/neovim' repo](https://github.com/neovim/neovim). If the issue is not resolved for a long-ish time (i.e. more than a week) try to make tests pass and/or adapt the code to new behavior.
-- Write help annotations in a way that after help generation they are usable in both built-in `:help`and on nvim-mini.org site. In particular:
-    - Prefer using `# Section ~` and `## Subsection ~` explicit sections. This allows more structured table of contents and adds anchors for all of them.
-    - Prefer using "naturally sounding" help tags for an entire section because they are transformed into a title. So like `---@tag MiniAi-builtin-textobjects` and not `---@tag MiniAi-textobjects-builtin`.
-        - As a consequence, don't add "# Title ~" title at the beginning of the section. This is a role for the tag (in both help file and site).
-    - Do not use explicit right aligned tags, as they result into a separate high level heading on the site. This usually breaks hierarchical structure of the page (like if added as part of a `MiniXxx.config` section, it ends the `config` section and starts its own). Prefer to "naturally" incorporate a tag into a text in first line of its info or add it directly below a dedicated section. Examples:
 
-        ```
-        --- # Important topic ~
-        --- *MiniXxx-important-topic*
-        ---
-        --- A text about important topic of 'mini.xxx' module.
-        ---
-        --- # Another topic ~
-        ---
-        --- *MiniXxx-another-topic* is also important.
-        ---
-        --- *MiniXxx-last-resort*
-        --- As last resort just add left aligned tag before first line
-        --- or at line start.
-        ```
+## Writing help annotations
+
+Write help annotations in a way that after help generation they are usable in both built-in `:help` and on nvim-mini.org site. In particular:
+
+- Prefer using `# Section ~` and `## Subsection ~` explicit sections. This allows more structured table of contents and adds anchors for all of them.
+
+- Do not use explicit right aligned tags, as they result into a separate high level heading on the site. This usually breaks hierarchical structure of the page (like if added as part of a `MiniXxx.config` section, it ends the `config` section and starts its own). Prefer to "naturally" incorporate a tag into a text in first line of its info or add it directly below a dedicated section. Examples:
+
+    ```
+    --- # Important topic ~
+    --- *MiniXxx-important-topic*
+    ---
+    --- A text about important topic of 'mini.xxx' module.
+    ---
+    --- # Another topic ~
+    ---
+    --- *MiniXxx-another-topic* is also important.
+    ---
+    --- *MiniXxx-last-resort*
+    --- As last resort just add left aligned tag before first line
+    --- or at line start.
+    ```
+
+- Always explicitly close `>` multiline code block with line `<`. Note, that it renders as blank, so treat it like one (i.e. do not add another blank line below it to pad before next line).
+
+- Have inline code blocks span only within a single line. Otherwise they are not highlighted properly.
+
+- Do not use single quotes (`'`) to wrap word(s), as they have special meaning in help files (`'word'` describes option named `word`). Prefer || if it can be link to a built-in or 'mini.nvim' tag (like |'wrap'| for options and |mini.ai| for 'mini.nvim' modules). Use "" for regular language quotes. Use ``` `` ``` for everything else (like other plugin names, paths, etc.).
+
+- All tags should start with `MiniXxx` (module's name; except special `*mini.xxx*`) or `:` (for user commands). Do not use asterisks for emphasis (use capitalized letters if absolutely needed).
+
+- All tag links (`|word|`) should link to full existing tag name. Like `|'wrap'|` or `|nvim_win_set_cursor()|`
+
+- Prefer using "naturally sounding" help tags for an entire section because they are transformed into a title. So like `---@tag MiniAi-builtin-textobjects` and not `---@tag MiniAi-textobjects-builtin`.
+
+    - As a consequence, don't add "# Title ~" title at the beginning of the section. This is a role for the tag (in both help file and site).
 
 ## Maintainer setup
 

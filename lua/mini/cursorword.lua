@@ -12,7 +12,7 @@
 --- - Highlighting stops in insert and terminal modes.
 ---
 --- - "Word under cursor" is meant as in Vim's |<cword>|: something user would
----   get as 'iw' text object.
+---   get as |iw| text object.
 ---
 --- # Setup ~
 ---

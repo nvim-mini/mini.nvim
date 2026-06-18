@@ -101,7 +101,7 @@
 --- 2. Using `setup()` doesn't actually create a |:colorscheme|. It basically
 ---    creates a coordinated set of |highlight-groups|. To create your own theme:
 ---     - Put "myscheme.lua" file (name after your chosen theme name) inside
----       any "colors" directory reachable from 'runtimepath' ("colors" inside
+---       any "colors" directory reachable from |'runtimepath'| ("colors" inside
 ---       your Neovim config directory is usually enough).
 ---     - Inside "myscheme.lua" call `require('mini.base16').setup()` with your
 ---       palette and only after that set |g:colors_name| to "myscheme".
@@ -154,8 +154,8 @@ local H = {}
 --- good idea to have `config.palette` respect the original [styling
 --- principles](https://github.com/chriskempson/base16/blob/master/styling.md).
 ---
---- By default only 'gui highlighting' (see |highlight-gui| and
---- |'termguicolors'|) is supported. To support 'cterm highlighting' (see
+--- By default only "gui highlighting" (see |highlight-gui| and
+--- |'termguicolors'|) is supported. To support "cterm highlighting" (see
 --- |highlight-cterm|) supply `config.use_cterm` argument in one of the formats:
 --- - `true` to auto-generate from `palette` (as closest colors).
 --- - Table with similar structure to `palette` but having terminal colors
@@ -225,9 +225,9 @@ MiniBase16.config = {
 --minidoc_afterlines_end
 
 -- Module functionality =======================================================
---- Create 'mini' palette
+--- Create MINI Base16 palette
 ---
---- Create base16 palette based on the HEX (string '#RRGGBB') colors of main
+--- Create base16 palette based on the HEX (string `'#RRGGBB'`) colors of main
 --- background and foreground with optional setting of accent chroma (see
 --- details).
 ---
@@ -246,9 +246,9 @@ MiniBase16.config = {
 ---   lightness progresses from background towards focus.
 --- - Second four colors have the same chroma and hue as `foreground` but
 ---   lightness progresses from foreground towards edge in such a way that
----   'base05' color is main foreground color.
+---   `base05` color is main foreground color.
 --- - The rest eight colors are accent colors which are created in pairs
----     - Each pair has same hue from set of hues 'most different' to
+---     - Each pair has same hue from set of hues "most different" to
 ---       background and foreground hues (if respective chorma is positive).
 ---     - All colors have the same chroma equal to `accent_chroma` (if not
 ---       provided, chroma of foreground is used, as they will appear next

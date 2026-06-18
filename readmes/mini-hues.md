@@ -257,7 +257,7 @@ Stable branch:
 ```lua
 -- No need to copy this inside `setup()`. Will be used automatically.
 {
-  -- **Required** base colors as '#rrggbb' hex strings
+  -- REQUIRED base colors as '#rrggbb' hex strings
   background = nil,
   foreground = nil,
 

@@ -44,7 +44,7 @@
 ---
 --- - Custom actions/keys can be configured globally, per buffer, or per picker.
 ---
---- - Out of the box support for 'ignorecase' and 'smartcase'.
+--- - Out of the box support for |'ignorecase'| and |'smartcase'|.
 ---
 --- - Match caching to increase responsiveness on repeated prompts.
 ---
@@ -67,7 +67,7 @@
 --- Suggested dependencies (provide extra functionality, will work without them):
 ---
 --- - Enabled |mini.icons| module to show icons near the items for actual paths.
----   Falls back to 'nvim-tree/nvim-web-devicons' plugin or no icons will be used.
+---   Falls back to `nvim-tree/nvim-web-devicons` plugin or no icons will be used.
 ---
 --- - *MiniPick-cli-tools* CLI tool(s) to power |MiniPick.builtin.files()|,
 ---   |MiniPick.builtin.grep()|, and |MiniPick.builtin.grep_live()| built-in pickers:
@@ -104,10 +104,10 @@
 ---     - Default match algorithm is somewhat slow, while this module should
 ---       match relatively lag-free for at least 100K+ items.
 ---     - Has many built-in pickers, while this module has handful at its core
----       relying on other 'mini.nvim' modules to provide more (see |mini.extra|).
+---       relying on other |mini.nvim| modules to provide more (see |mini.extra|).
 ---
 --- - [ibhagwan/fzf-lua](https://github.com/ibhagwan/fzf-lua):
----     - Mostly same comparison as with 'nvim-telescope/telescope.nvim'.
+---     - Mostly same comparison as with `nvim-telescope/telescope.nvim`.
 ---     - Requires [junegunn/fzf](https://github.com/junegunn/fzf) installed to
 ---       power fuzzy matching, while this module provides built-in Lua matching.
 ---
@@ -344,9 +344,9 @@
 --- - The result can be any array of `stritems` indexes, i.e. not necessarily
 ---   a subset of input `inds`.
 ---
---- - Both `stritems` and `query` depend on values of 'ignorecase' and 'smartcase'.
----   If query shows "ignore case" properties (only 'ignorecase' is set or both
----   'ignorecase' / 'smartcase' are set and query has only lowercase characters),
+--- - Both `stritems` and `query` depend on values of |'ignorecase'| and |'smartcase'|.
+---   If query shows "ignore case" properties (only |'ignorecase'| is set or both
+---   |'ignorecase'| / |'smartcase'| are set and query has only lowercase characters),
 ---   then `stritems` and `query` will have only lowercase characters.
 ---   This allows automatic support for case insensitive matching while being
 ---   faster and having simpler match function implementation.
@@ -570,9 +570,9 @@
 ---
 --- This action is useful in at least two cases:
 --- - Perform consecutive "narrowing" queries. Example: to get items that contain
----   both "hello" and "world" exact matches (in no particular order) with default
----   matching, type "'hello" (notice "'" at the start) followed by `<C-Space>` and
----   another "'world".
+---   both `hello` and `world` exact matches (in no particular order) with default
+---   matching, type `'hello` (notice `'` at the start) followed by <C-Space> and
+---   another `'world`.
 --- - Reset `match` to default. Particularly useful in |MiniPick.builtin.grep_live()|
 ---   and |MiniExtra.pickers.lsp()| with "workspace_symbol_live" scope.
 ---
@@ -808,10 +808,10 @@ end
 --- returning such table. See |MiniPick-examples| for some examples.
 ---
 --- `window.prompt_caret` defines how caret is displayed in window's prompt.
---- Default: '▏'.
+--- Default: `'▏'`.
 ---
 --- `window.prompt_prefix` defines what prefix is used in window's prompt.
---- Default: '> '.
+--- Default: `'> '`.
 MiniPick.config = {
   -- Delays (in ms; should be at least 1)
   delay = {
@@ -980,12 +980,12 @@ end
 --- # Special modes ~
 ---
 --- - Forced modes:
----     - Query starts with "*": match the rest fuzzy (without other modes).
----     - Query starts with "'": match the rest exactly (without gaps).
+---     - Query starts with `*`: match the rest fuzzy (without other modes).
+---     - Query starts with `'`: match the rest exactly (without gaps).
 ---
 --- - Place modes:
----     - Query starts with '^': match the rest exactly at start.
----     - Query ends with '$': match the rest exactly at end.
+---     - Query starts with `^`: match the rest exactly at start.
+---     - Query ends with `$`: match the rest exactly at end.
 ---     - Both modes can be used simultaneously.
 ---
 --- - Grouped: query contains at least one whitespace element. Output is computed
@@ -1157,7 +1157,7 @@ end
 ---@param item any Item to preview.
 ---@param opts table|nil Options. Possible values:
 ---   - <n_context_lines> `(number)` - number of lines to load past target position
----     when reading from disk. Useful to explore context. Default: 'lines' twice.
+---     when reading from disk. Useful to explore context. Default: |'lines'| twice.
 ---   - <line_position> `(string)` - where in the window to show item position.
 ---     One of "top", "center", "bottom". Default: "top".
 MiniPick.default_preview = function(buf_id, item, opts)
@@ -1257,7 +1257,7 @@ end
 --- Select rewrite
 ---
 --- Function which can be used to directly override |vim.ui.select()| to use
---- 'mini.pick' for any "select" type of tasks.
+--- |mini.pick| for any "select" type of tasks.
 --- Set automatically in |MiniPick.setup()|.
 ---
 --- Implements required by `vim.ui.select()` signature, with some differences:
@@ -1366,7 +1366,7 @@ end
 ---
 --- To customize CLI tool search, either use tool's global configuration approach
 --- or directly |MiniPick.builtin.cli()| with specific command.
---- Options 'ignorecase' and 'smartcase' are respected via forcing appropriate
+--- Options |'ignorecase'| and |'smartcase'| are respected via forcing appropriate
 --- flags to CLI tool (i.e. overriding tool's global config).
 ---
 ---@param local_opts __pick_builtin_local_opts
@@ -1409,7 +1409,7 @@ end
 --- present, error is thrown (for performance reasons).
 ---
 --- To customize search, use tool's global configuration approach.
---- Options 'ignorecase' and 'smartcase' are respected via forcing appropriate
+--- Options |'ignorecase'| and |'smartcase'| are respected via forcing appropriate
 --- flags to CLI tool (i.e. overriding tool's global config).
 ---
 ---@param local_opts __pick_builtin_local_opts
@@ -1706,7 +1706,7 @@ end
 
 --- Get config of active picker
 ---
----@return table|nil Picker config (`start()`'s input `opts` table) or `nil` if
+---@return table|nil Picker config (`opts` table of |MiniPick.start()|) or `nil` if
 ---   no active picker.
 ---
 ---@seealso |MiniPick.set_picker_opts()|

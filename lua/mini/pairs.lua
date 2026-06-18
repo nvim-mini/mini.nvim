@@ -24,16 +24,16 @@
 ---   snippets for that.
 ---
 --- - It doesn't support dependency on filetype. Use |i_CTRL-V| to insert
----   single symbol or `autocmd` command or 'after/ftplugin' approach to:
+---   single symbol or `autocmd` command or `after/ftplugin` approach to:
 ---     - `:lua MiniPairs.map_buf(0, 'i', <*>, <pair_info>)` - make new mapping
----       for '<*>' in current buffer.
+---       for `<*>` in current buffer.
 ---     - `:lua MiniPairs.unmap_buf(0, 'i', <*>, <pair>)` - unmap key `<*>` while
 ---       unregistering `<pair>` pair in current buffer. Note: this reverts
 ---       mapping done by |MiniPairs.map_buf()|. If mapping was done with
 ---       |MiniPairs.map()|, unmap for buffer in usual Neovim manner:
 ---       `inoremap <buffer> <*> <*>` (this maps `<*>` key to do the same it
 ---       does by default).
----     - Disable module for buffer (see 'Disabling' section).
+---     - Disable module for buffer (see `# Disabling` section).
 ---
 --- # Setup ~
 ---
@@ -80,7 +80,7 @@
 ---
 --- - Make sure to make proper mapping of <CR> in order to support completion
 ---   plugin of your choice:
----     - For |mini.completion| see 'Helpful key mappings' section.
+---     - For |mini.completion| see its `# Helpful mappings` section.
 ---     - For current implementation of "hrsh7th/nvim-cmp" there is no need to
 ---       make custom mapping. You can use default setup, which will confirm
 ---       completion selection if popup is visible and expand pair otherwise.
@@ -280,7 +280,7 @@ end
 
 --- Process "open" symbols
 ---
---- Used as |:map-<expr>| mapping for "open" symbols in asymmetric pair ('(', '[',
+--- Used as |:map-<expr>| mapping for "open" symbols in asymmetric pair (`(`, `[`,
 --- etc.). If neighborhood doesn't match supplied pattern, function results
 --- into "open" symbol. Otherwise, it pastes whole pair and moves inside pair
 --- with |<Left>|.
@@ -305,11 +305,10 @@ end
 
 --- Process "close" symbols
 ---
---- Used as |:map-<expr>| mapping for "close" symbols in asymmetric pair (')',
---- ']', etc.). If neighborhood doesn't match supplied pattern, function
---- results into "close" symbol. Otherwise it jumps over symbol to the right of
---- cursor (with |<Right>|) if it is equal to "close" one and inserts it
---- otherwise.
+--- Used as |:map-<expr>| mapping for "close" symbols in asymmetric pair (`)`, `]`,
+--- etc.). If neighborhood doesn't match supplied pattern, function results into
+--- "close" symbol. Otherwise it jumps over symbol to the right of cursor
+--- (with |<Right>|) if it is equal to "close" one and inserts it otherwise.
 ---
 --- Used inside |MiniPairs.map()| and |MiniPairs.map_buf()| for an actual mapping.
 ---
@@ -325,8 +324,8 @@ end
 
 --- Process "closeopen" symbols
 ---
---- Used as |:map-<expr>| mapping for 'symmetrical' symbols (like " and ')
---- It tries to perform 'closeopen action': move over right character
+--- Used as |:map-<expr>| mapping for "symmetrical" symbols (like `"` and `'`)
+--- It tries to perform "closeopen action": move over right character
 --- (with |<Right>|) if it is equal to second character from pair or
 --- conditionally paste pair otherwise (with |MiniPairs.open()|).
 ---

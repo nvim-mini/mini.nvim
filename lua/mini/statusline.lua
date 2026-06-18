@@ -21,13 +21,13 @@
 --- - Nerd font (to support extra icons).
 ---
 --- - Enabled |mini.icons| module for |MiniStatusline.section_fileinfo()|.
----   Falls back to using 'nvim-tree/nvim-web-devicons' plugin or shows nothing.
+---   Falls back to using `nvim-tree/nvim-web-devicons` plugin or shows nothing.
 ---
 --- - Enabled |mini.git| module for |MiniStatusline.section_git()|.
----   Falls back to using 'lewis6991/gitsigns.nvim' plugin or shows nothing.
+---   Falls back to using `lewis6991/gitsigns.nvim` plugin or shows nothing.
 ---
 --- - Enabled |mini.diff| module for |MiniStatusline.section_diff()|.
----   Falls back to using 'lewis6991/gitsigns.nvim' plugin or shows nothing.
+---   Falls back to using `lewis6991/gitsigns.nvim` plugin or shows nothing.
 ---
 --- # Setup ~
 ---
@@ -203,7 +203,7 @@ end
 ---
 ---@param groups table Array of groups.
 ---
----@return string String suitable for 'statusline'.
+---@return string String suitable for |'statusline'|.
 MiniStatusline.combine_groups = function(groups)
   local parts = vim.tbl_map(function(s)
     if type(s) == 'string' then return s end
@@ -266,7 +266,7 @@ end
 --- formatting of what data is shown, modify buffer-local summary string directly
 --- as described in |MiniGit-examples|.
 ---
---- If 'mini.git' is not set up, section falls back on 'lewis6991/gitsigns' data
+--- If |mini.git| is not set up, section falls back on `lewis6991/gitsigns.nvim` data
 --- or showing empty string.
 ---
 --- Empty string is returned if window width is lower than `args.trunc_width`.
@@ -291,7 +291,7 @@ end
 --- formatting of what data is shown, modify buffer-local summary string directly
 --- as described in |MiniDiff-diff-summary|.
 ---
---- If 'mini.diff' is not set up, section falls back on 'lewis6991/gitsigns' data
+--- If |mini.diff| is not set up, section falls back on `lewis6991/gitsigns.nvim` data
 --- or showing empty string.
 ---
 --- Empty string is returned if window width is lower than `args.trunc_width`.
@@ -314,7 +314,7 @@ end
 ---
 --- Shows nothing if diagnostics is disabled, no diagnostic is set, or for short
 --- output. Otherwise uses |vim.diagnostic.get()| to compute and show number of
---- errors ('E'), warnings ('W'), information ('I'), and hints ('H').
+--- errors (`E`), warnings (`W`), information (`I`), and hints (`H`).
 ---
 --- Short output is returned if window width is lower than `args.trunc_width`.
 ---
@@ -390,9 +390,9 @@ end
 
 --- Section for file information
 ---
---- Shows 'filetype', 'fileencoding' / 'encoding', 'fileformat', and buffer size.
---- Short output has only non-empty 'filetype' and is returned if window width is
---- lower than `args.trunc_width` or buffer is not normal (as per 'buftype').
+--- Shows |'filetype'|, |'fileencoding'| / |'encoding'|, |'fileformat'|, and buffer size.
+--- Short output has only non-empty |'filetype'| and is returned if window width is
+--- lower than `args.trunc_width` or buffer is not normal (as per |'buftype'|).
 ---
 --- Buffer size is computed based on current text, not file's saved version.
 ---

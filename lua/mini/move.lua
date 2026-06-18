@@ -45,18 +45,18 @@
 ---
 --- - [matze/vim-move](https://github.com/matze/vim-move):
 ---     - Doesn't support vertical movement of charwise and blockwise selections.
----       While 'mini.move' does.
+---       While |mini.move| does.
 ---     - Doesn't support horizontal movement of current line in favor of
----       horizontal movement of current character. While 'mini.move' supports
+---       horizontal movement of current character. While |mini.move| supports
 ---       horizontal movement of current line and doesn't support such movement
 ---       of current character.
 ---     - Has extra functionality for certain moves (like move by half page).
----       While 'mini.move' does not (by design).
+---       While |mini.move| does not (by design).
 --- - [booperlv/nvim-gomove](https://github.com/booperlv/nvim-gomove):
 ---     - Doesn't support movement in charwise visual selection.
----       While 'mini.move' does.
+---       While |mini.move| does.
 ---     - Has extra functionality beyond moving text, like duplication.
----       While 'mini.move' concentrates only on moving functionality.
+---       While |mini.move| concentrates only on moving functionality.
 ---
 --- # Disabling ~
 ---
