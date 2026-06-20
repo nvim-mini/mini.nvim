@@ -301,7 +301,7 @@ There is no clear guidelines for when a stable (minor) release should be made. M
 - Check for `TODO`s about actions to be done *before* release.
 - Checkout `release-0.xx` branch.
 - Update READMEs of new modules to mention `stable` branch. Commit.
-- Bump version in 'CHANGELOG.md'. Commit.
+- Update latest version 'CHANGELOG.md': stop using development version and add a release date. Commit.
 - Make a dummy change in 'lua/mini/init.lua' file to trigger code CI. Commit.
 - Push to check on CI. **Proceed only if it is successful**.
 - Remove dummy change commit.
