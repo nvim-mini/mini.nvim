@@ -17,6 +17,11 @@ repos:
         language: system
         entry: make --silent lintdoc
         types: [lua]
+      - id: typos
+        name: TypoCheck
+        language: system
+        entry: make --silent typos
+        types: [lua, markdown, plain-text]
       - id: lintcommit
         name: LintCommit
         language: system

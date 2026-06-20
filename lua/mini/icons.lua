@@ -1641,7 +1641,7 @@ H.filetype_icons = {
   robots                 = { glyph = '󰚩', hl = 'MiniIconsGrey'   },
   roc                    = { glyph = '󱗆', hl = 'MiniIconsPurple' },
   ron                    = { glyph = '󱘗', hl = 'MiniIconsCyan'   },
-  routeros               = { glyph = '󱂇', hl = 'MiniIconsGrey'   },
+  routeros               = { glyph = '󱂇', hl = 'MiniIconsGrey'   }, --typos: ignore-line
   rpcgen                 = { glyph = '󰫿', hl = 'MiniIconsCyan'   },
   rpgle                  = { glyph = '󰫿', hl = 'MiniIconsGreen'  },
   rpl                    = { glyph = '󰫿', hl = 'MiniIconsCyan'   },

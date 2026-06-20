@@ -1117,7 +1117,9 @@ MiniHues.apply_palette = function(palette, plugins, opts)
   end
 
   if has_integration('folke/noice.nvim') then
+    --typos: ignore
     hi('NoiceCmdlinePopupBorder', { fg=p.azure,  bg=nil })
+    --typos: ignore
     hi('NoiceConfirmBorder',      { fg=p.yellow, bg=nil })
   end
 

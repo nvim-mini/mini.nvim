@@ -53,6 +53,18 @@ Write help annotations in a way that after help generation they are usable in bo
 
     - As a consequence, don't add "# Title ~" title at the beginning of the section. This is a role for the tag (in both help file and site).
 
+## Spell checking
+
+This project uses [`typos`](https://github.com/crate-ci/typos) for an automated spell checking (as constant `docs(xxx): fix typo` commits adds noise to `git log`, which is bad for users that update plugin). It is designed to check common spelling errors (with a low false positive rate) in regular text and code comments+strings.
+
+There is a [project specific config](./.typos.toml). Among other things, it adds a way to locally ignore intentional spelling problems in Lua code (like if testing autocorrection feature or just ignore false positive).
+- Add line `--typos: ignore` above the target line.
+- Append `--typos: ignore-line` to the target line.
+
+Prefer using `--typos: ignore` as it aligns better with `--stylua: ignore`. Use `--typos: ignore-line` to preserve pretty code block aligning or ability to alphabetically sort lines. If there are a lot of instances of the same spelling problem, add it globally in `.typos.toml`: either per language or file (follow already present examples).
+
+To check for typos locally, [install `typos`](https://github.com/crate-ci/typos/releases) and run `make lintspell`.
+
 ## Maintainer setup
 
 Mandatory:
@@ -65,6 +77,7 @@ Recommended:
 - Have executables for all supported Neovim versions. For example, `nvim_07`, `nvim_08`, `nvim_09`, `nvim_010`. This is useful for running tests on multiple versions.
 - Install [`lua-language-server`](https://github.com/LuaLS/lua-language-server).
 - Install [`pre-commit`](https://pre-commit.com/#install) and enable it with `pre-commit install` and `pre-commit install --hook-type commit-msg` (run from repository's root).
+    - This will require [`typos`](https://github.com/crate-ci/typos/releases) installed and available locally.
 - Set up 'mini.doc' and 'mini.test' and make mappings for the following frequently used commands:
     - `'<Cmd>lua MiniDoc.generate()<CR>'` - to generate documentation.
     - `'<Cmd>lua MiniTest.run_at_location()<CR>'` - to run test under cursor.

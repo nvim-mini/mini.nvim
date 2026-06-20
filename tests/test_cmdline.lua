@@ -666,6 +666,7 @@ T['Autocorrect']['works for commands'] = function()
 
   -- Should correct for common edit types
   validate('bbuffer', 'buffer') -- Deletion
+  --typos: ignore
   validate('uffer', 'buffer') -- Insertion
   validate('xuffer', 'buffer') -- Substitution
   validate('ste', 'set') -- Transposition
@@ -730,6 +731,7 @@ T['Autocorrect']['works for options'] = function()
   validate_option('set noexpndtb', 'set noexpandtab')
   validate_option('set invexpndtb', 'set invexpandtab')
   validate_option('set ET', 'set et')
+  --typos: ignore
   validate_option('set noET', 'set noet')
   validate_option('set invET', 'set invet')
 
@@ -782,6 +784,7 @@ T['Autocorrect']['works for other types'] = function()
 
   -- color
   -- - No in-progress check since `:colorscheme` expects single argument
+  --typos: ignore
   validate_final('colorscheme dfault', 'colorscheme default')
 
   -- compiler
@@ -804,6 +807,7 @@ T['Autocorrect']['works for other types'] = function()
 
   -- filetype
   -- - No in-progress check since `:setfiletype` expects single argument
+  --typos: ignore
   validate_final('setfiletype pthon', 'setfiletype python')
 
   -- history
@@ -838,6 +842,7 @@ T['Autocorrect']['works for other types'] = function()
   validate_final('packadd tstplugin', 'packadd testplugin')
 
   -- sign
+  --typos: ignore
   validate_inprogress('sign dfine', 'sign define')
   validate_final('sign lst', 'sign list')
 
@@ -1004,6 +1009,7 @@ T['Autocorrect']['suggests only valid abbreviations'] = function()
   child.cmd('command MyCommandA echo "Hello"')
   child.cmd('command MyCommandB echo "World"')
 
+  --typos: ignore
   type_keys(':', 'MyComman', ' ')
   validate_cmdline('MyCommandA ')
   type_keys('<Esc>')

@@ -30,6 +30,9 @@ doc:
 lintdoc:
 	$(NVIM_EXEC) --headless --noplugin --cmd "let &rtp.=','.getcwd()" -u ./scripts/lintdoc.lua
 
+lintspell:
+	typos
+
 lintcommit-ci:
 	export LINTCOMMIT_STRICT=true && chmod u+x scripts/lintcommit-ci.sh && scripts/lintcommit-ci.sh
 

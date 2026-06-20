@@ -914,7 +914,9 @@ H.apply_palette = function(palette, use_cterm)
   end
 
   if H.has_integration('folke/noice.nvim') then
+    --typos: ignore
     hi('NoiceCmdlinePopupBorder', {fg=p.base0D, bg=nil, attr=nil, sp=nil})
+    --typos: ignore
     hi('NoiceConfirmBorder',      {fg=p.base0E, bg=nil, attr=nil, sp=nil})
   end
 

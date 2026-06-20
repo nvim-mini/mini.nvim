@@ -2579,7 +2579,7 @@ T['undo()']["works with low 'undolevels'"] = function()
 
   local undos, _ = setup_undo(
     { 'i', 'one two three', '<Esc>' }, -- one two three
-    'x', -- one two thre
+    'x', -- one two thre --typos: ignore-line
     'x', -- one two thr
     'x', -- one two th
     'x' -- one two t
@@ -3934,9 +3934,12 @@ T['Mappings']['diagnostic']['works'] = function()
     eq(get_cursor(), cursor_after)
   end
 
+  --typos: ignore
   validate_edit_with_diagnostic(lines, { 1, 1 }, 'd[D', { 'arror', 'aa Error2' }, { 1, 1 })
   validate_edit_with_diagnostic(lines, { 2, 0 }, 'd[d', { 'aa a Error2' }, { 1, 3 })
+  --typos: ignore
   validate_edit_with_diagnostic(lines, { 2, 0 }, 'd]d', { 'aa Error', 'rror2' }, { 2, 0 })
+  --typos: ignore
   validate_edit_with_diagnostic(lines, { 1, 0 }, 'd]D', { 'rror2' }, { 1, 0 })
 
   -- - Dot-repeat. On Neovim>=0.12 diagnostic is done via extmarks, which get

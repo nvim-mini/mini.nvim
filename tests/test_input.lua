@@ -3263,6 +3263,7 @@ T['default_complete()']['works with method="cmdline"'] = function()
   child.g.test_input_var = 1
   validate('let g', nil, '', {})
   validate('let g:', nil, 'g:', nil)
+  --typos: ignore
   validate('let g:test_inpu', nil, 'g:test_inpu', { 'g:test_input_var' })
 
   child.fn.chdir('tests')

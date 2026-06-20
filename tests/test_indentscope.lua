@@ -1002,6 +1002,7 @@ T['Textobject']['works in Operator-pending mode'] = new_set({
     { 'dii', 'viid' },
     { '2dii', 'v2iid' },
     { 'd2ii', 'viid' },
+    --typos: ignore
     { 'dai', 'vaid' },
     { '2dai', 'v2aid' },
     { 'd2ai', 'v2aid' },

@@ -1812,6 +1812,7 @@ T['Replace']['works with two types of `[count]` in Normal mode'] = function()
   validate_edit1d('aa bb cc dd', 0, { 'yiw', 'w', '2graW', 'w', '.' }, 'aa aaaaccaaaa', 9)
 
   -- Second `[count]` for textobject with dot-repeat
+  --typos: ignore
   validate_edit1d('aa bb cc dd ee', 0, { 'yiw', 'w', 'gr2aW' }, 'aa aadd ee', 3)
   validate_edit1d('aa bb cc dd ee', 0, { 'yiw', 'w', 'gr2aW', '.' }, 'aaaa', 2)
 
