@@ -177,7 +177,7 @@ end
 --- `config.lsp_progress` defines automated notifications for LSP progress.
 --- It is implemented as a single updating notification per progress with all
 --- information about it.
---- Setting up is done inside |MiniNotify.setup()| via shceduled (|vim.schedule()|)
+--- Setting up is done inside |MiniNotify.setup()| via scheduled (|vim.schedule()|)
 --- setting of |lsp-handler| for "$/progress" method.
 ---
 --- `lsp_progress.enable` is a boolean indicating whether LSP progress should
