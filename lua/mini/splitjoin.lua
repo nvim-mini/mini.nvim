@@ -208,6 +208,19 @@ end
 --- Example: `exclude_regions = {}` will not exclude any regions. So in case of
 --- `f(a, { b, c })` it will detect both commas as argument separators.
 ---
+--- # Split indent ~
+---
+--- `split.indent` controls how inner lines are indented after a split.
+---
+--- Default: `'shiftwidth'`.
+---
+--- Possible values:
+---
+--- - `'shiftwidth'` - increase indent of each inner line by one level
+---   (tab in case of |'noexpandtab'| or |shiftwidth()| number of spaces otherwise).
+--- - `'lisp'` - align inner lines to match the column of the first element after
+---   the opening bracket. Do note that lisps need a whitespace separator.
+---
 --- # Hooks ~
 ---
 --- `split.hooks_pre`, `split.hooks_post`, `join.hooks_pre`, and `join.hooks_post`
@@ -257,6 +270,11 @@ MiniSplitjoin.config = {
   split = {
     hooks_pre = {},
     hooks_post = {},
+
+    -- Indentation style for split inner lines
+    --   'shiftwidth' - use `shiftwidth()` for each level.
+    --   'lisp' - align to column of the first element after opening bracket.
+    indent = 'shiftwidth',
   },
 
   -- Join options
@@ -347,7 +365,7 @@ MiniSplitjoin.split = function(opts)
   end
 
   -- Split at positions
-  local split_positions = MiniSplitjoin.split_at(positions)
+  local split_positions = MiniSplitjoin.split_at(positions, opts.split)
 
   -- Call post-hooks to tweak splits. Add right bracket for easier hook code.
   local last = split_positions[#split_positions]
@@ -404,7 +422,7 @@ MiniSplitjoin.join = function(opts)
   end
 
   -- Join at positions
-  local join_positions = MiniSplitjoin.join_at(positions)
+  local join_positions = MiniSplitjoin.join_at(positions, opts.split)
 
   -- Call post-hooks to tweak joins. Add right bracket for easier hook code.
   local last = join_positions[#join_positions]
@@ -584,7 +602,8 @@ end
 ---   Also remove trailing whitespace at position line.
 ---
 --- - Increase indent of inner lines by a single pad: tab in case of |'noexpandtab'|
----   or |shiftwidth()| number of spaces otherwise.
+---   or |shiftwidth()| number of spaces otherwise. Use `indent` option to change
+---   this behavior (see |MiniSplitjoin.config.split.indent|).
 ---
 --- Notes:
 --- - Cursor is adjusted to follow text updates.
@@ -595,24 +614,37 @@ end
 ---   to be ordered, but first and last ones will be used to infer lines for
 ---   which indent will be increased.
 ---
+---@param opts table|nil Options. Possible fields:
+---   - <indent> `(string)` - indentation style for inner lines.
+---     Default: `MiniSplitjoin.config.split.indent`.
+---
 ---@return table Array of new positions to where input `positions` were moved.
-MiniSplitjoin.split_at = function(positions)
+MiniSplitjoin.split_at = function(positions, opts)
   local n_pos = #positions
   if n_pos == 0 then return {} end
+
+  opts = opts or {}
+  local indent = opts.indent or MiniSplitjoin.config.split.indent
+  -- In lisp mode, keep brackets with first/last elements
+  local is_lisp = (indent == 'lisp')
+  local first_idx = is_lisp and 2 or 1
+  local last_idx = is_lisp and (n_pos - 1) or n_pos
 
   -- Cache values that might change
   local cursor_extmark = H.put_extmark_at_positions({ H.get_cursor_pos() })[1]
   local input_extmarks = H.put_extmark_at_positions(positions)
 
   -- Split at extmark positions
-  for i = 1, n_pos do
+  for i = first_idx, last_idx do
     H.split_at_extmark(input_extmarks[i])
   end
 
   -- Increase indent of inner lines
-  local first_new_pos = H.get_extmark_pos(input_extmarks[1])
-  local last_new_pos = H.get_extmark_pos(input_extmarks[n_pos])
-  H.increase_indent(first_new_pos.line + 1, last_new_pos.line)
+  local ref_new_pos = H.get_extmark_pos(input_extmarks[first_idx])
+  local last_new_pos = H.get_extmark_pos(input_extmarks[last_idx])
+  local target_indent_col = is_lisp and positions[1].col or nil
+  local indent_to_line = is_lisp and (last_new_pos.line + 1) or last_new_pos.line
+  H.increase_indent(ref_new_pos.line + 1, indent_to_line, target_indent_col)
 
   -- Put cursor back on tracked position
   H.put_cursor_at_extmark(cursor_extmark)
@@ -629,8 +661,9 @@ end
 --- - For each position join its line with the next line. Joining is done by
 ---   replacing trailing whitespace of the line and indent of its next line
 ---   (see |MiniSplitjoin.get_indent_part()|) with a pad string (single space except
----   empty string for first and last positions). To adjust this, use hooks
----   (for example, see |MiniSplitjoin.gen_hook.pad_brackets()|).
+---   empty string for first and last positions, unless `indent = 'lisp'`). To
+---   adjust this, use hooks (for example, see
+---   |MiniSplitjoin.gen_hook.pad_brackets()|).
 ---
 --- Notes:
 --- - Cursor is adjusted to follow text updates.
@@ -638,12 +671,19 @@ end
 ---
 ---@param positions table Array of positions at which to perform join.
 ---   See |MiniSplitjoin-glossary| for their structure. Note: they don't have
----   to be ordered, but first and last ones will have different pad string.
+---   to be ordered.
+---
+---@param opts table|nil Options. Possible fields:
+---   - <indent> `(string)` - controls join padding.
+---     See |MiniSplitjoin.config.split.indent|.
 ---
 ---@return table Array of new positions to where input `positions` were moved.
-MiniSplitjoin.join_at = function(positions)
+MiniSplitjoin.join_at = function(positions, opts)
   local n_pos = #positions
   if n_pos == 0 then return {} end
+
+  opts = opts or {}
+  local is_lisp = (opts.indent == 'lisp')
 
   -- Cache values that might change
   local cursor_extmark = H.put_extmark_at_positions({ H.get_cursor_pos() })[1]
@@ -651,7 +691,7 @@ MiniSplitjoin.join_at = function(positions)
 
   -- Join at positions which are changing following extmarks
   for i = 1, n_pos do
-    local cur_pad_string = (i == 1 or i == n_pos) and '' or ' '
+    local cur_pad_string = is_lisp and ' ' or (i == 1 or i == n_pos) and '' or ' '
     H.join_at_extmark(input_extmarks[i], cur_pad_string)
   end
 
@@ -755,6 +795,7 @@ H.setup_config = function(config)
   H.check_type('split', config.split, 'table')
   H.check_type('split.hooks_pre', config.split.hooks_pre, 'table')
   H.check_type('split.hooks_post', config.split.hooks_post, 'table')
+  H.check_type('split.indent', config.split.indent, 'string')
 
   H.check_type('join', config.join, 'table')
   H.check_type('join.hooks_pre', config.join.hooks_pre, 'table')
@@ -1027,7 +1068,7 @@ H.put_cursor_at_extmark = function(id)
 end
 
 -- Indent ---------------------------------------------------------------------
-H.increase_indent = function(from_line, to_line)
+H.increase_indent = function(from_line, to_line, target_indent_col)
   local lines = vim.api.nvim_buf_get_lines(0, from_line - 1, to_line, true)
 
   -- Respect comment leaders only if all lines are commented
@@ -1035,15 +1076,19 @@ H.increase_indent = function(from_line, to_line)
   local respect_comments = H.is_comment_block(lines, comment_leaders)
 
   -- Increase indent of all lines (end-inclusive)
-  local pad = vim.bo.expandtab and string.rep(' ', vim.fn.shiftwidth()) or '\t'
+  local pad = (not target_indent_col) and (vim.bo.expandtab and string.rep(' ', vim.fn.shiftwidth()) or '\t')
   for i, l in ipairs(lines) do
     local n_indent = MiniSplitjoin.get_indent_part(l, respect_comments):len()
 
     -- Don't increase indent of blank lines (possibly respecting comments)
-    local cur_by_string = l:len() == n_indent and '' or pad
-
-    local line_num = from_line + i - 1
-    H.set_text(line_num - 1, n_indent, line_num - 1, n_indent, { cur_by_string })
+    if l:len() ~= n_indent then
+      local line_num = from_line + i - 1
+      if target_indent_col ~= nil then
+        H.set_text(line_num - 1, 0, line_num - 1, n_indent, { string.rep(' ', target_indent_col) })
+      else
+        H.set_text(line_num - 1, n_indent, line_num - 1, n_indent, { pad })
+      end
+    end
   end
 end
 

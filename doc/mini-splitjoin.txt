@@ -140,6 +140,11 @@ Defaults ~
     split = {
       hooks_pre = {},
       hooks_post = {},
+
+      -- Indentation style for split inner lines
+      --   'shiftwidth' - use `shiftwidth()` for each level.
+      --   'lisp' - align to column of the first element after opening bracket.
+      indent = 'shiftwidth',
     },
 
     -- Join options
@@ -209,6 +214,19 @@ nested argument regions) or `""`, `''` (representing strings).
 
 Example: `exclude_regions = {}` will not exclude any regions. So in case of
 `f(a, { b, c })` it will detect both commas as argument separators.
+
+# Split indent ~
+
+`split.indent` controls how inner lines are indented after a split.
+
+Default: `'shiftwidth'`.
+
+Possible values:
+
+- `'shiftwidth'` - increase indent of each inner line by one level
+  (tab in case of |'noexpandtab'| or |shiftwidth()| number of spaces otherwise).
+- `'lisp'` - align inner lines to match the column of the first element after
+  the opening bracket. Do note that lisps need a whitespace separator.
 
 # Hooks ~
 
@@ -444,7 +462,7 @@ Return ~
 
 ------------------------------------------------------------------------------
                                                       *MiniSplitjoin.split_at()*
-                     `MiniSplitjoin.split_at`({positions})
+                 `MiniSplitjoin.split_at`({positions}, {opts})
 Split at positions
 
 Overview:
@@ -453,7 +471,8 @@ Overview:
   Also remove trailing whitespace at position line.
 
 - Increase indent of inner lines by a single pad: tab in case of |'noexpandtab'|
-  or |shiftwidth()| number of spaces otherwise.
+  or |shiftwidth()| number of spaces otherwise. Use `indent` option to change
+  this behavior (see |MiniSplitjoin.config.split.indent|).
 
 Notes:
 - Cursor is adjusted to follow text updates.
@@ -465,20 +484,25 @@ Parameters ~
   to be ordered, but first and last ones will be used to infer lines for
   which indent will be increased.
 
+{opts} `(table|nil)` Options. Possible fields:
+  - <indent> `(string)` - indentation style for inner lines.
+    Default: `MiniSplitjoin.config.split.indent`.
+
 Return ~
 `(table)` Array of new positions to where input `positions` were moved.
 
 ------------------------------------------------------------------------------
                                                        *MiniSplitjoin.join_at()*
-                      `MiniSplitjoin.join_at`({positions})
+                  `MiniSplitjoin.join_at`({positions}, {opts})
 Join at positions
 
 Overview:
 - For each position join its line with the next line. Joining is done by
   replacing trailing whitespace of the line and indent of its next line
   (see |MiniSplitjoin.get_indent_part()|) with a pad string (single space except
-  empty string for first and last positions). To adjust this, use hooks
-  (for example, see |MiniSplitjoin.gen_hook.pad_brackets()|).
+  empty string for first and last positions, unless `indent = 'lisp'`). To
+  adjust this, use hooks (for example, see
+  |MiniSplitjoin.gen_hook.pad_brackets()|).
 
 Notes:
 - Cursor is adjusted to follow text updates.
@@ -487,7 +511,11 @@ Notes:
 Parameters ~
 {positions} `(table)` Array of positions at which to perform join.
   See |MiniSplitjoin-glossary| for their structure. Note: they don't have
-  to be ordered, but first and last ones will have different pad string.
+  to be ordered.
+
+{opts} `(table|nil)` Options. Possible fields:
+  - <indent> `(string)` - controls join padding.
+    See |MiniSplitjoin.config.split.indent|.
 
 Return ~
 `(table)` Array of new positions to where input `positions` were moved.

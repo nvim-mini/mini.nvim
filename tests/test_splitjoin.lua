@@ -82,6 +82,7 @@ T['setup()']['creates `config` field'] = function()
 
   expect_config('split.hooks_pre', {})
   expect_config('split.hooks_post', {})
+  expect_config('split.indent', 'shiftwidth')
 
   expect_config('join.hooks_pre', {})
   expect_config('join.hooks_post', {})
@@ -115,6 +116,7 @@ T['setup()']['validates `config` argument'] = function()
   expect_config_error({ split = 'a' }, 'split', 'table')
   expect_config_error({ split = { hooks_pre = 1 } }, 'split.hooks_pre', 'table')
   expect_config_error({ split = { hooks_post = 1 } }, 'split.hooks_post', 'table')
+  expect_config_error({ split = { indent = 1 } }, 'split.indent', 'string')
 
   expect_config_error({ join = 'a' }, 'join', 'table')
   expect_config_error({ join = { hooks_pre = 1 } }, 'join.hooks_pre', 'table')
@@ -169,6 +171,7 @@ T['toggle()']['explicitly calls `split()` or `join()`'] = function()
     split = {
       hooks_post = {},
       hooks_pre = {},
+      indent = 'shiftwidth',
     },
   }
 
