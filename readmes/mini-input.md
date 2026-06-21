@@ -12,7 +12,7 @@ See more details in [Features](#features) and [Documentation](../doc/mini-input.
 
 ⦿ See [whole library documentation](https://nvim-mini.org/mini.nvim/doc/mini-nvim) to learn about general design principles, disable/configuration recipes, and more.
 
-<!-- ⦿ See [MiniMax](https://nvim-mini.org/MiniMax) for a full config example that uses this module. -->
+⦿ See [MiniMax](https://nvim-mini.org/MiniMax) for a full config example that uses this module.
 
 ---
 
@@ -47,11 +47,10 @@ For more information see these parts of help:
 
 This plugin can be installed as part of 'mini.nvim' library (**recommended**) or as a standalone Git repository.
 
-During beta-testing phase there is only one branch to install from:
-<!-- There are two branches to install from: -->
+There are two branches to install from:
 
 - `main` (default, **recommended**) will have latest development version of plugin. All changes since last stable release should be perceived as being in beta testing phase (meaning they already passed alpha-testing and are moderately settled).
-<!-- - `stable` will be updated only upon releases with code tested during public beta-testing phase in `main` branch. -->
+- `stable` will be updated only upon releases with code tested during public beta-testing phase in `main` branch.
 
 Here are code snippets for some common installation methods (use only one):
 
@@ -70,13 +69,13 @@ Main branch:
 vim.pack.add({ 'https://github.com/nvim-mini/mini.input' })
 ```
 
-<!-- Stable branch: -->
-<!---->
-<!-- ```lua -->
-<!-- vim.pack.add({ -->
-<!--   { src = 'https://github.com/nvim-mini/mini.input', version = 'stable' }, -->
-<!-- }) -->
-<!-- ``` -->
+Stable branch:
+
+```lua
+vim.pack.add({
+  { src = 'https://github.com/nvim-mini/mini.input', version = 'stable' },
+})
+```
 
 </details>
 
@@ -95,11 +94,11 @@ Main branch:
 add('nvim-mini/mini.input')
 ```
 
-<!-- Stable branch: -->
-<!---->
-<!-- ```lua -->
-<!-- add({ source = 'nvim-mini/mini.input', checkout = 'stable' }) -->
-<!-- ``` -->
+Stable branch:
+
+```lua
+add({ source = 'nvim-mini/mini.input', checkout = 'stable' })
+```
 
 </details>
 
@@ -118,11 +117,11 @@ Main branch:
 { 'nvim-mini/mini.input', version = false },
 ```
 
-<!-- Stable branch: -->
-<!---->
-<!-- ```lua -->
-<!-- { 'nvim-mini/mini.input', version = '*' }, -->
-<!-- ``` -->
+Stable branch:
+
+```lua
+{ 'nvim-mini/mini.input', version = '*' },
+```
 
 </details>
 
