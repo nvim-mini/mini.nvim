@@ -1270,7 +1270,7 @@ end
 T['gen_view']['floatwin()']['uses scope and style for config'] =
   new_set({ hooks = { pre_case = function() child.set_size(15, 30) end } })
 
-local validate_floatwin_scope_style = function(scope, style, prompt, screnshot_path)
+local validate_floatwin_scope_style = function(scope, style, prompt, screenshot_path)
   child.lua('_G.style = ' .. vim.inspect(style))
   child.lua('_G.scope = ' .. vim.inspect(scope))
   child.lua('_G.prompt = ' .. vim.inspect(prompt))
@@ -1278,7 +1278,7 @@ local validate_floatwin_scope_style = function(scope, style, prompt, screnshot_p
     local view = MiniInput.gen_view.floatwin({ style = _G.style })
     MiniInput.get({ prompt = _G.prompt or _G.style, scope = scope, handlers = { view = view } })
   ]])
-  child.expect_screenshot({ ignore_cmdline = true }, screnshot_path)
+  child.expect_screenshot({ ignore_cmdline = true }, screenshot_path)
   type_keys('<C-c>')
 end
 
@@ -3448,7 +3448,7 @@ T['state_to_chunks()']['works with `state.highlight`'] = function()
 
   -- Should allow `to = math.huge`
   mock_state({ input = 'abc', caret = 4 })
-  -- NOTE: Set `math.huge` explicitly as `vim.inpsect()` translates it into `info`
+  -- NOTE: Set `math.huge` explicitly as `vim.inspect()` translates it into `info`
   child.lua('_G.mock_state.highlight = { { from = 2, to = math.huge, hl = "AA" } }')
   ref = with_prompt_chunks({ { 'a', 'MiniInputNormal' }, { 'bc', 'AA' }, caret_ch })
   eq(child.lua_get('MiniInput.state_to_chunks(_G.mock_state)'), ref)
@@ -3905,7 +3905,7 @@ T['state_to_chunks()']['respects `opts.symbol_hide`'] = function()
 end
 
 T['state_to_chunks()']['validates input'] = function()
-  -- No `state` validattion for performance reasons
+  -- No `state` validation for performance reasons
 
   local validate_opts = function(bad_opts, pattern)
     expect.error(function() state_to_chunks({}, nil, bad_opts) end, pattern)
@@ -4122,7 +4122,7 @@ T['apply_handler()']['works during input key query process'] = function()
 end
 
 T['apply_handler()']['validates arguments and output'] = function()
-  -- No input `state` validattion for performance reasons
+  -- No input `state` validation for performance reasons
 
   expect.error(function() apply_handler_to_mock_state({}, 1) end, '`name`.*one of')
 end

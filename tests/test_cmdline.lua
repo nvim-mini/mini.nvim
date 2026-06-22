@@ -484,7 +484,7 @@ T['Autocomplete']['does not throw completion related errors'] = function()
   type_keys(':tag')
   -- NOTE: Use `nvim_input` instead of `type_keys()` because the latter checks
   -- `v:errmsg` to propagate the error. However, here on Neovim>=0.12 usage of
-  -- `vim.fn.wildtrigger()` *does* set `errmsg` but no error is actuall shown.
+  -- `vim.fn.wildtrigger()` *does* set `errmsg` but no error is actual shown.
   child.api.nvim_input(' ')
   -- What actually should be tested is that there is no errors *shown*, but it
   -- doesn't look easy, as behavior in child process and manual testing differ.

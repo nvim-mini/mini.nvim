@@ -1424,7 +1424,7 @@ T['enable()']['works'] = function()
   eq(child.b.minigit_summary, summary)
   eq(child.b.minigit_summary_string, 'main (??)')
 
-  -- Should not re-enable alreaady enabled buffer
+  -- Should not re-enable already enabled buffer
   enable()
   validate_git_spawn_log(ref_git_spawn_log)
 

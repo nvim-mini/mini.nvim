@@ -211,7 +211,7 @@ T['jump()'] = new_set({
 
 local validate_jump = function(args, final_cursor_pos)
   -- Usage of string arguments is needed because there seems to be no way to
-  -- correctly transfer to `child` `nil` values between non-`nil` onces. Like
+  -- correctly transfer to `child` `nil` values between non-`nil` ones. Like
   -- `child.lua('MiniJump.jump(...)', {'m', nil, true})`. Gives `Cannot
   -- convert given lua table` error.
   child.lua(('MiniJump.jump(%s)'):format(args))

@@ -5664,7 +5664,7 @@ T['Events']['`MiniFilesWindowUpdate` triggers'] = function()
 
   open(test_dir_path)
   local buf_id_1, win_id_1 = child.api.nvim_get_current_buf(), child.api.nvim_get_current_win()
-  -- Triggered several times because `CursorMoved` also triggeres it.
+  -- Triggered several times because `CursorMoved` also triggers it.
   -- Should provide both `buf_id` and `win_id`.
   validate_event_track({ { buf_id = buf_id_1, win_id = win_id_1 }, { buf_id = buf_id_1, win_id = win_id_1 } })
   clear_event_track()

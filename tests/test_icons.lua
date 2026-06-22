@@ -582,7 +582,7 @@ T['get()']['respects multibyte characters with "ascii" style'] = function()
   eq(get('lsp', 'й_lsp')[1], 'Й')
   eq(get('os', 'й_os')[1], 'Й')
 
-  -- Default stil should match with category's first letter
+  -- Default still should match with category's first letter
   eq(get('directory', 'й_default_dir')[1], 'D')
   eq(get('extension', 'й_default_ext')[1], 'E')
   eq(get('file', 'й_default_file')[1], 'F')
@@ -671,7 +671,7 @@ T['get()']['works with deleted cwd'] = function()
 end
 
 T['get()']['handles deleting all buffers'] = function()
-  -- As `vim.filetype.match()` requries a buffer to be more useful, make sure
+  -- As `vim.filetype.match()` requires a buffer to be more useful, make sure
   -- that there is a persistent helper buffer
   local validate = function()
     local helper_buf_id, ref_pattern = nil, '^miniicons://%d+/filetype%-match%-scratch$'

@@ -3268,7 +3268,7 @@ T['Reproducing keys']['works with macros'] = function()
   validate_trigger_keymap('o', 'i')
 
   -- Should work when creating new buffer inside macro (i.e. auto-creating
-  -- triggers should not intefere)
+  -- triggers should not interfere)
   child.fn.setreg('a', 'word')
   type_keys('qw', ':enew<CR>', 'i', '<C-r>', 'a', '<Esc>', 'q')
   eq(child.fn.getreg('w'), ':enew\ri\18a\27')
