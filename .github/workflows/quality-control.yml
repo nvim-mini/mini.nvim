@@ -43,8 +43,6 @@ jobs:
         os: [ ubuntu-latest ]
         neovim_version: [ 'v0.10.4', 'v0.11.7', 'v0.12.3', 'nightly' ]
         include:
-        - os: macos-latest
-          neovim_version: v0.12.3
         - os: windows-latest
           neovim_version: v0.12.3
     runs-on: ${{ matrix.os }}
