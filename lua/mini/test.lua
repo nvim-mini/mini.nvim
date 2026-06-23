@@ -1054,11 +1054,14 @@ end
 ---     Default: 1.
 ---   - <quit_on_finish> - whether to quit after finishing test execution.
 ---     Default: `true`.
+---   - <ansi> - whether to allow ANSI escape sequences in the output.
+---     Default: `true`.
 MiniTest.gen_reporter.stdout = function(opts)
-  opts = vim.tbl_deep_extend('force', { group_depth = 1, quit_on_finish = true }, opts or {})
+  opts = vim.tbl_deep_extend('force', { group_depth = 1, quit_on_finish = true, ansi = true }, opts or {})
 
   local write = function(text)
     text = type(text) == 'table' and table.concat(text, '\n') or text
+    text = opts.ansi and text or text:gsub('\27%[.-m', '')
     io.stdout:write(text)
     io.flush()
   end

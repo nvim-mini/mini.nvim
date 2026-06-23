@@ -720,6 +720,8 @@ Parameters ~
     Default: 1.
   - <quit_on_finish> - whether to quit after finishing test execution.
     Default: `true`.
+  - <ansi> - whether to allow ANSI escape sequences in the output.
+    Default: `true`.
 
 ------------------------------------------------------------------------------
                                                    *MiniTest.new_child_neovim()*
