@@ -7,10 +7,15 @@ repos:
         entry: stylua
         args: [--respect-ignores]
         types: [lua]
-      - id: gendocs
-        name: Gendocs
+      - id: gendoc
+        name: Gendoc
         language: system
-        entry: make --silent documentation
+        entry: make --silent doc
+        types: [lua]
+      - id: lintdoc
+        name: LintDoc
+        language: system
+        entry: make --silent lintdoc
         types: [lua]
       - id: lintcommit
         name: LintCommit
