@@ -4777,6 +4777,21 @@ T['Interaction with built-in completion']['cycling through candidates'] = functi
   validate_pumvisible()
 end
 
+T['Interaction with built-in completion']['allows pressing <C-n>/<C-p> after jump'] = function()
+  local validate = function(key)
+    set_lines({ '' })
+    default_insert({ body = '$1 $2 $0' })
+    type_keys('abc')
+    jump('next')
+    validate_no_pumvisible()
+    type_keys(key)
+    validate_state('i', { 'abc  ' }, { 1, 4 })
+  end
+
+  validate('<C-n>')
+  validate('<C-p>')
+end
+
 T['Various snippets'] = new_set()
 
 T['Various snippets']['text'] = function()
