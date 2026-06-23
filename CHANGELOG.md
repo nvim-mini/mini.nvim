@@ -6,6 +6,9 @@ There are following change types:
 - `Refine` - change in previously intended functionality *without* adding new one. This is usually described as a "breaking change", but used here in a sense that it might break user's expectations about existing functionality.
 - `Expand` - adding new functionality without affecting existing ones. This is essentially new features.
 
+# Version 0.19.0-dev
+
+
 # Version 0.18.0 (2026-06-21)
 
 ## All
