@@ -6324,17 +6324,29 @@ T['Default explorer']['works in `:tabfind .`'] = function()
 end
 
 T['Default explorer']['handles close without opening file'] = function()
+  child.lua([[
+    _G.log = {}
+    vim.api.nvim_create_autocmd('BufWinEnter', {
+      callback = function(data) table.insert(_G.log, data.buf) end,
+    })
+  ]])
+
   local validate = function()
     local buf_name = child.api.nvim_buf_get_name(0)
     child.cmd('edit ' .. test_dir_path)
     eq(is_explorer_active(), true)
+    child.lua('_G.log = {}')
     close()
     eq(is_explorer_active(), false)
     eq(child.api.nvim_buf_get_name(0), buf_name)
     eq(#child.api.nvim_list_bufs(), 1)
+
+    -- Expect `BufWinEnter` on the buffer replacing "directory buffer"
+    -- This is needed for 'mini.clue' to attach
+    eq(child.lua_get('_G.log'), { child.api.nvim_get_current_buf() })
   end
 
-  -- Should hide "directory buffer" if there is no alternative buffer
+  -- Should delete "directory buffer" if there is no alternative buffer
   validate()
 
   -- Should smartly (preserving layout) delete "directory buffer"

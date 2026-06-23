@@ -1381,7 +1381,9 @@ H.create_autocommands = function(config)
     vim.cmd('silent! autocmd! FileExplorer *')
     vim.cmd('autocmd VimEnter * ++once silent! autocmd! FileExplorer *')
 
-    au('BufEnter', '*', H.track_dir_edit, 'Track directory edit')
+    -- - Use `nested` to allow other events (`BufWinEnter` for 'mini.clue')
+    local opts = { nested = true, group = gr, callback = H.track_dir_edit, desc = 'Track directory edit' }
+    vim.api.nvim_create_autocmd('BufEnter', opts)
   end
 
   au('VimResized', '*', MiniFiles.refresh, 'Refresh on resize')
