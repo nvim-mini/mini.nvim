@@ -346,6 +346,8 @@ MiniSplitjoin.split = function(opts)
     positions = hook(positions)
   end
 
+  if #positions == 0 then return nil end
+
   -- Split at positions
   local split_positions = MiniSplitjoin.split_at(positions)
 
