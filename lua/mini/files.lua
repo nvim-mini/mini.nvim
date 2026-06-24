@@ -922,11 +922,6 @@ MiniFiles.close = function()
   -- Trigger appropriate event
   H.trigger_event('MiniFilesExplorerClose')
 
-  -- Focus on target window
-  explorer = H.explorer_ensure_target_window(explorer)
-  -- - Use `pcall()` because window might still be invalid
-  pcall(vim.api.nvim_set_current_win, explorer.target_window)
-
   -- Update currently shown cursors
   explorer = H.explorer_update_cursors(explorer)
 
@@ -950,6 +945,11 @@ MiniFiles.close = function()
   -- Update histories and unmark as opened
   H.explorer_path_history[explorer.anchor] = explorer
   H.opened_explorers[explorer.tabpage_id] = nil
+
+  -- Focus on target window
+  explorer = H.explorer_ensure_target_window(explorer)
+  -- - Use `pcall()` because window might still be invalid
+  pcall(vim.api.nvim_set_current_win, explorer.target_window)
 
   -- Return `true` indicating success in closing
   return true
@@ -1427,6 +1427,9 @@ H.track_dir_edit = function(data)
   if vim.api.nvim_get_current_buf() ~= data.buf then return end
 
   if vim.b.minifiles_processed_dir then
+    -- Only delete directory buffer explicitly when explorer is closed
+    if H.explorer_get() ~= nil then return end
+
     -- Smartly delete directory buffer if already visited
     local alt_buf = vim.fn.bufnr('#')
     -- - Setting alternative buffer is enough for the "directory buffer" to be
