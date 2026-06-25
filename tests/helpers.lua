@@ -171,6 +171,16 @@ Helpers.new_child_neovim = function()
     if child.fn.exists('#' .. tbl_name) == 1 then child.api.nvim_del_augroup_by_name(tbl_name) end
   end
 
+  child.mini_reload = function(name, config)
+    child.mini_unload(name)
+    child.mini_load(name, config)
+  end
+
+  child.mini_reload_strconfig = function(name, strconfig)
+    child.mini_unload(name)
+    child.mini_load_strconfig(name, strconfig)
+  end
+
   child.expect_screenshot = function(opts, path)
     opts = opts or {}
     local screenshot_opts = { redraw = opts.redraw }

@@ -7,8 +7,7 @@ local new_set = MiniTest.new_set
 -- Helpers with child processes
 local load_module = function(config) child.mini_load('move', config) end
 local unload_module = function() child.mini_unload('move') end
---stylua: ignore
-local reload_module = function(config) unload_module(); load_module(config) end
+local reload_module = function(config) child.mini_reload('move', config) end
 local set_cursor = function(...) return child.set_cursor(...) end
 local get_cursor = function(...) return child.get_cursor(...) end
 local set_lines = function(...) return child.set_lines(...) end

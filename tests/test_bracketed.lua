@@ -11,8 +11,7 @@ local dir_bracketed_path = project_root .. 'tests' .. path_sep .. 'dir-bracketed
 -- Helpers with child processes
 local load_module = function(config) child.mini_load('bracketed', config) end
 local unload_module = function() child.mini_unload('bracketed') end
---stylua: ignore
-local reload_module = function(config) unload_module(); load_module(config) end
+local reload_module = function(config) child.mini_reload('bracketed', config) end
 local set_cursor = function(...) return child.set_cursor(...) end
 local get_cursor = function(...) return child.get_cursor(...) end
 local set_lines = function(...) return child.set_lines(...) end

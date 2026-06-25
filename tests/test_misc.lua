@@ -10,8 +10,7 @@ local dir_misc_path = project_root .. '/tests/dir-misc'
 -- Helpers with child processes
 local load_module = function(config) child.mini_load('misc', config) end
 local unload_module = function() child.mini_unload('misc') end
---stylua: ignore
-local reload_module = function(config) unload_module(); load_module(config) end
+local reload_module = function(config) child.mini_reload('misc', config) end
 local set_lines = function(...) return child.set_lines(...) end
 local get_lines = function(...) return child.get_lines(...) end
 local make_path = function(...) return vim.fs.normalize(table.concat({ ... }, '/')) end

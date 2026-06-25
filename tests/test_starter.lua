@@ -10,10 +10,8 @@ local new_set = MiniTest.new_set
 -- Helpers with child processes
 local load_module = function(config) child.mini_load('starter', config) end
 local unload_module = function() child.mini_unload('starter') end
---stylua: ignore
-local reload_module = function(config) unload_module(); load_module(config) end
---stylua: ignore
-local reload_from_strconfig = function(strconfig) unload_module(); child.mini_load_strconfig('starter', strconfig) end
+local reload_module = function(config) child.mini_reload('starter', config) end
+local reload_from_strconfig = function(strconfig) child.mini_reload_strconfig('starter', strconfig) end
 local get_cursor = function(...) return child.get_cursor(...) end
 local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end

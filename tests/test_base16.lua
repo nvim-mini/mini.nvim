@@ -7,8 +7,7 @@ local new_set = MiniTest.new_set
 -- Helpers with child processes
 local load_module = function(config) child.mini_load('base16', config) end
 local unload_module = function() child.mini_unload('base16') end
---stylua: ignore
-local reload_module = function(config) unload_module(); load_module(config) end
+local reload_module = function(config) child.mini_reload('base16', config) end
 
 local validate_hl_group = function(group_name, target)
   expect.match(

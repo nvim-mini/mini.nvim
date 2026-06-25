@@ -17,10 +17,8 @@ local empty_dir_path = project_root .. '/' .. empty_dir_relpath
 -- Helpers with child processes
 local load_module = function(config) child.mini_load('sessions', config) end
 local unload_module = function() child.mini_unload('sessions') end
---stylua: ignore
-local reload_module = function(config) unload_module(); load_module(config) end
---stylua: ignore
-local reload_from_strconfig = function(strconfig) unload_module(); child.mini_load_strconfig('sessions', strconfig) end
+local reload_module = function(config) child.mini_reload('sessions', config) end
+local reload_from_strconfig = function(strconfig) child.mini_reload_strconfig('sessions', strconfig) end
 local set_lines = function(...) return child.set_lines(...) end
 local make_path = function(...) return vim.fs.normalize(table.concat({ ... }, '/')) end
 local cd = function(...) child.cmd('cd ' .. make_path(...)) end

@@ -7,8 +7,7 @@ local new_set = MiniTest.new_set
 -- Helpers with child processes
 local load_module = function(config) child.mini_load('hues', config) end
 local unload_module = function() child.mini_unload('hues') end
---stylua: ignore
-local reload_module = function(config) unload_module(); load_module(config) end
+local reload_module = function(config) child.mini_reload('hues', config) end
 
 local validate_hl_group = function(group_name, target)
   eq(child.cmd_capture('highlight ' .. group_name):gsub(' +', ' '), group_name .. ' xxx ' .. target)
