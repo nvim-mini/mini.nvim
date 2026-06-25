@@ -5,12 +5,11 @@ local expect, eq = helpers.expect, helpers.expect.equality
 local new_set = MiniTest.new_set
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('tabline', config) end
 local unload_module = function() child.mini_unload('tabline') end
+--stylua: ignore
 local reload_module = function(config) unload_module(); load_module(config) end
 local set_lines = function(...) return child.set_lines(...) end
---stylua: ignore end
 
 -- Make helpers
 local mock_miniicons = function() child.lua('require("mini.icons").setup()') end

@@ -8,9 +8,9 @@ local eq_partial_tbl = helpers.expect.equality_partial_tbl
 local new_set = MiniTest.new_set
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('completion', config) end
 local unload_module = function() child.mini_unload('completion') end
+--stylua: ignore
 local reload_module = function(config) unload_module(); load_module(config) end
 local set_cursor = function(...) return child.set_cursor(...) end
 local get_cursor = function(...) return child.get_cursor(...) end
@@ -20,7 +20,6 @@ local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child, true) end
 local mock_lsp = function() child.cmd('luafile tests/mock-lsp/months.lua') end
 local new_buffer = function() child.api.nvim_set_current_buf(child.api.nvim_create_buf(true, false)) end
---stylua: ignore end
 
 local forward_lua = function(fun_str)
   local lua_cmd = fun_str .. '(...)'

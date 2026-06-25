@@ -8,13 +8,13 @@ local project_root = vim.fs.normalize(vim.fn.fnamemodify(vim.fn.getcwd(), ':p'))
 local dir_misc_path = project_root .. '/tests/dir-misc'
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('misc', config) end
 local unload_module = function() child.mini_unload('misc') end
+--stylua: ignore
 local reload_module = function(config) unload_module(); load_module(config) end
 local set_lines = function(...) return child.set_lines(...) end
 local get_lines = function(...) return child.get_lines(...) end
-local make_path = function(...) return vim.fs.normalize(table.concat({...}, '/')) end
+local make_path = function(...) return vim.fs.normalize(table.concat({ ... }, '/')) end
 local make_abspath = function(...) return make_path(project_root, ...) end
 local getcwd = function() return child.fs.normalize(child.fn.getcwd()) end
 local set_cursor = function(...) return child.set_cursor(...) end
@@ -22,7 +22,6 @@ local get_cursor = function(...) return child.get_cursor(...) end
 local edit = function(x) child.cmd('edit ' .. x) end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child) end
---stylua: ignore end
 
 local get_filetype = function(buf_id)
   if buf_id == nil or buf_id == 0 then buf_id = child.api.nvim_get_current_buf() end

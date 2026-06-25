@@ -9,18 +9,17 @@ local project_root = vim.fn.fnamemodify(vim.fn.getcwd(), ':p')
 local dir_bracketed_path = project_root .. 'tests' .. path_sep .. 'dir-bracketed'
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('bracketed', config) end
 local unload_module = function() child.mini_unload('bracketed') end
+--stylua: ignore
 local reload_module = function(config) unload_module(); load_module(config) end
 local set_cursor = function(...) return child.set_cursor(...) end
 local get_cursor = function(...) return child.get_cursor(...) end
 local set_lines = function(...) return child.set_lines(...) end
 local get_lines = function(...) return child.get_lines(...) end
-local make_path = function(...) return table.concat({...}, path_sep):gsub(path_sep .. path_sep, path_sep) end
+local make_path = function(...) return table.concat({ ... }, path_sep):gsub(path_sep .. path_sep, path_sep) end
 local make_testpath = function(...) return make_path(dir_bracketed_path, ...) end
 local type_keys = function(...) return child.type_keys(...) end
---stylua: ignore end
 
 local edit_test_file = function(rel_path) child.cmd('edit ' .. make_testpath(rel_path)) end
 local get_bufname = function(buf_id) return child.api.nvim_buf_get_name(buf_id or 0) end

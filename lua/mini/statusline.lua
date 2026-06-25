@@ -566,7 +566,7 @@ end
 local CTRL_S = vim.api.nvim_replace_termcodes('<C-S>', true, true, true)
 local CTRL_V = vim.api.nvim_replace_termcodes('<C-V>', true, true, true)
 
--- stylua: ignore start
+--stylua: ignore
 H.modes = setmetatable({
   ['n']    = { long = 'Normal',   short = 'N',   hl = 'MiniStatuslineModeNormal' },
   ['v']    = { long = 'Visual',   short = 'V',   hl = 'MiniStatuslineModeVisual' },
@@ -587,7 +587,6 @@ H.modes = setmetatable({
     return   { long = 'Unknown',  short = 'U',   hl = '%#MiniStatuslineModeOther#' }
   end,
 })
--- stylua: ignore end
 
 -- Default content ------------------------------------------------------------
 --stylua: ignore

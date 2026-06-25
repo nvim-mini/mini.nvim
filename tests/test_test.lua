@@ -7,13 +7,11 @@ local expect, eq = helpers.expect, helpers.expect.equality
 local new_set, finally = MiniTest.new_set, MiniTest.finally
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('test', config) end
 local unload_module = function() child.mini_unload('test') end
 local set_cursor = function(...) return child.set_cursor(...) end
 local set_lines = function(...) return child.set_lines(...) end
 local get_lines = function(...) return child.get_lines(...) end
---stylua: ignore end
 
 -- TODO: Remove after compatibility with Neovim=0.9 is dropped
 local islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
@@ -261,6 +259,7 @@ T['run()']['tries to execute script if no arguments are supplied'] = function()
   validate()
 end
 
+--stylua: ignore
 T['run()']['handles `parametrize`'] = function()
   local res = testrun_ref_file('testref_run-parametrize.lua')
   eq(#res, 10)
@@ -278,12 +277,10 @@ T['run()']['handles `parametrize`'] = function()
   eq(short_res[5], { args = { 'b', 1 }, desc = { 'parametrize', 'nested', 'test' }, passed_args = '"b", 1' })
   eq(short_res[6], { args = { 'b', 2 }, desc = { 'parametrize', 'nested', 'test' }, passed_args = '"b", 2' })
 
-  --stylua: ignore start
   eq(short_res[7],  { args = { 'a', 'a', 1, 1 }, desc = { 'multiple args', 'nested', 'test' }, passed_args = '"a", "a", 1, 1' })
   eq(short_res[8],  { args = { 'a', 'a', 2, 2 }, desc = { 'multiple args', 'nested', 'test' }, passed_args = '"a", "a", 2, 2' })
   eq(short_res[9],  { args = { 'b', 'b', 1, 1 }, desc = { 'multiple args', 'nested', 'test' }, passed_args = '"b", "b", 1, 1' })
   eq(short_res[10], { args = { 'b', 'b', 2, 2 }, desc = { 'multiple args', 'nested', 'test' }, passed_args = '"b", "b", 2, 2' })
-  --stylua: ignore end
 end
 
 T['run()']['validates `parametrize`'] = function()

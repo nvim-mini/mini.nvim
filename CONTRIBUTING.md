@@ -139,6 +139,13 @@ This project uses [StyLua](https://github.com/JohnnyMorganz/StyLua) version 2.1.
     - Manually run `stylua .` from the root directory of this project.
     - Install [`pre-commit`](https://pre-commit.com/#install) and enable it with `pre-commit install` (from the root directory). This will auto-format relevant code before making commits.
 
+Notes:
+
+- To ignore certain part of the code, add `--stylua: ignore` line about the target statement. For example, adding this line above `local x = {...}` will ignore formatting for the whole (possibly multiline) `{...}` content.
+- Prefer using `--stylua: ignore` over `--stylua: ignore start` + `--stylua: ignore end` blocks. The former is usually enough and is easier to locate where this takes effect.
+
+    Only use `start`+`end` if there is a need to ignore several consecutive statements which is a *small* portion of outer statement (like several `local x = ...` inside a large function) or if there is no outer statement. If the portion is sufficiently large, prefer a single `--stylua: ignore` above a parent statement.
+
 ## List of highlight groups
 
 Here is a list of all highlight groups defined inside 'mini.nvim' modules. See documentation in 'doc' directory to find out what they are used for.

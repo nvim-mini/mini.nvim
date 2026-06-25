@@ -8,15 +8,15 @@ local expect, eq = helpers.expect, helpers.expect.equality
 local new_set = MiniTest.new_set
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('starter', config) end
 local unload_module = function() child.mini_unload('starter') end
+--stylua: ignore
 local reload_module = function(config) unload_module(); load_module(config) end
+--stylua: ignore
 local reload_from_strconfig = function(strconfig) unload_module(); child.mini_load_strconfig('starter', strconfig) end
 local get_cursor = function(...) return child.get_cursor(...) end
 local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end
---stylua: ignore end
 
 -- Make helpers
 local is_starter_shown = function() return child.bo.filetype == 'ministarter' end

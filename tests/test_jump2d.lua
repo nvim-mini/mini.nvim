@@ -5,9 +5,9 @@ local expect, eq = helpers.expect, helpers.expect.equality
 local new_set = MiniTest.new_set
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('jump2d', config) end
 local unload_module = function() child.mini_unload('jump2d') end
+--stylua: ignore
 local reload_module = function(config) unload_module(); load_module(config) end
 local set_cursor = function(...) return child.set_cursor(...) end
 local get_cursor = function(...) return child.get_cursor(...) end
@@ -15,7 +15,6 @@ local set_lines = function(...) return child.set_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child) end
 local get_latest_message = function() return child.cmd_capture('1messages') end
---stylua: ignore end
 
 -- Make helpers
 -- Window setups

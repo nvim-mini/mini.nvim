@@ -5,7 +5,6 @@ local expect, eq = helpers.expect, helpers.expect.equality
 local new_set = MiniTest.new_set
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('align', config) end
 local unload_module = function() child.mini_unload('align') end
 local set_cursor = function(...) return child.set_cursor(...) end
@@ -14,7 +13,6 @@ local set_lines = function(...) return child.set_lines(...) end
 local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child) end
---stylua: ignore end
 
 local set_config_steps = function(tbl)
   for key, value in pairs(tbl) do
@@ -206,14 +204,13 @@ T['align_strings()']['respects `opts.split_pattern`'] = function()
   )
 end
 
+--stylua: ignore
 T['align_strings()']['respects `opts.justify_side` argument'] = function()
   -- Single string
-  --stylua: ignore start
   validate_align_strings({ 'a=b', 'aaa=b' }, { split_pattern = '=', justify_side = 'left' },   { 'a  =b', 'aaa=b' })
   validate_align_strings({ 'a=b', 'aaa=b' }, { split_pattern = '=', justify_side = 'center' }, { ' a =b', 'aaa=b' })
   validate_align_strings({ 'a=b', 'aaa=b' }, { split_pattern = '=', justify_side = 'right' },  { '  a=b', 'aaa=b' })
   validate_align_strings({ 'a=b', 'aaa=b' }, { split_pattern = '=', justify_side = 'none' },   { 'a=b',   'aaa=b' })
-  --stylua: ignore end
 
   -- Array of strings (should be recycled)
   validate_align_strings(
@@ -671,6 +668,7 @@ T['as_parts()']['`trim()` method']['validates arguments'] = function()
   expect.error(function() child.lua([[parts.trim('both', 'a')]]) end, err_pattern)
 end
 
+--stylua: ignore
 T['as_parts()']['`trim()` method']['respects `direction` argument'] = function()
   local validate = function(direction, output)
     child.lua([[parts = MiniAlign.as_parts({ { ' a ', ' b ', ' c', 'd ', 'e' }, { '  f ' } })]])
@@ -678,14 +676,13 @@ T['as_parts()']['`trim()` method']['respects `direction` argument'] = function()
     eq(child.lua_get('parts'), output)
   end
 
-  --stylua: ignore start
   validate('both',  { { ' a',  'b',   'c',  'd',  'e' }, { '  f' } })
   validate('left',  { { ' a ', 'b ',  'c',  'd ', 'e' }, { '  f ' } })
   validate('right', { { ' a',  ' b',  ' c', 'd',  'e' }, { '  f' } })
   validate('none',  { { ' a ', ' b ', ' c', 'd ', 'e' }, { '  f ' } })
-  --stylua: ignore end
 end
 
+--stylua: ignore
 T['as_parts()']['`trim()` method']['respects `indent` argument'] = function()
   local validate = function(indent, output)
     child.lua([[parts = MiniAlign.as_parts({ { ' a ', ' b ' }, { '  c ', ' d ' } })]])
@@ -693,12 +690,10 @@ T['as_parts()']['`trim()` method']['respects `indent` argument'] = function()
     eq(child.lua_get('parts'), output)
   end
 
-  --stylua: ignore start
   validate('keep',   { { ' a',  'b' }, { '  c', 'd' } })
   validate('low',    { { ' a',  'b' }, { ' c',  'd' } })
   validate('high',   { { '  a', 'b' }, { '  c', 'd' } })
   validate('remove', { { 'a',   'b' }, { 'c',   'd' } })
-  --stylua: ignore end
 end
 
 T['new_step()'] = new_set()
@@ -849,6 +844,7 @@ T['gen_step']['default_justify()'] = new_set({
   },
 })
 
+--stylua: ignore
 T['gen_step']['default_justify()']['works'] = function()
   -- Returns proper step
   child.lua([[step = MiniAlign.gen_step.default_justify()]])
@@ -857,12 +853,10 @@ T['gen_step']['default_justify()']['works'] = function()
   -- Single string
   set_config_opts({ split_pattern = '=' })
 
-  --stylua: ignore start
   validate_align_strings({ 'a=b', 'aaa=b' }, { justify_side = 'left' },   { 'a  =b', 'aaa=b' })
   validate_align_strings({ 'a=b', 'aaa=b' }, { justify_side = 'center' }, { ' a =b', 'aaa=b' })
   validate_align_strings({ 'a=b', 'aaa=b' }, { justify_side = 'right' },  { '  a=b', 'aaa=b' })
   validate_align_strings({ 'a=b', 'aaa=b' }, { justify_side = 'none' },   { 'a=b',   'aaa=b' })
-  --stylua: ignore end
 
   -- Array of strings (should be recycled)
   set_config_opts({ split_pattern = '%s*=' })
@@ -879,26 +873,24 @@ T['gen_step']['default_justify()']['verifies relevant options'] = function()
   expect.error(function() child.lua('MiniAlign.align_strings({ "a" }, { justify_side = 1 }, {})') end, pat)
 end
 
+--stylua: ignore
 T['gen_step']['default_justify()']['works with multibyte characters'] = function()
   set_config_opts({ split_pattern = '=' })
 
-  --stylua: ignore start
   validate_align_strings({ 'ы=ю', 'ыыы=ююю' }, { justify_side = 'left' },   { 'ы  =ю',   'ыыы=ююю' })
   validate_align_strings({ 'ы=ю', 'ыыы=ююю' }, { justify_side = 'center' }, { ' ы = ю',  'ыыы=ююю' })
   validate_align_strings({ 'ы=ю', 'ыыы=ююю' }, { justify_side = 'right' },  { '  ы=  ю', 'ыыы=ююю' })
   validate_align_strings({ 'ы=ю', 'ыыы=ююю' }, { justify_side = 'none' },   { 'ы=ю',     'ыыы=ююю' })
-  --stylua: ignore end
 end
 
+--stylua: ignore
 T['gen_step']['default_justify()']['does not add trailing whitespace'] = function()
   set_config_opts({ split_pattern = '=' })
 
-  --stylua: ignore start
   validate_align_strings({ 'a=b', '', 'a=bbb' }, { justify_side = 'left' },   { 'a=b',   '', 'a=bbb' })
   validate_align_strings({ 'a=b', '', 'a=bbb' }, { justify_side = 'center' }, { 'a= b',  '', 'a=bbb' })
   validate_align_strings({ 'a=b', '', 'a=bbb' }, { justify_side = 'right' },  { 'a=  b', '', 'a=bbb' })
   validate_align_strings({ 'a=b', '', 'a=bbb' }, { justify_side = 'none' },   { 'a=b',   '', 'a=bbb' })
-  --stylua: ignore end
 
   -- Also shouldn't add trailing whitespace in multicharacter split
   validate_align_strings({ 'aa==bb', 'c=' }, { split_pattern = '=+' }, { 'aa==bb', 'c =' })

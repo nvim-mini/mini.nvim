@@ -5,9 +5,9 @@ local expect, eq = helpers.expect, helpers.expect.equality
 local new_set = MiniTest.new_set
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('surround', config) end
 local unload_module = function() child.mini_unload('surround') end
+--stylua: ignore
 local reload_module = function(config) unload_module(); load_module(config) end
 local set_cursor = function(...) return child.set_cursor(...) end
 local get_cursor = function(...) return child.get_cursor(...) end
@@ -15,7 +15,6 @@ local set_lines = function(...) return child.set_lines(...) end
 local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child) end
---stylua: ignore end
 
 -- Make helpers
 local clear_messages = function() child.cmd('messages clear') end
@@ -1465,8 +1464,8 @@ T['Find surrounding']['works in left direction without dot-repeat'] = function()
   eq(get_cursor(), { 1, 0 })
 end
 
+--stylua: ignore
 T['Find surrounding']['works with "non single character" surroundings'] = function()
-  --stylua: ignore start
   -- Cursor is strictly inside surroundings
   validate_find({ 'myfunc(aaa)' }, { 1, 9 }, { {1,10}, {1,0}, {1,6}, {1,10} }, type_keys, 'sf', 'f')
   validate_find({ '<t>aaa</t>' }, { 1, 4 }, { {1,6}, {1,9}, {1,0}, {1,2}, {1,6} }, type_keys, 'sf', 't')
@@ -1481,7 +1480,6 @@ T['Find surrounding']['works with "non single character" surroundings'] = functi
   validate_find({ 'myfunc(aaa)' }, { 1, 8 }, { {1,6}, {1,0}, {1,10}, {1,6} }, type_keys, 'sF', 'f')
   validate_find({ '<t>aaa</t>' }, { 1, 4 }, { {1,2}, {1,0}, {1,9}, {1,6}, {1,2} }, type_keys, 'sF', 't')
   validate_find({ '_aaa*^' }, { 1, 2 }, { {1,0}, {1,5}, {1,4}, {1,0} }, type_keys, 'sF', '?', '_<CR>', '*^<CR>')
-  --stylua: ignore end
 end
 
 T['Find surrounding']['works in extended mappings'] = function()
@@ -2293,6 +2291,7 @@ T['Builtin']['Function call']['is detected with "_" and "." in name'] = function
   validate_edit({ '[(myfun(aaa))]' }, { 1, 9 }, { '[(aaa)]' }, { 1, 2 }, type_keys, 'sd', 'f')
 end
 
+--stylua: ignore
 T['Builtin']['Function call']['works in different parts of line and neighborhood'] = function()
   -- This check is viable because of complex nature of Lua patterns
   validate_edit({ 'myfunc(aaa)' }, { 1, 8 }, { 'aaa' }, { 1, 0 }, type_keys, 'sd', 'f')
@@ -2300,11 +2299,9 @@ T['Builtin']['Function call']['works in different parts of line and neighborhood
   validate_edit({ 'myfunc(aaa) world' }, { 1, 8 }, { 'aaa world' }, { 1, 0 }, type_keys, 'sd', 'f')
   validate_edit({ 'Hello myfunc(aaa) world' }, { 1, 14 }, { 'Hello aaa world' }, { 1, 6 }, type_keys, 'sd', 'f')
 
-  --stylua: ignore start
   validate_edit({ 'myfunc(aaa)', 'Hello', 'world' }, { 1, 8 }, { 'aaa', 'Hello', 'world' }, { 1, 0 }, type_keys, 'sd', 'f')
   validate_edit({ 'Hello', 'myfunc(aaa)', 'world' }, { 2, 8 }, { 'Hello', 'aaa', 'world' }, { 2, 0 }, type_keys, 'sd', 'f')
   validate_edit({ 'Hello', 'world', 'myfunc(aaa)' }, { 3, 8 }, { 'Hello', 'world', 'aaa' }, { 3, 0 }, type_keys, 'sd', 'f')
-  --stylua: ignore end
 end
 
 T['Builtin']['Function call']['has limited support of multibyte characters'] = function()

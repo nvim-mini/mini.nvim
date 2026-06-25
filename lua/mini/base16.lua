@@ -319,7 +319,7 @@ MiniBase16.mini_palette = function(background, foreground, accent_chroma)
   if fg.c > 0 then table.insert(present_hues, fg.h) end
   local hues = H.make_different_hues(present_hues, 4)
 
-  -- stylua: ignore start
+  --stylua: ignore start
   palette[9]  = { l = fg.l,    c = accent_chroma, h = hues[1] }
   palette[10] = { l = focus_l, c = accent_chroma, h = hues[1] }
   palette[11] = { l = focus_l, c = accent_chroma, h = hues[2] }
@@ -328,7 +328,7 @@ MiniBase16.mini_palette = function(background, foreground, accent_chroma)
   palette[14] = { l = fg.l,    c = accent_chroma, h = hues[3] }
   palette[15] = { l = fg.l,    c = accent_chroma, h = hues[4] }
   palette[16] = { l = focus_l, c = accent_chroma, h = hues[3] }
-  -- stylua: ignore end
+  --stylua: ignore end
 
   -- Convert to base16 palette
   local base16_palette = {}
@@ -474,7 +474,7 @@ H.apply_palette = function(palette, use_cterm)
   -- - Link all repeated groups within paragraph (lowers execution time).
   -- - Align by commas.
 
-  -- stylua: ignore start
+  --stylua: ignore start
   -- Builtin highlighting groups. Some groups which are missing in 'base16-vim'
   -- are added based on groups to which they are linked.
   hi('ColorColumn',    {fg=nil,      bg=p.base01, attr=nil,            sp=nil})
@@ -1397,7 +1397,7 @@ H.apply_palette = function(palette, use_cterm)
     hi('MasonMutedBlock',                  {fg=p.base00, bg=p.base03, attr=nil,    sp=nil})
     hi('MasonMutedBlockBold',              {fg=p.base00, bg=p.base03, attr='bold', sp=nil})
   end
-  -- stylua: ignore end
+  --stylua: ignore end
 
   -- Terminal colors
   vim.g.terminal_color_0 = palette.base00
@@ -1514,7 +1514,7 @@ end
 -- Sources:
 -- - https://github.com/shawncplus/Vim-toCterm/blob/master/lib/Xterm.php
 -- - https://gist.github.com/MicahElliott/719710
--- stylua: ignore start
+--stylua: ignore
 H.cterm_first16 = {
   { r = 0,   g = 0,   b = 0 },
   { r = 205, g = 0,   b = 0 },
@@ -1533,7 +1533,6 @@ H.cterm_first16 = {
   { r = 0,   g = 255, b = 255 },
   { r = 255, g = 255, b = 255 },
 }
--- stylua: ignore end
 
 H.cterm_basis = { 0, 95, 135, 175, 215, 255 }
 
@@ -1623,11 +1622,11 @@ end
 
 H.xyz2rgb = function(xyz)
   -- Source of better matrix: http://brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
-  -- stylua: ignore start
+  --stylua: ignore start
   local r =  3.24045 * xyz.x - 1.53713 * xyz.y - 0.49853 * xyz.z
   local g = -0.96927 * xyz.x + 1.87601 * xyz.y + 0.04155 * xyz.z
   local b =  0.05564 * xyz.x - 0.20403 * xyz.y + 1.05722 * xyz.z
-  -- stylua: ignore end
+  --stylua: ignore end
 
   return vim.tbl_map(function(c)
     c = c / 100

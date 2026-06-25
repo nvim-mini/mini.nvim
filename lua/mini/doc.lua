@@ -703,7 +703,7 @@ H.default_config = vim.deepcopy(MiniDoc.config)
 -- description with '\n' separating output lines.
 H.alias_registry = {}
 
---stylua: ignore start
+--stylua: ignore
 H.pattern_sets = {
   -- Patterns for working with afterlines. At the moment deliberately crafted
   -- to work only on first line without indent.
@@ -736,7 +736,6 @@ H.pattern_sets = {
     '[%a][%w_%.]*', -- Allow any class as a type
   },
 }
---stylua: ignore end
 
 -- Helper functionality =======================================================
 -- Settings -------------------------------------------------------------------

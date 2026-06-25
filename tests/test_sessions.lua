@@ -15,16 +15,16 @@ local empty_dir_relpath = 'tests/dir-sessions/empty'
 local empty_dir_path = project_root .. '/' .. empty_dir_relpath
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('sessions', config) end
 local unload_module = function() child.mini_unload('sessions') end
+--stylua: ignore
 local reload_module = function(config) unload_module(); load_module(config) end
+--stylua: ignore
 local reload_from_strconfig = function(strconfig) unload_module(); child.mini_load_strconfig('sessions', strconfig) end
 local set_lines = function(...) return child.set_lines(...) end
-local make_path = function(...) return vim.fs.normalize(table.concat({...}, '/')) end
+local make_path = function(...) return vim.fs.normalize(table.concat({ ... }, '/')) end
 local cd = function(...) child.cmd('cd ' .. make_path(...)) end
 local sleep = function(ms) helpers.sleep(ms, child) end
---stylua: ignore end
 
 -- Make helpers
 local cleanup_directories = function()
@@ -94,7 +94,7 @@ local validate_no_session_loaded = function() eq(child.lua_get('type(_G.session_
 local reset_session_indicator = function() child.lua('_G.session_file = nil') end
 
 -- Helpers for testing hooks
---stylua: ignore start
+--stylua: ignore
 local make_hook_string = function(pre_post, action, hook_type)
   if hook_type == 'config' then
     return string.format(
@@ -109,7 +109,6 @@ local make_hook_string = function(pre_post, action, hook_type)
     )
   end
 end
---stylua: ignore end
 
 local validate_executed_hook = function(pre_post, action, value)
   local var_name = ('_G.hooks_%s_%s'):format(pre_post, action)

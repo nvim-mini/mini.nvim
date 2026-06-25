@@ -5,14 +5,12 @@ local expect, eq = helpers.expect, helpers.expect.equality
 local new_set = MiniTest.new_set
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('visits', config) end
 local unload_module = function() child.mini_unload('visits') end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child, true) end
 local edit = function(path) child.cmd('edit ' .. child.fn.fnameescape(path)) end
 local child_time = function() return child.lua_get('os.time()') end
---stylua: ignore end
 
 -- Test paths helpers
 local join_path = function(...) return table.concat({ ... }, '/') end

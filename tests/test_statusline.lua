@@ -5,15 +5,14 @@ local expect, eq = helpers.expect, helpers.expect.equality
 local new_set = MiniTest.new_set
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('statusline', config) end
 local unload_module = function() child.mini_unload('statusline') end
+--stylua: ignore
 local reload_module = function(config) unload_module(); load_module(config) end
 local set_cursor = function(...) return child.set_cursor(...) end
 local set_lines = function(...) return child.set_lines(...) end
 local set_width = function(width, win_id) child.api.nvim_win_set_width(win_id or 0, width) end
 local type_keys = function(...) return child.type_keys(...) end
---stylua: ignore end
 
 -- Make helpers
 local setup_windows = function()

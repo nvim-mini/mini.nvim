@@ -661,11 +661,11 @@ H.setup_config = function(config)
   return config
 end
 
+--stylua: ignore
 H.apply_config = function(config)
   MiniIndentscope.config = config
   local maps = config.mappings
 
-  --stylua: ignore start
   H.map('n', maps.goto_top, [[<Cmd>lua MiniIndentscope.operator('top', true)<CR>]], { desc = 'Go to indent scope top' })
   H.map('n', maps.goto_bottom, [[<Cmd>lua MiniIndentscope.operator('bottom', true)<CR>]], { desc = 'Go to indent scope bottom' })
 
@@ -681,7 +681,6 @@ H.apply_config = function(config)
   H.map('o', maps.goto_bottom, [[<Cmd>lua MiniIndentscope.operator('bottom')<CR>]], { desc = 'Go to indent scope bottom' })
   H.map('o', maps.object_scope, '<Cmd>lua MiniIndentscope.textobject(false)<CR>', { desc = 'Object scope' })
   H.map('o', maps.object_scope_with_border, '<Cmd>lua MiniIndentscope.textobject(true)<CR>', { desc = 'Object scope with border' })
-  --stylua: ignore start
 end
 
 H.create_autocommands = function()

@@ -181,7 +181,7 @@ MiniTest.setup = function(config)
   H.create_default_hl()
 end
 
---stylua: ignore start
+--stylua: ignore
 --- Defaults ~
 ---@eval return MiniDoc.afterlines_to_code(MiniDoc.current.eval_section)
 MiniTest.config = {
@@ -218,7 +218,6 @@ MiniTest.config = {
   silent = false,
 }
 --minidoc_afterlines_end
---stylua: ignore end
 
 -- Module data ================================================================
 --- Table with information about current state of test execution
@@ -1309,7 +1308,7 @@ MiniTest.new_child_neovim = function()
     })
   end
 
-  --stylua: ignore start
+  --stylua: ignore
   local supported_vim_tables = {
     -- Collections
     'diagnostic', 'fn', 'highlight', 'hl', 'json', 'loop', 'lsp', 'mpack', 'spell', 'treesitter', 'ui', 'fs',
@@ -1318,7 +1317,6 @@ MiniTest.new_child_neovim = function()
     -- Options (no 'opt' because not really useful due to use of metatables)
     'o', 'go', 'bo', 'wo',
   }
-  --stylua: ignore end
   for _, v in ipairs(supported_vim_tables) do
     child[v] = redirect_to_child(v)
   end
@@ -2147,7 +2145,7 @@ H.buffer_reporter.set_options = function(buf_id, win_id)
 
   vim.cmd('silent! set filetype=minitest')
 
-  --stylua: ignore start
+  --stylua: ignore
   -- Set options for "temporary" buffer
   local buf_options = {
     bufhidden = 'wipe', buflisted = false, buftype = 'nofile', modeline = false, swapfile = false,
@@ -2157,6 +2155,7 @@ H.buffer_reporter.set_options = function(buf_id, win_id)
   end
 
   -- Set options for "clean" window
+  --stylua: ignore
   local win_options = {
     colorcolumn = '', fillchars = 'eob: ',    foldcolumn = '0', foldlevel = 999,
     number = false,   relativenumber = false, spell = false,    signcolumn = 'no',
@@ -2165,7 +2164,6 @@ H.buffer_reporter.set_options = function(buf_id, win_id)
   for name, value in pairs(win_options) do
     vim.wo[win_id][name] = value
   end
-  --stylua: ignore end
 end
 
 H.buffer_reporter.set_mappings = function(buf_id)

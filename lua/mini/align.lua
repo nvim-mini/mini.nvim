@@ -542,7 +542,7 @@ MiniAlign.config = {
     --minidoc_replace_end
     --minidoc_replace_start ['j'] = --<function: choose justify side>,
     ['j'] = function(_, opts)
-      -- stylua: ignore
+      --stylua: ignore
       H.echo({
         { 'Select justify: ', 'ModeMsg' }, { 'l', 'Question' }, { 'eft, ' },
         { 'c', 'Question' }, { 'enter, ' }, { 'r', 'Question' }, { 'ight, ' },
@@ -1343,16 +1343,15 @@ H.setup_config = function(config)
   return config
 end
 
+--stylua: ignore
 H.apply_config = function(config)
   MiniAlign.config = config
 
-  --stylua: ignore start
   H.map('n', config.mappings.start, H.make_action_normal(false), { expr = true, desc = 'Align' })
   H.map('x', config.mappings.start, H.make_action_visual(false), { desc = 'Align' })
 
   H.map('n', config.mappings.start_with_preview, H.make_action_normal(true), { expr = true, desc = 'Align with preview' })
   H.map('x', config.mappings.start_with_preview, H.make_action_visual(true), { desc = 'Align with preview' })
-  --stylua: ignore end
 end
 
 H.is_disabled = function() return vim.g.minialign_disable == true or vim.b.minialign_disable == true end

@@ -356,10 +356,10 @@ H.setup_config = function(config)
   return config
 end
 
+--stylua: ignore
 H.apply_config = function(config)
   MiniJump.config = config
 
-  --stylua: ignore start
   H.map('n', config.mappings.forward, '<Cmd>lua MiniJump.smart_jump(false, false)<CR>', { desc = 'Jump forward' })
   H.map('n', config.mappings.backward, '<Cmd>lua MiniJump.smart_jump(true, false)<CR>', { desc = 'Jump backward' })
   H.map('n', config.mappings.forward_till, '<Cmd>lua MiniJump.smart_jump(false, true)<CR>', { desc = 'Jump forward till' })
@@ -377,7 +377,6 @@ H.apply_config = function(config)
   H.map('o', config.mappings.forward_till, H.make_expr_jump(false, true), { expr = true, desc = 'Jump forward till' })
   H.map('o', config.mappings.backward_till, H.make_expr_jump(true, true), { expr = true, desc = 'Jump backward till' })
   H.map('o', config.mappings.repeat_jump, H.make_expr_jump(), { expr = true, desc = 'Repeat jump' })
-  --stylua: ignore end
 end
 
 H.create_autocommands = function()

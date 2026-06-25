@@ -545,7 +545,7 @@ MiniStarter.sections.recent_files = function(n, current_dir, show_path)
   end
 end
 
--- stylua: ignore
+--stylua: ignore
 --- Section with |mini.pick| pickers
 ---
 --- Notes:
@@ -568,7 +568,7 @@ MiniStarter.sections.pick = function()
   end
 end
 
--- stylua: ignore
+--stylua: ignore
 --- Section with basic Telescope pickers relevant to start screen
 ---
 --- Notes:
@@ -811,7 +811,7 @@ MiniStarter.content_coords = function(content, predicate)
   return res
 end
 
--- stylua: ignore start
+--stylua: ignore
 --- Convert content to buffer lines
 ---
 --- One buffer line is made by concatenating `string` element of units within
@@ -831,7 +831,6 @@ MiniStarter.content_to_lines = function(content)
     content or MiniStarter.get_content()
   )
 end
--- stylua: ignore end
 
 --- Convert content to items
 ---

@@ -5,7 +5,6 @@ local expect, eq, no_eq = helpers.expect, helpers.expect.equality, helpers.expec
 local new_set = MiniTest.new_set
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('keymap', config) end
 local unload_module = function() child.mini_unload('keymap') end
 local set_cursor = function(...) return child.set_cursor(...) end
@@ -14,7 +13,6 @@ local set_lines = function(...) return child.set_lines(...) end
 local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child) end
---stylua: ignore end
 
 local test_dir = 'tests/dir-keymap'
 

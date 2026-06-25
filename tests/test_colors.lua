@@ -8,12 +8,10 @@ local dir_path = vim.fn.fnamemodify('tests/dir-colors/', ':p')
 local colors_path = dir_path .. '/colors/'
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('colors', config) end
 local unload_module = function(config) child.mini_unload('colors', config) end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child) end
---stylua: ignore end
 
 -- Mock test color scheme
 local mock_cs = function() child.cmd('set rtp+=' .. dir_path .. 'mock_cs/') end
@@ -524,13 +522,13 @@ end
 -- Only basic testing here. More thorough tests are in `chan_modify()`.
 T['as_colorscheme() methods']['chan_add()'] = new_set({ hooks = { pre_case = create_basic_cs } })
 
+--stylua: ignore
 T['as_colorscheme() methods']['chan_add()']['works'] = function()
   local validate = function(channel, value, ref_normal_fg, opts_string)
     local args = string.format('%s, %s', value, opts_string or '{}')
     validate_chan_method('chan_add', channel, args, ref_normal_fg)
   end
 
-  --stylua: ignore start
   validate('lightness',   10,  '#d8658d')
   validate('chroma',      -10, '#906b76')
   validate('saturation',  10,  '#c33f72')
@@ -542,7 +540,6 @@ T['as_colorscheme() methods']['chan_add()']['works'] = function()
   validate('red',         16,  '#ca4a73')
   validate('green',       16,  '#ba5a73')
   validate('blue',        16,  '#ba4a83')
-  --stylua: ignore end
 
   -- Should respect `opts`
   validate('chroma', 20, '#e30078', [[{ gamut_clip = 'cusp' }]])
@@ -561,6 +558,7 @@ end
 -- Only basic testing here. More thorough tests are in `chan_modify()`.
 T['as_colorscheme() methods']['chan_invert()'] = new_set({ hooks = { pre_case = create_basic_cs } })
 
+--stylua: ignore
 T['as_colorscheme() methods']['chan_invert()']['works'] = function()
   -- Use different color with off-center channel values
   child.lua([[_G.cs = MiniColors.as_colorscheme({
@@ -571,7 +569,6 @@ T['as_colorscheme() methods']['chan_invert()']['works'] = function()
     validate_chan_method('chan_invert', channel, opts_string or '{}', ref_normal_fg)
   end
 
-  --stylua: ignore start
   validate('lightness',   '#e3bdac')
   -- - Chroma is same as saturation due to lack of good reference point
   validate('chroma',      '#3d291f')
@@ -584,7 +581,6 @@ T['as_colorscheme() methods']['chan_invert()']['works'] = function()
   validate('red',         '#bc2618')
   validate('green',       '#43d918')
   validate('blue',        '#4326e7')
-  --stylua: ignore end
 
   -- Should respect `opts`
   child.lua([[_G.cs.groups.Normal.fg = '#fef0cb']])
@@ -862,13 +858,13 @@ end
 -- Only basic testing here. More thorough tests are in `chan_modify()`.
 T['as_colorscheme() methods']['chan_multiply()'] = new_set({ hooks = { pre_case = create_basic_cs } })
 
+--stylua: ignore
 T['as_colorscheme() methods']['chan_multiply()']['works'] = function()
   local validate = function(channel, coef, ref_normal_fg, opts_string)
     local args = string.format('%s, %s', coef, opts_string or '{}')
     validate_chan_method('chan_multiply', channel, args, ref_normal_fg)
   end
 
-  --stylua: ignore start
   validate('lightness',   0.5, '#6e0037')
   validate('chroma',      0.5, '#9c6475')
   validate('saturation',  1.5, '#d51071')
@@ -880,7 +876,6 @@ T['as_colorscheme() methods']['chan_multiply()']['works'] = function()
   validate('red',         0.5, '#5d4a73')
   validate('green',       0.5, '#ba2573')
   validate('blue',        0.5, '#ba4a3a')
-  --stylua: ignore end
 
   -- Should respect `opts`
   validate('chroma', 20, '#f50081', [[{ gamut_clip = 'cusp' }]])
@@ -1090,6 +1085,7 @@ end
 -- Only basic testing here. More thorough tests are in `chan_modify()`.
 T['as_colorscheme() methods']['chan_set()'] = new_set({ hooks = { pre_case = create_basic_cs } })
 
+--stylua: ignore
 T['as_colorscheme() methods']['chan_set()']['works with linear channels'] = function()
   -- Add second color to test multiple `values`
   -- Oklch ~ { l = 70, c = 5, h = 100 }
@@ -1106,7 +1102,6 @@ T['as_colorscheme() methods']['chan_set()']['works with linear channels'] = func
     eq(child.lua_get(lua_get_cmd), ref_normal)
   end
 
-  --stylua: ignore start
   validate('lightness',   { 60 },  { fg = '#d8658d', bg = '#97926f' })
   validate('chroma',      { 10 },  { fg = '#a65d74', bg = '#b9ae60' })
   validate('saturation',  { 50 },  { fg = '#ad5774', bg = '#b6ad74' })
@@ -1132,7 +1127,6 @@ T['as_colorscheme() methods']['chan_set()']['works with linear channels'] = func
   validate('red',         { 128, 237 }, { fg = '#ed4a73', bg = '#80ad89' })
   validate('green',       { 128, 192 }, { fg = '#ba8073', bg = '#b2c089' })
   validate('blue',        { 128, 140 }, { fg = '#ba4a80', bg = '#b2ad8c' })
-  --stylua: ignore end
 
   -- Should allow single number as `values`
   validate('lightness', 60, { fg = '#d8658d', bg = '#97926f' })

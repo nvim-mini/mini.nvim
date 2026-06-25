@@ -824,14 +824,13 @@ MiniAnimate.gen_path.spiral = function(opts)
   local predicate = opts.predicate or H.default_path_predicate
   local width = opts.width or 2
 
+  --stylua: ignore
   local add_layer = function(res, w, destination)
     local dest_line, dest_col = destination[1], destination[2]
-    --stylua: ignore start
     for j = -w, w-1 do table.insert(res, { dest_line - w, dest_col + j }) end
     for i = -w, w-1 do table.insert(res, { dest_line + i, dest_col + w }) end
     for j = -w, w-1 do table.insert(res, { dest_line + w, dest_col - j }) end
     for i = -w, w-1 do table.insert(res, { dest_line - i, dest_col - w }) end
-    --stylua: ignore end
   end
 
   return function(destination)

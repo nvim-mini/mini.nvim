@@ -7,14 +7,12 @@ local new_set = MiniTest.new_set
 local slash = helpers.is_windows() and '\\' or '/'
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('input', config) end
 local set_cursor = function(...) return child.set_cursor(...) end
 local get_cursor = function(...) return child.get_cursor(...) end
 local set_lines = function(...) return child.set_lines(...) end
 local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end
---stylua: ignore end
 
 -- Common test wrappers
 local forward_lua = function(fun_str)

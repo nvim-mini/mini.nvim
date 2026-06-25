@@ -5,12 +5,10 @@ local expect, eq = helpers.expect, helpers.expect.equality
 local new_set = MiniTest.new_set
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('bufremove', config) end
 local unload_module = function() child.mini_unload('bufremove') end
 local win_get_buf = function(...) return child.api.nvim_win_get_buf(...) end
 local buf_get_option = function(...) return child.api.nvim_buf_get_option(...) end
---stylua: ignore end
 
 -- Make helpers
 local setup_layout = function()

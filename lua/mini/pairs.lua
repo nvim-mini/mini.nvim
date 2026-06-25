@@ -419,8 +419,8 @@ H.registered_pairs = {
 }
 
 -- Precomputed keys to increase speed
--- stylua: ignore start
 local function escape(s) return vim.api.nvim_replace_termcodes(s, true, true, true) end
+--stylua: ignore
 H.keys = {
   above      = escape('<C-o>O'),
   bs         = escape('<BS>'),
@@ -435,7 +435,6 @@ H.keys = {
   left_undo  = escape('<C-g>U<Left>'),
   right_undo = escape('<C-g>U<Right>'),
 }
--- stylua: ignore end
 
 -- Cache for temporary set options
 H.options_cache = {}

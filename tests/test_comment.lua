@@ -5,16 +5,15 @@ local expect, eq = helpers.expect, helpers.expect.equality
 local new_set = MiniTest.new_set
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('comment', config) end
 local unload_module = function() child.mini_unload('comment') end
+--stylua: ignore
 local reload_module = function(config) unload_module(); load_module(config) end
 local set_cursor = function(...) return child.set_cursor(...) end
 local get_cursor = function(...) return child.get_cursor(...) end
 local set_lines = function(...) return child.set_lines(...) end
 local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end
---stylua: ignore end
 
 -- Common helpers
 local reload_with_hooks = function()
@@ -140,16 +139,15 @@ T['toggle_lines()']['works'] = function()
   eq(get_lines(2, 5), { '  aa', '', '  aa' })
 end
 
+--stylua: ignore
 T['toggle_lines()']['validates arguments'] = function()
   set_lines({ 'aa', 'aa', 'aa' })
 
-  --stylua: ignore start
   expect.error(function() toggle_lines(-1, 1)    end, 'line_start.*1')
   expect.error(function() toggle_lines(100, 101) end, 'line_start.*3')
   expect.error(function() toggle_lines(1, -1)    end, 'line_end.*1')
   expect.error(function() toggle_lines(1, 100)   end, 'line_end.*3')
   expect.error(function() toggle_lines(2, 1)     end, 'line_start.*less than or equal.*line_end')
-  --stylua: ignore end
 end
 
 T['toggle_lines()']["works with different 'commentstring' options"] = function()

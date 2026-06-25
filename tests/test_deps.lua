@@ -5,11 +5,9 @@ local expect, eq = helpers.expect, helpers.expect.equality
 local new_set = MiniTest.new_set
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('deps', config) end
 local unload_module = function() child.mini_unload('deps') end
 local sleep = function(ms) helpers.sleep(ms, child) end
---stylua: ignore end
 
 -- TODO: Remove after compatibility with Neovim=0.9 is dropped
 local islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist

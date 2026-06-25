@@ -2307,9 +2307,9 @@ H.buffer_make_mappings = function(buf_id, mappings)
   buf_map('n', mappings.synchronize, MiniFiles.synchronize, 'Synchronize')
   buf_map('n', mappings.trim_left,   MiniFiles.trim_left,   'Trim branch left')
   buf_map('n', mappings.trim_right,  MiniFiles.trim_right,  'Trim branch right')
+  --stylua: ignore end
 
   H.map('x', mappings.go_in, go_in_visual, { buffer = buf_id, desc = 'Go in selected entries', expr = true })
-  --stylua: ignore end
 end
 
 H.buffer_update = function(buf_id, path, opts, is_preview)

@@ -1195,6 +1195,7 @@ H.setup_config = function(config)
   return config
 end
 
+--stylua: ignore
 H.apply_config = function(config)
   MiniSurround.config = config
 
@@ -1208,7 +1209,6 @@ H.apply_config = function(config)
 
   local m = function(mode, lhs, rhs, desc) H.map(mode, lhs, rhs, { expr = true, desc = desc }) end
 
-  --stylua: ignore start
   m('n', maps.add, H.make_operator('add', nil, true), 'Add surrounding')
   H.map('x', maps.add, ':<C-u>lua MiniSurround.add("visual")<CR>', { desc = 'Add surrounding to selection' })
 
@@ -1243,7 +1243,6 @@ H.apply_config = function(config)
   m('n', maps.highlight,   H.make_action('highlight', nil, nil),    'Highlight surrounding')
   m('n', maps_l.highlight, H.make_action('highlight', nil, 'prev'), 'Highlight previous surrounding')
   m('n', maps_n.highlight, H.make_action('highlight', nil, 'next'), 'Highlight next surrounding')
-  --stylua: ignore end
 end
 
 H.create_autocommands = function()

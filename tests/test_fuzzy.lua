@@ -5,11 +5,10 @@ local expect, eq = helpers.expect, helpers.expect.equality
 local new_set = MiniTest.new_set
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('fuzzy', config) end
 local unload_module = function() child.mini_unload('fuzzy') end
+--stylua: ignore
 local reload_module = function(config) unload_module(); load_module(config) end
---stylua: ignore end
 
 -- Output test set ============================================================
 local T = new_set({

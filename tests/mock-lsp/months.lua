@@ -1,6 +1,6 @@
 _G.Months = {}
 
---stylua: ignore start
+--stylua: ignore
 Months.items = {
   { name = 'January',   kind = 1 },
   { name = 'February',  kind = 1 },
@@ -16,6 +16,7 @@ Months.items = {
   { name = 'December',  kind = 1 },
 }
 
+--stylua: ignore
 local markdown_info = {
   -- Should remove all blank lines from the top
   '',
@@ -45,6 +46,7 @@ local markdown_info = {
   '',
 }
 
+--stylua: ignore
 Months.data = {
   January   = { documentation = 'Month #01' },
   February  = { documentation = 'a\nb\nc\nd\ne\nf\ng\nh' },
@@ -59,7 +61,6 @@ Months.data = {
   November  = { documentation = 'Month #11' },
   December  = { documentation = string.rep('a ', 1000) },
 }
---stylua: ignore end
 
 Months.client = {
   name = 'months-lsp',

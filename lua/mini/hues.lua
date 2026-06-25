@@ -435,7 +435,7 @@ MiniHues.make_palette = function(config)
   return res
 end
 
--- stylua: ignore
+--stylua: ignore
 --- Apply palette
 ---
 --- Create color scheme highlight groups and terminal colors based on supplied
@@ -1693,7 +1693,7 @@ H.saturation_values = { 'low', 'lowmedium', 'medium', 'mediumhigh', 'high' }
 H.accent_values = { 'bg', 'fg', 'red', 'orange', 'yellow', 'green', 'cyan', 'azure', 'blue', 'purple' }
 
 -- Cusps for Oklch color space. See 'mini.colors' for more details.
---stylua: ignore start
+--stylua: ignore
 ---@diagnostic disable
 ---@private
 H.cusps = {
@@ -1744,7 +1744,6 @@ H.cusps = {
   {28.31,66.63},{28.16,66.50},{27.97,66.33},{27.78,66.17},{27.64,66.05},{27.49,65.94},{27.33,65.77},{27.20,65.66},
   {27.04,65.51},{26.92,65.40},{26.81,65.30},{26.66,65.16},{26.55,65.06},{26.45,64.96},{26.35,64.87},
 }
---stylua: ignore end
 
 -- Latest applied palette
 H.palette = nil

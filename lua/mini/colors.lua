@@ -1085,7 +1085,7 @@ H.tau = 2 * math.pi
 -- colors lie inside this triangle **AND** not all points inside triangle are
 -- RGB colors. But both proportions are small: around 0.5% with similar modeled
 -- RGB color for first one and around 2.16% for second one.
---stylua: ignore start
+--stylua: ignore
 ---@diagnostic disable start
 ---@private
 H.cusps = {
@@ -1141,6 +1141,7 @@ H.cusps = {
 -- Each first-level entry describes CVD type; second-level - severity times 10.
 -- Source:
 -- https://www.inf.ufrgs.br/~oliveira/pubs_files/CVD_Simulation/CVD_Simulation.html
+--stylua: ignore
 H.cvd_matrices = {
   protan = {
     [00]={{1.000000, 0.000000,  -0.000000}, {0.000000,  1.000000, 0.000000}, {-0.000000, -0.000000, 1.000000}},
@@ -1183,7 +1184,6 @@ H.cvd_matrices = {
   },
 }
 ---@diagnostic disable end
---stylua: ignore end
 
 H.allowed_spaces = { '8-bit', 'hex', 'rgb', 'oklab', 'oklch', 'okhsl' }
 

@@ -1980,10 +1980,8 @@ H.table_get = function(t, id)
   if type(id) ~= 'table' then return H.table_get(t, { id }) end
   local success, res = true, t
   for _, i in ipairs(id) do
-    --stylua: ignore start
     success, res = pcall(function() return res[i] end)
     if not success or res == nil then return end
-    --stylua: ignore end
   end
   return res
 end

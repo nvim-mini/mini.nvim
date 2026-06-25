@@ -5,10 +5,8 @@ local expect, eq, no_eq = helpers.expect, helpers.expect.equality, helpers.expec
 local new_set = MiniTest.new_set
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('icons', config) end
 local unload_module = function() child.mini_unload('icons') end
---stylua: ignore end
 
 -- Common test wrappers
 local forward_lua = function(fun_str)

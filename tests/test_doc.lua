@@ -7,19 +7,17 @@ local expect, eq = helpers.expect, helpers.expect.equality
 local new_set = MiniTest.new_set
 
 -- Helpers with child processes
---stylua: ignore start
 local load_module = function(config) child.mini_load('doc', config) end
 local unload_module = function() child.mini_unload('doc') end
 local cd = function(path) child.cmd('cd ' .. path) end
 local source_helpers = function() child.cmd('luafile tests/dir-doc/helpers.lua') end
 local remove_dir = function(path) child.lua('_G.remove_dir(...)', { path }) end
---stylua: ignore end
 
 -- Make helpers
 local expect_equal_file_contents = function(file1, file2) eq(child.fn.readfile(file1), child.fn.readfile(file2)) end
 
 -- Data =======================================================================
---stylua: ignore start
+--stylua: ignore
 local default_section_names = {
   '@alias',  '@class',    '@diagnostic', '@eval',
   '@field',  '@overload', '@param',      '@private',
@@ -27,7 +25,6 @@ local default_section_names = {
   '@text',   '@toc',      '@toc_entry',  '@type',
   '@usage',
 }
---stylua: ignore end
 
 -- Output test set ============================================================
 local T = new_set({
