@@ -1753,6 +1753,10 @@ T['Showing keys']['works with multibyte characters'] = function()
 end
 
 T['Showing keys']['works in Command-line window'] = function()
+  local expect_screenshot = child.expect_screenshot
+  -- Skip nvim-0.13 for now. The output of the new cmdline differs slightly.
+  if child.fn.has('nvim-0.13') == 1 then expect_screenshot = function() end end
+
   make_test_map('n', '<Space>f')
   load_module({ triggers = { { mode = 'n', keys = '<Space>' } }, window = { delay = 0 } })
   child.o.timeoutlen = small_time
@@ -1760,14 +1764,14 @@ T['Showing keys']['works in Command-line window'] = function()
   type_keys('q:')
   type_keys(' ')
 
-  child.expect_screenshot()
+  expect_screenshot()
 
   sleep(small_time + small_time)
   type_keys('f')
 
   -- Closing floating window is allowed only on Neovim>=0.10.
   -- See https://github.com/neovim/neovim/issues/24452 .
-  if child.fn.has('nvim-0.10') == 1 then child.expect_screenshot() end
+  if child.fn.has('nvim-0.10') == 1 then expect_screenshot() end
 
   eq(get_test_map_count('n', '<Space>f'), 1)
 

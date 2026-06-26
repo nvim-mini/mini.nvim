@@ -1248,9 +1248,11 @@ H.create_autocommands = function()
   local did_ensure = {}
   local ensure_triggers = vim.schedule_wrap(function(ev)
     if not H.is_valid_buf(ev.buf) then return end
-    local skip_triggers = ev.event == 'BufWinEnter' and (did_ensure[ev.buf] or vim.fn.buflisted(ev.buf) ~= 1)
+    -- NOTE: Special case command-line window as it is not listed on Neovim>=0.13
+    local is_cmdwin = vim.fn.getbufinfo(ev.buf)[1].command == 1
+    local skip_triggers = did_ensure[ev.buf] or not (vim.bo[ev.buf].buflisted or is_cmdwin)
     did_ensure[ev.buf] = true
-    if skip_triggers then return end
+    if ev.event == 'BufWinEnter' and skip_triggers then return end
     MiniClue.ensure_buf_triggers(ev.buf)
   end)
   -- - Respect `LspAttach` as it is a common source of buffer-local mappings
