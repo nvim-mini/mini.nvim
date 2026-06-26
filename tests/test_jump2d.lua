@@ -206,6 +206,12 @@ T['setup()']['resets <CR> mapping in quickfix window'] = function()
   child.cmd([[cexpr ['Hello', 'Quickfix'] | copen]])
   -- Should create not remappable buffer-local mapping
   expect.match(child.cmd_capture('nmap <CR>'), '%*@<CR>')
+
+  child.cmd('au FileType qf nnoremap <buffer> <CR> <Cmd><CR>')
+  reload_module()
+  child.cmd([[cexpr ['Hello', 'Quickfix'] | copen]])
+  -- Should not create buffer-local mapping if its already present
+  expect.no_match(child.cmd_capture('nmap <CR>'), '%*@<CR>')
 end
 
 T['setup()']['resets <CR> mapping in command-line window'] = function()
@@ -214,7 +220,15 @@ T['setup()']['resets <CR> mapping in command-line window'] = function()
   type_keys('q:')
   set_cursor(1, 0)
   type_keys('<CR>')
+  -- Should create not remappable buffer-local mapping if needed
   eq(child.get_lines(), { 'Hello', '' })
+
+  child.cmd('au CmdwinEnter * nnoremap <buffer> <CR> <Cmd><CR>')
+  type_keys('q:')
+  set_cursor(1, 0)
+  type_keys('<CR>')
+  -- Should not create buffer-local mapping if its already present
+  eq(child.get_lines(), { [[call append(0, 'Hello')]], '' })
 end
 
 T['start()'] = new_set({
