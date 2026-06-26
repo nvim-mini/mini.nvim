@@ -2257,8 +2257,9 @@ T['default_choose()']['works for directory path'] = function()
     pcall(child.api.nvim_buf_delete, buf_id_cur, { force = true })
   end
 
-  validate(test_dir, test_dir, 'netrw')
-  validate({ text = test_dir, path = test_dir }, test_dir, 'netrw')
+  local directory_filetype = child.fn.has('nvim-0.13') == 0 and 'netrw' or 'directory'
+  validate(test_dir, test_dir, directory_filetype)
+  validate({ text = test_dir, path = test_dir }, test_dir, directory_filetype)
 
   -- Should work with 'mini.files' as default explorer
   child.lua('require("mini.files").setup()')
