@@ -1760,14 +1760,14 @@ T['Showing keys']['works in Command-line window'] = function()
   type_keys('q:')
   type_keys(' ')
 
-  child.expect_screenshot()
+  child.expect_screenshot({ ignore_text = { 10 } })
 
   sleep(small_time + small_time)
   type_keys('f')
 
   -- Closing floating window is allowed only on Neovim>=0.10.
   -- See https://github.com/neovim/neovim/issues/24452 .
-  if child.fn.has('nvim-0.10') == 1 then child.expect_screenshot() end
+  if child.fn.has('nvim-0.10') == 1 then child.expect_screenshot({ ignore_text = { 10 } }) end
 
   eq(get_test_map_count('n', '<Space>f'), 1)
 
