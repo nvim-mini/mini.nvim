@@ -6285,7 +6285,9 @@ end
 T['Default explorer']['respects `options.use_as_default_explorer`'] = function()
   vim.loop.os_setenv('USE_AS_DEFAULT_EXPLORER', 'false')
   child.restart({ '-u', make_test_path('init-default-explorer.lua'), '--', test_dir_path })
-  eq(child.bo.filetype, 'netrw')
+
+  local directory_filetype = child.fn.has('nvim-0.13') == 0 and 'netrw' or 'directory'
+  eq(child.bo.filetype, directory_filetype)
 end
 
 T['Default explorer']['works in `:edit .`'] = function()
