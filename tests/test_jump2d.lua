@@ -201,20 +201,36 @@ T['setup()']['properly handles `config.mappings`'] = function()
 end
 
 T['setup()']['resets <CR> mapping in quickfix window'] = function()
-  child.set_size(20, 50)
   set_lines({ 'Hello World' })
-  child.cmd([[cexpr ['Hello', 'Quickfix'] | copen]])
-  -- Should create not remappable buffer-local mapping
+  child.cmd('cexpr ["Hello", "Quickfix"] | copen')
+  -- Should create not remapped buffer-local mapping
   expect.match(child.cmd_capture('nmap <CR>'), '%*@<CR>')
+
+  -- Should not override already present buffer-local mapping
+  child.cmd('au FileType qf nnoremap <buffer> <CR> <Cmd>echo "Hello"<CR>')
+  reload_module()
+  child.cmd('cexpr ["Hello", "Quickfix"] | copen')
+  -- Should not create buffer-local mapping if its already present
+  expect.match(child.cmd_capture('nmap <CR>'), '<Cmd>echo "Hello"<CR>')
 end
 
 T['setup()']['resets <CR> mapping in command-line window'] = function()
-  type_keys([[:call append(0, 'Hello')<CR>]])
+  type_keys(':call append(0, "Hello")<CR>')
   set_lines({})
   type_keys('q:')
   set_cursor(1, 0)
   type_keys('<CR>')
   eq(child.get_lines(), { 'Hello', '' })
+
+  -- Should not override already present buffer-local mapping
+  child.cmd('au CmdwinEnter * nnoremap <buffer> <CR> <Cmd><CR>')
+  reload_module()
+  type_keys('q:')
+  local buf_id = child.api.nvim_get_current_buf()
+  set_cursor(1, 0)
+  type_keys('<CR>')
+  eq(child.api.nvim_get_current_buf(), buf_id)
+  eq(child.get_lines(), { 'call append(0, "Hello")', '' })
 end
 
 T['start()'] = new_set({

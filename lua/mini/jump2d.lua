@@ -790,7 +790,11 @@ H.create_autocommands = function(config)
 
   -- Corrections for default `<CR>` mapping to not interfere with popular usages
   if config.mappings.start_jumping == '<CR>' then
-    local revert_cr = function() vim.keymap.set('n', '<CR>', '<CR>', { buffer = true }) end
+    local revert_cr = function()
+      -- Don't revert when there is an existing buffer local mapping
+      if vim.fn.maparg('<CR>', 'n', false, true).buffer == 1 then return end
+      vim.keymap.set('n', '<CR>', '<CR>', { buffer = true })
+    end
     au('FileType', 'qf', revert_cr, 'Revert <CR>')
     au('CmdwinEnter', '*', revert_cr, 'Revert <CR>')
   end
