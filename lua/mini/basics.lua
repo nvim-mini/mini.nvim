@@ -533,11 +533,11 @@ H.vim_opt = setmetatable({}, {
 
 --stylua: ignore
 H.win_borders_fillchars = {
-  bold   = 'vert:┃,horiz:━,horizdown:┳,horizup:┻,verthoriz:╋,vertleft:┫,vertright:┣,msgsep:━',
-  dot    = 'vert:·,horiz:·,horizdown:·,horizup:·,verthoriz:·,vertleft:·,vertright:·,msgsep:·',
-  double = 'vert:║,horiz:═,horizdown:╦,horizup:╩,verthoriz:╬,vertleft:╣,vertright:╠,msgsep:═',
-  single = 'vert:│,horiz:─,horizdown:┬,horizup:┴,verthoriz:┼,vertleft:┤,vertright:├,msgsep:─',
-  solid  = 'vert: ,horiz: ,horizdown: ,horizup: ,verthoriz: ,vertleft: ,vertright: ,msgsep: ',
+  bold   = 'horiz:━,horizdown:┳,horizup:┻,msgsep:━,vert:┃,verthoriz:╋,vertleft:┫,vertright:┣',
+  dot    = 'horiz:·,horizdown:·,horizup:·,msgsep:·,vert:·,verthoriz:·,vertleft:·,vertright:·',
+  double = 'horiz:═,horizdown:╦,horizup:╩,msgsep:═,vert:║,verthoriz:╬,vertleft:╣,vertright:╠',
+  single = 'horiz:─,horizdown:┬,horizup:┴,msgsep:─,vert:│,verthoriz:┼,vertleft:┤,vertright:├',
+  solid  = 'horiz: ,horizdown: ,horizup: ,msgsep: ,vert: ,verthoriz: ,vertleft: ,vertright: ',
 }
 H.winborder_map = { none = 'solid', rounded = 'single', shadow = 'solid' }
 
