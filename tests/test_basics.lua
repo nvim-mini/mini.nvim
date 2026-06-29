@@ -217,7 +217,11 @@ T['Options']['respect `config.options.win_borders`'] = function()
   end
 
   validate(nil, '')
-  validate('double', 'horiz:═,horizdown:╦,horizup:╩,msgsep:═,vert:║,verthoriz:╬,vertleft:╣,vertright:╠')
+  local double = 'vert:║,horiz:═,horizdown:╦,horizup:╩,verthoriz:╬,vertleft:╣,vertright:╠,msgsep:═'
+  if child.fn.has('nvim-0.13') == 0 then
+    double = 'horiz:═,horizdown:╦,horizup:╩,msgsep:═,vert:║,verthoriz:╬,vertleft:╣,vertright:╠'
+  end
+  validate('double', double)
   -- - Should not respect 'winborder' style names directly
   validate('none', '')
 
@@ -232,11 +236,17 @@ T['Options']['respect `config.options.win_borders`'] = function()
 
   validate_winborder('', '')
 
-  local single_fcs = 'horiz:─,horizdown:┬,horizup:┴,msgsep:─,vert:│,verthoriz:┼,vertleft:┤,vertright:├'
+  local single_fcs = 'vert:│,horiz:─,horizdown:┬,horizup:┴,verthoriz:┼,vertleft:┤,vertright:├,msgsep:─'
+  if child.fn.has('nvim-0.13') == 0 then
+    single_fcs = 'horiz:─,horizdown:┬,horizup:┴,msgsep:─,vert:│,verthoriz:┼,vertleft:┤,vertright:├'
+  end
   validate_winborder('single', single_fcs)
   validate_winborder('rounded', single_fcs)
 
-  local solid_fcs = 'horiz: ,horizdown: ,horizup: ,msgsep: ,vert: ,verthoriz: ,vertleft: ,vertright: '
+  local solid_fcs = 'vert: ,horiz: ,horizdown: ,horizup: ,verthoriz: ,vertleft: ,vertright: ,msgsep: '
+  if child.fn.has('nvim-0.13') == 0 then
+    solid_fcs = 'horiz: ,horizdown: ,horizup: ,msgsep: ,vert: ,verthoriz: ,vertleft: ,vertright: '
+  end
   validate_winborder('solid', solid_fcs)
   validate_winborder('none', solid_fcs)
   validate_winborder('shadow', solid_fcs)
