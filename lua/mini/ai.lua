@@ -209,6 +209,7 @@
 ---
 --- Span `A = [a1, a2)` covers `B = [b1, b2)` if every element of `B` is within
 --- `A` (`a1 <= b < a2`). It also is described as "B is nested inside A".
+--- Empty span does not cover anything (even equal empty span).
 ---
 --- NESTED PATTERN ~
 --- Array of patterns aimed to describe nested spans.
@@ -1917,14 +1918,13 @@ end
 
 --stylua: ignore
 H.is_span_covering = function(span, span_to_cover)
-  if span == nil or span_to_cover == nil then return false end
-  if span.from == span.to then
-    return (span.from == span_to_cover.from) and (span_to_cover.to == span.to)
-  end
+  -- NOTE: Empty region can cover nothing, even other empty region. This is
+  -- more useful in practice for operations on empty region when cursor is at
+  -- its right end (like `cin)` on `()x()` line and cursor on first `)`).
+  if span == nil or span_to_cover == nil or span.from == span.to then return false end
   if span_to_cover.from == span_to_cover.to then
     return (span.from <= span_to_cover.from) and (span_to_cover.to < span.to)
   end
-
   return (span.from <= span_to_cover.from) and (span_to_cover.to <= span.to)
 end
 

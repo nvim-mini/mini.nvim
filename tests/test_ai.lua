@@ -347,9 +347,13 @@ T['find_textobject()']['ensures that output is not covered by reference'] = func
     { from = { line = 1, col = 14 }, to = { line = 1, col = 15 } }
   )
 
-  -- Empty reference
+  -- Empty region can cover nothing
   eq(
     find_textobject('i', ')', { reference_region = { from = { line = 1, col = 4 } } }),
+    { from = { line = 1, col = 4 } }
+  )
+  eq(
+    find_textobject('i', ')', { reference_region = { from = { line = 1, col = 4 } }, n_times = 2 }),
     { from = { line = 1, col = 8 }, to = { line = 1, col = 9 } }
   )
 end
@@ -1877,12 +1881,10 @@ T['Textobject']['ensures that output is not covered by reference'] = function()
 
   -- Empty region
   validate_tobj1d('a()b(c)', 2, 'i)', { 6, 6 })
-  -- Probably not very consistent with non-empty case, because `ci)` in 'a(a)b'
-  -- on right ')' allows "going backwards" and deleting inside '(a)'. But this
-  -- is consistent with "ensure textobject is not covering reference" and
-  -- `ci)` <=> `vi)c` equivalence.
-  validate_edit1d('a()b(c)', 2, 'a()b()', 5, 'di)')
-  validate_edit1d('a()b(c)', 2, 'a()b()', 5, 'ci)')
+  validate_edit1d('a()b(c)', 2, 'a()b(c)', 2, 'di)')
+  validate_edit1d('a()b(c)', 2, 'a()b(c)', 2, 'ci)')
+  validate_edit1d('a()b(c)', 2, 'a()b()', 5, 'd2i)')
+  validate_edit1d('a()b(c)', 2, 'a()b()', 5, 'c2i)')
 end
 
 T['Textobject']['opens just enough folds'] = function()

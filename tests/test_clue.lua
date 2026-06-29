@@ -3416,7 +3416,7 @@ T["'mini.nvim' compatibility"]['mini.ai'] = function()
 
   validate_edit1d('(a(b(cc)b)a)', 5, 'd2i)', '(a()a)', 3)
 
-  validate_edit1d('(a(b(cc)b)a)', 5, 'di).', '(a()a)', 3)
+  validate_edit1d('(a(b(cc)b)a)', 5, 'di)l.', '(a()a)', 3)
   validate_edit1d('(aa) (bb)', 1, 'ci)cc<Esc>W.', '(cc) (cc)', 7)
 
   validate_edit1d('(aa) (bb) (cc)', 6, 'dil)', '() (bb) (cc)', 1)

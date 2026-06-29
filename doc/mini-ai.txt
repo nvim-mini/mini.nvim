@@ -213,6 +213,7 @@ describe empty span at that point.
 
 Span `A = [a1, a2)` covers `B = [b1, b2)` if every element of `B` is within
 `A` (`a1 <= b < a2`). It also is described as "B is nested inside A".
+Empty span does not cover anything (even equal empty span).
 
 NESTED PATTERN ~
 Array of patterns aimed to describe nested spans.
