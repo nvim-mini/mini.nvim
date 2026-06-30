@@ -305,7 +305,7 @@ end
 --- - Find separator positions using `separator` and `exclude_regions` from `opts`.
 ---   Both brackets are treated as separators.
 ---   See |MiniSplitjoin.config.detect| for more details.
----   Note: stop if no separator positions are found.
+---   Stop if no separator positions are found.
 ---
 --- - Modify separator positions to represent split positions. Last split position
 ---   (which is inferred from right bracket) is moved one column to left so that
@@ -316,6 +316,7 @@ end
 ---   Output of last one is used as split positions in next step.
 ---
 --- - Split and update split positions with |MiniSplitjoin.split_at()|.
+---   Stop if updated positions are empty (like if hooks decided to not split).
 ---
 --- - Apply all hooks from `opts.split.hooks_post`. Each is applied on the output of
 ---   previous one. Input of first hook is split positions from previous step plus
@@ -348,6 +349,7 @@ MiniSplitjoin.split = function(opts)
 
   -- Split at positions
   local split_positions = MiniSplitjoin.split_at(positions)
+  if #split_positions == 0 then return nil end
 
   -- Call post-hooks to tweak splits. Add right bracket for easier hook code.
   local last = split_positions[#split_positions]
@@ -370,13 +372,14 @@ end
 ---   See |MiniSplitjoin.config.detect| for more details.
 ---
 --- - Compute join positions to be line ends of all but last region lines.
----   Note: stop if no join positions are found.
+---   Stop if no join positions are found.
 ---
 --- - Apply all hooks from `opts.join.hooks_pre`. Each is applied on the output
 ---   of previous one. Input of first hook is join positions from previous step.
 ---   Output of last one is used as join positions in next step.
 ---
 --- - Join and update join positions with |MiniSplitjoin.join_at()|.
+---   Stop if updated positions are empty (like if hooks decided to not join).
 ---
 --- - Apply all hooks from `opts.join.hooks_post`. Each is applied on the output
 ---   of previous one. Input of first hook is join positions from previous step
@@ -405,6 +408,7 @@ MiniSplitjoin.join = function(opts)
 
   -- Join at positions
   local join_positions = MiniSplitjoin.join_at(positions)
+  if #join_positions == 0 then return nil end
 
   -- Call post-hooks to tweak joins. Add right bracket for easier hook code.
   local last = join_positions[#join_positions]

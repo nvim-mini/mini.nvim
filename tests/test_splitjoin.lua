@@ -340,9 +340,16 @@ T['split()']["respects 'expandtab' and 'shiftwidth' for indenting"] = function()
 end
 
 T['split()']['returns `nil` if no positions are found'] = function()
+  -- Not found during initial step
   set_lines({ 'aaa' })
   eq(split(), vim.NIL)
   eq(get_lines(), { 'aaa' })
+
+  -- Not found after splitting
+  set_lines({ '(aa, bb)' })
+  local out = child.lua_get('MiniSplitjoin.split({ split = { hooks_pre = { function() return {} end } } })')
+  eq(out, vim.NIL)
+  eq(get_lines(), { '(aa, bb)' })
 end
 
 T['split()']['respects `opts.position`'] = function()
@@ -527,9 +534,16 @@ T['join()']['joins nested multiline argument into single line'] = function()
 end
 
 T['join()']['returns `nil` if no positions are found'] = function()
+  -- Not found during initial step
   set_lines({ 'aaa' })
   eq(join(), vim.NIL)
   eq(get_lines(), { 'aaa' })
+
+  -- Not found after splitting
+  set_lines({ '(', 'aa', 'bb', ')' })
+  local out = child.lua_get('MiniSplitjoin.join({ join = { hooks_pre = { function() return {} end } } })')
+  eq(out, vim.NIL)
+  eq(get_lines(), { '(', 'aa', 'bb', ')' })
 end
 
 T['join()']['respects `opts.position`'] = function()
@@ -791,6 +805,8 @@ T['split_at()']['works'] = function()
     split_at,
     { { 1, 1 }, { 1, 5 }, { 1, 9 }, { 1, 11 } }
   )
+
+  validate_edit({ '(aaa)' }, { 1, 2 }, { '(aaa)' }, { 1, 2 }, split_at, {})
 end
 
 T['split_at()']['works not on single line'] = function()
@@ -936,6 +952,8 @@ T['join_at()']['works'] = function()
     join_at,
     { { 1, 1 }, { 2, 4 }, { 3, 3 }, { 4, 1 } }
   )
+
+  validate_edit({ '(', 'aaa', ')' }, { 2, 2 }, { '(', 'aaa', ')' }, { 2, 2 }, join_at, {})
 end
 
 T['join_at()']['works on single line'] = function()
