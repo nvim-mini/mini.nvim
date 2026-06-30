@@ -73,7 +73,7 @@ jobs:
           version: v0.12.3
 
       - name: Generate documentation
-        run: make --silent doc
+        run: make --silent gendoc
 
       - name: Check for changes
         run: if [[ -n $(git status -s) ]]; then exit 1; fi

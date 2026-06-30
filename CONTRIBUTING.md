@@ -99,7 +99,7 @@ test(ALL): update screenshots to work on Nightly
 
 If your contribution updates annotations used to generate help file, please regenerate it. You can make this with one of the following (assuming current directory being project root):
 
-- From command line execute `make doc`.
+- From command line execute `make gendoc`.
 - Inside Neovim instance run `:luafile scripts/minidoc.lua` or `:lua require('mini.doc').generate()`.
 - Check that annotations result in consistent help files by executing `make lintdoc` from the command line.
 

@@ -10,7 +10,7 @@ repos:
       - id: gendoc
         name: Gendoc
         language: system
-        entry: make --silent doc
+        entry: make --silent gendoc
         types: [lua]
       - id: lintdoc
         name: LintDoc

@@ -1,6 +1,6 @@
 NVIM_EXEC ?= nvim
 
-all: test doc
+all: test gendoc
 
 # Use `make test` to run tests for all modules
 test:
@@ -24,7 +24,7 @@ $(TEST_MODULES):
 			-c "lua MiniTest.run_file('tests/$@.lua')" ; \
 	done
 
-doc:
+gendoc:
 	$(NVIM_EXEC) --headless --noplugin -u ./scripts/minimal_init.lua -c "lua require('mini.doc').generate()" -c "qa!"
 
 lintdoc:
