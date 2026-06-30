@@ -975,7 +975,7 @@ local restart = function(vimrc, restart_cmd)
 
   local cmd_after_restart
   for _, l in ipairs(vim.fn.readfile('track-vim-cmd')) do
-    cmd_after_restart = cmd_after_restart or l:match('^restart (.*)$')
+    cmd_after_restart = cmd_after_restart or l:match('^restart!? (.*)$')
   end
   if cmd_after_restart == nil then error('Could not detect restart "after" command') end
 
