@@ -3672,6 +3672,7 @@ T["'mini.nvim' compatibility"]['mini.indentscope'] = function()
   validate_selection(lines, cursor, 'v]i', { 3, 2 }, { 4, 1 })
   validate_selection(lines, cursor, 'v2]i', { 3, 2 }, { 5, 0 })
 
+  --typos: ignore
   validate_selection(lines, cursor, 'vai', { 2, 1 }, { 4, 2 }, 'V')
   validate_selection(lines, cursor, 'v2ai', { 1, 0 }, { 5, 1 }, 'V')
 

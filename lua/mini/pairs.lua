@@ -609,6 +609,7 @@ H.get_neigh = function(neigh_type)
   local line = is_command_mode and vim.fn.getcmdline() or vim.api.nvim_get_current_line()
   line = '\r' .. line .. '\n'
   -- Get start character index accounting for added '\r' at the start
+  --typos: ignore
   local start = is_command_mode and vim.fn.charidx(line, vim.fn.getcmdpos()) or vim.fn.charcol('.')
   start = start - 1
 

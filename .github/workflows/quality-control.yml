@@ -95,6 +95,16 @@ jobs:
           # CLI arguments
           args: --color always --respect-ignores --check .
 
+  lint-spell:
+    name: Lint spelling
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Spell Check Repo
+        uses: crate-ci/typos@v1.47.2
+
   lint-commit:
     name: Lint new commits
     runs-on: ubuntu-latest

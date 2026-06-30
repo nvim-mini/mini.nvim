@@ -2541,6 +2541,7 @@ H.window_update = function(win_id, config)
   -- Reset basic highlighting (removes possible "focused" highlight group)
   H.window_update_highlight(win_id, 'FloatTitle', 'MiniFilesTitle')
 
+  --typos: ignore
   -- Make sure proper `conceallevel` (can be not the case with 'noice.nvim')
   vim.wo[win_id].conceallevel = 3
 end

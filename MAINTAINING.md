@@ -65,6 +65,7 @@ Recommended:
 - Have executables for all supported Neovim versions. For example, `nvim_07`, `nvim_08`, `nvim_09`, `nvim_010`. This is useful for running tests on multiple versions.
 - Install [`lua-language-server`](https://github.com/LuaLS/lua-language-server).
 - Install [`pre-commit`](https://pre-commit.com/#install) and enable it with `pre-commit install` and `pre-commit install --hook-type commit-msg` (run from repository's root).
+    - This will require [`typos`](https://github.com/crate-ci/typos/releases) installed and available locally.
 - Set up 'mini.doc' and 'mini.test' and make mappings for the following frequently used commands:
     - `'<Cmd>lua MiniDoc.generate()<CR>'` - to generate documentation.
     - `'<Cmd>lua MiniTest.run_at_location()<CR>'` - to run test under cursor.

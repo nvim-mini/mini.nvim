@@ -146,6 +146,18 @@ Notes:
 
     Only use `start`+`end` if there is a need to ignore several consecutive statements which is a *small* portion of outer statement (like several `local x = ...` inside a large function) or if there is no outer statement. If the portion is sufficiently large, prefer a single `--stylua: ignore` above a parent statement.
 
+## Spell checking
+
+This project uses [`typos`](https://github.com/crate-ci/typos) for an automated spell checking (as constant `docs(xxx): fix typo` commits add noise to `git log`, which is bad for users that read it before updating the plugin). It is designed to check common spelling errors (with a low false positive rate) in regular text and code comments+strings.
+
+There is a [project specific config](./.typos.toml). Among other things, it adds a way to locally ignore known false positive spelling problems in Lua code:
+- Add line `--typos: ignore` above the target line.
+- Append `--typos: ignore-line` to the target line.
+
+Prefer using `--typos: ignore` as it aligns better with `--stylua: ignore`. Use `--typos: ignore-line` to preserve pretty code block aligning or ability to alphabetically sort lines. If there are a lot of instances of the same spelling problem, add it globally in `.typos.toml`: either per language or file (follow already present examples).
+
+To check for typos locally, [install `typos`](https://github.com/crate-ci/typos/releases) and run `make lintspell`.
+
 ## List of highlight groups
 
 Here is a list of all highlight groups defined inside 'mini.nvim' modules. See documentation in 'doc' directory to find out what they are used for.

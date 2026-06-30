@@ -1117,7 +1117,9 @@ MiniHues.apply_palette = function(palette, plugins, opts)
   end
 
   if has_integration('folke/noice.nvim') then
+    --typos: ignore
     hi('NoiceCmdlinePopupBorder', { fg=p.azure,  bg=nil })
+    --typos: ignore
     hi('NoiceConfirmBorder',      { fg=p.yellow, bg=nil })
   end
 
@@ -1216,6 +1218,7 @@ MiniHues.apply_palette = function(palette, plugins, opts)
     hi('LSOutlinePreviewBorder', { fg=p.accent,  bg=nil })
     hi('OutlineDetail',          { fg=p.bg_mid2, bg=nil })
     hi('OutlineFoldPrefix',      { fg=p.yellow,  bg=nil })
+    --typos: ignore
     hi('OutlineIndentEvn',       { fg=p.fg_mid2, bg=nil })
     hi('OutlineIndentOdd',       { fg=p.fg,      bg=nil })
   end

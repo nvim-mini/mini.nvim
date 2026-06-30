@@ -1,0 +1,36 @@
+[default]
+# Do not check typos for two character words due to high noise
+extend-ignore-words-re = ["^[a-zA-Z]{1,2}$"]
+
+# Custom ignore regex patterns
+extend-ignore-re = [
+  # Ignore typos in the next line. Similar to `--stylua: ignore`
+  "\\s*--typos: ignore\\n[^\\n]*",
+  # Ignore typos in this line. Must be appended as prefix
+  ".*--typos: ignore-line\\n",
+]
+
+[files]
+extend-exclude = [ "tests/screenshots/*", "tests/dir-test/*screenshot*" ]
+
+[type.lua]
+## Ignore document generation annotation comments and test `doc/` files directly
+extend-ignore-re = [ "---.*" ]
+extend-words = {
+  ## Special Vim functions and commands
+  enew = "enew",
+  ## Commonly used sequence of keys in tests
+  viw = "viw",
+}
+
+[type.txt]
+## Part of the Vim modeline (short form of 'noexpandtab')
+extend-words = { noet = "noet" }
+## Ignore inline code blocks and tag links
+extend-ignore-re = [ "`.*?`", "|.*?|" ]
+
+# # A hacky way to have per file ignores
+[type.test_cmdline_lua]
+extend-glob = [ "test_cmdline.lua" ]
+## A lot of tests are for autocorrecting typos
+extend-words = { srot = "srot",  }

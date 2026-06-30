@@ -1384,6 +1384,7 @@ T['child']['redirected method tables'] = new_set({
     { 'loop', 'hrtime', {} },
     { 'lsp', 'get_clients', {} },
     { 'mpack', 'encode', { { a = 1 } } },
+    --typos: ignore
     { 'spell', 'check', { 'thouht' } },
     { 'treesitter', 'get_parser', {} },
     { 'ui', 'select', {} },

@@ -3261,6 +3261,7 @@ T['default_complete()']['works with method="cmdline"'] = function()
   child.g.test_input_var = 1
   validate('let g', nil, '', {})
   validate('let g:', nil, 'g:', nil)
+  --typos: ignore
   validate('let g:test_inpu', nil, 'g:test_inpu', { 'g:test_input_var' })
 
   child.fn.chdir('tests')
@@ -3360,6 +3361,7 @@ T['default_complete()']['works with built-in methods'] = function()
   validate('color miniw', nil, 'color', 'miniw')
 
   -- Should work with caret not at end
+  --typos: ignore
   validate('hel', 3, 'help', 'he')
 
   -- Should use keyword as base
