@@ -3276,6 +3276,36 @@ T['default_complete()']['works with method="cmdline"'] = function()
   eq(child.lua_get('_G.n_modechanged'), 0)
 end
 
+T['default_complete()']["respects 'ignorecase'/'smartcase' with method='cmdline'"] = function()
+  local validate = function(input, caret, ref_base, ref_items)
+    ref_items = ref_items or child.fn.getcompletion(input, 'cmdline')
+    local ref_changes = { complete = { base = ref_base, items = ref_items } }
+    validate_complete({ input = input, caret = caret }, 'cmdline', ref_changes)
+  end
+
+  child.cmd('command MyCommand echo "Hello"')
+
+  child.o.ignorecase, child.o.smartcase = false, false
+  validate('myco', 5, '', {})
+  validate('Myco', 5, '', {})
+  validate('MyCo', 5, 'MyCo', { 'MyCommand' })
+
+  child.o.ignorecase, child.o.smartcase = true, false
+  validate('myco', 5, 'myco', { 'MyCommand' })
+  validate('Myco', 5, 'Myco', { 'MyCommand' })
+  validate('MyCo', 5, 'MyCo', { 'MyCommand' })
+
+  child.o.ignorecase, child.o.smartcase = false, true
+  validate('myco', 5, '', {})
+  validate('Myco', 5, '', {})
+  validate('MyCo', 5, 'MyCo', { 'MyCommand' })
+
+  child.o.ignorecase, child.o.smartcase = true, true
+  validate('myco', 5, 'myco', { 'MyCommand' })
+  validate('Myco', 5, '', {})
+  validate('MyCo', 5, 'MyCo', { 'MyCommand' })
+end
+
 T['default_complete()']['works with method="custom[list],v:lua.fun"'] = function()
   child.lua([[
     _G.complete_log = {}

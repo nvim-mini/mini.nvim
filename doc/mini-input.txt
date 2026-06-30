@@ -849,8 +849,8 @@ Supported methods:
   Note: as there is no |getcmdcomplpat()| variant to use outside of Command-line
   mode, the base is inferred from |getcompletion()| output as the widest text to
   caret's left that matches all candidates: fuzzily if |'wildoptions'| contains
-  `fuzzy`, as a prefix otherwise. If none - empty string is used. This approach
-  has limitations, but it is good enough.
+  `fuzzy`, as a prefix otherwise (respecting |'ignorecase'| and |'smartcase'|).
+  If none - use empty string. There are limitations, but this is good enough.
 - Every method supported by |getcompletion()|. Base is computed as the keyword
   at caret's left.
 

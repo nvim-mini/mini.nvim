@@ -1069,8 +1069,8 @@ MiniInput.default_view = function(state) end -- Generated later
 ---   Note: as there is no |getcmdcomplpat()| variant to use outside of Command-line
 ---   mode, the base is inferred from |getcompletion()| output as the widest text to
 ---   caret's left that matches all candidates: fuzzily if |'wildoptions'| contains
----   `fuzzy`, as a prefix otherwise. If none - empty string is used. This approach
----   has limitations, but it is good enough.
+---   `fuzzy`, as a prefix otherwise (respecting |'ignorecase'| and |'smartcase'|).
+---   If none - use empty string. There are limitations, but this is good enough.
 --- - Every method supported by |getcompletion()|. Base is computed as the keyword
 ---   at caret's left.
 ---
@@ -1727,8 +1727,13 @@ end
 H.get_base_from_items = function(text, items)
   if #items == 0 then return '' end
 
+  local items_lower = vim.o.ignorecase and vim.tbl_map(vim.fn.tolower, items) or items
+
   local is_match = function(base_cur)
-    for _, item in ipairs(items) do
+    local ignore_case = vim.o.ignorecase and not (vim.o.smartcase and base_cur ~= vim.fn.tolower(base_cur))
+    local items_cur = ignore_case and items_lower or items
+    base_cur = ignore_case and vim.fn.tolower(base_cur) or base_cur
+    for _, item in ipairs(items_cur) do
       if not vim.startswith(item, base_cur) then return false end
     end
     return true
