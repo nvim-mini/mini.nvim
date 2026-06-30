@@ -216,7 +216,7 @@ T['make_tabline_string()']['shows only listed buffers'] = function()
   child.bo.buflisted = false
   eq(eval_tabline(), '')
 
-  child.cmd('tabe')
+  child.cmd('tabedit')
   child.bo.buflisted = false
   eq(eval_tabline(), ' Tab 2/2 ')
 end
@@ -611,7 +611,7 @@ T['make_tabline_string()']['can show truncation characters'] = function()
   child.bo.buflisted = false
   eq(eval_tabline(), '')
 
-  child.cmd('tabe')
+  child.cmd('tabedit')
   child.bo.buflisted = false
   eq(eval_tabline(), ' Tab 2/2 ')
 end

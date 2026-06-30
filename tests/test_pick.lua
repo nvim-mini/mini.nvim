@@ -1319,7 +1319,7 @@ T['default_match()']['filters items that match query with gaps'] = function()
   validate_match({ 'a', 'b', 'ab_', 'a_b', '_ab' }, { 'ab' }, { 3, 5 })
   validate_match({ 'abcd_', '_abcd', 'a_bcd', 'ab_cd', 'abc_d' }, { 'ab', 'cd' }, { 1, 2, 4 })
 
-  -- Edge casees
+  -- Edge cases
   validate_match({ 'a', 'b', '' }, { 'a' }, { 1 })
 
   validate_match({ 'a', 'b', '' }, { '' }, { 1, 2, 3 })
@@ -1761,7 +1761,7 @@ T['default_preview()']['works without active picker'] = function()
 end
 
 T['default_preview()']['can be used in outside preview window'] = function()
-  -- This is not a module's capabilitiy per se, but something it should allow
+  -- This is not a module's capability per se, but something it should allow
   local item = { path = real_file('b.txt'), lnum = 5, text = 'b.txt' }
   start_with_items({ item })
 
@@ -4535,7 +4535,7 @@ end
 T['set_picker_items_from_cli()'] = new_set({ hooks = { pre_case = mock_spawn } })
 
 local set_picker_items_from_cli = function(...)
-  -- Work around callables being not transferrable through RPC
+  -- Work around callables being not transferable through RPC
   return child.lua(
     [[local res = MiniPick.set_picker_items_from_cli(...)
       for k, v in pairs(res) do
@@ -4582,7 +4582,7 @@ T['set_picker_items_from_cli()']['can be called without active picker'] = functi
 end
 
 T['set_picker_items_from_cli()']['correctly processes stdout feed'] = function()
-  -- Should stich items together without adding '\n'
+  -- Should stitch items together without adding '\n'
   start_with_items()
   mock_stdout_feed({ 'aa\n', 'bb', 'cc\n', 'dd', '\nee', 'ff', 'gg', '\nhh\n' })
   set_picker_items_from_cli(test_command)

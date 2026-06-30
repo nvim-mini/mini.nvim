@@ -1704,7 +1704,7 @@ T['pickers']['git_commits()']['works'] = function()
   child.lua([[
     vim.treesitter.get_parser = function(...)
       _G.ts_get_parser_args = { ... }
-      errror('No parser')
+      error('No parser')
     end
   ]])
 
@@ -1996,7 +1996,7 @@ T['pickers']['git_hunks()']['works'] = function()
   child.lua([[
     vim.treesitter.get_parser = function(...)
       _G.ts_get_parser_args = { ... }
-      errror('No parser')
+      error('No parser')
     end
   ]])
 
