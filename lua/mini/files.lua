@@ -1569,16 +1569,17 @@ H.explorer_refresh = function(explorer, opts)
     cur_win_col = cur_win_col + cur_width + 2
   end
 
+  -- Focus on target window. Do this before closing windows to keep current
+  -- window within the explorer.
+  local win_focus_count = explorer.depth_focus - depth_range.from + 1
+  local win_id_focused = explorer.windows[win_focus_count]
+  H.window_focus(win_id_focused)
+
   -- Close possibly opened window that don't fit (like after `VimResized`)
   for depth = cur_win_count + 1, #explorer.windows do
     H.window_close(explorer.windows[depth])
     explorer.windows[depth] = nil
   end
-
-  -- Focus on proper window
-  local win_focus_count = explorer.depth_focus - depth_range.from + 1
-  local win_id_focused = explorer.windows[win_focus_count]
-  H.window_focus(win_id_focused)
 
   -- Register as currently opened
   explorer.tabpage_id = vim.api.nvim_win_get_tabpage(win_id_focused)
@@ -1634,17 +1635,8 @@ H.explorer_normalize = function(explorer)
     table.insert(norm_branch, path)
   end
 
-  local cur_max_depth = #norm_branch
-
   explorer.branch = norm_branch
-  explorer.depth_focus = math.min(math.max(explorer.depth_focus, 1), cur_max_depth)
-
-  -- Close all guaranteed to be unnecessary windows. NOTE: some windows might
-  -- still get outdated later if branch is too deep to fit into Neovim's width.
-  for i = cur_max_depth + 1, #explorer.windows do
-    H.window_close(explorer.windows[i])
-    explorer.windows[i] = nil
-  end
+  explorer.depth_focus = math.min(math.max(explorer.depth_focus, 1), #norm_branch)
 
   -- Compute if explorer is corrupted and should not operate further
   for _, win_id in pairs(explorer.windows) do

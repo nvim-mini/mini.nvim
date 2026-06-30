@@ -6369,6 +6369,29 @@ T['Default explorer']['handles forcing other window as current'] = function()
   if child.fn.has('nvim-0.10') == 1 then eq(child.api.nvim_get_current_win(), init_win_id) end
 end
 
+T['Default explorer']['keeps directory buffer open when number of windows decreases'] = function()
+  child.set_size(5, 90)
+  local validate = function(fn_str)
+    local test_path = make_test_path('nested')
+    child.cmd('edit ' .. test_path)
+    local dir_buf_id = child.fn.bufnr(test_path)
+
+    go_in()
+    go_in()
+    child.lua(fn_str)
+
+    -- Directory buffer should still present
+    eq(child.api.nvim_buf_is_valid(dir_buf_id), true)
+
+    -- Closing explorer should always wipeout directory buffer
+    close()
+    eq(child.api.nvim_buf_is_valid(dir_buf_id), false)
+  end
+
+  validate('MiniFiles.refresh({ windows = { max_number = 1 } })')
+  validate('MiniFiles.trim_left()')
+end
+
 T['Internal helpers'] = new_set()
 
 T['Internal helpers']['path normalization works'] = function()
