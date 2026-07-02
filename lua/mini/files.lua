@@ -1376,11 +1376,7 @@ H.create_autocommands = function(config)
   end
 
   if config.options.use_as_default_explorer then
-    -- Stop 'netrw' from showing. Needs `VimEnter` event autocommand if
-    -- this is called prior 'netrw' is set up
-    vim.cmd('silent! autocmd! FileExplorer *')
-    vim.cmd('autocmd VimEnter * ++once silent! autocmd! FileExplorer *')
-
+    H.prevent_builtin_explorer()
     -- - Use `nested` to allow other events (`BufWinEnter` for 'mini.clue')
     local opts = { nested = true, group = gr, callback = H.track_dir_edit, desc = 'Track directory edit' }
     vim.api.nvim_create_autocmd('BufEnter', opts)
@@ -1388,6 +1384,18 @@ H.create_autocommands = function(config)
 
   au('VimResized', '*', MiniFiles.refresh, 'Refresh on resize')
   au('ColorScheme', '*', H.create_default_hl, 'Ensure colors')
+end
+
+H.prevent_builtin_explorer = function()
+  -- Stop 'netrw' from showing. Needs `VimEnter` event autocommand if
+  -- this is called prior 'netrw' is set up
+  vim.cmd('silent! autocmd! FileExplorer *')
+  vim.cmd('autocmd VimEnter * ++once silent! autocmd! FileExplorer *')
+  if vim.fn.has('nvim-0.13') == 0 then return end
+
+  -- Stop nvim.dir from showing.
+  vim.cmd('silent! autocmd! nvim.dir *')
+  vim.cmd('autocmd VimEnter * ++once silent! autocmd! nvim.dir *')
 end
 
 --stylua: ignore
