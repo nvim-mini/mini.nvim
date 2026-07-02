@@ -6268,7 +6268,15 @@ T['LSP']['respects `options.lsp_timeout`'] = function()
   eq(child.lua_get('_G.lsp_requests'), {})
 end
 
-T['Default explorer'] = new_set()
+T['Default explorer'] = new_set({
+  hooks = {
+    pre_case = function()
+      if child.fn.has('nvim-0.13') == 1 then
+        MiniTest.skip('Default explorer is being reworked on Nightly, so tests are not stable')
+      end
+    end,
+  },
+})
 
 T['Default explorer']['works on startup'] = function()
   vim.loop.os_setenv('USE_AS_DEFAULT_EXPLORER', 'true')
