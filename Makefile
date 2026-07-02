@@ -2,6 +2,12 @@ NVIM_EXEC ?= nvim
 
 all: test gendoc
 
+init-git-hooks:
+	@mkdir -p .git/hooks
+	ln -sf ../../scripts/git-hook-pre-commit .git/hooks/pre-commit
+	ln -sf ../../scripts/git-hook-commit-msg .git/hooks/commit-msg
+	chmod +x scripts/git-hook-pre-commit scripts/git-hook-commit-msg
+
 # Use `make test` to run tests for all modules
 test:
 	for nvim_exec in $(NVIM_EXEC); do \

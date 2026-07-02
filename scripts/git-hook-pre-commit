@@ -1,0 +1,73 @@
+#!/bin/sh
+
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=d)
+
+# Ensure formatting with `stylua` (https://github.com/JohnnyMorganz/StyLua)
+LUA_FILES=$(echo "$STAGED_FILES" | grep "\.lua$")
+if [ -n "$LUA_FILES" ]; then
+    printf "Check formatting: "
+    if command -v stylua >/dev/null 2>&1; then
+        HASHES_BEFORE=$(echo "$LUA_FILES" | xargs git hash-object)
+        echo "$LUA_FILES" | xargs stylua --respect-ignores || exit 1
+        HASHES_AFTER=$(echo "$LUA_FILES" | xargs git hash-object)
+
+        # Running `stylua` should not add new changes to staged Lua files
+        if [ "$HASHES_BEFORE" != "$HASHES_AFTER" ]; then
+            echo "FAIL"
+            echo "  StyLua modified some files."
+            echo "  Stage formatted changes and re-commit."
+            exit 1
+        fi
+        echo "OK"
+    else
+        echo "WARN (stylua executable not found)"
+    fi
+fi
+
+# Ensure documentation was generated
+GENDOC_FILES=$(echo "$STAGED_FILES" | grep -E "^(doc|lua)/")
+if [ -n "$GENDOC_FILES" ]; then
+    printf "Check gendoc:     "
+    make --silent gendoc >/dev/null 2>&1
+
+    # Running `gendoc` should not add new changes to staged "doc/" files
+    # Fail if there are not fully staged files (i.e. with `M ` status)
+    UNSTAGED_DOCS=$(git status --porcelain=v1 -- "doc/" | grep -E '^([ M?][M?])')
+    if [ -n "$UNSTAGED_DOCS" ]; then
+        echo "FAIL"
+        echo "  Documentation was not properly generated and/or staged."
+        echo "  Stage generated doc/ changes and re-commit."
+        exit 1
+    fi
+    echo "OK"
+fi
+
+# Ensure generated documentation is good quality
+DOC_FILES=$(echo "$STAGED_FILES" | grep -E "^doc/")
+if [ -n "$DOC_FILES" ]; then
+    printf "Check lintdoc:    "
+    make --silent lintdoc || exit 1
+    # NOTE: OK/FAIL status comes from `make --sillent lintdoc` itself
+fi
+
+# Ensure formatting with `typos` (https://github.com/crate-ci/typos)
+# Condition: running it should not add new changes to staged Lua files
+SPELLED_FILES=$(echo "$STAGED_FILES" | grep -E '\.(lua|txt|md)$')
+if [ -n "$SPELLED_FILES" ]; then
+    printf "Check spelling:   "
+    if command -v typos >/dev/null 2>&1; then
+        # Intercept `typos` output in case of errors for pretty printing
+        TYPOS_OUT=$(echo "$SPELLED_FILES" | xargs typos --color=never 2>&1)
+        if [ $? -eq 0 ]; then
+            echo "OK"
+        else
+            echo "FAIL"
+            echo "$TYPOS_OUT"
+            exit 1
+        fi
+    else
+        echo "WARN (typos executable not found)"
+    fi
+fi
+
+exit 0

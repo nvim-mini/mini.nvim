@@ -185,8 +185,6 @@ end
 -- Actual validation
 local problems = lint_help()
 local exit_code = #problems == 0 and 0 or 1
-io.write('Generated documentation:\n')
-local exit_status = exit_code == 0 and 'OK' or table.concat(problems, '\n')
-io.write(exit_status .. '\n\n')
-
+if exit_code == 0 then io.write('OK\n') end
+if exit_code == 1 then io.write('FAIL\n' .. table.concat(problems, '\n') .. '\n\n') end
 os.exit(exit_code)

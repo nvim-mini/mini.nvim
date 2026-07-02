@@ -93,7 +93,7 @@ test(ALL): update screenshots to work on Nightly
 ### Automated commit linting
 
 - To lint messages of already done commits, execute `scripts/lintcommit-ci.sh <git-log-range>`. For example, to lint currently latest commit use `scripts/lintcommit-ci.sh HEAD~..HEAD`.
-- To lint commit message before doing commit, install [`pre-commit`](https://pre-commit.com/#install) and enable it with `pre-commit install --hook-type commit-msg` (from the root directory). NOTE: requires `nvim` executable. If it throws (usually descriptive) error - recommit with proper message.
+- To lint commit message before `git commit`, run `make init-git-hooks` from the root directory and commit with message. NOTE: requires `nvim` executable. If it throws (usually descriptive) error - recommit with proper message.
 
 ## Generating help file
 
@@ -137,7 +137,7 @@ This project uses [StyLua](https://github.com/JohnnyMorganz/StyLua) version 2.1.
 - [Install StyLua](https://github.com/JohnnyMorganz/StyLua#installation). NOTE: use `v2.1.0`.
 - Format with it. Currently there are two ways to do this:
     - Manually run `stylua .` from the root directory of this project.
-    - Install [`pre-commit`](https://pre-commit.com/#install) and enable it with `pre-commit install` (from the root directory). This will auto-format relevant code before making commits.
+    - Run `make init-git-hooks` from the root directory and try to commit. This will auto-format relevant code before making commits.
 
 Notes:
 
