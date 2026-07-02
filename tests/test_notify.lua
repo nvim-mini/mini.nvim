@@ -982,7 +982,7 @@ T['Window']['persists across tabpages'] = function()
   eq(is_notif_window_shown(init_tabpage_id), true)
 
   -- Window should appear only in current tabpage
-  child.cmd('tabe')
+  child.cmd('tabedit')
   local new_tabpage_id = child.api.nvim_get_current_tabpage()
   eq(is_notif_window_shown(init_tabpage_id), false)
   eq(is_notif_window_shown(new_tabpage_id), true)

@@ -1437,7 +1437,7 @@ T['Multiple buffers']['are allowed'] = function()
   eq(get_active_items_names(buf_id_1), { 'aaab', 'aaba' })
 
   -- It should open new Starter buffer while keeping previous one
-  child.cmd('tabe')
+  child.cmd('tabedit')
   validate_starter_shown()
   eq(child.api.nvim_buf_get_name(0), 'ministarter://' .. child.api.nvim_get_current_buf() .. '/welcome')
 

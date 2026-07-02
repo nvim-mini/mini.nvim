@@ -2604,7 +2604,7 @@ T['Builtin']['Argument']['works with whitespace argument'] = function()
   validate_tobj1d('f(  ,x)', 0, 'ia', { 5, 5 })
 
   -- Last argument (should ignore whitespace). It misbehaves (`aa` selects all
-  -- insteadd of only separator and `ia` goes to rightmost point instead of to
+  -- instead of only separator and `ia` goes to rightmost point instead of to
   -- right of separator), but it is acceptable because it is a rare case.
   validate_tobj1d('f(x,  )', 0, '2aa', { 4, 6 })
   validate_tobj1d('f(x,  )', 0, '2ia', { 7, 7 })
@@ -2802,7 +2802,7 @@ end
 T['Builtin']['Tag'] = new_set()
 
 T['Builtin']['Tag']['works'] = function()
-  -- Sinle line
+  -- Single line
   validate_tobj1d('<x>aaa</x>', 0, 'at', { 1, 10 })
   validate_tobj1d('<x>aaa</x>', 0, 'it', { 4, 6 })
 
@@ -3210,7 +3210,7 @@ T['Custom textobject']['works consecutively'] = function()
 end
 
 T['Custom textobject']['expands specification'] = function()
-  -- Expantion of array item in multiple arrays
+  -- Expansion of array item in multiple arrays
   -- Here this is identical to taking the best match among {'xxx', '.().().'}
   -- and {'aaa', '.().().'}
   set_custom_tobj({ x = { { 'xxx', 'aaa' }, '.().().' } })

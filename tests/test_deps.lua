@@ -1777,7 +1777,7 @@ T['update()']['respects `names` argument'] = function()
   validate_notifications({ { '(mini.deps) Nothing to update', 'INFO' } })
 end
 
-T['update()']['valdiates arguments'] = function()
+T['update()']['validates arguments'] = function()
   expect.error(function() update('plugin_1') end, '`names`.*array')
   expect.error(function() update({ 'plugin_1', 1, { name = 'plugin_2' } }) end, '`names`.*strings')
 end

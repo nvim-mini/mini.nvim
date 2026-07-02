@@ -2019,7 +2019,7 @@ T['Signature help']['updates highlighting of active parameter'] = function()
   type_keys('<Esc>')
   set_lines({ '' })
 
-  -- Should work when LSP server returns paramter label as string
+  -- Should work when LSP server returns parameter label as string
   type_keys('i', 'multiline(')
   sleep(default_signature_delay + small_time)
   child.expect_screenshot()
@@ -2463,7 +2463,7 @@ T['Snippets']['work'] = function()
   validate(items[7], { 'Snippet G', 'Multi', 'Line ' }, { 3, 5 })
 end
 
-T['Snippets']['are inserted after attempting to insert non-keyword charater'] = function()
+T['Snippets']['are inserted after attempting to insert non-keyword character'] = function()
   mock_lsp_snippets({ 'Snippet A $1' })
 
   local validate = function(non_keyword_char, ref_line, ref_cursor)
@@ -2674,7 +2674,7 @@ end
 T['Snippets']['are not inserted if have no tabstops or variables'] = function()
   -- This allows inserting snippets "implicitly" after typing non-keyword
   -- character. Without this, LSP servers which report any inserted text as
-  -- snippet will "eat" the next typed non-keyword charater.
+  -- snippet will "eat" the next typed non-keyword character.
   -- Treating text as snippet if there is a variable is important for a snippet
   -- insert method to expand them.
 

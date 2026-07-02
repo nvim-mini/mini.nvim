@@ -1309,7 +1309,7 @@ T['default_prepare()']['uses proper default context'] = function()
   child.bo.filetype = 'myft'
   validate_context({ buf_id = cur_buf, lang = 'myft' })
 
-  -- With present tree-sitter should use local parser lanuage
+  -- With present tree-sitter should use local parser language
   if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Testing on Neovim>=0.10 is easier with built-in parsers') end
 
   child.bo.filetype = 'vim'
@@ -5396,7 +5396,7 @@ T['Examples']['using `vim.snippet.expand()`'] = function()
   ]])
 
   type_keys('i', 't', '<C-j>')
-  -- SHould not have active session from `default_insert()`
+  -- Should not have active session from `default_insert()`
   validate_no_active_session()
   validate_state('i', { 'T1= T2=<two>' }, { 1, 3 })
   type_keys('t1')
