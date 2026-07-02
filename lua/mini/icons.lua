@@ -1340,7 +1340,7 @@ H.filetype_icons = {
   ipkg                   = { glyph = '󰫶', hl = 'MiniIconsGrey'   },
   ishd                   = { glyph = '󰫶', hl = 'MiniIconsYellow' },
   iss                    = { glyph = '󰏗', hl = 'MiniIconsBlue'   },
-  ist                    = { glyph = '󰫶', hl = 'MiniIconsCyan'   },
+  ist                    = { glyph = '󰫶', hl = 'MiniIconsCyan'   }, --typos: ignore-line
   j                      = { glyph = '󰫷', hl = 'MiniIconsAzure'  },
   jal                    = { glyph = '󰫷', hl = 'MiniIconsCyan'   },
   jam                    = { glyph = '󰫷', hl = 'MiniIconsCyan'   },
@@ -1641,7 +1641,7 @@ H.filetype_icons = {
   robots                 = { glyph = '󰚩', hl = 'MiniIconsGrey'   },
   roc                    = { glyph = '󱗆', hl = 'MiniIconsPurple' },
   ron                    = { glyph = '󱘗', hl = 'MiniIconsCyan'   },
-  routeros               = { glyph = '󱂇', hl = 'MiniIconsGrey'   },
+  routeros               = { glyph = '󱂇', hl = 'MiniIconsGrey'   }, --typos: ignore-line
   rpcgen                 = { glyph = '󰫿', hl = 'MiniIconsCyan'   },
   rpgle                  = { glyph = '󰫿', hl = 'MiniIconsGreen'  },
   rpl                    = { glyph = '󰫿', hl = 'MiniIconsCyan'   },
@@ -1763,7 +1763,7 @@ H.filetype_icons = {
   tablegen               = { glyph = '󰬁', hl = 'MiniIconsGrey'   },
   tads                   = { glyph = '󱩼', hl = 'MiniIconsAzure'  },
   tags                   = { glyph = '󰓻', hl = 'MiniIconsGreen'  },
-  tak                    = { glyph = '󰔏', hl = 'MiniIconsRed'    },
+  tak                    = { glyph = '󰔏', hl = 'MiniIconsRed'    }, --typos: ignore-line
   takcmp                 = { glyph = '󰔏', hl = 'MiniIconsGreen'  },
   takout                 = { glyph = '󰔏', hl = 'MiniIconsBlue'   },
   tal                    = { glyph = '󰬁', hl = 'MiniIconsBlue'   },

@@ -17,6 +17,11 @@ repos:
         language: system
         entry: make --silent lintdoc
         types: [lua]
+      - id: lintspell
+        name: LintSpell
+        language: system
+        entry: make --silent lintspell
+        types: [text]
       - id: lintcommit
         name: LintCommit
         language: system

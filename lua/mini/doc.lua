@@ -396,12 +396,9 @@ MiniDoc.config = {
       end, d)
 
       -- Insert modeline
-      d:insert(
-        H.as_struct(
-          { H.as_struct({ H.as_struct({ ' vim:tw=78:ts=8:noet:ft=help:norl:' }, 'section') }, 'block') },
-          'file'
-        )
-      )
+      --typos: ignore
+      local section = H.as_struct({ ' vim:tw=78:ts=8:noet:ft=help:norl:' }, 'section')
+      d:insert(H.as_struct({ H.as_struct({ section }, 'block') }, 'file'))
     end,
     --minidoc_replace_end
 

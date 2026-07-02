@@ -972,6 +972,7 @@ T['Textobject']['works in Visual mode'] = new_set({
     { 'vii', 4, 6 },
     { 'v2ii', 4, 6 },
     -- `object_scope_with_border`
+    --typos: ignore
     { 'vai', 3, 7 },
     { 'v2ai', 2, 8 },
     { 'v100ai', 1, 9 },
@@ -1000,6 +1001,7 @@ T['Textobject']['works in Operator-pending mode'] = new_set({
     { 'dii', 'viid' },
     { '2dii', 'v2iid' },
     { 'd2ii', 'viid' },
+    --typos: ignore
     { 'dai', 'vaid' },
     { '2dai', 'v2aid' },
     { 'd2ai', 'v2aid' },
@@ -1032,6 +1034,7 @@ T['Textobject']['works in forced Operator-pending mode'] = function()
   validate('dvii', { 'aa', '    ', 'dd', 'ee' })
   validate('dvai', { '', 'ee' })
   validate('dVii', { 'aa', 'dd', 'ee' })
+  --typos: ignore
   validate('dVai', { 'ee' })
   validate('d<C-v>ii', { 'aa', '  ', '    ', 'dd', 'ee' })
   validate('d<C-v>ai', { '', 'bb', 'cc  ', '', 'ee' })

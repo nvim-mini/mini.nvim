@@ -914,7 +914,9 @@ H.apply_palette = function(palette, use_cterm)
   end
 
   if H.has_integration('folke/noice.nvim') then
+    --typos: ignore
     hi('NoiceCmdlinePopupBorder', {fg=p.base0D, bg=nil, attr=nil, sp=nil})
+    --typos: ignore
     hi('NoiceConfirmBorder',      {fg=p.base0E, bg=nil, attr=nil, sp=nil})
   end
 
@@ -1015,6 +1017,7 @@ H.apply_palette = function(palette, use_cterm)
     hi('LSOutlinePreviewBorder', {fg=p.base0F, bg=nil, attr=nil, sp=nil})
     hi('OutlineDetail',          {fg=p.base03, bg=nil, attr=nil, sp=nil})
     hi('OutlineFoldPrefix',      {fg=p.base08, bg=nil, attr=nil, sp=nil})
+    --typos: ignore
     hi('OutlineIndentEvn',       {fg=p.base04, bg=nil, attr=nil, sp=nil})
     hi('OutlineIndentOdd',       {fg=p.base05, bg=nil, attr=nil, sp=nil})
   end

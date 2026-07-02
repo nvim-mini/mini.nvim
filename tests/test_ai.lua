@@ -1869,6 +1869,7 @@ T['Textobject']['works in command-line window'] = function()
   validate('(aaa)', '', 'da)')
 
   validate('fun(aaa)', 'fun()', 'cif')
+  --typos: ignore
   validate('fun(aaa)', '', 'caf')
 end
 
