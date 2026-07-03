@@ -2295,6 +2295,45 @@ T['quickfix()']['respects `vim.b.minibracketed_config`'] = function()
   eq(get_cursor(), cur_pos)
 end
 
+T['quickfix()']['respects minibracketed `opts.only_files`'] = function()
+  set_lines({ 'aaaaa', 'bbbbb', 'ccccc', 'ddddd', 'eeeee' })
+  local buf_id = child.api.nvim_get_current_buf()
+
+  -- Create a quickfix list with both file entries (bufnr > 0) and non-file entries (bufnr = 0)
+  child.fn.setqflist({
+    { bufnr = buf_id, lnum = 1, col = 1 },
+    { bufnr = 0, lnum = 1, col = 1 },  -- Non-file entry
+    { bufnr = buf_id, lnum = 2, col = 2 },
+    { bufnr = 0, lnum = 2, col = 1 },  -- Non-file entry
+    { bufnr = buf_id, lnum = 3, col = 3 },
+  })
+
+  -- Test forward navigation without only_files (visits all entries)
+  set_quickfix(1)
+  child.lua('MiniBracketed.quickfix(...)', { 'forward' })
+  eq(get_quickfix(), 2)
+
+  -- Test forward navigation with only_files (skips non-file entries)
+  set_quickfix(1)
+  child.lua('MiniBracketed.quickfix(...)', { 'forward', { only_files = true } })
+  eq(get_quickfix(), 3)
+
+  -- Test forward navigation with only_files from entry 3 to entry 5
+  set_quickfix(3)
+  child.lua('MiniBracketed.quickfix(...)', { 'forward', { only_files = true } })
+  eq(get_quickfix(), 5)
+
+  -- Test backward navigation with only_files
+  set_quickfix(5)
+  child.lua('MiniBracketed.quickfix(...)', { 'backward', { only_files = true } })
+  eq(get_quickfix(), 3)
+
+  -- Test backward navigation with only_files from entry 3 to entry 1
+  set_quickfix(3)
+  child.lua('MiniBracketed.quickfix(...)', { 'backward', { only_files = true } })
+  eq(get_quickfix(), 1)
+end
+
 T['treesitter()'] = new_set()
 
 local setup_treesitter = function()

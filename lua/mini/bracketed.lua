@@ -702,7 +702,7 @@ MiniBracketed.location = function(direction, opts)
 
   H.validate_direction(direction, { 'first', 'backward', 'forward', 'last' }, 'location')
   opts =
-    vim.tbl_deep_extend('force', { n_times = vim.v.count1, wrap = true }, H.get_config().location.options, opts or {})
+    vim.tbl_deep_extend('force', { n_times = vim.v.count1, wrap = true, only_files = false }, H.get_config().location.options, opts or {})
 
   H.qf_loc_implementation('location', direction, opts)
 end
@@ -781,7 +781,7 @@ MiniBracketed.quickfix = function(direction, opts)
 
   H.validate_direction(direction, { 'first', 'backward', 'forward', 'last' }, 'quickfix')
   opts =
-    vim.tbl_deep_extend('force', { n_times = vim.v.count1, wrap = true }, H.get_config().quickfix.options, opts or {})
+    vim.tbl_deep_extend('force', { n_times = vim.v.count1, wrap = true, only_files = false }, H.get_config().quickfix.options, opts or {})
 
   H.qf_loc_implementation('quickfix', direction, opts)
 end
@@ -1765,12 +1765,26 @@ H.qf_loc_implementation = function(list_type, direction, opts)
 
   iterator.next = function(ind)
     if ind == nil or n_list <= ind then return end
-    return ind + 1
+    local next_ind = ind + 1
+    if opts.only_files then
+      while next_ind <= n_list and list[next_ind].bufnr == 0 do
+        next_ind = next_ind + 1
+      end
+      if next_ind > n_list then return end
+    end
+    return next_ind
   end
 
   iterator.prev = function(ind)
     if ind == nil or ind <= 1 then return end
-    return ind - 1
+    local prev_ind = ind - 1
+    if opts.only_files then
+      while prev_ind >= 1 and list[prev_ind].bufnr == 0 do
+        prev_ind = prev_ind - 1
+      end
+      if prev_ind < 1 then return end
+    end
+    return prev_ind
   end
 
   iterator.state = get_list({ idx = 0 }).idx
