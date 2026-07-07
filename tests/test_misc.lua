@@ -1036,8 +1036,6 @@ end
 T['setup_termbg_sync()'] = new_set({
   hooks = {
     pre_case = function()
-      if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('`setup_termbg_sync()` works only on Neovim>=0.10') end
-
       child.lua([[
         -- Mock `io.stdout:write` used to send control sequences to terminal emulator
         _G.log = {}

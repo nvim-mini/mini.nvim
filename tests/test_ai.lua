@@ -828,10 +828,6 @@ T['gen_spec']['treesitter()']['works with directives'] = function()
 end
 
 T['gen_spec']['treesitter()']['works with quantified captures'] = function()
-  if child.fn.has('nvim-0.10') == 0 then
-    MiniTest.skip('`Query:iter_matches()` returning several nodes requires Neovim>=0.10')
-  end
-
   child.lua([[MiniAi.config.custom_textobjects = {
     P = MiniAi.gen_spec.treesitter({ a = '@parameter.outer', i = '@parameter.inner' }),
   }]])
@@ -847,8 +843,6 @@ T['gen_spec']['treesitter()']['works with quantified captures'] = function()
 end
 
 T['gen_spec']['treesitter()']['works with parent of injected language'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('`LanguageTree:parent()` requires Neovim>=0.10') end
-
   local lines = {
     'local foo = function()',
     '  vim.cmd([[',
@@ -942,7 +936,6 @@ T['gen_spec']['treesitter()']['validates builtin treesitter presence'] = functio
   )
 
   -- - Should show each language
-  if child.fn.has('nvim-0.10') == 0 then return end
   child.cmd('enew')
   child.bo.filetype = 'help'
   set_lines({ '>vim', '    set cursorline', '<' })

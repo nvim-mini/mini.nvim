@@ -98,15 +98,6 @@ local H = {}
 ---   require('mini.cmdline').setup({}) -- replace {} with your config table
 --- <
 MiniCmdline.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.cmdline) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniCmdline = MiniCmdline
 

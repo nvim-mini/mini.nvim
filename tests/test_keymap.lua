@@ -802,8 +802,6 @@ T['map_multistep()']['built-in steps']['hungry_bs'] = function()
 end
 
 T['map_multistep()']['built-in steps']['vimsnippet_next'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('`vim.snippet` is available only on Neovim>=0.10') end
-
   -- Make sure to not test built-in <Tab> mappings from Neovim>=0.11
   pcall(child.cmd, 'iunmap <Tab>')
   pcall(child.cmd, 'sunmap <Tab>')
@@ -833,8 +831,6 @@ T['map_multistep()']['built-in steps']['vimsnippet_next'] = function()
 end
 
 T['map_multistep()']['built-in steps']['vimsnippet_prev'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('`vim.snippet` is available only on Neovim>=0.10') end
-
   -- Make sure to not test built-in <Tab> mappings from Neovim>=0.11
   pcall(child.cmd, 'iunmap <S-Tab>')
   pcall(child.cmd, 'sunmap <S-Tab>')

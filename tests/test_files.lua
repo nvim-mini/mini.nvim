@@ -1249,11 +1249,11 @@ T['refresh()']['handles presence of pending file system actions'] = function()
 
   -- On no confirm should not update buffers, but still apply other changes
   type_keys('o', 'new-file-2', '<Esc>')
-  if child.fn.has('nvim-0.10') == 1 then child.expect_screenshot() end
+  child.expect_screenshot()
 
   mock_confirm(2)
   child.lua('MiniFiles.refresh({ content = { filter = function() return true end }, windows = { width_focus = 15 } })')
-  if child.fn.has('nvim-0.10') == 1 then child.expect_screenshot() end
+  child.expect_screenshot()
 
   mock_confirm(1)
   close()
@@ -1381,7 +1381,7 @@ T['reset()']['works when anchor is not in branch'] = function()
   child.expect_screenshot()
 
   reset()
-  if child.fn.has('nvim-0.10') == 1 then child.expect_screenshot() end
+  child.expect_screenshot()
 end
 
 T['reset()']['resets all cursors'] = function()
@@ -2312,11 +2312,9 @@ T['set_branch()']['works with not absolute paths'] = function()
   set_branch({ '.', './dir-1' })
   eq(get_explorer_state().branch, { nested, nested .. '/dir-1' })
 
-  -- The ".." should also be resolved (but supported only on Neovim>=0.10)
-  if child.fn.has('nvim-0.10') == 1 then
-    set_branch({ '..' })
-    eq(get_explorer_state().branch, { full_path(test_dir) })
-  end
+  -- The ".." should also be resolved
+  set_branch({ '..' })
+  eq(get_explorer_state().branch, { full_path(test_dir) })
 end
 
 T['set_branch()']['works with `/` in branch'] = function()
@@ -2848,7 +2846,6 @@ T['Windows']['never shows past end of buffer'] = function()
 end
 
 T['Windows']['restricts manual buffer navigation'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Window and buffer pairing is available on Neovim>=0.10') end
   child.api.nvim_create_buf(true, false)
   open(test_dir_path)
   validate_n_wins(2)
@@ -2858,8 +2855,6 @@ T['Windows']['restricts manual buffer navigation'] = function()
 end
 
 T['Windows']["do not evaluate 'foldexpr' too much"] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Correct behavior is only on Neovim>=0.10') end
-
   child.lua('MiniFiles.config.windows.preview = true')
   child.lua([[
     _G.n = 0
@@ -2936,20 +2931,15 @@ T['Preview']['works for directories'] = function()
 end
 
 T['Preview']['works for files'] = function()
-  local expect_screenshot = function()
-    -- Test only on Neovim>=0.10 because there was major tree-sitter update
-    if child.fn.has('nvim-0.10') == 1 then child.expect_screenshot() end
-  end
-
   open(make_test_path('real'))
 
   -- Should preview Lua file with highlighting
-  expect_screenshot()
+  child.expect_screenshot()
 
   -- Should preview text file (also with enabled highlighting but as there is
   -- none defined, non should be visible)
   type_keys('j')
-  expect_screenshot()
+  child.expect_screenshot()
 
   -- Should read only maximum necessary amount of lines
   local buffers = child.api.nvim_list_bufs()
@@ -2961,21 +2951,21 @@ T['Preview']['works for files'] = function()
 
   -- Should recognize binary files and show placeholder preview
   type_keys('j')
-  expect_screenshot()
+  child.expect_screenshot()
 
   -- Should work for empty files
   type_keys('j')
-  expect_screenshot()
+  child.expect_screenshot()
 
   -- Should fall back to built-in syntax highlighting in case of no tree-sitter
   type_keys('j')
-  expect_screenshot()
+  child.expect_screenshot()
 
   -- Should not error on files which failed to read (looks like on Windows it
   -- can be different from "non-readable" files)
   child.lua('vim.loop.fs_open = function() return nil end')
   type_keys('j')
-  expect_screenshot()
+  child.expect_screenshot()
 end
 
 T['Preview']['works with imaginary paths'] = function()
@@ -3034,8 +3024,6 @@ T['Preview']['does not highlight big files'] = function()
 end
 
 T['Preview']['does not trigger unnecessary events'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Implemented on in Neovim>=0.10 for convenience') end
-
   child.lua('_G.log = {}')
   child.cmd('au BufEnter,BufLeave * lua table.insert(_G.log, "unnecessary")')
 
@@ -4356,8 +4344,7 @@ T['File manipulation']['move works again after undo'] = function()
   type_keys('u', 'u')
   -- - Clear command line
   type_keys(':', '<Esc>')
-  -- - Highlighting is different on Neovim>=0.10
-  if child.fn.has('nvim-0.10') == 1 then child.expect_screenshot() end
+  child.expect_screenshot()
 
   mock_confirm(1)
   synchronize()
@@ -4627,11 +4614,11 @@ T['File manipulation']['works with problematic names'] = function()
   type_keys('C', 'c file', '<Esc>')
   -- - Create
   type_keys('o', 'd file', '<Esc>')
-  if child.fn.has('nvim-0.10') == 1 then child.expect_screenshot() end
+  child.expect_screenshot()
 
   mock_confirm(1)
   synchronize()
-  if child.fn.has('nvim-0.10') == 1 then child.expect_screenshot() end
+  child.expect_screenshot()
 
   validate_tree(temp_dir, { 'c file', 'd file' })
 end
@@ -4649,11 +4636,11 @@ T['File manipulation']['handles backslash on Unix'] = function()
   type_keys('C', 'new-hello', '<Esc>')
   -- - Create
   type_keys('o', 'bad\\file', '<Esc>')
-  if child.fn.has('nvim-0.10') == 1 then child.expect_screenshot() end
+  child.expect_screenshot()
 
   mock_confirm(1)
   synchronize()
-  if child.fn.has('nvim-0.10') == 1 then child.expect_screenshot() end
+  child.expect_screenshot()
 
   validate_tree(temp_dir, { 'bad\\file', 'new-hello', 'wo\\rld' })
 end
@@ -5720,11 +5707,6 @@ T['Events']['`MiniFilesWindowUpdate` is triggered after current buffer is set'] 
 end
 
 T['Events']['`MiniFilesWindowUpdate` can customize internally set window config parts'] = function()
-  local expect_screenshot = child.expect_screenshot
-  if child.fn.has('nvim-0.10') == 0 then
-    local expect_orig = expect_screenshot
-    expect_screenshot = function() child.expect_screenshot({ ignore_attr = true }) end
-  end
   child.set_size(15, 80)
 
   load_module({
@@ -5754,27 +5736,27 @@ T['Events']['`MiniFilesWindowUpdate` can customize internally set window config 
 
   open(test_dir_path)
   go_in()
-  expect_screenshot()
+  child.expect_screenshot()
 
   -- Works in Insert mode when number of entries is less than height
   type_keys('o', 'a', 'b', 'c')
-  expect_screenshot()
+  child.expect_screenshot()
   child.ensure_normal_mode()
 
   -- Works in Insert mode when number of entries is more than height
   go_out()
   type_keys('o', 'd', 'e', 'f')
-  expect_screenshot()
+  child.expect_screenshot()
   child.ensure_normal_mode()
 
   -- Works when modifying below last visible line
   type_keys('3j', 'o', 'a')
-  expect_screenshot()
+  child.expect_screenshot()
 
   -- Works even if completion menu (like from 'mini.completion') is triggered
   child.cmd('set iskeyword+=-')
   type_keys('<C-n>')
-  expect_screenshot()
+  child.expect_screenshot()
 end
 
 T['Events']['`MiniFilesActionCreate` triggers'] = function()
@@ -6417,7 +6399,7 @@ T['Default explorer']['handles forcing other window as current'] = function()
 
   child.cmd('edit ' .. test_dir_path)
   expect.no_error(function() child.api.nvim_set_current_win(init_win_id) end)
-  if child.fn.has('nvim-0.10') == 1 then eq(child.api.nvim_get_current_win(), init_win_id) end
+  eq(child.api.nvim_get_current_win(), init_win_id)
 end
 
 T['Default explorer']['keeps directory buffer open when number of windows decreases'] = function()

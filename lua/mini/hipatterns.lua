@@ -228,15 +228,6 @@ local H = {}
 ---                                        -- needs `highlighters` field present
 --- <
 MiniHipatterns.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.hipatterns) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniHipatterns = MiniHipatterns
 
@@ -523,7 +514,7 @@ MiniHipatterns.get_matches = function(buf_id, highlighters)
 
   local all_highlighters = H.get_all_highlighters()
   highlighters = highlighters or all_highlighters
-  if not H.islist(highlighters) then H.error('`highlighters` should be an array.') end
+  if not vim.islist(highlighters) then H.error('`highlighters` should be an array.') end
   highlighters = vim.tbl_filter(function(x) return vim.tbl_contains(all_highlighters, x) end, highlighters)
 
   local position_compare = function(a, b) return a[2] < b[2] or (a[2] == b[2] and a[3] < b[3]) end
@@ -568,7 +559,6 @@ MiniHipatterns.gen_highlighter = {}
 ---       - `'#'` - highlight background of only `#`.
 ---       - `'line'` - highlight underline with that color.
 ---       - `'inline'` - highlight text of <inline_text>.
----         Note: requires Neovim>=0.10.
 ---   - <priority> `(number)` - priority of highlighting. Default: 200.
 ---   - <filter> `(function)` - callable object used to filter buffers in which
 ---     highlighting will take place. It should take buffer identifier as input
@@ -593,10 +583,6 @@ MiniHipatterns.gen_highlighter.hex_color = function(opts)
   opts = vim.tbl_deep_extend('force', default_opts, opts or {})
 
   local style = opts.style
-  if style == 'inline' and vim.fn.has('nvim-0.10') == 0 then
-    H.error('Style "inline" in `gen_highlighter.hex_color()` requires Neovim>=0.10.')
-  end
-
   local pattern = style == '#' and '()#()%x%x%x%x%x%x%f[%X]' or '#%x%x%x%x%x%x%f[%X]'
   local hl_style = ({ full = 'bg', ['#'] = 'bg', line = 'line', inline = 'fg' })[style] or 'bg'
 
@@ -823,7 +809,7 @@ H.normalize_highlighters = function(highlighters)
     -- valid cases into array of callables.
     local pattern = type(hi.pattern) == 'string' and function() return hi.pattern end or hi.pattern
     if vim.is_callable(pattern) then pattern = { pattern } end
-    local is_pattern_ok = H.islist(pattern)
+    local is_pattern_ok = vim.islist(pattern)
     if is_pattern_ok then
       for i, pat in ipairs(pattern) do
         pattern[i] = type(pat) == 'string' and function() return pat end or pat
@@ -1035,8 +1021,5 @@ H.clear_namespace = function(...) pcall(vim.api.nvim_buf_clear_namespace, ...) e
 H.always_true = function() return true end
 
 H.cuberoot = function(x) return math.pow(x, 0.333333) end
-
--- TODO: Remove after compatibility with Neovim=0.9 is dropped
-H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
 
 return MiniHipatterns

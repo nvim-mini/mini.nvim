@@ -420,15 +420,6 @@ local H = {}
 ---   require('mini.ai').setup({}) -- replace {} with your config table
 --- <
 MiniAi.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.ai) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniAi = MiniAi
 
@@ -1461,7 +1452,7 @@ H.is_region = function(x)
 end
 
 H.is_region_array = function(x)
-  if not H.islist(x) then return false end
+  if not vim.islist(x) then return false end
   for _, v in ipairs(x) do
     if not H.is_region(v) then return false end
   end
@@ -1469,7 +1460,7 @@ H.is_region_array = function(x)
 end
 
 H.is_composed_pattern = function(x)
-  if not (H.islist(x) and #x > 0) then return false end
+  if not (vim.islist(x) and #x > 0) then return false end
   for _, val in ipairs(x) do
     local val_type = type(val)
     if not (val_type == 'table' or val_type == 'string' or vim.is_callable(val)) then return false end
@@ -1598,7 +1589,7 @@ end
 H.prepare_ai_captures = function(ai_captures)
   local is_capture = function(x)
     if type(x) == 'string' then x = { x } end
-    if not H.islist(x) then return false end
+    if not vim.islist(x) then return false end
 
     for _, v in ipairs(x) do
       if not (type(v) == 'string' and v:sub(1, 1) == '@') then return false end
@@ -1643,10 +1634,7 @@ H.get_matched_ranges_builtin = function(captures)
   -- Go up parent trees to work with injected languages
   while vim.tbl_isempty(res) and lang_tree ~= nil do
     H.append_lang_ranges(res, missing_query_langs, buf_id, captures, lang_tree)
-
-    -- `LanguageTree:parent()` was added in Neovim=0.10
-    -- TODO: Drop extra check after compatibility with Neovim=0.9 is dropped
-    lang_tree = lang_tree.parent and lang_tree:parent() or nil
+    lang_tree = lang_tree:parent()
   end
 
   -- Fall back to children trees for injected languages
@@ -1681,7 +1669,7 @@ H.append_ranges = function(res, buf_id, query, captures, lang_tree)
   local capture_is_requested = vim.tbl_map(function(c) return vim.tbl_contains(captures, '@' .. c) end, query.captures)
 
   for _, tree in ipairs(lang_tree:trees()) do
-    -- TODO: Remove `opts.all`after compatibility with Neovim=0.10 is dropped
+    -- TODO: Remove `opts.all` after compatibility with Neovim=0.10 is dropped
     for _, match, metadata in query:iter_matches(tree:root(), buf_id, nil, nil, { all = true }) do
       for capture_id, nodes in pairs(match) do
         local mt = metadata[capture_id]
@@ -1692,10 +1680,6 @@ H.append_ranges = function(res, buf_id, query, captures, lang_tree)
 end
 
 H.get_nodes_range_builtin = function(nodes, buf_id, metadata)
-  -- In Neovim<0.10 `Query:iter_matches()` has `match` map to single node.
-  -- TODO: Remove `opts.all`after compatibility with Neovim=0.9 is dropped
-  nodes = type(nodes) == 'table' and nodes or { nodes }
-
   -- Get matched range as spanning from left most node start to right most node
   -- end. This accounts for several matched nodes that are intentionally there
   -- to cover complex cases. Approach is named "quantified captures".
@@ -2208,7 +2192,7 @@ end
 ---@private
 H.cartesian_product = function(arr)
   if not (type(arr) == 'table' and #arr > 0) then return {} end
-  arr = vim.tbl_map(function(x) return H.islist(x) and x or { x } end, arr)
+  arr = vim.tbl_map(function(x) return vim.islist(x) and x or { x } end, arr)
 
   local res, cur_item = {}, {}
   local process
@@ -2236,9 +2220,6 @@ H.wrap_callable_table = function(x)
   return x
 end
 
--- TODO: Remove after compatibility with Neovim=0.9 is dropped
-H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
-H.tbl_flatten = vim.fn.has('nvim-0.10') == 1 and function(x) return vim.iter(x):flatten(math.huge):totable() end
-  or vim.tbl_flatten
+H.tbl_flatten = function(x) return vim.iter(x):flatten(math.huge):totable() end
 
 return MiniAi

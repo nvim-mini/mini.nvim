@@ -300,8 +300,6 @@ Primary use case is to remove possible "frame" around current Neovim instance
 which appears if Neovim's |hl-Normal| background color differs from what is
 used by terminal emulator itself.
 
-Works only on Neovim>=0.10.
-
 Parameters ~
 {opts} `(table|nil)` Options. Possible fields:
   - <explicit_reset> `(boolean)` - whether to reset terminal background by

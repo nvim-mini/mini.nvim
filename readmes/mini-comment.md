@@ -176,7 +176,7 @@ Stable branch:
 
 ## Similar plugins
 
-- Built-in commenting in Neovim>=0.10, see `:h commenting` (implemented with 'mini.comment' as reference)
+- Built-in commenting, see `:h commenting` (implemented with 'mini.comment' as reference)
 - [numToStr/Comment.nvim](https://github.com/numToStr/Comment.nvim)
 - [tpope/vim-commentary](https://github.com/tpope/vim-commentary)
 - [preservim/nerdcommenter](https://github.com/preservim/nerdcommenter)

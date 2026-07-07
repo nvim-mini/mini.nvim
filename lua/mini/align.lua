@@ -434,15 +434,6 @@ local H = {}
 ---   require('mini.align').setup({}) -- replace {} with your config table
 --- <
 MiniAlign.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.align) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniAlign = MiniAlign
 
@@ -1735,8 +1726,8 @@ H.region_get_text = function(region, mode)
     local res, lines = {}, H.get_lines(from.line - 1, to.line)
     for i, l in ipairs(lines) do
       local lnum = from.line + i - 1
-      local left_col = H.virtcol2col(lnum, left_virtcol)
-      local right_col = H.virtcol2col(lnum, right_virtcol)
+      local left_col = vim.fn.virtcol2col(0, lnum, left_virtcol)
+      local right_col = vim.fn.virtcol2col(0, lnum, right_virtcol)
       right_col = right_col + H.str_utf_end(l, right_col)
 
       table.insert(res, l:sub(left_col, right_col))
@@ -1769,12 +1760,11 @@ H.region_set_text = function(region, mode, text)
     local lines = H.get_lines(from.line - 1, to.line)
     for i, l in ipairs(lines) do
       local lnum = from.line + i - 1
-      local left_col = H.virtcol2col(lnum, left_virtcol)
-      local right_col = H.virtcol2col(lnum, right_virtcol)
+      local left_col = vim.fn.virtcol2col(0, lnum, left_virtcol)
+      local right_col = vim.fn.virtcol2col(0, lnum, right_virtcol)
       right_col = right_col + H.str_utf_end(l, right_col)
 
       -- Adjust columns to not go outside of line
-      -- TODO: Remove after compatibility with Neovim=0.9 is dropped
       left_col, right_col = math.max(left_col - 1, 0), math.min(right_col, l:len())
       H.set_text(lnum - 1, left_col, lnum - 1, right_col, { text[i] })
     end
@@ -1862,7 +1852,7 @@ end
 
 -- Predicates -----------------------------------------------------------------
 H.is_array_of = function(x, predicate)
-  if not H.islist(x) then return false end
+  if not vim.islist(x) then return false end
   for _, v in ipairs(x) do
     if not predicate(v) then return false end
   end
@@ -2021,23 +2011,10 @@ H.string_find = function(s, pattern, init)
   return string.find(s, pattern, init)
 end
 
-H.virtcol2col = function(lnum, col) return vim.fn.virtcol2col(0, lnum, col) end
-if vim.fn.has('nvim-0.10') == 0 then
-  -- Neovim<0.10 has `virtcol2col` returning cell's last column instead of
-  -- cell's first column in Neovim>=0.10
-  H.virtcol2col = function(lnum, col)
-    if vim.fn.virtcol2col(0, lnum, col) == 0 then return 0 end
-    return vim.fn.virtcol2col(0, lnum, col - 1) + 1
-  end
-end
-
 H.str_utfindex = function(s, i) return vim.str_utfindex(s, 'utf-32', i) end
 if vim.fn.has('nvim-0.11') == 0 then H.str_utfindex = function(s, i) return (vim.str_utfindex(s, i)) end end
 
 H.str_utf_end = function(s, n) return n >= s:len() and 0 or vim.str_utf_end(s, n) end
-if vim.fn.has('nvim-0.10') == 0 then
-  H.str_utf_end = function(s, n) return n >= s:len() and 0 or (vim.str_byteindex(s, H.str_utfindex(s, n)) - n) end
-end
 
 H.is_any_point_inside_any_span = function(points, spans)
   for _, point in ipairs(points) do
@@ -2068,8 +2045,5 @@ H.undo = function()
     vim.cmd('silent! lockmarks normal! u')
   end
 end
-
--- TODO: Remove after compatibility with Neovim=0.9 is dropped
-H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
 
 return MiniAlign

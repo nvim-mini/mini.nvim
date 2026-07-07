@@ -974,7 +974,7 @@ T['diagnostic()'] = new_set()
 
 local diagnostic = function(direction, opts)
   opts = opts or {}
-  -- Force traversing of all diagnostics. It is needed on Neovim>=0.10.
+  -- Force traversing of all diagnostics
   opts.severity = opts.severity or { min = child.lua_get('vim.diagnostic.severity.HINT') }
   return child.lua_get('MiniBracketed.diagnostic(...)', { direction, opts })
 end

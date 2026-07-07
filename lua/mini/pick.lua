@@ -49,9 +49,6 @@
 --- - Match caching to increase responsiveness on repeated prompts.
 ---
 --- Notes:
---- - Works on all supported versions but Neovim>=0.10 will give more visual
----   feedback in floating window footer.
----
 --- - For more pickers see |MiniExtra.pickers|.
 ---
 --- Sources with more details:
@@ -175,7 +172,7 @@
 --- Current prompt is displayed at the top left of the window border with vertical
 --- line indicating caret (current input position).
 ---
---- Bottom part of window border displays (in Neovim>=0.10) extra visual feedback:
+--- Bottom part of window border displays extra visual feedback:
 --- - Left part is a picker name.
 --- - Right part contains information in the format >
 ---
@@ -721,15 +718,6 @@ local H = {}
 ---   require('mini.pick').setup({}) -- replace {} with your config table
 --- <
 MiniPick.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.pick) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniPick = MiniPick
 
@@ -784,8 +772,7 @@ end
 ---
 --- `options.content_from_bottom` is a boolean indicating whether content should be
 --- shown from bottom to top. That means that best matches will be shown at
---- the bottom. Note: for better experience use Neovim>=0.10, which has floating
---- window footer capability. Default: `false`.
+--- the bottom. Default: `false`.
 ---
 --- `options.use_cache` is a boolean indicating whether match results should be
 --- cached per prompt (i.e. concatenated query). This results into faster response
@@ -935,7 +922,7 @@ MiniPick.start = function(opts)
   H.picker_set_busy(picker, true)
   local items = H.expand_callable(opts.source.items)
   -- - Set items on next event loop to not block when computing stritems
-  if H.islist(items) then vim.schedule(function() MiniPick.set_picker_items(items) end) end
+  if vim.islist(items) then vim.schedule(function() MiniPick.set_picker_items(items) end) end
 
   H.picker_track_lost_focus(picker)
   return H.picker_advance(picker)
@@ -1209,7 +1196,7 @@ end
 ---   - <list_type> `(string)` - which type of list to open. One of "quickfix"
 ---     or "location". Default: "quickfix".
 MiniPick.default_choose_marked = function(items, opts)
-  if not H.islist(items) then H.error('`items` should be an array') end
+  if not vim.islist(items) then H.error('`items` should be an array') end
   if #items == 0 then return end
   opts = vim.tbl_deep_extend('force', { list_type = 'quickfix' }, opts or {})
 
@@ -1300,7 +1287,7 @@ MiniPick.ui_select = function(items, opts, on_choice, start_opts)
     or function(x) return vim.split(vim.inspect(x), '\n') end
   local preview = function(buf_id, item)
     local data = preview_item(item.item)
-    if H.islist(data) then return H.set_buflines(buf_id, data) end
+    if vim.islist(data) then return H.set_buflines(buf_id, data) end
     if not (type(data) == 'table' and H.is_valid_buf(data.buf)) then return end
     vim.api.nvim_buf_call(buf_id, function()
       vim.api.nvim_set_current_buf(data.buf)
@@ -1754,7 +1741,7 @@ MiniPick.get_picker_query = function() return vim.deepcopy((H.pickers.active or 
 ---
 ---@seealso |MiniPick.get_picker_items()| and |MiniPick.get_picker_stritems()|
 MiniPick.set_picker_items = function(items, opts)
-  if not H.islist(items) then H.error('`items` should be an array.') end
+  if not vim.islist(items) then H.error('`items` should be an array.') end
   opts = vim.tbl_deep_extend('force', { do_match = true, querytick = nil }, opts or {})
   if not MiniPick.is_picker_active() then return end
 
@@ -2162,7 +2149,7 @@ H.validate_picker_opts = function(opts)
   local source = opts.source
 
   local items = source.items or {}
-  local is_valid_items = H.islist(items) or vim.is_callable(items)
+  local is_valid_items = vim.islist(items) or vim.is_callable(items)
   if not is_valid_items then H.error('`source.items` should be array or callable.') end
 
   source.name = tostring(source.name or '<No name>')
@@ -2342,9 +2329,8 @@ H.picker_new_win = function(buf_id, win_config, cwd)
   local opts_scope = { scope = 'local', win = win_id }
   vim.wo[win_id].foldenable = false
   vim.wo[win_id].foldmethod = 'manual'
-  -- TODO: Use vim.wo[win_id][0] after compatibility with Neovim=0.9 is dropped
-  vim.api.nvim_set_option_value('list', true, opts_scope)
-  vim.api.nvim_set_option_value('listchars', 'extends:…,precedes:…', opts_scope)
+  vim.wo[win_id][0].list = true
+  vim.wo[win_id][0].listchars = 'extends:…,precedes:…'
   vim.wo[win_id].scrolloff = 0
   vim.wo[win_id].wrap = false
   H.win_update_hl(win_id, 'NormalFloat', 'MiniPickNormal')
@@ -2676,13 +2662,12 @@ H.picker_set_bordertext = function(picker)
 
   -- Compute helper footer only if Neovim version permits and not in busy
   -- picker (otherwise it will flicker number of matches data on char delete)
-  local nvim_has_window_footer = vim.fn.has('nvim-0.10') == 1
-  if nvim_has_window_footer and not picker.is_busy then
+  if not picker.is_busy then
     config.footer, config.footer_pos = H.picker_compute_footer(picker, win_id), 'left'
   end
 
   -- Respect `options.content_from_bottom`
-  if nvim_has_window_footer and opts.options.content_from_bottom then
+  if opts.options.content_from_bottom then
     config.title, config.footer = config.footer, config.title
   end
 
@@ -2729,7 +2714,7 @@ H.picker_stop = function(picker, abort)
     H.pickers = { active = nil, latest = new_latest }
   end
 
-  H.set_curwin(picker.windows.target)
+  if H.is_valid_win(picker.windows.target) then vim.api.nvim_set_current_win(picker.windows.target) end
   pcall(vim.api.nvim_win_close, picker.windows.main, true)
   pcall(vim.api.nvim_buf_delete, picker.buffers.main, { force = true })
   pcall(vim.api.nvim_buf_delete, picker.buffers.info, { force = true })
@@ -3662,7 +3647,7 @@ H.is_valid_buf = function(buf_id) return type(buf_id) == 'number' and vim.api.nv
 H.is_valid_win = function(win_id) return type(win_id) == 'number' and vim.api.nvim_win_is_valid(win_id) end
 
 H.is_array_of = function(x, ref_type)
-  if not H.islist(x) then return false end
+  if not vim.islist(x) then return false end
   for i = 1, #x do
     if type(x[i]) ~= ref_type then return false end
   end
@@ -3691,15 +3676,6 @@ H.set_winbuf = function(win_id, buf_id) vim.api.nvim_win_set_buf(win_id, buf_id)
 H.set_extmark = function(...) pcall(vim.api.nvim_buf_set_extmark, ...) end
 
 H.set_cursor = function(win_id, lnum, col) pcall(vim.api.nvim_win_set_cursor, win_id, { lnum or 1, (col or 1) - 1 }) end
-
-H.set_curwin = function(win_id)
-  if not H.is_valid_win(win_id) then return end
-  -- Explicitly preserve cursor to fix Neovim<0.10 after choosing position in
-  -- already shown buffer
-  local buf_id, cursor = vim.api.nvim_win_get_buf(win_id), vim.api.nvim_win_get_cursor(win_id)
-  vim.api.nvim_set_current_win(win_id)
-  if buf_id == vim.api.nvim_win_get_buf(win_id) then H.set_cursor(win_id, cursor[1], cursor[2] + 1) end
-end
 
 H.clear_namespace = function(buf_id, ns_id) pcall(vim.api.nvim_buf_clear_namespace, buf_id, ns_id, 0, -1) end
 
@@ -3854,9 +3830,6 @@ H.user_input = function(prompt, text, completion, scope)
   return (ok and not was_cancelled) and res or nil
 end
 
--- TODO: Remove after compatibility with Neovim=0.9 is dropped
-H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
-
 H.get_lmap = function()
   local lmap = {}
   for _, map in ipairs(vim.fn.maplist()) do
@@ -3866,7 +3839,6 @@ H.get_lmap = function()
   end
   return lmap
 end
-if vim.fn.has('nvim-0.10') == 0 then H.get_lmap = function() return {} end end
 
 -- A copy of `vim.deepcopy()` that doesn't error on userdata and threads
 H.copy_tables = function(x)

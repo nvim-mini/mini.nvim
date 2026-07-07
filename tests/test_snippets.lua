@@ -24,14 +24,6 @@ local test_dir_absolute = vim.fn.fnamemodify(test_dir, ':p'):gsub('\\', '/'):gsu
 -- Time constants
 local small_time = helpers.get_time_const(10)
 
--- Tweak `expect_screenshot()` to test only on Neovim>=0.10 (as it has inline
--- extmarks support). Use `child.expect_screenshot_orig()` for original testing.
-child.expect_screenshot_orig = child.expect_screenshot
-child.expect_screenshot = function(opts)
-  if child.fn.has('nvim-0.10') == 0 then return end
-  child.expect_screenshot_orig(opts)
-end
-
 -- Common test wrappers
 local forward_lua = function(fun_str)
   local lua_cmd = fun_str .. '(...)'
@@ -1310,8 +1302,6 @@ T['default_prepare()']['uses proper default context'] = function()
   validate_context({ buf_id = cur_buf, lang = 'myft' })
 
   -- With present tree-sitter should use local parser language
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Testing on Neovim>=0.10 is easier with built-in parsers') end
-
   child.bo.filetype = 'vim'
   child.lua('vim.treesitter.start()')
   set_lines({
@@ -2095,7 +2085,6 @@ T['session.get()']['works'] = function()
   eq_partial_tbl(get_extmark(session.extmark_id), ref_extmark)
 
   -- Should have proper node structure with correct extmarks attached to nodes
-  local has_inline_extmarks = child.fn.has('nvim-0.10') == 1
   --stylua: ignore
   local ref_nodes = {
     { text = 'T1=', extmark = { row = 0, col = 0, end_row = 0, end_col = 3 } },
@@ -2108,8 +2097,8 @@ T['session.get()']['works'] = function()
           tabstop = '2',
           extmark = {
             row = 0, col = 4, end_row = 0, end_col = 4,
-            virt_text = has_inline_extmarks and { { '$', 'MiniSnippetsCurrentReplace' } } or nil,
-            virt_text_pos = has_inline_extmarks and 'inline' or nil,
+            virt_text = { { '$', 'MiniSnippetsCurrentReplace' } },
+            virt_text_pos = 'inline',
           },
           placeholder = {
             { text = '', extmark = { row = 0, col = 4, end_row = 0, end_col = 4 } }
@@ -2123,8 +2112,8 @@ T['session.get()']['works'] = function()
       placeholder = { { text = '', extmark = { row = 0, col = 5, end_row = 0, end_col = 5 } } },
       extmark = {
         row = 0, col = 5, end_row = 0, end_col = 5,
-        virt_text = has_inline_extmarks and { { '∎', 'MiniSnippetsFinal' } } or nil,
-        virt_text_pos = has_inline_extmarks and 'inline' or nil,
+        virt_text = { { '∎', 'MiniSnippetsFinal' } },
+        virt_text_pos = 'inline',
       }
     }
   }
@@ -3333,11 +3322,7 @@ end
 
 local validate_attached_clients = function(buf_id, ref_client_ids)
   child.lua('_G.buf_id = ' .. buf_id)
-  local attached = child.lua([[
-    local get_active_clients = vim.fn.has('nvim-0.10') == 1 and vim.lsp.get_clients or vim.lsp.get_active_clients
-    return vim.tbl_keys(get_active_clients({ bufnr = _G.buf_id }))
-  ]])
-  eq(attached, ref_client_ids)
+  eq(child.lua_get('vim.tbl_keys(vim.lsp.get_clients({ bufnr = _G.buf_id }))'), ref_client_ids)
 end
 
 T['start_lsp_server()']['works'] = function()
@@ -3800,7 +3785,6 @@ T['Session']['highlighting'] = new_set()
 local validate_tabstop_hl = function(ref_extmark_data, session)
   session = session or get()
   local buf_id, ns_id = session.buf_id, session.ns_id
-  local has_inline_extmarks = child.fn.has('nvim-0.10') == 1
 
   local out = {}
   local record_tabstop_extmark
@@ -3820,13 +3804,6 @@ local validate_tabstop_hl = function(ref_extmark_data, session)
     end
   end
   record_tabstop_extmark(session.nodes)
-
-  if not has_inline_extmarks then
-    ref_extmark_data = vim.tbl_map(function(x)
-      x.virt_text, x.virt_text_pos = nil, nil
-      return x
-    end, vim.deepcopy(ref_extmark_data))
-  end
 
   eq(out, ref_extmark_data)
 end
@@ -4196,7 +4173,6 @@ T['Session']['linked tabstops']['are updated immediately when typing'] = functio
   child.expect_screenshot()
 
   -- Even multiline
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Multiline text sync has issues with cursor on Neovim<0.10') end
   type_keys('<CR>')
   validate_state('i', { 'T1=ab', '_T1=ab', '' }, { 2, 0 })
   child.expect_screenshot()
@@ -5377,7 +5353,6 @@ T['Examples']['<Tab>/<S-Tab> mappings'] = function()
 end
 
 T['Examples']['using `vim.snippet.expand()`'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('`vim.snippet` is present only in Neovim>=0.10') end
   child.lua([[
     require('mini.snippets').setup({
       snippets = { { prefix = 't', body = 'T1=$1 T2=${2:<two>}' } },

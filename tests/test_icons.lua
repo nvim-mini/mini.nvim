@@ -48,7 +48,7 @@ T['setup()']['creates side effects'] = function()
   has_highlight('MiniIconsBlue', 'links to DiagnosticInfo')
   has_highlight('MiniIconsCyan', 'links to DiagnosticHint')
   has_highlight('MiniIconsGreen', 'links to DiagnosticOk')
-  has_highlight('MiniIconsGrey', child.fn.has('nvim-0.10') == 1 and 'cleared' or 'cterm= gui=')
+  has_highlight('MiniIconsGrey', 'cleared')
   has_highlight('MiniIconsOrange', 'links to DiagnosticWarn')
   has_highlight('MiniIconsPurple', 'links to Constant')
   has_highlight('MiniIconsRed', 'links to DiagnosticError')
@@ -713,10 +713,9 @@ end
 T['list()'] = new_set()
 
 T['list()']['works'] = function()
-  local islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
   local validate = function(category, ref_present_entry)
     local res = list(category)
-    eq(islist(res), true)
+    eq(vim.islist(res), true)
     eq(vim.tbl_contains(res, ref_present_entry), true)
   end
 

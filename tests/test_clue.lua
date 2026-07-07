@@ -894,9 +894,6 @@ end
 T['gen_clues']['windows()'] = new_set()
 
 T['gen_clues']['windows()']['works'] = function()
-  -- Check this only on Neovim>=0.10, as there are many new built-in mappings
-  if child.fn.has('nvim-0.10') == 0 then return end
-
   child.lua([[
     local miniclue = require('mini.clue')
     miniclue.setup({
@@ -1765,9 +1762,7 @@ T['Showing keys']['works in Command-line window'] = function()
   sleep(small_time + small_time)
   type_keys('f')
 
-  -- Closing floating window is allowed only on Neovim>=0.10.
-  -- See https://github.com/neovim/neovim/issues/24452 .
-  if child.fn.has('nvim-0.10') == 1 then child.expect_screenshot({ ignore_text = { 10 } }) end
+  child.expect_screenshot({ ignore_text = { 10 } })
 
   eq(get_test_map_count('n', '<Space>f'), 1)
 
@@ -2176,9 +2171,6 @@ T['Postkeys']['closes window if postkeys do not end up key querying'] = function
 end
 
 T['Postkeys']['persists window if action changes tabpage'] = function()
-  -- Check this only on Neovim>=0.10, as there are many new built-in mappings
-  if child.fn.has('nvim-0.10') == 0 then return end
-
   load_module({
     clues = { { mode = 'n', keys = '<C-w>T', desc = 'Move to new tabpage', postkeys = '<C-w>' } },
     triggers = { { mode = 'n', keys = '<C-w>' } },
@@ -3273,7 +3265,6 @@ T['Reproducing keys']['works with macros'] = function()
 end
 
 T['Reproducing keys']["works with macros and 'mini.jump'"] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('The solution works only on Neovim>=0.10') end
   child.lua("require('mini.jump').setup()")
   load_module()
   set_lines({ '  [aaa][bbb][ccc]' })

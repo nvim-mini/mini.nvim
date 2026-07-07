@@ -36,7 +36,7 @@
 ---     - Easy to reason rules for when session automatically stops.
 ---     - Text synchronization of linked tabstops preserving relative indent.
 ---     - Dynamic tabstop state visualization (current/visited/unvisited, etc.)
----     - Inline visualization of empty tabstops (requires Neovim>=0.10).
+---     - Inline visualization of empty tabstops.
 ---     - Works inside comments by preserving comment leader on new lines.
 ---     - Supports nested sessions (expand snippet while there is an active one).
 ---   See |MiniSnippets.default_insert()|.
@@ -103,7 +103,7 @@
 ---           autostopping rules), while `LuaSnip` autostops session once
 ---           jumping reached the final tabstop.
 ---
---- - Built-in |vim.snippet| (on Neovim>=0.10):
+--- - Built-in |vim.snippet|:
 ---     - Does not contain functionality to load or match snippets (by design),
 ---       while this module does.
 ---     - Both contain expand functionality based on LSP snippet format.
@@ -574,15 +574,6 @@ local H = {}
 ---                                      -- needs `snippets` field present
 --- <
 MiniSnippets.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.snippets) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniSnippets = MiniSnippets
 
@@ -1078,7 +1069,7 @@ end
 ---
 ---@return ... Array of snippets and supplied context (default if none was supplied).
 MiniSnippets.default_prepare = function(raw_snippets, opts)
-  if not H.islist(raw_snippets) then H.error('`raw_snippets` should be array') end
+  if not vim.islist(raw_snippets) then H.error('`raw_snippets` should be array') end
   opts = vim.tbl_extend('force', { context = nil }, opts or {})
   local context = opts.context
   if context == nil then context = H.get_default_context() end
@@ -1576,9 +1567,6 @@ H.cache = {
   mappings = {},
 }
 
--- Capabilities of current Neovim version
-H.nvim_supports_inline_extmarks = vim.fn.has('nvim-0.10') == 1
-
 -- Helper functionality =======================================================
 -- Settings -------------------------------------------------------------------
 H.setup_config = function(config)
@@ -1739,7 +1727,7 @@ H.traverse_raw_snippets = function(x, target, context)
     end
   end
 
-  if H.islist(x) then
+  if vim.islist(x) then
     for _, v in ipairs(x) do
       H.traverse_raw_snippets(v, target, context)
     end
@@ -2438,10 +2426,8 @@ H.session_update_hl = function(session)
     opts.hl_group, opts.virt_text_pos, opts.virt_text = nil, nil, nil
 
     if is_empty then
-      if H.nvim_supports_inline_extmarks then
-        opts.virt_text_pos = 'inline'
-        opts.virt_text = { { is_final and empty_tabstop_final or empty_tabstop, hl_group } }
-      end
+      opts.virt_text_pos = 'inline'
+      opts.virt_text = { { is_final and empty_tabstop_final or empty_tabstop, hl_group } }
     else
       opts.hl_group = hl_group
     end
@@ -2757,7 +2743,7 @@ end
 H.trigger_event = function(event_name, data) vim.api.nvim_exec_autocmds('User', { pattern = event_name, data = data }) end
 
 H.is_array_of = function(x, predicate)
-  if not H.islist(x) then return false end
+  if not vim.islist(x) then return false end
   for i = 1, #x do
     if not predicate(x[i]) then return false end
   end
@@ -2821,8 +2807,5 @@ H.hide_completion = function()
   -- '--INSERT--' temporarily when 'showmode' is active, but seems acceptable.
   if vim.fn.mode() == 'i' then vim.cmd('silent noautocmd call complete(col("."), [])') end
 end
-
--- TODO: Remove after compatibility with Neovim=0.9 is dropped
-H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
 
 return MiniSnippets

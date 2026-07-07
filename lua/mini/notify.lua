@@ -105,15 +105,6 @@ local H = {}
 ---   require('mini.notify').setup({}) -- replace {} with your config table
 --- <
 MiniNotify.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.notify) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniNotify = MiniNotify
 
@@ -462,7 +453,7 @@ end
 --- Note: effects are delayed if inside fast event (|vim.in_fast_event()|).
 MiniNotify.refresh = function()
   if vim.in_fast_event() then return vim.schedule(MiniNotify.refresh) end
-  if H.is_textlock() and vim.fn.has('nvim-0.10') == 1 then
+  if H.is_textlock() then
     pcall(vim.api.nvim_del_autocmd, H.cache.safestate_au_id)
     local au_opts = { once = true, nested = true, callback = vim.schedule_wrap(MiniNotify.refresh) }
     H.cache.safestate_au_id = vim.api.nvim_create_autocmd('SafeState', au_opts)
@@ -693,7 +684,7 @@ end
 -- LSP progress ---------------------------------------------------------------
 H.lsp_progress_handler = function(err, result, ctx, config)
   -- Make basic response processing. First call original LSP handler.
-  -- On Neovim>=0.10 this is crucial to not override `LspProgress` event.
+  -- It is crucial to not override `LspProgress` event.
   if vim.is_callable(vim.lsp.handlers['$/progress before mini.notify']) then
     vim.lsp.handlers['$/progress before mini.notify'](err, result, ctx, config)
   end
@@ -874,7 +865,7 @@ H.is_notification = function(x)
 end
 
 H.is_notification_array = function(x)
-  if not H.islist(x) then return false end
+  if not vim.islist(x) then return false end
   for _, y in ipairs(x) do
     if not H.is_notification(y) then return false end
   end
@@ -931,8 +922,5 @@ H.get_timestamp = function()
   local seconds, microseconds = vim.loop.gettimeofday()
   return seconds + 0.000001 * microseconds
 end
-
--- TODO: Remove after compatibility with Neovim=0.9 is dropped
-H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
 
 return MiniNotify

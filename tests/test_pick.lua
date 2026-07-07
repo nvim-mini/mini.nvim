@@ -12,14 +12,6 @@ local get_cursor = function(...) return child.get_cursor(...) end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child) end
 
--- Tweak `expect_screenshot()` to test only on Neovim>=0.10 (as it has floating
--- window footer). Use `child.expect_screenshot_orig()` for original testing.
-child.expect_screenshot_orig = child.expect_screenshot
-child.expect_screenshot = function(opts)
-  if child.fn.has('nvim-0.10') == 0 then return end
-  child.expect_screenshot_orig(opts)
-end
-
 -- Test paths helpers
 local join_path = function(...) return table.concat({ ... }, '/') end
 
@@ -708,22 +700,20 @@ T['start()']['respects `source.items`'] = function()
   stop()
 
   -- Problematic items
-  if child.fn.has('nvim-0.10') == 1 then
-    child.lua_notify('_G.res = MiniPick.start({ source = { items = { vim.uv.new_timer() } } })')
-    eq(child.lua_get('vim.tbl_map(type, MiniPick.get_picker_items())'), { 'userdata' })
-    type_keys('<CR>')
-    eq(child.lua_get('type(_G.res)'), 'userdata')
+  child.lua_notify('_G.res = MiniPick.start({ source = { items = { vim.uv.new_timer() } } })')
+  eq(child.lua_get('vim.tbl_map(type, MiniPick.get_picker_items())'), { 'userdata' })
+  type_keys('<CR>')
+  eq(child.lua_get('type(_G.res)'), 'userdata')
 
-    child.lua_notify([[
-      local items = { setmetatable({ 'a', setmetatable({ 'c' }, { 'd' }) }, { 'b' }) }
-      _G.res = MiniPick.start({ source = { items = items } })
-    ]])
-    eq(child.lua_get('vim.tbl_map(getmetatable, MiniPick.get_picker_items())'), { { 'b' } })
-    eq(child.lua_get('getmetatable(MiniPick.get_picker_items()[1][2])'), { 'd' })
-    type_keys('<CR>')
-    eq(child.lua_get('getmetatable(_G.res)'), { 'b' })
-    eq(child.lua_get('getmetatable(_G.res[2])'), { 'd' })
-  end
+  child.lua_notify([[
+    local items = { setmetatable({ 'a', setmetatable({ 'c' }, { 'd' }) }, { 'b' }) }
+    _G.res = MiniPick.start({ source = { items = items } })
+  ]])
+  eq(child.lua_get('vim.tbl_map(getmetatable, MiniPick.get_picker_items())'), { { 'b' } })
+  eq(child.lua_get('getmetatable(MiniPick.get_picker_items()[1][2])'), { 'd' })
+  type_keys('<CR>')
+  eq(child.lua_get('getmetatable(_G.res)'), { 'b' })
+  eq(child.lua_get('getmetatable(_G.res[2])'), { 'd' })
 end
 
 T['start()']['correctly computes stritems'] = function()
@@ -1013,9 +1003,6 @@ T['start()']['warns about duplicating mappings'] = function()
 end
 
 T['start()']['works with language mappings'] = function()
-  if child.fn.has('nvim-0.10') == 0 then
-    MiniTest.skip('Helper function that gets language mappings is available only on Neovim>=0.10')
-  end
   child.o.keymap = 'ukrainian-jcuken'
   eq(child.o.iminsert, 1)
 
@@ -5457,14 +5444,11 @@ T['Overall view']['uses dedicated highlight groups'] = function()
   local ref_title = { { '> ', 'MiniPickPromptPrefix' }, { 'a', 'MiniPickPrompt' }, { '▏', 'MiniPickPromptCaret' } }
   eq(win_config.title, ref_title)
 
-  -- Footer support is present only on Neovim>=0.10
-  if child.fn.has('nvim-0.10') == 1 then
-    win_config = child.api.nvim_win_get_config(win_id)
-    local footer = win_config.footer
-    eq(footer[1], { ' My name ', 'MiniPickBorderText' })
-    eq(footer[2][2], 'MiniPickBorder')
-    eq(footer[3], { ' 1|1|1 ', 'MiniPickBorderText' })
-  end
+  win_config = child.api.nvim_win_get_config(win_id)
+  local footer = win_config.footer
+  eq(footer[1], { ' My name ', 'MiniPickBorderText' })
+  eq(footer[2][2], 'MiniPickBorder')
+  eq(footer[3], { ' 1|1|1 ', 'MiniPickBorderText' })
 end
 
 T['Overall view']['is shown over number and sign columns'] = function()

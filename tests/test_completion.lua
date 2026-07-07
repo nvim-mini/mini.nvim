@@ -1767,8 +1767,6 @@ T['Information window']['adjusts title'] = function()
 end
 
 T['Information window']['stylizes markdown with concealed characters'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Markdown highlighting is different on Neovim<0.10') end
-
   child.set_size(15, 45)
   type_keys('i', 'Jul', '<C-Space>')
   type_keys('<C-n>')
@@ -1778,7 +1776,6 @@ T['Information window']['stylizes markdown with concealed characters'] = functio
 end
 
 T['Information window']['uses `detail` to construct content'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Markdown highlighting is different on Neovim<0.10') end
   child.bo.filetype = 'lua'
 
   child.set_size(15, 45)
@@ -1797,8 +1794,6 @@ T['Information window']['uses `detail` to construct content'] = function()
 end
 
 T['Information window']['ignores data from first response if server can resolve completion item'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Markdown highlighting is different on Neovim<0.10') end
-
   child.set_size(10, 45)
   child.lua([[
     MiniCompletion.config.lsp_completion.process_items = function(items, base)
@@ -2282,8 +2277,6 @@ T['Scroll']['can be done in info window'] = function()
 end
 
 T['Scroll']['can be done in signature window'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip("'smoothscroll' requires Neovim>=0.10") end
-
   child.o.smoothscroll = true
   child.lua('MiniCompletion.config.window.signature.height = 4')
   child.lua('MiniCompletion.config.window.signature.width = 4')
@@ -2323,7 +2316,6 @@ T['Scroll']['can be done in both windows'] = function()
   type_keys('<C-b>')
   child.expect_screenshot()
 
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip("'smoothscroll' requires Neovim>=0.10") end
   type_keys('<C-e>')
   type_keys('<C-f>')
   child.expect_screenshot()
@@ -2503,11 +2495,6 @@ T['Snippets']['are inserted after attempting to insert non-keyword character'] =
 
   -- Should work when non-keyword char triggers Insert mode mapping that
   -- inserts more characters (like in 'mini.pairs')
-  if child.fn.has('nvim-0.10') == 0 then
-    -- This is probably due to some fixed issue with extmarks
-    MiniTest.skip('Non-keyword character that inserts multiple characters can be used only on Neovim>=0.10 ')
-  end
-
   child.cmd('inoremap ( (abc)<Left><Left><Left>')
   set_lines({ 'Before cursor  text after cursor' })
   set_cursor(1, 14)
@@ -2593,28 +2580,7 @@ T['Snippets']["can fall back if no 'mini.snippets' is enabled"] = function()
 
   mock_lsp_snippets({ 'Single line $1 snippet', 'Multi\nline $1\\tnsnippet' })
 
-  -- On Neovim<0.10 should insert snippet text as is and set cursor at its end
-  if child.fn.has('nvim-0.10') == 0 then
-    local validate = function(snippet, ref_lines, ref_cursor)
-      mock_lsp_snippets({ snippet })
-
-      type_keys('i', '  Text before ')
-      type_keys('<C-Space>', '<C-n>', '<C-y>')
-      eq(get_lines(), ref_lines)
-      eq(get_cursor(), ref_cursor)
-      eq(child.fn.mode(), 'i')
-
-      child.ensure_normal_mode()
-      set_lines({ '' })
-    end
-
-    validate('Single line $1 snippet', { '  Text before Single line $1 snippet' }, { 1, 36 })
-    validate('Multi\nline $1\nsnippet', { '  Text before Multi', 'line $1', 'snippet' }, { 3, 7 })
-
-    return
-  end
-
-  -- On Neovim>=0.10 should use `vim.snippet.expand`
+  -- Should fall back to `vim.snippet.expand`
   mock_lsp_snippets({ 'Multi\nline $1\nsnippet' })
   type_keys('i', '  Text before ')
   type_keys('<C-Space>', '<C-n>', '<C-y>')
@@ -2637,8 +2603,7 @@ T['Snippets']["respect 'mini.snippets' config"] = function()
   ]])
   mock_lsp_snippets({ 'Snippet_$1($0) $VAR' })
   type_keys('i', '<C-Space>', '<C-n>', '<C-y>')
-  -- NOTE: inline virtual text is supported on Neovim>=0.10
-  if child.fn.has('nvim-0.10') == 1 then child.expect_screenshot() end
+  child.expect_screenshot()
   eq(get_cursor(), { 1, 8 })
 
   type_keys('<Tab>')
@@ -2817,10 +2782,6 @@ T['Snippets']['can be inserted together with additional text edits'] = function(
 
   -- Additional text edits should be applied after removing inserted
   -- non-keyword characters used to accept completion item
-  if child.fn.has('nvim-0.10') == 0 then
-    -- This is probably due to some fixed issue with extmarks
-    MiniTest.skip('Non-keyword character that inserts multiple characters can be used only on Neovim>=0.10 ')
-  end
   items[1].additionalTextEdits[1].range = { start = { line = 0, character = 6 }, ['end'] = { line = 0, character = 6 } }
   mock_lsp_items(items)
   child.cmd('inoremap ( (abc)<Left><Left><Left>')
@@ -2832,8 +2793,6 @@ T['Snippets']['can be inserted together with additional text edits'] = function(
 end
 
 T['Snippets']['respect covering `textEdit` in candidate'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('This has problems on Neovim<0.10') end
-
   child.set_size(10, 25)
 
   local kind_snippet = child.lua_get('vim.lsp.protocol.CompletionItemKind.Snippet')
@@ -2930,7 +2889,7 @@ T['Snippets']["LSP server from 'mini.snippets'"]['works'] = function()
 
   type_keys('i', '<C-Space>', '<C-n>')
   sleep(default_info_delay + small_time)
-  if child.fn.has('nvim-0.10') == 1 then child.expect_screenshot() end
+  child.expect_screenshot()
 
   type_keys(' ')
   eq(get_lines(), { 'Snippet  aa' })

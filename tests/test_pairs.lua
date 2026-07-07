@@ -811,8 +811,6 @@ T['Close action']['works with visible wildmenu'] = function()
 end
 
 T['Close action']['works with inline virtual text'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Inline virtual text is present in Neovim>=0.10') end
-
   set_lines({ '()' })
   local ns_id = child.api.nvim_create_namespace('Test')
   child.api.nvim_buf_set_extmark(0, ns_id, 0, 1, { virt_text = { { 'Virt', 'String' } }, virt_text_pos = 'inline' })
@@ -950,8 +948,6 @@ T['Closeopen action']['works with visible wildmenu'] = function()
 end
 
 T['Closeopen action']['works with inline virtual text'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Inline virtual text is present in Neovim>=0.10') end
-
   set_lines({ '""' })
   local ns_id = child.api.nvim_create_namespace('Test')
   child.api.nvim_buf_set_extmark(0, ns_id, 0, 1, { virt_text = { { 'Virt', 'String' } }, virt_text_pos = 'inline' })

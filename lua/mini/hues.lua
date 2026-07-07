@@ -155,15 +155,6 @@ local H = {}
 ---   })
 --- <
 MiniHues.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.hues) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniHues = MiniHues
 
@@ -791,130 +782,128 @@ MiniHues.apply_palette = function(palette, plugins, opts)
   hi('@lsp.mod.deprecated',     { fg=p.red, bg=nil })
 
   -- New tree-sitter groups
-  if vim.fn.has('nvim-0.10') == 1 then
-    -- Sources:
-    -- - `:h treesitter-highlight-groups`
-    -- - https://github.com/nvim-treesitter/nvim-treesitter/commit/1ae9b0e4558fe7868f8cda2db65239cfb14836d0
-    -- NOTE: commented groups are the same as in Neovim<0.10 defined earlier
+  -- Sources:
+  -- - `:h treesitter-highlight-groups`
+  -- - https://github.com/nvim-treesitter/nvim-treesitter/commit/1ae9b0e4558fe7868f8cda2db65239cfb14836d0
+  -- TODO: Combine with "old" tree-sitter groups into a single section
 
-    -- @variable
-    -- @variable.builtin
-    hi('@variable.parameter', { link='@parameter' })
-    hi('@variable.member',    { link='@field' })
+  -- @variable
+  -- @variable.builtin
+  hi('@variable.parameter', { link='@parameter' })
+  hi('@variable.member',    { link='@field' })
 
-    -- @constant
-    -- @constant.builtin
-    -- @constant.macro
+  -- @constant
+  -- @constant.builtin
+  -- @constant.macro
 
-    hi('@module',         { link='@namespace' })
-    hi('@module.builtin', { link='@variable.builtin' })
-    -- @label
+  hi('@module',         { link='@namespace' })
+  hi('@module.builtin', { link='@variable.builtin' })
+  -- @label
 
-    -- @string
-    hi('@string.documentation',  { link='@string' })
-    hi('@string.regexp',         { link='SpecialChar' })
-    -- @string.escape
-    -- @string.special
-    hi('@string.special.symbol', { link='@constant' })
-    hi('@string.special.path',   { link='Directory' })
-    hi('@string.special.url',    { link='@markup.link.url' })
-    hi('@string.special.vimdoc', { link='@constant' })
+  -- @string
+  hi('@string.documentation',  { link='@string' })
+  hi('@string.regexp',         { link='SpecialChar' })
+  -- @string.escape
+  -- @string.special
+  hi('@string.special.symbol', { link='@constant' })
+  hi('@string.special.path',   { link='Directory' })
+  hi('@string.special.url',    { link='@markup.link.url' })
+  hi('@string.special.vimdoc', { link='@constant' })
 
-    -- @character
-    -- @character.special
+  -- @character
+  -- @character.special
 
-    -- @boolean
-    -- @number
-    hi('@number.float', { link='@float' })
+  -- @boolean
+  -- @number
+  hi('@number.float', { link='@float' })
 
-    -- @type
-    -- @type.builtin
-    -- @type.definition
-    hi('@type.qualifier', { link='StorageClass' })
+  -- @type
+  -- @type.builtin
+  -- @type.definition
+  hi('@type.qualifier', { link='StorageClass' })
 
-    hi('@attribute', { link='Macro' })
-    -- @property
+  hi('@attribute', { link='Macro' })
+  -- @property
 
-    -- @function
-    -- @function.builtin
-    -- @function.call
-    -- @function.macro
+  -- @function
+  -- @function.builtin
+  -- @function.call
+  -- @function.macro
 
-    hi('@function.method',      { link='@method' })
-    hi('@function.method.call', { link='@method.call' })
+  hi('@function.method',      { link='@method' })
+  hi('@function.method.call', { link='@method.call' })
 
-    -- @constructor
-    -- @operator
+  -- @constructor
+  -- @operator
 
-    -- @keyword
-    hi('@keyword.coroutine', { link='@keyword' })
-    hi('@keyword.function',  { link='@keyword' })
-    hi('@keyword.operator',  { link='@keyword' })
-    hi('@keyword.import',    { fg=p.blue, bg=nil, bold=true })
-    hi('@keyword.storage',   { fg=p.fg,   bg=nil, bold=true })
-    hi('@keyword.repeat',    { link='@keyword' })
-    -- @keyword.return
-    hi('@keyword.debug',     { fg=p.cyan, bg=nil, bold=true })
-    hi('@keyword.exception', { link='@keyword' })
+  -- @keyword
+  hi('@keyword.coroutine', { link='@keyword' })
+  hi('@keyword.function',  { link='@keyword' })
+  hi('@keyword.operator',  { link='@keyword' })
+  hi('@keyword.import',    { fg=p.blue, bg=nil, bold=true })
+  hi('@keyword.storage',   { fg=p.fg,   bg=nil, bold=true })
+  hi('@keyword.repeat',    { link='@keyword' })
+  -- @keyword.return
+  hi('@keyword.debug',     { fg=p.cyan, bg=nil, bold=true })
+  hi('@keyword.exception', { link='@keyword' })
 
-    hi('@keyword.conditional',         { link='@keyword' })
-    hi('@keyword.conditional.ternary', { link='keyword' })
+  hi('@keyword.conditional',         { link='@keyword' })
+  hi('@keyword.conditional.ternary', { link='keyword' })
 
-    hi('@keyword.directive',        { fg=p.blue, bg=nil, bold=true })
-    hi('@keyword.directive.define', { link='@keyword.directive' })
+  hi('@keyword.directive',        { fg=p.blue, bg=nil, bold=true })
+  hi('@keyword.directive.define', { link='@keyword.directive' })
 
-    hi('@punctuation.delimiter', { link='@punctuation' })
-    hi('@punctuation.bracket',   { link='@punctuation' })
-    hi('@punctuation.special',   { link='Special' })
+  hi('@punctuation.delimiter', { link='@punctuation' })
+  hi('@punctuation.bracket',   { link='@punctuation' })
+  hi('@punctuation.special',   { link='Special' })
 
-    -- @comment
-    hi('@comment.documentation', { link='@comment' })
+  -- @comment
+  hi('@comment.documentation', { link='@comment' })
 
-    hi('@comment.error',   { link='@text.danger' })
-    hi('@comment.warning', { link='@text.warning' })
-    hi('@comment.todo',    { link='@text.todo' })
-    hi('@comment.note',    { link='@text.note' })
+  hi('@comment.error',   { link='@text.danger' })
+  hi('@comment.warning', { link='@text.warning' })
+  hi('@comment.todo',    { link='@text.todo' })
+  hi('@comment.note',    { link='@text.note' })
 
-    hi('@markup.strong',        { link='@text.strong' })
-    hi('@markup.italic',        { link='@text.emphasis' })
-    hi('@markup.strikethrough', { link='@text.strike' })
-    hi('@markup.underline',     { link='@text.underline' })
+  hi('@markup.strong',        { link='@text.strong' })
+  hi('@markup.italic',        { link='@text.emphasis' })
+  hi('@markup.strikethrough', { link='@text.strike' })
+  hi('@markup.underline',     { link='@text.underline' })
 
-    hi('@markup.heading',   { link='@text.title' })
-    hi('@markup.heading.1', { fg=p.orange, bg=nil })
-    hi('@markup.heading.2', { fg=p.yellow, bg=nil })
-    hi('@markup.heading.3', { fg=p.green,  bg=nil })
-    hi('@markup.heading.4', { fg=p.cyan,   bg=nil })
-    hi('@markup.heading.5', { fg=p.azure,  bg=nil })
-    hi('@markup.heading.6', { fg=p.blue,   bg=nil })
+  hi('@markup.heading',   { link='@text.title' })
+  hi('@markup.heading.1', { fg=p.orange, bg=nil })
+  hi('@markup.heading.2', { fg=p.yellow, bg=nil })
+  hi('@markup.heading.3', { fg=p.green,  bg=nil })
+  hi('@markup.heading.4', { fg=p.cyan,   bg=nil })
+  hi('@markup.heading.5', { fg=p.azure,  bg=nil })
+  hi('@markup.heading.6', { fg=p.blue,   bg=nil })
 
-    hi('@markup.heading.1.delimiter.vimdoc', { fg=p.bg_mid2, bg=nil, bold=true })
-    hi('@markup.heading.2.delimiter.vimdoc', { fg=p.bg_mid2, bg=nil, bold=true })
-    hi('@markup.heading.4.vimdoc', { link='Title' })
+  hi('@markup.heading.1.delimiter.vimdoc', { fg=p.bg_mid2, bg=nil, bold=true })
+  hi('@markup.heading.2.delimiter.vimdoc', { fg=p.bg_mid2, bg=nil, bold=true })
+  hi('@markup.heading.4.vimdoc', { link='Title' })
 
-    hi('@markup.quote',       { link='@string.special' })
-    hi('@markup.math',        { link='@string.special' })
-    hi('@markup.environment', { link='@module' })
+  hi('@markup.quote',       { link='@string.special' })
+  hi('@markup.math',        { link='@string.special' })
+  hi('@markup.environment', { link='@module' })
 
-    hi('@markup.link',       { link='@text.reference' })
-    hi('@markup.link.label', { link='@markup.link' })
-    hi('@markup.link.url',   { fg=p.fg, bg=nil, underline=true })
+  hi('@markup.link',       { link='@text.reference' })
+  hi('@markup.link.label', { link='@markup.link' })
+  hi('@markup.link.url',   { fg=p.fg, bg=nil, underline=true })
 
-    hi('@markup.raw',       { link='@text.literal' })
-    hi('@markup.raw.block', { link='@markup.raw' })
+  hi('@markup.raw',       { link='@text.literal' })
+  hi('@markup.raw.block', { link='@markup.raw' })
 
-    hi('@markup.list',           { link='@punctuation.special' })
-    hi('@markup.list.checked',   { link='DiagnosticOk' })
-    hi('@markup.list.unchecked', { link='DiagnosticWarn' })
+  hi('@markup.list',           { link='@punctuation.special' })
+  hi('@markup.list.checked',   { link='DiagnosticOk' })
+  hi('@markup.list.unchecked', { link='DiagnosticWarn' })
 
-    hi('@diff.plus',  { link='diffAdded' })
-    hi('@diff.minus', { link='diffRemoved' })
-    hi('@diff.delta', { link='diffChanged' })
+  hi('@diff.plus',  { link='diffAdded' })
+  hi('@diff.minus', { link='diffRemoved' })
+  hi('@diff.delta', { link='diffChanged' })
 
-    -- @tag
-    hi('@tag.attribute', { link='@tag' })
-    hi('@tag.delimiter', { link='@punctuation' })
-  end
+  -- @tag
+  hi('@tag.attribute', { link='@tag' })
+  hi('@tag.delimiter', { link='@punctuation' })
 
   -- Plugins
   -- nvim-mini/mini.nvim

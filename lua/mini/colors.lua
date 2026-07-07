@@ -679,15 +679,6 @@ local H = {}
 ---   require('mini.colors').setup({}) -- replace {} with your config table
 --- <
 MiniColors.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.colors) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniColors = MiniColors
 
@@ -944,7 +935,7 @@ end
 ---   - <show_duration> `(number)` - number of milliseconds to show intermediate
 ---     color schemes (all but last in `cs_array`). Default: 1000.
 MiniColors.animate = function(cs_array, opts)
-  if not (H.islist(cs_array) and H.all(cs_array, H.is_colorscheme)) then
+  if not (vim.islist(cs_array) and H.all(cs_array, H.is_colorscheme)) then
     H.error('Argument `cs_array` should be an array of color schemes.')
   end
   opts = vim.tbl_deep_extend(
@@ -2476,8 +2467,5 @@ H.all = function(arr, predicate)
   end
   return true
 end
-
--- TODO: Remove after compatibility with Neovim=0.9 is dropped
-H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
 
 return MiniColors

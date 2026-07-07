@@ -137,8 +137,6 @@ T['setup()']['removes built-in LSP mappings'] = function()
 end
 
 T['setup()']['remaps built-in `gx` mappings'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Neovim<0.10 does not have built-in `gx` mappings') end
-
   -- Mock functions used to compute and show URI at cursor
   child.lua('vim.lsp.buf_request_sync = function() return {} end')
   child.lua('vim.ui.open = function() _G.n = (_G.n or 0) + 1 end')

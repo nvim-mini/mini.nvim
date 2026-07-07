@@ -44,7 +44,7 @@ https://github.com/user-attachments/assets/2cb38960-a26c-48ae-83cd-5fbcaa57d1cf
     - Easy to reason rules for when session automatically stops.
     - Text synchronization of linked tabstops preserving relative indent.
     - Dynamic tabstop state visualization (current/visited/unvisited, etc.)
-    - Inline visualization of empty tabstops (requires Neovim>=0.10).
+    - Inline visualization of empty tabstops.
     - Works inside comments by preserving comment leader on new lines.
     - Supports nested sessions (expand snippet while there is an active one).
 
@@ -368,6 +368,6 @@ Stable branch:
 ## Similar plugins
 
 - [L3MON4D3/LuaSnip](https://github.com/L3MON4D3/LuaSnip)
-- Built-in snippet expansion in Neovim>=0.10, see `:h vim.snippet` (doesn't provide snippet management, only snippet expansion).
+- Built-in snippet expansion, see `:h vim.snippet` (doesn't provide snippet management, only snippet expansion).
 - [rafamadriz/friendly-snippets](https://github.com/rafamadriz/friendly-snippets) (a curated collection of snippet files)
 - [abeldekat/cmp-mini-snippets](https://github.com/abeldekat/cmp-mini-snippets) (a source for [hrsh7th/nvim-cmp](https://github.com/hrsh7th/nvim-cmp) that integrates 'mini.snippets')

@@ -168,15 +168,6 @@ local H = {}
 ---                                    -- needs `palette` field present
 --- <
 MiniBase16.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.base16) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniBase16 = MiniBase16
 
@@ -693,25 +684,24 @@ H.apply_palette = function(palette, use_cterm)
   hi('@lsp.mod.deprecated', {fg=p.base08, bg=nil, attr=nil, sp=nil})
 
   -- New tree-sitter groups
-  if vim.fn.has('nvim-0.10') == 1 then
-    -- Source: `:h treesitter-highlight-groups`
-    -- Included only those differing from default links
-    hi('@markup.strong',        {link='@text.strong'})
-    hi('@markup.italic',        {link='@text.emphasis'})
-    hi('@markup.strikethrough', {link='@text.strike'})
-    hi('@markup.underline',     {link='@text.underline'})
+  -- Source: `:h treesitter-highlight-groups`
+  -- Included only those differing from default links
+  -- TODO: Combine with "old" tree-sitter groups into a single section
+  hi('@markup.strong',        {link='@text.strong'})
+  hi('@markup.italic',        {link='@text.emphasis'})
+  hi('@markup.strikethrough', {link='@text.strike'})
+  hi('@markup.underline',     {link='@text.underline'})
 
-    hi('@markup.heading.1', {link='markdownH1'})
-    hi('@markup.heading.2', {link='markdownH2'})
-    hi('@markup.heading.3', {link='markdownH3'})
-    hi('@markup.heading.4', {link='markdownH4'})
-    hi('@markup.heading.5', {link='markdownH5'})
-    hi('@markup.heading.6', {link='markdownH6'})
+  hi('@markup.heading.1', {link='markdownH1'})
+  hi('@markup.heading.2', {link='markdownH2'})
+  hi('@markup.heading.3', {link='markdownH3'})
+  hi('@markup.heading.4', {link='markdownH4'})
+  hi('@markup.heading.5', {link='markdownH5'})
+  hi('@markup.heading.6', {link='markdownH6'})
 
-    hi('@string.special.vimdoc',     {link='SpecialChar'})
-    hi('@variable.parameter.vimdoc', {fg=p.base09, bg=nil, attr=nil, sp=nil})
-    hi('@markup.heading.4.vimdoc',   {link='Title'})
-  end
+  hi('@string.special.vimdoc',     {link='SpecialChar'})
+  hi('@variable.parameter.vimdoc', {fg=p.base09, bg=nil, attr=nil, sp=nil})
+  hi('@markup.heading.4.vimdoc',   {link='Title'})
 
   -- Plugins
   -- nvim-mini/mini.nvim

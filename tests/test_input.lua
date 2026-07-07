@@ -685,9 +685,6 @@ T['get()']['resets `state.highlight` before every step'] = function()
 end
 
 T['get()']['works with language mappings'] = function()
-  if child.fn.has('nvim-0.10') == 0 then
-    MiniTest.skip('Helper function that gets language mappings is available only on Neovim>=0.10')
-  end
   child.o.keymap = 'ukrainian-jcuken'
 
   eq(child.o.iminsert, 1)
@@ -1170,8 +1167,6 @@ T['gen_highlight'] = new_set()
 T['gen_highlight']['treesitter()'] = new_set()
 
 T['gen_highlight']['treesitter()']['works'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Upstream has issues on Neovim<=0.9') end
-
   local validate = function(lang, input, hl_ranges)
     child.lua('_G.lang = ' .. vim.inspect(lang))
     mock_state({ input = input })
@@ -1203,8 +1198,6 @@ T['gen_highlight']['treesitter()']['works'] = function()
 end
 
 T['gen_highlight']['treesitter()']['appends to existing highlight'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Upstream has issues on Neovim<=0.9') end
-
   mock_state({ input = 'set shiftwidth=2' })
   child.lua([[
     _G.mock_state.highlight = { { from = 1, to = 16, hl = 'AA' } }
@@ -1301,14 +1294,12 @@ T['gen_view']['floatwin()']['uses scope and style for config']['scope=cursor'] =
   validate_floatwin_scope_style('cursor', 'BL', 'A very-very-very-very wide prompt')
 
   -- Works when at the edge of the instance
-  if child.fn.has('nvim-0.10') == 1 then
-    set_cursor(1, 0)
-    validate_floatwin_scope_style('cursor', 'BR')
+  set_cursor(1, 0)
+  validate_floatwin_scope_style('cursor', 'BR')
 
-    child.cmd('wincmd j | wincmd l')
-    set_cursor(6, 10)
-    validate_floatwin_scope_style('cursor', 'TL')
-  end
+  child.cmd('wincmd j | wincmd l')
+  set_cursor(6, 10)
+  validate_floatwin_scope_style('cursor', 'TL')
 end
 
 T['gen_view']['floatwin()']['uses scope and style for config']['scope=line'] = function()
@@ -1334,14 +1325,12 @@ T['gen_view']['floatwin()']['uses scope and style for config']['scope=line'] = f
   validate_floatwin_scope_style('line', 'TR', 'A very-very-very-very wide prompt')
 
   -- Works when at the edge of the instance
-  if child.fn.has('nvim-0.10') == 1 then
-    set_cursor(1, 0)
-    validate_floatwin_scope_style('line', 'BL')
+  set_cursor(1, 0)
+  validate_floatwin_scope_style('line', 'BL')
 
-    child.cmd('wincmd j | wincmd l')
-    set_cursor(6, 10)
-    validate_floatwin_scope_style('line', 'TR')
-  end
+  child.cmd('wincmd j | wincmd l')
+  set_cursor(6, 10)
+  validate_floatwin_scope_style('line', 'TR')
 end
 
 local validate_floatwin_common_layout = function(scope, ref_path_prefix)
@@ -1412,14 +1401,14 @@ T['gen_view']['floatwin()']['uses correct highlight groups'] = function()
   get({ prompt = 'A', completion = 'test' })
   local win_id, config = get_win_data()
   eq(config.title, { { ' A ', 'MiniInputPrompt' } })
-  eq(config.footer, child.fn.has('nvim-0.10') == 1 and { { '', 'MiniInputHint' } } or nil)
+  eq(config.footer, { { '', 'MiniInputHint' } })
   validate_winhl(win_id, 'NormalFloat:MiniInputNormal')
   validate_winhl(win_id, 'FloatBorder:MiniInputBorder')
 
   type_keys('<Tab>')
   win_id, config = get_win_data()
   eq(config.title, { { ' A ', 'MiniInputPrompt' } })
-  if child.fn.has('nvim-0.10') == 1 then eq(config.footer, { { ' test 1/1 ', 'MiniInputHint' } }) end
+  eq(config.footer, { { ' test 1/1 ', 'MiniInputHint' } })
 
   type_keys('<C-x>')
   eq(get_state().opts.hide, true)
@@ -1430,7 +1419,6 @@ T['gen_view']['floatwin()']['uses correct highlight groups'] = function()
 end
 
 T['gen_view']['floatwin()']['shows complete hint in footer'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Window footer is available only on Neovim>=0.10') end
   child.lua([[
     MiniInput.config.handlers.complete = function(state, method)
       state.complete = { base = '', items = { 'uu' } }
@@ -1451,7 +1439,6 @@ T['gen_view']['floatwin()']['shows complete hint in footer'] = function()
 end
 
 T['gen_view']['floatwin()']['can hide border text'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Window footer is available only on Neovim>=0.10') end
   local expect_screenshot = function() child.expect_screenshot({ ignore_cmdline = true }) end
 
   child.lua([[
@@ -1498,8 +1485,6 @@ T['gen_view']['floatwin()']['works with multibyte characters'] = function()
 end
 
 T['gen_view']['floatwin()']['sanitizes border text'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Window footer is available only on Neovim>=0.10') end
-
   child.set_size(10, 40)
   child.lua([[
     MiniInput.config.handlers.complete = function(state, method)
@@ -1512,7 +1497,6 @@ T['gen_view']['floatwin()']['sanitizes border text'] = function()
 end
 
 T['gen_view']['floatwin()']['truncates border text'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Window footer is available only on Neovim>=0.10') end
   local expect_screenshot = function() child.expect_screenshot({ ignore_cmdline = true }) end
 
   child.lua([[
@@ -1827,14 +1811,12 @@ T['gen_view']['uiline()']['works with `style="statusline"`'] = function()
   child.lua('MiniInput.config.handlers.view = MiniInput.gen_view.uiline()')
   get({ prompt = 'AAA' })
   eq(child.o.statusline, '%#MiniInputPrompt#AAA%#MiniInputNormal# %#MiniInputCaret#▏%#MiniInputNormal#')
-  if child.fn.has('nvim-0.10') == 1 then eq(child.o.tabline, 'My tabline') end
+  eq(child.o.tabline, 'My tabline')
   eq(child.o.winbar, '')
   type_keys('<C-c>')
 end
 
 T['gen_view']['uiline()']['works with `style="tabline"`'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip("'tabline' restoration has upstream issues on Neovim<0.10") end
-
   local validate = function(showtabline)
     child.o.showtabline = showtabline
     validate_uiline('tabline')
@@ -2059,8 +2041,7 @@ local validate_virtual = function(style, ref_details_1, ref_details_2)
 end
 
 local validate_virtual_lines = function(above)
-  local priority = child.fn.has('nvim-0.10') == 1 and 4096 or nil
-  local ref_details_1 = { priority = priority, virt_lines_above = above }
+  local ref_details_1 = { priority = 4096, virt_lines_above = above }
   -- Should pad with whitespace suffix to occupy the whole line
   local ref_chunks_1 = with_prompt_chunks({ caret_ch, { '                    ', 'MiniInputNormal' } }, 'AAA')
   ref_details_1.virt_lines = { ref_chunks_1 }
@@ -2128,8 +2109,6 @@ T['gen_view']['virtual()']['works when at the edge of the window'] = function()
 end
 
 T['gen_view']['virtual()']['works with `style="inline"`'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Inline virtual text is supported on Neovim>=0.10') end
-
   local ref_details_1 = { priority = 4096, virt_text_pos = 'inline' }
   local ref_chunks_1 = with_prompt_chunks({ caret_ch }, 'AAA')
   ref_details_1.virt_text = ref_chunks_1
@@ -2144,8 +2123,6 @@ T['gen_view']['virtual()']['works with `style="inline"`'] = function()
 end
 
 T['gen_view']['virtual()']['is not affected by default complete with `style="inline"`'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Inline virtual text is supported on Neovim>=0.10') end
-
   child.lua([[
     MiniInput.config.handlers.view = MiniInput.gen_view.virtual({ style = "inline" })
     MiniInput.config.handlers.complete = MiniInput.default_complete
@@ -2189,7 +2166,7 @@ T['gen_view']['virtual()']['works if all extmarks were cleared'] = function()
 
   validate('above')
   validate('below')
-  if child.fn.has('nvim-0.10') == 1 then validate('inline') end
+  validate('inline')
 end
 
 T['gen_view']['virtual()']['respects `opts.to_chunks`'] = function()
@@ -2237,14 +2214,12 @@ T['gen_view']['virtual()']['respects `opts.to_chunks`'] = function()
   validate('below', ref_chunks, ref_log)
   validate('below', wide_chunks, ref_log)
 
-  if child.fn.has('nvim-0.10') == 1 then
-    validate('inline', ref_chunks, ref_log)
-    -- - Wrapping of virtual text depends on 'wrap'
-    child.o.wrap = true
-    validate('inline', wide_chunks, ref_log)
-    child.o.wrap = false
-    validate('inline', wide_chunks, ref_log)
-  end
+  validate('inline', ref_chunks, ref_log)
+  -- - Wrapping of virtual text depends on 'wrap'
+  child.o.wrap = true
+  validate('inline', wide_chunks, ref_log)
+  child.o.wrap = false
+  validate('inline', wide_chunks, ref_log)
 
   -- Should validate `to_chunks` output
   local validate_error = function(chunks, err_pattern)
@@ -2258,8 +2233,6 @@ T['gen_view']['virtual()']['respects `opts.to_chunks`'] = function()
 end
 
 T['gen_view']['virtual()']['can change style'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Inline virtual text is supported on Neovim>=0.10') end
-
   child.cmd('only | mode')
   child.set_size(10, 20)
 
@@ -2330,7 +2303,7 @@ T['gen_view']['virtual()']['works with floating current window'] = function()
 
   validate('above', { 2, 2 })
   validate('below', { 3, 2 })
-  if child.fn.has('nvim-0.10') == 1 then validate('inline', { 2, 2 }) end
+  validate('inline', { 2, 2 })
 end
 
 T['gen_view']['virtual()']['validates input'] = function()
@@ -2420,11 +2393,9 @@ T['default_key()']['can move caret'] = function()
   validate_move('axabxxab', 4, '<S-Right>', 5)
   validate_move('axabxxab', 5, '<S-Right>', 7)
   validate_move('axabxxab', 6, '<S-Right>', 7)
-  if child.fn.has('nvim-0.10') == 1 then
-    validate_move('axabxxab', 7, '<S-Right>', 9)
-    validate_move('axabxxab', 8, '<S-Right>', 9)
-    validate_move('axabxxab', 9, '<S-Right>', 9)
-  end
+  validate_move('axabxxab', 7, '<S-Right>', 9)
+  validate_move('axabxxab', 8, '<S-Right>', 9)
+  validate_move('axabxxab', 9, '<S-Right>', 9)
 
   -- - Can work with multibyte characters
   child.cmd('set iskeyword&')
@@ -4147,7 +4118,7 @@ T['apply_handler()']['works during input key query process'] = function()
     { 'key', vim.NIL, 'cancel', nil }, { 'highlight' }, { 'view' },
 
   }
-  if child.fn.has('nvim-0.10') == 1 then validate_log('handlers_log', ref_handlers_log) end
+  validate_log('handlers_log', ref_handlers_log)
   validate_no_input()
 end
 

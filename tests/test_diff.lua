@@ -18,9 +18,6 @@ local new_scratch_buf = function() return child.api.nvim_create_buf(false, true)
 local get_buf = function() return child.api.nvim_get_current_buf() end
 local set_buf = function(buf_id) child.api.nvim_set_current_buf(buf_id) end
 
--- TODO: Remove after compatibility with Neovim=0.9 is dropped
-local islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
-
 local test_dir = 'tests/dir-diff'
 local test_dir_absolute = vim.fs.normalize(vim.fn.fnamemodify(test_dir, ':p')):gsub('(.)/$', '%1')
 local test_file_path = test_dir_absolute .. '/file'
@@ -133,7 +130,7 @@ local validate_git_spawn_log = function(ref_log)
       eq('Real spawn log does not have entry for present reference log entry', ref)
     elseif ref == nil then
       eq(real, 'Reference does not have entry for present spawn log entry')
-    elseif islist(ref) then
+    elseif vim.islist(ref) then
       eq(real, { executable = 'git', options = { args = ref, cwd = real.options.cwd } })
     else
       if real.options.cwd ~= nil then real.options.cwd = child.fs.normalize(real.options.cwd) end
@@ -244,12 +241,11 @@ T['setup()']['creates side effects'] = function()
   -- Highlight groups
   child.cmd('hi clear')
   load_module()
-  local is_010 = child.fn.has('nvim-0.10') == 1
   local validate_hl_group = function(name, pattern) expect.match(child.cmd_capture('hi ' .. name), pattern) end
 
-  validate_hl_group('MiniDiffSignAdd', 'links to ' .. (is_010 and 'Added' or 'diffAdded'))
-  validate_hl_group('MiniDiffSignChange', 'links to ' .. (is_010 and 'Changed' or 'diffChanged'))
-  validate_hl_group('MiniDiffSignDelete', 'links to ' .. (is_010 and 'Removed' or 'diffRemoved'))
+  validate_hl_group('MiniDiffSignAdd', 'links to Added')
+  validate_hl_group('MiniDiffSignChange', 'links to Changed')
+  validate_hl_group('MiniDiffSignDelete', 'links to Removed')
   validate_hl_group('MiniDiffOverAdd', 'links to DiffAdd')
   validate_hl_group('MiniDiffOverChange', 'links to DiffText')
   validate_hl_group('MiniDiffOverChangeBuf', 'links to MiniDiffOverChange')
@@ -2149,7 +2145,6 @@ T['Visualization']['works when "change" overlaps with "delete"'] = function()
 end
 
 T['Visualization']['reacts to hunk lines delete/move'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Reaction to line delete/move is available on Neovim>=0.10.') end
   child.o.signcolumn = 'yes'
 
   set_lines({ 'aaa', 'bbb', 'uuu', 'vvv', 'ccc', 'ddd' })

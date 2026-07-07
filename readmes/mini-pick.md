@@ -71,8 +71,6 @@ https://github.com/nvim-mini/mini.nvim/assets/24854248/65849d1e-3f96-4085-a4cf-f
 
 Notes:
 
-- Works on all supported versions but Neovim>=0.10 will give more visual feedback in floating window footer.
-
 - For more pickers see ['mini.extra'](https://nvim-mini.org/mini.nvim/readmes/mini-extra).
 
 - CLI tools are called only with basic arguments needed to get items. To customize the output, use their respective configuration approaches. Here are some examples of where to start:
@@ -125,7 +123,7 @@ UI consists from a single window capable of displaying three different views:
 
 Current prompt is displayed at the top left of the window border with vertical line indicating caret (current input position).
 
-Bottom part of window border displays (in Neovim>=0.10) extra visual feedback:
+Bottom part of window border displays extra visual feedback:
 
 - Left part is a picker name.
 - Right part contains information in the format:

@@ -13,17 +13,6 @@ local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child) end
 
--- TODO: Remove after compatibility with Neovim=0.9 is dropped
-local islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
-
--- Tweak `expect_screenshot()` to test only on Neovim>=0.10 (as it has floating
--- window footer). Use `child.expect_screenshot_orig()` for original testing.
-child.expect_screenshot_orig = child.expect_screenshot
-child.expect_screenshot = function(opts)
-  if child.fn.has('nvim-0.10') == 0 then return end
-  child.expect_screenshot_orig(opts)
-end
-
 -- Test paths helpers
 local path_sep = package.config:sub(1, 1)
 local join_path = function(...) return (table.concat({ ... }, path_sep):gsub('([\\/])[\\/]*', '%1')) end
@@ -1019,7 +1008,7 @@ T['pickers']['colorschemes()']["can cancel with 'mini.colors'"] = function()
   -- Should trigger 'ColorScheme' event
   child.cmd('au ColorScheme * lua _G.n = (_G.n or 0) + 1')
   type_keys('<C-c>')
-  eq(child.lua_get('_G.n'), child.fn.has('nvim-0.10') == 1 and 1 or 2)
+  eq(child.lua_get('_G.n'), 1)
 
   eq(child.lua_get('_G.return_item'), vim.NIL)
   eq(child.g.colors_name, 'minischeme')
@@ -1497,7 +1486,7 @@ T['pickers']['explorer()']['respects `local_opts.sort`'] = function()
   -- Should be called with proper arguments
   local sort_log = child.lua_get('_G.sort_log')
   eq(#sort_log, 2)
-  eq(islist(sort_log[1]), true)
+  eq(vim.islist(sort_log[1]), true)
   eq(sort_log[1][1], { fs_type = 'directory', path = test_dir_absolute, text = '..' })
 end
 
@@ -2980,7 +2969,6 @@ local validate_location_scope = function(scope)
   if child.fn.has('nvim-0.11') == 0 then
     ref_item.end_lnum, ref_item.end_col = nil, nil
   end
-  if child.fn.has('nvim-0.10') == 0 then ref_item.user_data = nil end
   eq(get_picker_items()[1], ref_item)
 
   -- Should properly choose by moving to the position
@@ -3122,7 +3110,6 @@ T['pickers']['lsp()']['works for `references`'] = function()
   if child.fn.has('nvim-0.11') == 0 then
     ref_item.end_lnum, ref_item.end_col = nil, nil
   end
-  if child.fn.has('nvim-0.10') == 0 then ref_item.user_data = nil end
   eq(get_picker_items()[2], ref_item)
 
   -- Should properly choose by moving to the position
@@ -3669,11 +3656,10 @@ T['pickers']['options()']['respects `local_opts.scope`'] = function()
     if scope == 'all' then return stop_picker() end
 
     -- Validate proper set of options
-    local is_010 = child.fn.has('nvim-0.10') == 1 and child.fn.has('nvim-0.11') == 0
+    local is_010 = child.fn.has('nvim-0.11') == 0
     for _, item in ipairs(get_picker_items()) do
       -- Neovim=0.10 has `nvim_get_option_info2()` throwing error for options
       -- that are obsolete (like 'aleph').
-      -- It doesn't happen on Neovim=0.9 or Neovim>=0.11.
       local ok, item_info = pcall(child.api.nvim_get_option_info2, item.text, {})
       local item_scope = (not ok and is_010) and scope or item_info.scope
       eq(item_scope, scope)

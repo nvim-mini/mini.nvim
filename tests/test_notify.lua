@@ -573,8 +573,6 @@ T['refresh()']['can be used inside fast event'] = function()
 end
 
 T['refresh()']['can be used when editor is locked'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('`SafeState` is present only on Neovim>=0.10') end
-
   -- `:h :map-expression` lists things that are not allowed to be done when
   -- the mapping is still active. Editing another buffer (like the one used by
   -- 'mini.notify') is not allowed.
@@ -856,8 +854,6 @@ T['Window']['respects `window.config`'] = function()
   add('Hello')
   add('World')
   child.expect_screenshot()
-
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Neovim<0.10 has issues with displaying title in some cases') end
 
   -- As callable
   child.lua([[MiniNotify.config.window.config = function(buf_id)
@@ -1191,10 +1187,6 @@ T['LSP progress']['respects `lsp_progress.duration_last`'] = function()
 end
 
 T['LSP progress']['reuses previous LSP handler'] = function()
-  -- Test only on Neovim>=0.10 as previously it was different event and
-  -- (possibly) different implementation (which makes mocking difficult).
-  -- But relevant event should still be triggered in Neovim<0.10.
-  if child.fn.has('nvim-0.10') == 0 then return end
   child.cmd('au LspProgress * lua _G.n_been_here = (_G.n_been_here or 0) + 1')
 
   local ctx = { bufnr = vim.api.nvim_get_current_buf(), client_id = child.lua_get('_G.fruits_lsp_client_id') }

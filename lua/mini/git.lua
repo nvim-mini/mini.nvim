@@ -233,15 +233,6 @@ local H = {}
 ---   require('mini.git').setup({}) -- replace {} with your config table
 --- <
 MiniGit.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.git) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniGit = MiniGit
 
@@ -444,7 +435,7 @@ MiniGit.show_range_history = function(opts)
   opts = vim.tbl_deep_extend('force', default_opts, opts or {})
   local line_start, line_end = H.normalize_range_lines(opts.line_start, opts.line_end)
   local log_args = opts.log_args or {}
-  if not H.islist(log_args) then H.error('`opts.log_args` should be an array.') end
+  if not vim.islist(log_args) then H.error('`opts.log_args` should be an array.') end
   local split = H.normalize_split_opt(opts.split, 'opts.split')
 
   -- Construct `:Git log` command that works both with regular files and
@@ -1724,9 +1715,6 @@ H.expandcmd = function(x)
   local ok, res = pcall(vim.fn.expandcmd, x)
   return ok and res or x
 end
-
--- TODO: Remove after compatibility with Neovim=0.9 is dropped
-H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
 
 -- Try getting buffer's full real path (after resolving symlinks)
 H.get_buf_realpath = function(buf_id) return vim.loop.fs_realpath(vim.api.nvim_buf_get_name(buf_id)) or '' end

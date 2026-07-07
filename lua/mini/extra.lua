@@ -82,15 +82,6 @@ local H = {}
 ---   require('mini.extra').setup({}) -- replace {} with your config table
 --- <
 MiniExtra.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.extra) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniExtra = MiniExtra
 
@@ -296,7 +287,7 @@ MiniExtra.gen_highlighter = {}
 ---@param extmark_opts any Proper `extmark_opts` field for `highlighter`.
 ---   See |MiniHipatterns.config|.
 MiniExtra.gen_highlighter.words = function(words, group, extmark_opts)
-  if not H.islist(words) then H.error('`words` should be an array.') end
+  if not vim.islist(words) then H.error('`words` should be an array.') end
   if not (type(group) == 'string' or vim.is_callable(group)) then H.error('`group` should be string or callable.') end
   local pattern = vim.tbl_map(function(x)
     if type(x) ~= 'string' then H.error('All elements of `words` should be strings.') end
@@ -406,13 +397,13 @@ MiniExtra.pickers.colorschemes = function(local_opts, opts)
   -- Infer data to show
   local all_cs = vim.fn.getcompletion('', 'color')
   local items = local_opts.names or all_cs
-  if not H.islist(items) then H.error('`names` should be array of color scheme names') end
+  if not vim.islist(items) then H.error('`names` should be array of color scheme names') end
   for _, item in ipairs(items) do
     if not vim.tbl_contains(all_cs, item) then H.error(vim.inspect(item) .. ' is not a color scheme name') end
   end
 
   local hl_groups = local_opts.preview_hl_groups
-  if hl_groups ~= nil and not H.islist(hl_groups) then H.error('`preview_hl_groups` should be array') end
+  if hl_groups ~= nil and not vim.islist(hl_groups) then H.error('`preview_hl_groups` should be array') end
 
   -- Compute original color scheme to restore
   local bg_orig = vim.o.background
@@ -879,7 +870,7 @@ MiniExtra.pickers.hipatterns = function(local_opts, opts)
   if not has_hipatterns then H.error([[`pickers.hipatterns` requires 'mini.hipatterns' which can not be found.]]) end
 
   local_opts = vim.tbl_deep_extend('force', { highlighters = nil, scope = 'all' }, local_opts or {})
-  if local_opts.highlighters ~= nil and not H.islist(local_opts.highlighters) then
+  if local_opts.highlighters ~= nil and not vim.islist(local_opts.highlighters) then
     H.error('`local_opts.highlighters` should be an array of highlighter identifiers.')
   end
   local highlighters = local_opts.highlighters
@@ -1352,7 +1343,7 @@ MiniExtra.pickers.oldfiles = function(local_opts, opts)
   local pick = H.validate_pick('oldfiles')
   local_opts = vim.tbl_deep_extend('force', { current_dir = false, preserve_order = false }, local_opts or {})
   local oldfiles = vim.v.oldfiles
-  if not H.islist(oldfiles) then H.error('`pickers.oldfiles` picker needs valid `v:oldfiles`.') end
+  if not vim.islist(oldfiles) then H.error('`pickers.oldfiles` picker needs valid `v:oldfiles`.') end
 
   local show_all = not local_opts.current_dir
   local items = vim.schedule_wrap(function()
@@ -1417,7 +1408,7 @@ MiniExtra.pickers.options = function(local_opts, opts)
     local has_value, value = pcall(function()
       return vim.api.nvim_win_call(target_win_id, function() return vim[value_source][item.info.name] end)
     end)
-    -- TODO: consider removing after Neovim<=0.10 compatibility is dropped
+    -- TODO: consider removing after Neovim=0.10 compatibility is dropped
     if not has_value then value = '<Option is deprecated (will be removed in later Neovim versions)>' end
 
     local lines = { 'Value:', unpack(vim.split(vim.inspect(value), '\n')), '', 'Info:' }
@@ -2283,8 +2274,5 @@ H.short_path = function(path, cwd)
   cwd = cwd:sub(-1) == '/' and cwd or (cwd .. '/')
   return vim.startswith(path, cwd) and path:sub(cwd:len() + 1) or vim.fn.fnamemodify(path, ':~')
 end
-
--- TODO: Remove after compatibility with Neovim=0.9 is dropped
-H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
 
 return MiniExtra

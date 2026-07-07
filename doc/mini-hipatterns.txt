@@ -435,7 +435,6 @@ Parameters ~
       - `'#'` - highlight background of only `#`.
       - `'line'` - highlight underline with that color.
       - `'inline'` - highlight text of <inline_text>.
-        Note: requires Neovim>=0.10.
   - <priority> `(number)` - priority of highlighting. Default: 200.
   - <filter> `(function)` - callable object used to filter buffers in which
     highlighting will take place. It should take buffer identifier as input

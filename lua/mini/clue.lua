@@ -482,15 +482,6 @@ local H = {}
 ---                                  -- needs `triggers` field present
 --- <
 MiniClue.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.clue) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniClue = MiniClue
 
@@ -1658,20 +1649,7 @@ H.window_open = function(config)
 end
 
 H.window_close = function()
-  -- Closing floating window when Command-line window is active is not allowed
-  -- on Neovim<0.10. Make sure it is closed after leaving it.
-  -- See https://github.com/neovim/neovim/issues/24452
-  local win_id = H.state.win_id
-  if vim.fn.has('nvim-0.10') == 0 and vim.fn.getcmdwintype() ~= '' then
-    vim.api.nvim_create_autocmd(
-      'CmdwinLeave',
-      { once = true, callback = function() pcall(vim.api.nvim_win_close, win_id, true) end }
-    )
-    return
-  else
-    pcall(vim.api.nvim_win_close, win_id, true)
-  end
-
+  pcall(vim.api.nvim_win_close, H.state.win_id, true)
   H.state.win_id = nil
 end
 
@@ -1817,7 +1795,7 @@ H.clues_normalize = function(clues)
   process = function(x)
     x = H.expand_callable(x)
     if H.is_clue(x) then return table.insert(res, x) end
-    if not H.islist(x) then return nil end
+    if not vim.islist(x) then return nil end
     for _, y in ipairs(x) do
       process(y)
     end
@@ -1960,7 +1938,7 @@ H.is_clue = function(x)
 end
 
 H.is_array_of = function(x, predicate)
-  if not H.islist(x) then return false end
+  if not vim.islist(x) then return false end
   for _, v in ipairs(x) do
     if not predicate(v) then return false end
   end
@@ -2089,8 +2067,5 @@ H.list_concat = function(...)
   end
   return res
 end
-
--- TODO: Remove after compatibility with Neovim=0.9 is dropped
-H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
 
 return MiniClue

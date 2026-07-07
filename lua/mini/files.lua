@@ -580,15 +580,6 @@ local H = {}
 ---   require('mini.files').setup({}) -- replace {} with your config table
 --- <
 MiniFiles.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.files) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniFiles = MiniFiles
 
@@ -2587,10 +2578,8 @@ H.window_set_view = function(win_id, view)
   if culopt:find('line') == nil then vim.wo[win_id].cursorlineopt = culopt .. ',line' end
 
   -- Respect global 'list' option, as it is disabled in floating windows
-  -- TODO: Use vim.wo[win_id][0] after compatibility with Neovim=0.9 is dropped
-  local opts_scope = { scope = 'local', win = win_id }
-  vim.api.nvim_set_option_value('list', vim.go.list, opts_scope)
-  vim.api.nvim_set_option_value('listchars', vim.go.listchars, opts_scope)
+  vim.wo[win_id][0].list = vim.go.list
+  vim.wo[win_id][0].listchars = vim.go.listchars
 
   -- Update border highlight based on buffer status
   H.window_update_border_hl(win_id)
@@ -3051,7 +3040,7 @@ H.validate_line = function(buf_id, x)
 end
 
 H.validate_branch = function(x)
-  if not (H.islist(x) and x[1] ~= nil) then H.error('`branch` should be array with at least one element') end
+  if not (vim.islist(x) and x[1] ~= nil) then H.error('`branch` should be array with at least one element') end
   local res = {}
   for i, p in ipairs(x) do
     if type(p) ~= 'string' then H.error('`branch` contains not string: ' .. vim.inspect(p)) end
@@ -3129,7 +3118,6 @@ H.win_set_buf = function(win_id, buf_id)
   vim.cmd(cmd)
   vim.wo[win_id].winfixbuf = true
 end
-if vim.fn.has('nvim-0.10') == 0 then H.win_set_buf = vim.api.nvim_win_set_buf end
 
 H.get_first_valid_normal_window = function()
   for _, win_id in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
@@ -3145,8 +3133,5 @@ H.getcharstr = function()
 end
 
 H.sanitize_string = function(x) return ((x or ''):gsub('\n', '<NL>'):gsub('%z', '')) end
-
--- TODO: Remove after compatibility with Neovim=0.9 is dropped
-H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
 
 return MiniFiles

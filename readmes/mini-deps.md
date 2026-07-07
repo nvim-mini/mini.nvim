@@ -98,7 +98,7 @@ To install from standalone repository, replace any occurrence of 'mini.nvim' in 
 See and use [example 'init.lua' file](../scripts/init-deps-example.lua) as a quick demo of how 'mini.deps' can be used:
 
 - Copy its contents into a '~/.config/nvim-deps/init.lua' file (on UNIX systems).
-- Run `NVIM_APPNAME=nvim-deps nvim -- ~/.config/nvim-deps/init.lua` (on Neovim<0.10 might display tree-sitter issues on first start). This will run Neovim with that 'init.lua' as the only config **while completely not affecting your current config**.
+- Run `NVIM_APPNAME=nvim-deps nvim -- ~/.config/nvim-deps/init.lua`. This will run Neovim with that 'init.lua' as the only config **while completely not affecting your current config**.
 
 ### Directory structure
 

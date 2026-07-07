@@ -38,7 +38,7 @@ Features:
     - Easy to reason rules for when session automatically stops.
     - Text synchronization of linked tabstops preserving relative indent.
     - Dynamic tabstop state visualization (current/visited/unvisited, etc.)
-    - Inline visualization of empty tabstops (requires Neovim>=0.10).
+    - Inline visualization of empty tabstops.
     - Works inside comments by preserving comment leader on new lines.
     - Supports nested sessions (expand snippet while there is an active one).
   See |MiniSnippets.default_insert()|.
@@ -105,7 +105,7 @@ You can override runtime config settings locally to buffer inside
           autostopping rules), while `LuaSnip` autostops session once
           jumping reached the final tabstop.
 
-- Built-in |vim.snippet| (on Neovim>=0.10):
+- Built-in |vim.snippet|:
     - Does not contain functionality to load or match snippets (by design),
       while this module does.
     - Both contain expand functionality based on LSP snippet format.

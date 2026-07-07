@@ -74,15 +74,6 @@ local H = {}
 ---   require('mini.basics').setup({}) -- replace {} with your config table
 --- <
 MiniBasics.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.basics) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniBasics = MiniBasics
 
@@ -138,7 +129,6 @@ end
 ---     - |'splitbelow'|
 ---     - |'splitkeep'|
 ---     - |'splitright'|
----     - |'termguicolors'| (on Neovim<0.10; later versions have it smartly enabled)
 ---     - |'wrap'|
 --- - Editing
 ---     - |'completeopt'|
@@ -223,8 +213,6 @@ end
 --- <
 --- Notes:
 --- - See |[count]| for its meaning.
---- - On Neovim>=0.10 mappings for `#` and `*` are not created as their
----   enhanced variants are made built-in. See |v_star-default| and |v_#-default|.
 --- - On Neovim>=0.11 there are |[<Space>| / |]<Space>| for adding empty lines.
 ---   The `gO` and `go` mappings are still created as they are more aligned with
 ---   similarly purposed |O| and |o| keys (although sometimes conflict with |gO|).
@@ -373,20 +361,9 @@ MiniBasics.config = {
 ---
 ---@return string String indicator for new state. Similar to what |:set| `{option}?` shows.
 MiniBasics.toggle_diagnostic = function()
-  local buf_id = vim.api.nvim_get_current_buf()
-  local is_enabled = H.diagnostic_is_enabled(buf_id)
-
-  local f
-  if vim.fn.has('nvim-0.10') == 1 then
-    f = function(bufnr) vim.diagnostic.enable(not is_enabled, { bufnr = bufnr }) end
-  else
-    f = is_enabled and vim.diagnostic.disable or vim.diagnostic.enable
-  end
-  f(buf_id)
-
-  local new_buf_state = not is_enabled
-
-  return new_buf_state and '  diagnostic' or 'nodiagnostic'
+  local is_enabled = vim.diagnostic.is_enabled({ bufnr = 0 })
+  vim.diagnostic.enable(not is_enabled, { bufnr = 0 })
+  return is_enabled and 'nodiagnostic' or '  diagnostic'
 end
 
 -- Helper data ================================================================
@@ -478,13 +455,9 @@ H.apply_options = function(config)
     o.virtualedit   = 'block'            -- Allow going past the end of line in visual block mode
     o.formatoptions = 'qjl1'             -- Don't autoformat comments
 
-    -- Neovim version dependent
+    -- Other
     opt.shortmess:append('WcC') -- Reduce command line messages
     o.splitkeep = 'screen'      -- Reduce scroll during window split
-
-    if vim.fn.has('nvim-0.10') == 0 then
-      o.termguicolors = true -- Enable gui colors
-    end
   end
 
   -- Some opinioneted extra UI options
@@ -592,14 +565,6 @@ H.apply_mappings = function(config)
     -- Search inside visually highlighted text. Use `silent = false` for it to
     -- make effect immediately.
     map('x', 'g/', '<esc>/\\%V', { silent = false, desc = 'Search inside visual selection' })
-
-    -- Search visually selected text (slightly better than builtins in
-    -- Neovim<0.10 but slightly worse than builtins in Neovim>=0.10)
-    -- TODO: Remove this after compatibility with Neovim=0.9 is dropped
-    if vim.fn.has('nvim-0.10') == 0 then
-      map('x', '*', [[y/\V<C-R>=escape(@", '/\')<CR><CR>]], { desc = 'Search forward' })
-      map('x', '#', [[y?\V<C-R>=escape(@", '?\')<CR><CR>]], { desc = 'Search backward' })
-    end
 
     -- Alternative way to save and exit in Normal mode.
     -- NOTE: Adding `redraw` helps with `cmdheight=0` if buffer is not modified
@@ -761,12 +726,6 @@ H.map = function(mode, lhs, rhs, opts)
   if lhs == '' then return end
   opts = vim.tbl_deep_extend('force', { silent = true }, opts or {})
   vim.keymap.set(mode, lhs, rhs, opts)
-end
-
-if vim.fn.has('nvim-0.10') == 1 then
-  H.diagnostic_is_enabled = function(buf_id) return vim.diagnostic.is_enabled({ bufnr = buf_id }) end
-else
-  H.diagnostic_is_enabled = function(buf_id) return not vim.diagnostic.is_disabled(buf_id) end
 end
 
 return MiniBasics

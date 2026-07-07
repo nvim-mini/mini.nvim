@@ -16,9 +16,6 @@ local sleep = function(ms) helpers.sleep(ms, child) end
 
 -- Create a helper for mock-typing every key separately because state tracking
 -- can depend on emulating one-by-one key presses (mostly for autocorrect).
-local tbl_flatten = vim.fn.has('nvim-0.10') == 1 and function(x) return vim.iter(x):flatten(math.huge):totable() end
-  or vim.tbl_flatten
-
 local slice_keys = function(keys)
   local res, cur_key = {}, ''
   for i = 1, vim.fn.strchars(keys) do
@@ -32,7 +29,7 @@ local slice_keys = function(keys)
 end
 
 local type_every_key = function(...)
-  local wait, keys = nil, tbl_flatten({ ... })
+  local wait, keys = nil, vim.iter({ ... }):flatten(math.huge):totable()
   if type(keys[1]) == 'number' then
     wait, keys = keys[1], vim.list_slice(keys, 2)
   end
@@ -813,11 +810,8 @@ T['Autocorrect']['works for other types'] = function()
   validate_final('history srch', 'history search')
 
   -- keymap
-  -- Neovim<0.10 has no 'keymap' `:h :command-complete` value
-  if child.fn.has('nvim-0.10') == 1 then
-    validate_inprogress('set keymap=tstkeymap', 'set keymap=testkeymap')
-    validate_final('set keymap=tstkeymap', 'set keymap=testkeymap')
-  end
+  validate_inprogress('set keymap=tstkeymap', 'set keymap=testkeymap')
+  validate_final('set keymap=tstkeymap', 'set keymap=testkeymap')
 
   -- locale
   -- - No in-progress check since `:language time` expects single argument
@@ -845,11 +839,8 @@ T['Autocorrect']['works for other types'] = function()
   validate_final('sign lst', 'sign list')
 
   -- syntax
-  -- Neovim<0.10 does not set `compltype=syntax` in this case
-  if child.fn.has('nvim-0.10') == 1 then
-    validate_inprogress('set syntax=LUA', 'set syntax=lua')
-    validate_final('set syntax=LUA', 'set syntax=lua')
-  end
+  validate_inprogress('set syntax=LUA', 'set syntax=lua')
+  validate_final('set syntax=LUA', 'set syntax=lua')
 
   -- syntime
   -- - No in-progress check since `:syntime` expects single argument
@@ -1636,8 +1627,6 @@ T['Autopeek']['respects `config.autopeek.n_context`'] = function()
 end
 
 T['Autopeek']['respects `config.autopeek.predicate`'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('`:cbuffer` has addr=? on Neovim<0.10') end
-
   child.lua([[
     _G.log = {}
     MiniCmdline.config.autopeek.predicate = function(data)
@@ -1780,11 +1769,6 @@ T['Autopeek']['works with command window'] = function()
   type_keys('q:', '2', ',5', '<CR>')
   eq(child.lua_get('_G.statuscolumn_was_used'), false)
 
-  -- NOTE: Neovim<0.10 can not detect if buffer belongs to command window
-  if child.fn.has('nvim-0.10') == 0 then
-    MiniTest.skip('Neovim<0.10 does not have enough capabilities to work with command window')
-  end
-
   -- Should not be shown for command window buffer.
   type_keys('q:')
   type_keys(':', '1', '<CR>')
@@ -1850,8 +1834,6 @@ T['Arrow mappings']['work horizontally'] = function()
 end
 
 T['Arrow mappings']['work vertically'] = function()
-  if child.fn.has('nvim-0.10') == 0 then MiniTest.skip('Works only on Neovim>=0.10') end
-
   load_module({ autocomplete = { enable = false } })
 
   -- Disable fuzzy matching for easier testing

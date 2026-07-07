@@ -243,15 +243,6 @@ local H = {}
 ---   require('mini.input').setup({}) -- replace {} with your config table
 --- <
 MiniInput.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.input) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniInput = MiniInput
 
@@ -1439,9 +1430,7 @@ end
 -- Default key handler --------------------------------------------------------
 H.key_methods = {}
 
-H.keycode = vim.fn.has('nvim-0.10') == 1 and vim.keycode
-  or function(s) return vim.api.nvim_replace_termcodes(s, true, true, true) end
-local kc = H.keycode
+local kc = vim.keycode
 
 -- General
 H.key_methods[kc('<CR>')] = function(state, _) state.status = 'accept' end
@@ -1835,10 +1824,8 @@ H.default_floatwin_config = function(state, style, target_width)
     local title_hl = state.opts.hide and 'MiniInputHide' or 'MiniInputPrompt'
     config.title = { { H.fit_to_displaywidth(title_text, config.width), title_hl } }
     config.title_pos = 'left'
-    if vim.fn.has('nvim-0.10') == 1 then
-      config.footer = { { H.fit_to_displaywidth(footer_text, config.width), 'MiniInputHint' } }
-      config.footer_pos = 'right'
-    end
+    config.footer = { { H.fit_to_displaywidth(footer_text, config.width), 'MiniInputHint' } }
+    config.footer_pos = 'right'
   end
 
   return config
@@ -2051,7 +2038,7 @@ H.make_ui_select_hl_fun = function(hl_fun)
   return function(state)
     local input = state.input
     local hl_ranges = hl_fun(input)
-    if not H.islist(hl_ranges) then hl_ranges = {} end
+    if not vim.islist(hl_ranges) then hl_ranges = {} end
 
     -- Convert from Vim ranges `r` to 'mini.input' ranges:
     -- - r[1] - zero-based byte index at first multibyte start
@@ -2086,7 +2073,7 @@ H.check_one_of = function(name, x, choices)
 end
 
 H.check_array_of = function(name, x, ref_type)
-  if not H.islist(x) then H.error('`' .. name .. '` should be array') end
+  if not vim.islist(x) then H.error('`' .. name .. '` should be array') end
   for i, k in ipairs(x) do
     if type(k) ~= ref_type then H.error('Every `' .. name .. '` item should be ' .. ref_type) end
   end
@@ -2165,9 +2152,6 @@ H.fit_to_displaywidth = function(text, width)
   return ''
 end
 
--- TODO: Remove after compatibility with Neovim=0.9 is dropped
-H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
-
 H.get_lmap = function()
   local lmap = {}
   for _, map in ipairs(vim.fn.maplist()) do
@@ -2177,7 +2161,6 @@ H.get_lmap = function()
   end
   return lmap
 end
-if vim.fn.has('nvim-0.10') == 0 then H.get_lmap = function() return {} end end
 
 -- A copy of `vim.deepcopy()` that doesn't error on userdata and threads
 H.copy_tables = function(x)

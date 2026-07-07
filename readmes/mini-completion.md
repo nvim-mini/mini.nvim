@@ -46,7 +46,7 @@ https://github.com/user-attachments/assets/dd3fe2e2-9795-47c1-9479-0b3fa14c6e75
 For full experience needs (still works without any of suggestions):
 
 - Enabled ['mini.icons'](https://nvim-mini.org/mini.nvim/readmes/mini-icons) module to highlight LSP kind (requires Neovim>=0.11). If absent, `MiniCompletion.default_process_items()` does not add highlighting. Also take a look at `MiniIcons.tweak_lsp_kind()`.
-- Enabled ['mini.snippets'](https://nvim-mini.org/mini.nvim/readmes/mini-snippets) module for better snippet handling (**much recommended**). If absent and custom snippet insert is not configured, `vim.snippet.expand()` is used on Neovim>=0.10 (nothing extra is done on earlier versions). See `:h MiniCompletion.default_snippet_insert()`.
+- Enabled ['mini.snippets'](https://nvim-mini.org/mini.nvim/readmes/mini-snippets) module for better snippet handling (**much recommended**). If absent and custom snippet insert is not configured, falls back to `vim.snippet.expand()`. See `:h MiniCompletion.default_snippet_insert()`.
 
 ## Snippets
 
@@ -186,7 +186,7 @@ Stable branch:
 
     -- A function which takes a snippet as string and inserts it at cursor.
     -- Default: `default_snippet_insert` which tries to use 'mini.snippets'
-    -- and falls back to `vim.snippet.expand` (on Neovim>=0.10).
+    -- and falls back to `vim.snippet.expand`.
     snippet_insert = nil,
   },
 

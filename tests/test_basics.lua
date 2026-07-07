@@ -83,15 +83,8 @@ T['toggle_diagnostic()'] = new_set()
 local toggle_diagnostic = function() return child.lua_get('MiniBasics.toggle_diagnostic()') end
 
 T['toggle_diagnostic()']['works'] = function()
-  if child.fn.has('nvim-0.10') == 1 then
-    child.lua('vim.diagnostic.enable = function(enable) vim.b.diag_status = enable and "enabled" or "disabled" end')
-    child.lua('vim.diagnostic.is_enabled = function(enable) return vim.b.diag_status ~= "disabled" end')
-  else
-    child.lua('vim.diagnostic.enable = function() vim.b.diag_status = "enabled" end')
-    child.lua('vim.diagnostic.disable = function() vim.b.diag_status = "disabled" end')
-    child.lua('vim.diagnostic.is_disabled = function() return vim.b.diag_status == "disabled" end')
-  end
-
+  child.lua('vim.diagnostic.enable = function(enable) vim.b.diag_status = enable and "enabled" or "disabled" end')
+  child.lua('vim.diagnostic.is_enabled = function(enable) return vim.b.diag_status ~= "disabled" end')
   load_module()
 
   -- Should disable on per-buffer basis
@@ -121,18 +114,9 @@ end
 
 T['toggle_diagnostic()']['works if initially disabled'] = function()
   load_module()
-  local buf_id = child.api.nvim_get_current_buf()
+  local is_disabled = function() return not child.diagnostic.is_enabled({ bufnr = 0 }) end
 
-  local disable, is_disabled
-  if child.fn.has('nvim-0.10') == 1 then
-    disable = function() child.diagnostic.enable(false, { bufnr = buf_id }) end
-    is_disabled = function() return not child.diagnostic.is_enabled({ bufnr = buf_id }) end
-  else
-    disable = function() child.diagnostic.disable(buf_id) end
-    is_disabled = function() return child.diagnostic.is_disabled(buf_id) end
-  end
-
-  disable()
+  child.diagnostic.enable(false, { bufnr = 0 })
   eq(is_disabled(), true)
   toggle_diagnostic()
   eq(is_disabled(), false)
@@ -626,15 +610,8 @@ T['Mappings']['Toggle options']['shows feedback about new value'] = function()
 end
 
 T['Mappings']['Toggle options']['works with diagnostic'] = function()
-  if child.fn.has('nvim-0.10') == 1 then
-    child.lua('vim.diagnostic.enable = function(enable) vim.b.diag_status = enable and "enabled" or "disabled" end')
-    child.lua('vim.diagnostic.is_enabled = function(enable) return vim.b.diag_status ~= "disabled" end')
-  else
-    child.lua('vim.diagnostic.enable = function() vim.b.diag_status = "enabled" end')
-    child.lua('vim.diagnostic.disable = function() vim.b.diag_status = "disabled" end')
-    child.lua('vim.diagnostic.is_disabled = function() return vim.b.diag_status == "disabled" end')
-  end
-
+  child.lua('vim.diagnostic.enable = function(enable) vim.b.diag_status = enable and "enabled" or "disabled" end')
+  child.lua('vim.diagnostic.is_enabled = function(enable) return vim.b.diag_status ~= "disabled" end')
   load_module()
 
   -- Should disable on per-buffer basis

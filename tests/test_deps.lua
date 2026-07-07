@@ -9,9 +9,6 @@ local load_module = function(config) child.mini_load('deps', config) end
 local unload_module = function() child.mini_unload('deps') end
 local sleep = function(ms) helpers.sleep(ms, child) end
 
--- TODO: Remove after compatibility with Neovim=0.9 is dropped
-local islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
-
 local test_dir = 'tests/dir-deps'
 local test_dir_absolute = vim.fs.normalize(vim.fn.fnamemodify(test_dir, ':p')):gsub('(.)/$', '%1')
 local test_opt_dir = test_dir_absolute .. '/pack/deps/opt'
@@ -121,7 +118,7 @@ local validate_git_spawn_log = function(ref_log)
       eq('Real spawn log does not have entry for present reference log entry', ref)
     elseif ref == nil then
       eq(real, 'Reference does not have entry for present spawn log entry')
-    elseif islist(ref) then
+    elseif vim.islist(ref) then
       -- Assume default `git` options
       local args = { '-c', 'gc.auto=0' }
       vim.list_extend(args, ref)
@@ -244,9 +241,8 @@ T['setup()']['creates side effects'] = function()
   load_module()
   local has_highlight = function(group, value) expect.match(child.cmd_capture('hi ' .. group), value) end
 
-  local is_010 = child.fn.has('nvim-0.10') == 1
-  has_highlight('MiniDepsChangeAdded', 'links to ' .. (is_010 and 'Added' or 'diffAdded'))
-  has_highlight('MiniDepsChangeRemoved', 'links to ' .. (is_010 and 'Removed' or 'diffRemoved'))
+  has_highlight('MiniDepsChangeAdded', 'links to Added')
+  has_highlight('MiniDepsChangeRemoved', 'links to Removed')
   has_highlight('MiniDepsHint', 'links to DiagnosticHint')
   has_highlight('MiniDepsInfo', 'links to DiagnosticInfo')
   has_highlight('MiniDepsPlaceholder', 'links to Comment')

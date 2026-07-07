@@ -159,7 +159,6 @@ Here is the list of affected options (put cursor on it and press |CTRL-]|):
     - |'splitbelow'|
     - |'splitkeep'|
     - |'splitright'|
-    - |'termguicolors'| (on Neovim<0.10; later versions have it smartly enabled)
     - |'wrap'|
 - Editing
     - |'completeopt'|
@@ -244,8 +243,6 @@ Here is a table with created mappings : >
 <
 Notes:
 - See |[count]| for its meaning.
-- On Neovim>=0.10 mappings for `#` and `*` are not created as their
-  enhanced variants are made built-in. See |v_star-default| and |v_#-default|.
 - On Neovim>=0.11 there are |[<Space>| / |]<Space>| for adding empty lines.
   The `gO` and `go` mappings are still created as they are more aligned with
   similarly purposed |O| and |o| keys (although sometimes conflict with |gO|).

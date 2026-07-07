@@ -51,9 +51,6 @@ Features:
 - Match caching to increase responsiveness on repeated prompts.
 
 Notes:
-- Works on all supported versions but Neovim>=0.10 will give more visual
-  feedback in floating window footer.
-
 - For more pickers see |MiniExtra.pickers|.
 
 Sources with more details:
@@ -179,7 +176,7 @@ UI consists from a single window capable of displaying three different views:
 Current prompt is displayed at the top left of the window border with vertical
 line indicating caret (current input position).
 
-Bottom part of window border displays (in Neovim>=0.10) extra visual feedback:
+Bottom part of window border displays extra visual feedback:
 - Left part is a picker name.
 - Right part contains information in the format >
 
@@ -828,8 +825,7 @@ keys. See |MiniPick-actions| for more information.
 
 `options.content_from_bottom` is a boolean indicating whether content should be
 shown from bottom to top. That means that best matches will be shown at
-the bottom. Note: for better experience use Neovim>=0.10, which has floating
-window footer capability. Default: `false`.
+the bottom. Default: `false`.
 
 `options.use_cache` is a boolean indicating whether match results should be
 cached per prompt (i.e. concatenated query). This results into faster response

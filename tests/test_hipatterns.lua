@@ -1097,11 +1097,6 @@ T['gen_highlighter']['hex_color()']["works with style 'line'"] = function()
 end
 
 T['gen_highlighter']['hex_color()']["works with style 'inline'"] = function()
-  if child.fn.has('nvim-0.10') == 0 then
-    expect.error(function() enable_hex_color({ style = 'inline' }) end, '"inline".*hex_color.*0%.10')
-    return
-  end
-
   child.set_size(5, 25)
   set_lines({ '#000000 #ffffff' })
 

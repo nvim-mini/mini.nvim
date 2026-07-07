@@ -314,12 +314,7 @@ T['active()/inactive()']['respects `vim.{g,b}.ministatusline_disable`'] = new_se
 T['section_diagnostics()'] = new_set({ hooks = { pre_case = mock_diagnostics } })
 
 T['section_diagnostics()']['works'] = function()
-  local get_n_attached_clients = function()
-    return child.lua([[
-      return vim.fn.has('nvim-0.10') == 1 and #vim.lsp.get_clients({ bufnr = 0 }) or
-      #vim.lsp.get_active_clients({ bufnr = 0 })
-    ]])
-  end
+  local get_n_attached_clients = function() return child.lua_get('#vim.lsp.get_clients({ bufnr = 0 })') end
   eq(child.lua_get('MiniStatusline.section_diagnostics({})'), ' E4 W3 I2 H1')
 
   -- Should not depend on LSP server attached
@@ -386,12 +381,7 @@ T['section_diagnostics()']['works in not normal buffers'] = function()
 end
 
 T['section_diagnostics()']['is not shown if diagnostics is disabled'] = function()
-  local buf_id = child.api.nvim_get_current_buf()
-  if child.fn.has('nvim-0.10') == 1 then
-    child.diagnostic.enable(false, { bufnr = buf_id })
-  else
-    child.diagnostic.disable(buf_id)
-  end
+  child.diagnostic.enable(false, { bufnr = 0 })
   eq(child.lua_get('MiniStatusline.section_diagnostics({})'), '')
 end
 

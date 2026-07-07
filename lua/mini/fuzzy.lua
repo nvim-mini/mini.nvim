@@ -79,15 +79,6 @@ local H = {}
 ---   require('mini.fuzzy').setup({}) -- replace {} with your config table
 --- <
 MiniFuzzy.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.fuzzy) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniFuzzy = MiniFuzzy
 

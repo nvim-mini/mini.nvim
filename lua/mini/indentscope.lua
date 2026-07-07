@@ -110,15 +110,6 @@ local H = {}
 ---   require('mini.indentscope').setup({}) -- replace {} with your config table
 --- <
 MiniIndentscope.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.indentscope) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniIndentscope = MiniIndentscope
 
@@ -629,9 +620,6 @@ H.border_correctors = {
   end,
 }
 
--- Whether or not Nvim supports the virt_text_repeat_linebreak extmark feature
-H.has_wrapped_virt_text = vim.fn.has('nvim-0.10') == 1
-
 -- Helper functionality =======================================================
 -- Settings -------------------------------------------------------------------
 H.setup_config = function(config)
@@ -975,9 +963,7 @@ H.make_draw_function = function(indicator, opts)
     virt_text_pos = 'overlay',
   }
 
-  if H.has_wrapped_virt_text and vim.wo.breakindent and vim.wo.showbreak == '' then
-    extmark_opts.virt_text_repeat_linebreak = true
-  end
+  if vim.wo.breakindent and vim.wo.showbreak == '' then extmark_opts.virt_text_repeat_linebreak = true end
 
   local current_event_id = opts.event_id
 

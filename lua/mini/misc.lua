@@ -63,15 +63,6 @@ local H = {}
 ---   require('mini.misc').setup({}) -- replace {} with your config table
 --- <
 MiniMisc.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.misc) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniMisc = MiniMisc
 
@@ -542,17 +533,12 @@ H.root_cache = {}
 --- which appears if Neovim's |hl-Normal| background color differs from what is
 --- used by terminal emulator itself.
 ---
---- Works only on Neovim>=0.10.
----
 ---@param opts table|nil Options. Possible fields:
 ---   - <explicit_reset> `(boolean)` - whether to reset terminal background by
 ---     explicitly setting it to the color it had when this function was called.
 ---     Set to `true` if terminal emulator doesn't support OSC 111 control sequence.
 ---     Default: `false`.
 MiniMisc.setup_termbg_sync = function(opts)
-  -- Handling `'\027]11;?\007'` response was added in Neovim 0.10
-  if vim.fn.has('nvim-0.10') == 0 then return H.notify('`setup_termbg_sync()` requires Neovim>=0.10', 'WARN') end
-
   -- Proceed only if there is a valid stdout to use
   local has_stdout_tty = false
   for _, ui in ipairs(vim.api.nvim_list_uis()) do
@@ -943,7 +929,7 @@ H.notify = function(msg, level) vim.notify('(mini.misc) ' .. msg, vim.log.levels
 H.is_valid_buf = function(buf_id) return type(buf_id) == 'number' and vim.api.nvim_buf_is_valid(buf_id) end
 
 H.is_array_of = function(x, predicate)
-  if not H.islist(x) then return false end
+  if not vim.islist(x) then return false end
   for _, v in ipairs(x) do
     if not predicate(v) then return false end
   end
@@ -962,8 +948,5 @@ end
 H.copy_tables = function(x)
   return type(x) == 'table' and setmetatable(vim.tbl_map(H.copy_tables, x), getmetatable(x)) or x
 end
-
--- TODO: Remove after compatibility with Neovim=0.9 is dropped
-H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
 
 return MiniMisc

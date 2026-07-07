@@ -41,8 +41,7 @@ vim.loop.new_pipe = function()
     _is_active_indicator = true,
     is_active = function(stream) return stream._is_active_indicator end,
     read_start = function(stream, callback)
-      -- It is not possible in Neovim<0.10 to execute `vim.fn` functions during
-      -- `pipe:read_start()`
+      -- Not possible to execute `vim.fn` functions during `pipe:read_start()`
       local vim_fn_orig = vim.deepcopy(vim.fn)
       vim.fn = setmetatable({}, { __index = function() error('Can not use `vim.fn` during `read_start`.') end })
 

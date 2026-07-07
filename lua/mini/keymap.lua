@@ -205,15 +205,6 @@ local H = {}
 ---                                    -- needs `keymap` field present
 --- <
 MiniKeymap.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.keymap) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniKeymap = MiniKeymap
 
@@ -659,7 +650,7 @@ if vim.fn.has('nvim-0.11') == 0 then H.combo_get_key = function(key) return key 
 
 -- Multi-step -----------------------------------------------------------------
 H.normalize_steps = function(steps)
-  if not H.islist(steps) then H.error('`steps` should be array') end
+  if not vim.islist(steps) then H.error('`steps` should be array') end
   local res = {}
   for i, step in ipairs(steps) do
     local s = type(step) == 'string' and H.steps_builtin[step] or step
@@ -830,7 +821,7 @@ H.steps_builtin.nvimautopairs_bs = { condition = H.has_nvimautopairs, action = H
 H.is_string = function(x) return type(x) == 'string' end
 
 H.is_array_of = function(x, predicate)
-  if not H.islist(x) then return false end
+  if not vim.islist(x) then return false end
   for i = 1, #x do
     if not predicate(x[i]) then return false end
   end
@@ -873,8 +864,5 @@ H.hide_completion = function()
   -- 'mini.snippets' (as there is no extmarks involved).
   if vim.fn.mode() == 'i' and vim.fn.pumvisible() == 1 then vim.cmd('silent noautocmd call complete(col("."), [])') end
 end
-
--- TODO: Remove after compatibility with Neovim=0.9 is dropped
-H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
 
 return MiniKeymap

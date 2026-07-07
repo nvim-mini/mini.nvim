@@ -171,15 +171,6 @@ local H = {}
 ---   require('mini.operators').setup({}) -- replace {} with your config table
 --- <
 MiniOperators.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.operators) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniOperators = MiniOperators
 
@@ -641,7 +632,7 @@ MiniOperators.default_sort_func = function(content, opts)
   if not vim.is_callable(compare_fun) then H.error('`opts.compare_fun` should be callable.') end
 
   local split_patterns = opts.split_patterns or { '%s*,%s*', '%s*;%s*', '%s+', '' }
-  if not H.islist(split_patterns) then H.error('`opts.split_patterns` should be array.') end
+  if not vim.islist(split_patterns) then H.error('`opts.split_patterns` should be array.') end
 
   -- Prepare lines to sort
   local lines, submode = content.lines, content.submode
@@ -742,7 +733,7 @@ H.apply_config = function(config)
       remove_lsp_mapping('n', 'grx')
     end
 
-    if prefix == 'gx' and vim.fn.has('nvim-0.10') == 1 then
+    if prefix == 'gx' then
       remap_builtin_gx('n')
       remap_builtin_gx('x')
     end
@@ -1196,7 +1187,7 @@ H.do_between_marks = function(operator, data)
   if is_yank then vim.o.eventignore = cache_eventignore end
 end
 
-H.is_content = function(x) return type(x) == 'table' and H.islist(x.lines) and type(x.submode) == 'string' end
+H.is_content = function(x) return type(x) == 'table' and vim.islist(x.lines) and type(x.submode) == 'string' end
 
 -- Marks ----------------------------------------------------------------------
 H.get_region_data = function(mode)
@@ -1338,9 +1329,6 @@ H.cmd_normal = function(command, opts)
 
   if cancel_redo then H.cancel_redo() end
 end
-
--- TODO: Remove after compatibility with Neovim=0.9 is dropped
-H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
 
 -- TODO: Remove after compatibility with Neovim=0.10 is dropped
 H.highlight_range = function(...) vim.hl.range(...) end

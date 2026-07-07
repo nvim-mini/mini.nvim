@@ -65,9 +65,8 @@
 ---   If absent, |MiniCompletion.default_process_items()| does not add highlighting.
 ---   Also take a look at |MiniIcons.tweak_lsp_kind()|.
 --- - Enabled |mini.snippets| module for better snippet handling (much recommended).
----   If absent and custom snippet insert is not configured, |vim.snippet.expand()|
----   is used on Neovim>=0.10 (nothing extra is done on earlier versions).
----   See |MiniCompletion.default_snippet_insert()|.
+---   If absent and custom snippet insert is not configured, falls back
+---   to |vim.snippet.expand()|. See |MiniCompletion.default_snippet_insert()|.
 ---
 --- # Setup ~
 ---
@@ -278,15 +277,6 @@ local H = {}
 ---   require('mini.completion').setup({}) -- replace {} with your config table
 --- <
 MiniCompletion.setup = function(config)
-  -- TODO: Remove after Neovim=0.9 support is dropped
-  if vim.fn.has('nvim-0.10') == 0 then
-    vim.notify(
-      '(mini.completion) Neovim<0.10 is soft deprecated (module works but is not supported).'
-        .. " It will be deprecated after the next 'mini.nvim' release (module might not work)."
-        .. ' Please update your Neovim version.'
-    )
-  end
-
   -- Export module
   _G.MiniCompletion = MiniCompletion
 
@@ -336,7 +326,7 @@ MiniCompletion.config = {
 
     -- A function which takes a snippet as string and inserts it at cursor.
     -- Default: `default_snippet_insert` which tries to use 'mini.snippets'
-    -- and falls back to `vim.snippet.expand` (on Neovim>=0.10).
+    -- and falls back to `vim.snippet.expand`.
     snippet_insert = nil,
   },
 
@@ -566,8 +556,7 @@ end
 ---
 --- Order of preference:
 --- - Use |mini.snippets| if set up (i.e. after `require('mini.snippets').setup()`).
---- - Use |vim.snippet.expand()| on Neovim>=0.10
---- - Add snippet text at cursor as is.
+--- - Fall back to |vim.snippet.expand()|.
 ---
 --- After snippet is inserted, user is expected to navigate/jump between dedicated
 --- places (tabstops) to adjust inserted text as needed:
@@ -591,13 +580,7 @@ MiniCompletion.default_snippet_insert = function(snippet)
     local insert = MiniSnippets.config.expand.insert or MiniSnippets.default_insert
     return insert({ body = snippet })
   end
-  if vim.fn.has('nvim-0.10') == 1 then return vim.snippet.expand(snippet) end
-
-  local pos, lines = vim.api.nvim_win_get_cursor(0), vim.split(snippet, '\n')
-  vim.api.nvim_buf_set_text(0, pos[1] - 1, pos[2], pos[1] - 1, pos[2], lines)
-  local n = #lines
-  local new_pos = n == 1 and { pos[1], pos[2] + lines[n]:len() } or { pos[1] + n - 1, lines[n]:len() }
-  vim.api.nvim_win_set_cursor(0, new_pos)
+  vim.snippet.expand(snippet)
 end
 
 --- Get client LSP capabilities
@@ -775,7 +758,7 @@ H.setup_config = function(config)
   H.check_type('mappings.scroll_down', config.mappings.scroll_down, 'string')
   H.check_type('mappings.scroll_up', config.mappings.scroll_up, 'string')
 
-  local is_string_or_array = function(x) return type(x) == 'string' or H.islist(x) end
+  local is_string_or_array = function(x) return type(x) == 'string' or vim.islist(x) end
   H.check_type('window.info.height', config.window.info.height, 'number')
   H.check_type('window.info.width', config.window.info.width, 'number')
   if not is_string_or_array(config.window.info.border or 'single') then
@@ -810,10 +793,9 @@ H.apply_config = function(config)
   local was_set = vim.api.nvim_get_option_info2('completeopt', { scope = 'global' }).was_set
   if not was_set then vim.o.completeopt = 'menuone,noselect' end
 
-  -- - Don't show ins-completion-menu messages ("C" is default on Neovim>=0.10)
-  local shortmess_flags = 'c' .. (vim.fn.has('nvim-0.10') == 0 and 'C' or '')
+  -- - Don't show ins-completion-menu messages
   was_set = vim.api.nvim_get_option_info2('shortmess', { scope = 'global' }).was_set
-  if not was_set then vim.opt.shortmess:append(shortmess_flags) end
+  if not was_set then vim.opt.shortmess:append('c') end
 
   -- - Remove "t" flag to reduce visible lags
   was_set = vim.api.nvim_get_option_info2('complete', { scope = 'global' }).was_set
@@ -1105,7 +1087,7 @@ H.stop_actions = {
 ---@return boolean Whether at least one LSP client supports `capability`.
 ---@private
 H.has_lsp_clients = function(capability)
-  local clients = H.get_buf_lsp_clients()
+  local clients = vim.lsp.get_clients({ bufnr = 0 })
   if vim.tbl_isempty(clients) then return false end
   if not capability then return true end
 
@@ -1126,7 +1108,7 @@ H.is_lsp_trigger = function(char, type)
   local triggers
   local providers = { completion = 'completionProvider', signature = 'signatureHelpProvider' }
 
-  for _, client in ipairs(H.get_buf_lsp_clients()) do
+  for _, client in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
     triggers = H.table_get(client, { 'server_capabilities', providers[type], 'triggerCharacters' })
     if vim.tbl_contains(triggers or {}, char) then return true end
   end
@@ -2052,12 +2034,6 @@ if vim.fn.has('nvim-0.11') == 0 then
 end
 
 H.wrap_in_codeblock = function(x) return string.format('```%s\n%s\n```', vim.bo.filetype:match('^[^%.]*'), vim.trim(x)) end
-
--- TODO: Remove after compatibility with Neovim=0.9 is dropped
-H.islist = vim.fn.has('nvim-0.10') == 1 and vim.islist or vim.tbl_islist
-
-H.get_buf_lsp_clients = function() return vim.lsp.get_clients({ bufnr = 0 }) end
-if vim.fn.has('nvim-0.10') == 0 then H.get_buf_lsp_clients = function() return vim.lsp.buf_get_clients() end end
 
 -- TODO: Remove after compatibility with Neovim=0.10 is dropped
 H.make_position_params = function(context)

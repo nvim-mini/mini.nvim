@@ -8,6 +8,12 @@ There are following change types:
 
 # Version 0.19.0-dev
 
+## All
+
+### Refine
+
+- Stop official support of Neovim 0.9.
+
 
 # Version 0.18.0 (2026-06-21)
 
