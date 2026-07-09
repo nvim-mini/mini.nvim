@@ -664,33 +664,14 @@ H.apply_palette = function(palette, use_cterm)
   hi('markdownH5', {fg=p.base0D, bg=nil, attr=nil, sp=nil})
   hi('markdownH6', {fg=p.base0F, bg=nil, attr=nil, sp=nil})
 
-  -- Tree-sitter
-  -- Sources:
-  -- - `:h treesitter-highlight-groups`
-  -- - https://github.com/nvim-treesitter/nvim-treesitter/blob/master/CONTRIBUTING.md#highlights
-  -- Included only those differing from default links
+  -- Tree-sitter. Source: `:h treesitter-highlight-groups`.
   hi('@keyword.return', {fg=p.base08, bg=nil, attr=nil, sp=nil})
-  hi('@symbol',         {fg=p.base0E, bg=nil, attr=nil, sp=nil})
   hi('@variable',       {fg=p.base05, bg=nil, attr=nil, sp=nil})
 
-  hi('@text.strong',    {fg=nil, bg=nil, attr='bold',          sp=nil})
-  hi('@text.emphasis',  {fg=nil, bg=nil, attr='italic',        sp=nil})
-  hi('@text.strike',    {fg=nil, bg=nil, attr='strikethrough', sp=nil})
-  hi('@text.underline', {link='Underlined'})
-
-  -- Semantic tokens. Source: `:h lsp-semantic-highlight`.
-  -- Included only those differing from default links
-  hi('@lsp.type.variable',  {fg=p.base05, bg=nil, attr=nil, sp=nil})
-  hi('@lsp.mod.deprecated', {fg=p.base08, bg=nil, attr=nil, sp=nil})
-
-  -- New tree-sitter groups
-  -- Source: `:h treesitter-highlight-groups`
-  -- Included only those differing from default links
-  -- TODO: Combine with "old" tree-sitter groups into a single section
-  hi('@markup.strong',        {link='@text.strong'})
-  hi('@markup.italic',        {link='@text.emphasis'})
-  hi('@markup.strikethrough', {link='@text.strike'})
-  hi('@markup.underline',     {link='@text.underline'})
+  hi('@markup.strong',        {fg=nil, bg=nil, attr='bold',          sp=nil})
+  hi('@markup.italic',        {fg=nil, bg=nil, attr='italic',        sp=nil})
+  hi('@markup.strikethrough', {fg=nil, bg=nil, attr='strikethrough', sp=nil})
+  hi('@markup.underline',     {link='Underlined'})
 
   hi('@markup.heading.1', {link='markdownH1'})
   hi('@markup.heading.2', {link='markdownH2'})
@@ -702,6 +683,11 @@ H.apply_palette = function(palette, use_cterm)
   hi('@string.special.vimdoc',     {link='SpecialChar'})
   hi('@variable.parameter.vimdoc', {fg=p.base09, bg=nil, attr=nil, sp=nil})
   hi('@markup.heading.4.vimdoc',   {link='Title'})
+
+  -- Semantic tokens. Source: `:h lsp-semantic-highlight`.
+  -- Included only those differing from default links
+  hi('@lsp.type.variable',  {fg=p.base05, bg=nil, attr=nil, sp=nil})
+  hi('@lsp.mod.deprecated', {fg=p.base08, bg=nil, attr=nil, sp=nil})
 
   -- Plugins
   -- nvim-mini/mini.nvim
