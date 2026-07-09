@@ -1473,12 +1473,15 @@ MiniSnippets.parse = function(snippet_body, opts)
     is_not_top_level = function(self) return #self.depth_arrays > 1 end,
   }
 
-  for i = 0, vim.fn.strchars(snippet_body) - 1 do
+  -- NOTE: Special parsing is required only for single-byte characters, so
+  -- traverse snippet body per byte. This improves performance (~100x) on large
+  -- snippets compared to using `vim.fn.strchars()` and `vim.fn.strcharpart()`.
+  for i = 1, snippet_body:len() do
     -- Infer helper data (for more concise manipulations inside processor)
     local depth = #state.depth_arrays
     local arr = state.depth_arrays[depth]
     local processor, node = H.parse_processors[state.name], arr[#arr]
-    processor(vim.fn.strcharpart(snippet_body, i, 1), state, node)
+    processor(snippet_body:sub(i, i), state, node)
   end
 
   -- Verify, post-process, normalize

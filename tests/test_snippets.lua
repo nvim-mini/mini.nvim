@@ -2451,6 +2451,14 @@ T['parse()']['works'] = function()
   )
   -- Should allow array of strings
   eq(parse({ 'aa', '$1', '$var' }), { { text = 'aa\n' }, { tabstop = '1' }, { text = '\n' }, { var = 'var' } })
+
+  -- Should work with multibyte characters
+  eq(parse('фt🬗 ${1:фt🬗}「${2:」}'), {
+    { text = 'фt🬗 ' },
+    { tabstop = '1', placeholder = { { text = 'фt🬗' } } },
+    { text = '「' },
+    { tabstop = '2', placeholder = { { text = '」' } } },
+  })
 end
 
 --stylua: ignore
