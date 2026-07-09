@@ -13,15 +13,11 @@ local set_lines = function(...) return child.set_lines(...) end
 local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child) end
+local forward_lua = function(fun_str) return helpers.forward_lua(child, fun_str) end
 
 local test_dir = 'tests/dir-keymap'
 
 -- Common test wrappers
-local forward_lua = function(fun_str)
-  local lua_cmd = fun_str .. '(...)'
-  return function(...) return child.lua_get(lua_cmd, { ... }) end
-end
-
 local mock_plugin = function(name) child.cmd('noautocmd set rtp+=tests/dir-keymap/mock-plugins/' .. name) end
 
 local mock_test_steps = function(method_name)

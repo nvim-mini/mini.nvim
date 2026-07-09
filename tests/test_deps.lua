@@ -8,6 +8,7 @@ local new_set = MiniTest.new_set
 local load_module = function(config) child.mini_load('deps', config) end
 local unload_module = function() child.mini_unload('deps') end
 local sleep = function(ms) helpers.sleep(ms, child) end
+local forward_lua = function(fun_str) return helpers.forward_lua(child, fun_str) end
 
 local test_dir = 'tests/dir-deps'
 local test_dir_absolute = vim.fs.normalize(vim.fn.fnamemodify(test_dir, ':p')):gsub('(.)/$', '%1')
@@ -48,11 +49,6 @@ local validate_not_confirm_buf = function()
 end
 
 -- Common test wrappers
-local forward_lua = function(fun_str)
-  local lua_cmd = fun_str .. '(...)'
-  return function(...) return child.lua_get(lua_cmd, { ... }) end
-end
-
 local add = forward_lua('MiniDeps.add')
 local get_session = forward_lua('MiniDeps.get_session')
 

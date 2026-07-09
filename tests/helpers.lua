@@ -205,6 +205,12 @@ Helpers.new_child_neovim = function()
   return child
 end
 
+-- Create a function that forwards its arguments to a global function
+-- inside a child process and returns the output
+Helpers.forward_lua = function(child, fun_str)
+  return function(...) return child.lua_get(fun_str .. '(...)', { ... }) end
+end
+
 -- Detect CI
 Helpers.is_ci = function() return os.getenv('CI') ~= nil end
 Helpers.skip_in_ci = function(msg)

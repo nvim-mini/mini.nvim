@@ -13,6 +13,7 @@ local get_cursor = function(...) return child.get_cursor(...) end
 local set_lines = function(...) return child.set_lines(...) end
 local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end
+local forward_lua = function(fun_str) return helpers.forward_lua(child, fun_str) end
 
 -- Common helpers
 local reload_with_hooks = function()
@@ -29,11 +30,6 @@ local reload_with_hooks = function()
         post = function(...) table.insert(_G.hook_args, { 'post', vim.deepcopy({ ... }) }) end,
       },
     })]])
-end
-
-local forward_lua = function(fun_str)
-  local lua_cmd = fun_str .. '(...)'
-  return function(...) return child.lua_get(lua_cmd, { ... }) end
 end
 
 -- Data =======================================================================

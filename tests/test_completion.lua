@@ -19,11 +19,7 @@ local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child, true) end
 local mock_lsp = function() child.cmd('luafile tests/mock-lsp/months.lua') end
 local new_buffer = function() child.api.nvim_set_current_buf(child.api.nvim_create_buf(true, false)) end
-
-local forward_lua = function(fun_str)
-  local lua_cmd = fun_str .. '(...)'
-  return function(...) return child.lua_get(lua_cmd, { ... }) end
-end
+local forward_lua = function(fun_str) return helpers.forward_lua(child, fun_str) end
 
 local mock_miniicons = function()
   child.lua([[

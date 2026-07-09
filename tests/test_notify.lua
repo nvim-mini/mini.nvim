@@ -8,6 +8,7 @@ local new_set = MiniTest.new_set
 local load_module = function(config) child.mini_load('notify', config) end
 local unload_module = function() child.mini_unload('notify') end
 local sleep = function(ms) helpers.sleep(ms, child) end
+local forward_lua = function(fun_str) return helpers.forward_lua(child, fun_str) end
 
 -- Common test helpers
 local get_notif_win_id = function(tabpage_id)
@@ -23,11 +24,6 @@ end
 local is_notif_window_shown = function(tabpage_id) return get_notif_win_id(tabpage_id) ~= nil end
 
 -- Common test wrappers
-local forward_lua = function(fun_str)
-  local lua_cmd = fun_str .. '(...)'
-  return function(...) return child.lua_get(lua_cmd, { ... }) end
-end
-
 local get = forward_lua('MiniNotify.get')
 local get_all = forward_lua('MiniNotify.get_all')
 

@@ -11,6 +11,7 @@ local set_cursor = function(...) return child.set_cursor(...) end
 local get_cursor = function(...) return child.get_cursor(...) end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child) end
+local forward_lua = function(fun_str) return helpers.forward_lua(child, fun_str) end
 
 -- Test paths helpers
 local join_path = function(...) return table.concat({ ... }, '/') end
@@ -33,11 +34,6 @@ local setup_windows_pair = function()
 end
 
 -- Common test wrappers
-local forward_lua = function(fun_str)
-  local lua_cmd = fun_str .. '(...)'
-  return function(...) return child.lua_get(lua_cmd, { ... }) end
-end
-
 local forward_lua_notify = function(fun_str)
   local lua_cmd = fun_str .. '(...)'
   return function(...) return child.lua_notify(lua_cmd, { ... }) end

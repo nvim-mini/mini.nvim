@@ -13,6 +13,7 @@ local set_lines = function(...) return child.set_lines(...) end
 local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child) end
+local forward_lua = function(fun_str) return helpers.forward_lua(child, fun_str) end
 
 -- Test paths helpers
 local test_dir = 'tests/dir-files'
@@ -109,11 +110,6 @@ end
 local is_file_in_window = function(win_id, path) return is_file_in_buffer(child.api.nvim_win_get_buf(win_id), path) end
 
 -- Common test wrappers
-local forward_lua = function(fun_str)
-  local lua_cmd = fun_str .. '(...)'
-  return function(...) return child.lua_get(lua_cmd, { ... }) end
-end
-
 local open = forward_lua('MiniFiles.open')
 local close = forward_lua('MiniFiles.close')
 local go_in = forward_lua('MiniFiles.go_in')

@@ -9,6 +9,7 @@ local load_module = function(config) child.mini_load('visits', config) end
 local unload_module = function() child.mini_unload('visits') end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child, true) end
+local forward_lua = function(fun_str) return helpers.forward_lua(child, fun_str) end
 local edit = function(path) child.cmd('edit ' .. child.fn.fnameescape(path)) end
 local child_time = function() return child.lua_get('os.time()') end
 
@@ -32,11 +33,6 @@ local cleanup_index_file = function()
 end
 
 -- Common test wrappers
-local forward_lua = function(fun_str)
-  local lua_cmd = fun_str .. '(...)'
-  return function(...) return child.lua_get(lua_cmd, { ... }) end
-end
-
 local get_index = forward_lua('MiniVisits.get_index')
 local set_index = forward_lua('MiniVisits.set_index')
 

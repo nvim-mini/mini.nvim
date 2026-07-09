@@ -12,14 +12,10 @@ local set_lines = function(...) return child.set_lines(...) end
 local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child) end
+local forward_lua = function(fun_str) return helpers.forward_lua(child, fun_str) end
 
 local get_window = function() return child.api.nvim_get_current_win() end
 local set_window = function(win_id) return child.api.nvim_set_current_win(win_id) end
-
-local forward_lua = function(fun_str)
-  local lua_cmd = fun_str .. '(...)'
-  return function(...) return child.lua_get(lua_cmd, { ... }) end
-end
 
 -- Mapping helpers
 local replace_termcodes = function(x) return child.api.nvim_replace_termcodes(x, true, true, true) end

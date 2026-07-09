@@ -12,6 +12,7 @@ local set_lines = function(...) return child.set_lines(...) end
 local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child) end
+local forward_lua = function(fun_str) return helpers.forward_lua(child, fun_str) end
 
 -- Test paths helpers
 local path_sep = package.config:sub(1, 1)
@@ -27,11 +28,6 @@ local make_testpath = function(...) return join_path(test_dir, ...) end
 local real_file = function(basename) return join_path(real_files_dir, basename) end
 
 -- Common test wrappers
-local forward_lua = function(fun_str)
-  local lua_cmd = fun_str .. '(...)'
-  return function(...) return child.lua_get(lua_cmd, { ... }) end
-end
-
 local forward_lua_notify = function(fun_str)
   local lua_cmd = fun_str .. '(...)'
   return function(...) return child.lua_notify(lua_cmd, { ... }) end

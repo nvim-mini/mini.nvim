@@ -7,13 +7,9 @@ local new_set = MiniTest.new_set
 -- Helpers with child processes
 local load_module = function(config) child.mini_load('icons', config) end
 local unload_module = function() child.mini_unload('icons') end
+local forward_lua = function(fun_str) return helpers.forward_lua(child, fun_str) end
 
 -- Common test wrappers
-local forward_lua = function(fun_str)
-  local lua_cmd = fun_str .. '(...)'
-  return function(...) return child.lua_get(lua_cmd, { ... }) end
-end
-
 local get = function(...) return child.lua_get('{ MiniIcons.get(...) }', { ... }) end
 local list = forward_lua('MiniIcons.list')
 

@@ -13,6 +13,7 @@ local set_lines = function(...) return child.set_lines(...) end
 local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child) end
+local forward_lua = function(fun_str) return helpers.forward_lua(child, fun_str) end
 
 -- Create a helper for mock-typing every key separately because state tracking
 -- can depend on emulating one-by-one key presses (mostly for autocorrect).
@@ -44,11 +45,6 @@ end
 local test_dir = 'tests/dir-cmdline'
 
 -- Common test wrappers
-local forward_lua = function(fun_str)
-  local lua_cmd = fun_str .. '(...)'
-  return function(...) return child.lua_get(lua_cmd, { ... }) end
-end
-
 local validate_cmdline = function(line, pos)
   eq(child.fn.mode(), 'c')
   eq(child.fn.getcmdline(), line)
