@@ -793,17 +793,43 @@ T['Add surrounding']['works with different mapping'] = function()
 end
 
 T['Add surrounding']['respects two types of `[count]` in Normal mode'] = function()
+  -- Built-in surroundings
   validate_edit1d('aa bb cc dd', 0, '((aa ))bb cc dd', 2, type_keys, '2sa', 'aw', ')')
   validate_edit1d('aa bb cc dd', 0, '(aa bb cc )dd', 1, type_keys, 'sa', '3aw', ')')
   validate_edit1d('aa bb cc dd', 0, '((aa bb cc ))dd', 2, type_keys, '2sa', '3aw', ')')
 
-  -- Should work with dot-repeat
+  -- - Should work with dot-repeat
   validate_edit1d('aa bb cc dd ee', 0, '((aa bb ))((cc dd ))ee', 12, type_keys, '2sa2aw)', 'fc', '.')
+
+  -- Custom surroundings
+  child.lua('MiniSurround.config.custom_surroundings = { ["!"] = { output = { left = "<", right = ">" } } }')
+  validate_edit1d('aa bb cc dd', 0, '<<aa >>bb cc dd', 2, type_keys, '2sa', 'aw', '!')
+  validate_edit1d('aa bb cc dd', 0, '<aa bb cc >dd', 1, type_keys, 'sa', '3w', '!')
+  validate_edit1d('aa bb cc dd', 0, '<<aa bb cc >>dd', 2, type_keys, '2sa', '3aw', '!')
+
+  validate_edit1d('aa bb cc dd ee', 0, '<<aa bb >><<cc dd >>ee', 12, type_keys, '2sa2aw!', 'fc', '.')
+
+  -- Default (fallback) surroundings
+  validate_edit1d('aa bb cc dd', 0, '@@aa @@bb cc dd', 2, type_keys, '2sa', 'aw', '@')
+  validate_edit1d('aa bb cc dd', 0, '@aa bb cc @dd', 1, type_keys, 'sa', '3w', '@')
+  validate_edit1d('aa bb cc dd', 0, '@@aa bb cc @@dd', 2, type_keys, '2sa', '3aw', '@')
+
+  validate_edit1d('aa bb cc dd ee', 0, '@@aa bb @@@@cc dd @@ee', 12, type_keys, '2sa2aw@', 'fc', '.')
 end
 
 T['Add surrounding']['respects `[count]` in Visual mode'] = function()
+  -- Built-in surroundings
   validate_edit1d('aa bb cc dd', 0, '((aa ))bb cc dd', 2, type_keys, 'vaw', '2sa', ')')
   validate_edit1d('aa bb cc dd', 0, '((aa bb cc ))dd', 2, type_keys, 'v3aw', '2sa', ')')
+
+  -- Custom surroundings
+  child.lua('MiniSurround.config.custom_surroundings = { ["!"] = { output = { left = "<", right = ">" } } }')
+  validate_edit1d('aa bb cc dd', 0, '<<aa >>bb cc dd', 2, type_keys, 'vaw', '2sa', '!')
+  validate_edit1d('aa bb cc dd', 0, '<<aa bb cc >>dd', 2, type_keys, 'v3aw', '2sa', '!')
+
+  -- Default (fallback) surroundings
+  validate_edit1d('aa bb cc dd', 0, '@@aa @@bb cc dd', 2, type_keys, 'vaw', '2sa', '@')
+  validate_edit1d('aa bb cc dd', 0, '@@aa bb cc @@dd', 2, type_keys, 'v3aw', '2sa', '@')
 end
 
 T['Add surrounding']['handles `[count]` cache'] = function()

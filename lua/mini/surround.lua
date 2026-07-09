@@ -1290,22 +1290,20 @@ end
 
 -- Work with surrounding info -------------------------------------------------
 H.get_surround_spec = function(surr_type, use_cache)
-  local res
-
   -- Try using cache
-  if use_cache then
-    res = H.cache[surr_type]
-    if res ~= nil then return res end
-  else
-    H.cache = {}
-  end
+  if not use_cache then H.cache = {} end
+  if use_cache and H.cache[surr_type] ~= nil then return H.cache[surr_type] end
 
   -- Prompt user to enter identifier of surrounding
   local char = H.user_surround_id(surr_type)
   if char == nil then return nil end
 
-  -- Get surround specification
-  res = H.make_surrounding_table()[char][surr_type]
+  -- Prefer surrounding specification: custom > built-in > default
+  local res = ((H.get_config().custom_surroundings or {})[char] or {})[surr_type]
+  if res == nil then res = (H.builtin_surroundings[char] or {})[surr_type] end
+  if res == nil then res = H.get_default_surrounding(char, surr_type) end
+  -- - NOTE: Make sure that in-place modifications don't affect the source
+  res = vim.deepcopy(res)
 
   -- Allow function returning spec or surrounding region(s)
   if vim.is_callable(res) then res = res() end
@@ -1326,27 +1324,8 @@ H.get_surround_spec = function(surr_type, use_cache)
   return res
 end
 
-H.make_surrounding_table = function()
-  -- Extend builtins with data from `config`
-  local surroundings = vim.deepcopy(H.builtin_surroundings)
-  for char, spec in pairs(H.get_config().custom_surroundings or {}) do
-    local cur_spec = surroundings[char] or {}
-    local default = H.get_default_surrounding_info(char)
-    -- NOTE: Don't use `tbl_deep_extend` to prefer full `input` arrays
-    cur_spec.input = spec.input or cur_spec.input or default.input
-    cur_spec.output = spec.output or cur_spec.output or default.output
-    surroundings[char] = cur_spec
-  end
-
-  -- Use default surrounding info for not supplied single character identifier
-  return setmetatable(surroundings, {
-    __index = function(_, key) return H.get_default_surrounding_info(key) end,
-  })
-end
-
-H.get_default_surrounding_info = function(char)
-  local char_esc = vim.pesc(char)
-  return { input = { char_esc .. '().-()' .. char_esc }, output = { left = char, right = char } }
+H.get_default_surrounding = function(char, surr_type)
+  return surr_type == 'output' and { left = char, right = char } or { vim.pesc(char) .. '().-()' .. vim.pesc(char) }
 end
 
 H.is_surrounding_info = function(x, surr_type)
