@@ -649,16 +649,21 @@ MiniAi.config = {
 ---   from `opts.reference_region` was consecutively found `opts.n_times` times.
 MiniAi.find_textobject = function(ai_type, id, opts)
   if not (ai_type == 'a' or ai_type == 'i') then H.error([[`ai_type` should be one of 'a' or 'i'.]]) end
+  H.check_type('id', id, 'string')
   opts = vim.tbl_deep_extend('force', H.get_default_opts(), opts or {})
   H.validate_search_method(opts.search_method)
 
   -- Get textobject specification
-  local tobj_spec = H.get_textobject_spec(id, { ai_type, id, opts })
-  if tobj_spec == nil then return end
-  if H.is_region(tobj_spec) then return tobj_spec end
+  local spec = H.get_textobject_spec(id)
+  if vim.is_callable(spec) then spec = spec(ai_type, id, opts) end
+  if spec == nil or H.is_region(spec) then return spec end
+  if not (H.is_composed_pattern(spec) or H.is_region_array(spec)) then return nil end
+  -- - Wrap callable tables to be actual functions. Otherwise they might be
+  --   confused with list of patterns.
+  if H.is_composed_pattern(spec) then spec = vim.tbl_map(H.wrap_callable_table, spec) end
 
   -- Find region
-  local res = H.find_textobject_region(tobj_spec, ai_type, opts)
+  local res = H.find_textobject_region(spec, ai_type, opts)
 
   if res == nil then
     local msg = string.format(
@@ -1401,42 +1406,27 @@ H.expr_motion = function(side)
 end
 
 -- Work with textobject info --------------------------------------------------
-H.make_textobject_table = function()
-  -- Extend builtins with data from `config`. Don't use `tbl_deep_extend()`
-  -- because only top level keys should be merged.
-  local textobjects = vim.tbl_extend('force', H.builtin_textobjects, H.get_config().custom_textobjects or {})
-
-  -- Use default textobject pattern for anything excluding Latin characters, as
-  -- they are needed to fall back to Neovim's built-in textobjects (like `aw`)
-  return setmetatable(textobjects, {
-    __index = function(_, key)
-      if type(key) == 'string' and string.find(key, '^%a$') ~= nil then return end
-      local key_esc = vim.pesc(key)
-      -- Use `%f[]` to ensure maximum stretch in both directions. Include only
-      -- right edge in `a` textobject.
-      -- Example output: '_()()[^_]-()_+%f[^_]()'
-      return { string.format('%s()()[^%s]-()%s+%%f[^%s]()', key_esc, key_esc, key_esc, key_esc) }
-    end,
-  })
+H.get_textobject_spec = function(id)
+  -- Prefer textobject specification: custom > built-in > default
+  local res = (H.get_config().custom_textobjects or {})[id]
+  if res == nil then res = H.builtin_textobjects[id] end
+  if res == nil then res = H.get_default_textobject(id) end
+  return vim.deepcopy(res)
 end
 
-H.get_textobject_spec = function(id, args)
-  local textobject_tbl = H.make_textobject_table()
-  local spec = textobject_tbl[id]
-
-  -- Allow function returning spec or region(s)
-  if vim.is_callable(spec) then spec = spec(unpack(args)) end
-
-  -- Wrap callable tables to be an actual functions. Otherwise they might be
-  -- confused with list of patterns.
-  if H.is_composed_pattern(spec) then return vim.tbl_map(H.wrap_callable_table, spec) end
-
-  if not (H.is_region(spec) or H.is_region_array(spec)) then return nil end
-  return spec
+H.get_default_textobject = function(id)
+  -- Use default textobject pattern for anything excluding Latin characters, as
+  -- they are needed to fall back to Neovim's built-in textobjects (like `aw`)
+  if string.find(id, '^%a$') ~= nil then return end
+  local id_esc = vim.pesc(id)
+  -- Use `%f[]` to ensure maximum stretch in both directions. Include only
+  -- right edge in `a` textobject.
+  -- Example output: '_()()[^_]-()_+%f[^_]()'
+  return { string.format('%s()()[^%s]-()%s+%%f[^%s]()', id_esc, id_esc, id_esc, id_esc) }
 end
 
 H.is_valid_textobject_id = function(id)
-  local spec = H.make_textobject_table()[id]
+  local spec = H.get_textobject_spec(id)
   return type(spec) == 'table' or vim.is_callable(spec)
 end
 
