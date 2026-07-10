@@ -120,7 +120,7 @@ T['setup()']['creates `config` field'] = function()
   local expect_config = function(field, value) eq(child.lua_get('MiniSurround.config.' .. field), value) end
 
   -- Check default values
-  expect_config('custom_surroundings', vim.NIL)
+  expect_config('custom_surroundings', {})
   expect_config('n_lines', 20)
   expect_config('highlight_duration', 500)
   expect_config('mappings.add', 'sa')

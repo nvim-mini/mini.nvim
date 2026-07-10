@@ -672,9 +672,9 @@ end
 ---   vim.keymap.set('n', 'yss', 'ys_', { remap = true })
 --- <
 MiniSurround.config = {
-  -- Add custom surroundings to be used on top of builtin ones. For more
-  -- information with examples, see `:h MiniSurround.config`.
-  custom_surroundings = nil,
+  -- Custom surroundings to be used on top of builtin ones.
+  -- For more information with examples, see `:h MiniSurround.config`.
+  custom_surroundings = {},
 
   -- Duration (in ms) of highlight when calling `MiniSurround.highlight()`
   highlight_duration = 500,
@@ -1165,7 +1165,7 @@ H.setup_config = function(config)
   H.check_type('config', config, 'table', true)
   config = vim.tbl_deep_extend('force', vim.deepcopy(H.default_config), config or {})
 
-  H.check_type('custom_surroundings', config.custom_surroundings, 'table', true)
+  H.check_type('custom_surroundings', config.custom_surroundings, 'table')
   H.check_type('highlight_duration', config.highlight_duration, 'number')
   H.check_type('mappings', config.mappings, 'table')
   H.check_type('n_lines', config.n_lines, 'number')
@@ -1299,7 +1299,7 @@ H.get_surround_spec = function(surr_type, use_cache)
   if char == nil then return nil end
 
   -- Prefer surrounding specification: custom > built-in > default
-  local res = ((H.get_config().custom_surroundings or {})[char] or {})[surr_type]
+  local res = (H.get_config().custom_surroundings[char] or {})[surr_type]
   if res == nil then res = (H.builtin_surroundings[char] or {})[surr_type] end
   if res == nil then res = H.get_default_surrounding(char, surr_type) end
   -- - NOTE: Make sure that in-place modifications don't affect the source
