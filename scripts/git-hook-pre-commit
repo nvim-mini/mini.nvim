@@ -24,15 +24,16 @@ if [ -n "$LUA_FILES" ]; then
     fi
 fi
 
-# Ensure documentation was generated
+# Ensure documentation was generated and is good quality
 GENDOC_FILES=$(echo "$STAGED_FILES" | grep -E "^(doc|lua)/")
+DOC_FILES=$(echo "$STAGED_FILES" | grep -E "^doc/")
 if [ -n "$GENDOC_FILES" ]; then
     printf "Check gendoc:     "
     make --silent gendoc >/dev/null 2>&1
 
     # Running `gendoc` should not add new changes to staged "doc/" files
     # Fail if there are not fully staged files (i.e. with `M ` status)
-    UNSTAGED_DOCS=$(git status --porcelain=v1 -- "doc/" | grep -E '^([ M?][M?])')
+    UNSTAGED_DOCS=$(git status --porcelain=v1 -- $DOC_FILES | grep -E '^([ M?][M?])')
     if [ -n "$UNSTAGED_DOCS" ]; then
         echo "FAIL"
         echo "  Documentation was not properly generated and/or staged."
@@ -42,8 +43,6 @@ if [ -n "$GENDOC_FILES" ]; then
     echo "OK"
 fi
 
-# Ensure generated documentation is good quality
-DOC_FILES=$(echo "$STAGED_FILES" | grep -E "^doc/")
 if [ -n "$DOC_FILES" ]; then
     printf "Check lintdoc:    "
     make --silent lintdoc || exit 1
