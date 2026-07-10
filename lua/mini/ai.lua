@@ -588,9 +588,9 @@ end
 --- <
 --- - Use other values for "next" / "last" variants. See |MiniAi-default-an-in|.
 MiniAi.config = {
-  -- Table with textobject id as fields, textobject specification as values.
-  -- Also use this to disable builtin textobjects. See |MiniAi.config|.
-  custom_textobjects = nil,
+  -- Custom textobjects to be used on top of builtin ones.
+  -- For more information with examples, see `:h MiniAi.config`.
+  custom_textobjects = {},
 
   -- Module mappings. Use `''` (empty string) to disable one.
   mappings = {
@@ -1255,7 +1255,7 @@ H.setup_config = function(config)
   H.check_type('config', config, 'table', true)
   config = vim.tbl_deep_extend('force', vim.deepcopy(H.default_config), config or {})
 
-  H.check_type('custom_textobjects', config.custom_textobjects, 'table', true)
+  H.check_type('custom_textobjects', config.custom_textobjects, 'table')
 
   H.check_type('mappings', config.mappings, 'table')
   H.check_type('mappings.around', config.mappings.around, 'string')
@@ -1408,7 +1408,7 @@ end
 -- Work with textobject info --------------------------------------------------
 H.get_textobject_spec = function(id)
   -- Prefer textobject specification: custom > built-in > default
-  local res = (H.get_config().custom_textobjects or {})[id]
+  local res = H.get_config().custom_textobjects[id]
   if res == nil then res = H.builtin_textobjects[id] end
   if res == nil then res = H.get_default_textobject(id) end
   return vim.deepcopy(res)

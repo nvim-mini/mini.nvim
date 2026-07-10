@@ -112,7 +112,7 @@ T['setup()']['creates `config` field'] = function()
   local expect_config = function(field, value) eq(child.lua_get('MiniAi.config.' .. field), value) end
 
   -- Check default values
-  expect_config('custom_textobjects', vim.NIL)
+  expect_config('custom_textobjects', {})
   expect_config('mappings.around', 'a')
   expect_config('mappings.inside', 'i')
   expect_config('mappings.around_next', 'an')
