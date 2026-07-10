@@ -965,15 +965,17 @@ H.command_complete_option = function(command)
   -- Options are assumed to be listed inside "OPTIONS" or "XXX OPTIONS" (like
   -- "MODE OPTIONS" of `git rebase`) section on dedicated lines. Whether a line
   -- contains only options is determined heuristically: it is assumed to start
-  -- exactly with "       -" indicating proper indent for subsection start.
+  -- with spaces ending with '-', indicating proper indent for subsection start.
+  -- The amount of spaces can differ per system.
   -- Known not parsable options:
   -- - `git reset <mode>` (--soft, --hard, etc.): not listed in "OPTIONS".
   -- - All -<number> options, as they are not really completable.
-  local is_in_options_section = false
+  local is_in_options_section, prefix = false, nil
   for _, l in ipairs(lines) do
     if is_in_options_section and l:find('^%u[%u ]+$') ~= nil then is_in_options_section = false end
     if not is_in_options_section and l:find('^%u?[%u ]*OPTIONS$') ~= nil then is_in_options_section = true end
-    if is_in_options_section and l:find('^       %-') ~= nil then H.parse_options(candidates_map, l) end
+    if is_in_options_section and prefix == nil then prefix = l:match('^ +%-') end
+    if is_in_options_section and prefix ~= nil and vim.startswith(l, prefix) then H.parse_options(candidates_map, l) end
   end
 
   -- Finalize candidates. Should not contain "almost duplicates".
