@@ -70,6 +70,11 @@ local validate_buf_name = function(buf_id, ref_name)
   local name = child.api.nvim_buf_get_name(buf_id):gsub('\\', '/')
   ref_name = ref_name ~= '' and full_path(ref_name) or ''
   ref_name = ref_name:gsub('\\', '/'):gsub('[\\/]+$', '')
+
+  if child.fn.has('nvim-0.13') == 1 then
+    local ft = child.api.nvim_get_option_value('filetype', { buf = buf_id })
+    ref_name = ref_name .. (ft == 'directory' and '/' or '')
+  end
   eq(name, ref_name)
 end
 
