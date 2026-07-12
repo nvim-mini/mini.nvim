@@ -14,6 +14,8 @@ local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child) end
 local forward_lua = function(fun_str) return helpers.forward_lua(child, fun_str) end
+local validate_edit = function(...) return child.validate_edit(...) end
+local validate_edit1d = function(...) return child.validate_edit1d(...) end
 
 local test_dir = 'tests/dir-keymap'
 
@@ -66,23 +68,6 @@ end
 local validate_log_and_clean = function(ref)
   eq(child.lua_get('_G.log'), ref)
   child.lua('_G.log = {}')
-end
-
-local validate_edit = function(lines_before, cursor_before, keys, lines_after, cursor_after)
-  child.ensure_normal_mode()
-  set_lines(lines_before)
-  set_cursor(cursor_before[1], cursor_before[2])
-
-  type_keys(keys)
-
-  eq(get_lines(), lines_after)
-  eq(get_cursor(), cursor_after)
-
-  child.ensure_normal_mode()
-end
-
-local validate_edit1d = function(line_before, col_before, keys, line_after, col_after)
-  validate_edit({ line_before }, { 1, col_before }, keys, { line_after }, { 1, col_after })
 end
 
 local validate_jumps = function(key, ref_pos_seq)
@@ -676,7 +661,7 @@ T['map_multistep()']['built-in steps']['increase_indent'] = function()
   -- - Visual mode (cursor should be exactly on indent)
   local validate_vis_mode = function(key, before_line, before_col, after_line, after_col)
     validate_edit1d(before_line, before_col, key .. '<Tab>', after_line, after_col)
-    eq(child.fn.mode(), 'n')
+    child.ensure_normal_mode()
   end
 
   validate_vis_mode('v', 'abc', 0, 'abc', 0)
@@ -720,7 +705,7 @@ T['map_multistep()']['built-in steps']['decrease_indent'] = function()
   -- - Visual mode (cursor should be exactly on indent)
   local validate_vis_mode = function(key, before_line, before_col, after_line, after_col)
     validate_edit1d(before_line, before_col, key .. '<S-Tab>', after_line, after_col)
-    eq(child.fn.mode(), 'n')
+    child.ensure_normal_mode()
   end
 
   validate_vis_mode('v', 'abc', 0, 'abc', 0)

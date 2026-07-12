@@ -13,6 +13,8 @@ local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child) end
 local forward_lua = function(fun_str) return helpers.forward_lua(child, fun_str) end
+local validate_edit = function(...) return child.validate_edit(...) end
+local validate_edit1d = function(...) return child.validate_edit1d(...) end
 
 local get_window = function() return child.api.nvim_get_current_win() end
 local set_window = function(win_id) return child.api.nvim_set_current_win(win_id) end
@@ -68,23 +70,6 @@ end
 
 local validate_no_trigger_keymap = function(mode, keys, buf_id)
   expect.error(function() validate_trigger_keymap(mode, keys, buf_id) end, 'No such trigger')
-end
-
-local validate_edit = function(lines_before, cursor_before, keys, lines_after, cursor_after)
-  child.ensure_normal_mode()
-  set_lines(lines_before)
-  set_cursor(cursor_before[1], cursor_before[2])
-
-  type_keys(keys)
-
-  eq(get_lines(), lines_after)
-  eq(get_cursor(), cursor_after)
-
-  child.ensure_normal_mode()
-end
-
-local validate_edit1d = function(line_before, col_before, keys, line_after, col_after)
-  validate_edit({ line_before }, { 1, col_before }, keys, { line_after }, { 1, col_after })
 end
 
 local validate_move = function(lines, cursor_before, keys, cursor_after)

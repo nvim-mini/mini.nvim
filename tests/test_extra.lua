@@ -13,6 +13,8 @@ local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child) end
 local forward_lua = function(fun_str) return helpers.forward_lua(child, fun_str) end
+local validate_edit = function(...) return child.validate_edit(...) end
+local validate_edit1d = function(...) return child.validate_edit1d(...) end
 
 -- Test paths helpers
 local path_sep = package.config:sub(1, 1)
@@ -45,23 +47,6 @@ local validate_buf_name = function(buf_id, ref_name)
   ref_name = ref_name ~= '' and full_path(ref_name) or ''
   ref_name = ref_name:gsub('\\', '/'):gsub('/+$', '')
   eq(name, ref_name)
-end
-
-local validate_edit = function(lines_before, cursor_before, keys, lines_after, cursor_after)
-  child.ensure_normal_mode()
-  set_lines(lines_before)
-  set_cursor(cursor_before[1], cursor_before[2])
-
-  type_keys(keys)
-
-  eq(get_lines(), lines_after)
-  eq(get_cursor(), cursor_after)
-
-  child.ensure_normal_mode()
-end
-
-local validate_edit1d = function(line_before, col_before, keys, line_after, col_after)
-  validate_edit({ line_before }, { 1, col_before }, keys, { line_after }, { 1, col_after })
 end
 
 local validate_selection = function(selection_from, selection_to, visual_mode)

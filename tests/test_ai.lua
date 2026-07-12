@@ -14,26 +14,12 @@ local set_lines = function(...) return child.set_lines(...) end
 local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end
 local sleep = function(ms) helpers.sleep(ms, child) end
+local validate_edit = function(...) return child.validate_edit(...) end
+local validate_edit1d = function(...) return child.validate_edit1d(...) end
 
 local get_latest_message = function() return child.cmd_capture('1messages') end
 
 local get_mode = function() return child.api.nvim_get_mode()['mode'] end
-
-local validate_edit = function(before_lines, before_cursor, after_lines, after_cursor, ...)
-  child.ensure_normal_mode()
-
-  set_lines(before_lines)
-  set_cursor(unpack(before_cursor))
-
-  type_keys(...)
-
-  eq(get_lines(), after_lines)
-  eq(get_cursor(), after_cursor)
-end
-
-local validate_edit1d = function(before_line, before_column, after_line, after_column, ...)
-  validate_edit({ before_line }, { 1, before_column }, { after_line }, { 1, after_column }, ...)
-end
 
 local validate_next_region = function(keys, next_region)
   type_keys(keys)
@@ -1123,11 +1109,11 @@ T['Search method']['works with "cover" in Operator-pending mode'] = function()
   child.lua([[MiniAi.config.search_method = 'cover']])
 
   for i = 3, 6 do
-    validate_edit1d('(aa(bb))', i, '(aa)', 3, 'ca)')
-    validate_edit1d('(aa(bb))', i, '(aa)', 3, 'da)')
+    validate_edit1d('(aa(bb))', i, 'ca)', '(aa)', 3)
+    validate_edit1d('(aa(bb))', i, 'da)', '(aa)', 3)
 
-    validate_edit1d('(aa(bb))', i, '(aa())', 4, 'ci)')
-    validate_edit1d('(aa(bb))', i, '(aa())', 4, 'di)')
+    validate_edit1d('(aa(bb))', i, 'ci)', '(aa())', 4)
+    validate_edit1d('(aa(bb))', i, 'di)', '(aa())', 4)
   end
 end
 
@@ -1181,11 +1167,11 @@ T['Search method']['works with "cover_or_next" in Operator-pending mode'] = func
   child.lua([[MiniAi.config.search_method = 'cover_or_next']])
 
   for i = 4, 10 do
-    validate_edit1d('(aa)bbb(cc)', i, '(aa)bbb', 7, 'ca)')
-    validate_edit1d('(aa)bbb(cc)', i, '(aa)bbb', 6, 'da)')
+    validate_edit1d('(aa)bbb(cc)', i, 'ca)', '(aa)bbb', 7)
+    validate_edit1d('(aa)bbb(cc)', i, 'da)', '(aa)bbb', 6)
 
-    validate_edit1d('(aa)bbb(cc)', i, '(aa)bbb()', 8, 'ci)')
-    validate_edit1d('(aa)bbb(cc)', i, '(aa)bbb()', 8, 'di)')
+    validate_edit1d('(aa)bbb(cc)', i, 'ci)', '(aa)bbb()', 8)
+    validate_edit1d('(aa)bbb(cc)', i, 'di)', '(aa)bbb()', 8)
   end
 end
 
@@ -1239,11 +1225,11 @@ T['Search method']['works with "cover_or_prev" in Operator-pending mode'] = func
   child.lua([[MiniAi.config.search_method = 'cover_or_prev']])
 
   for i = 0, 6 do
-    validate_edit1d('(aa)bbb(cc)', i, 'bbb(cc)', 0, 'ca)')
-    validate_edit1d('(aa)bbb(cc)', i, 'bbb(cc)', 0, 'da)')
+    validate_edit1d('(aa)bbb(cc)', i, 'ca)', 'bbb(cc)', 0)
+    validate_edit1d('(aa)bbb(cc)', i, 'da)', 'bbb(cc)', 0)
 
-    validate_edit1d('(aa)bbb(cc)', i, '()bbb(cc)', 1, 'ci)')
-    validate_edit1d('(aa)bbb(cc)', i, '()bbb(cc)', 1, 'di)')
+    validate_edit1d('(aa)bbb(cc)', i, 'ci)', '()bbb(cc)', 1)
+    validate_edit1d('(aa)bbb(cc)', i, 'di)', '()bbb(cc)', 1)
   end
 end
 
@@ -1318,18 +1304,18 @@ T['Search method']['works with "cover_or_nearest" in Operator-pending mode'] = f
   child.lua([[MiniAi.config.search_method = 'cover_or_nearest']])
 
   for i = 0, 5 do
-    validate_edit1d('(aa)bbb(cc)', i, 'bbb(cc)', 0, 'ca)')
-    validate_edit1d('(aa)bbb(cc)', i, 'bbb(cc)', 0, 'da)')
+    validate_edit1d('(aa)bbb(cc)', i, 'ca)', 'bbb(cc)', 0)
+    validate_edit1d('(aa)bbb(cc)', i, 'da)', 'bbb(cc)', 0)
 
-    validate_edit1d('(aa)bbb(cc)', i, '()bbb(cc)', 1, 'ci)')
-    validate_edit1d('(aa)bbb(cc)', i, '()bbb(cc)', 1, 'di)')
+    validate_edit1d('(aa)bbb(cc)', i, 'ci)', '()bbb(cc)', 1)
+    validate_edit1d('(aa)bbb(cc)', i, 'di)', '()bbb(cc)', 1)
   end
   for i = 6, 10 do
-    validate_edit1d('(aa)bbb(cc)', i, '(aa)bbb', 7, 'ca)')
-    validate_edit1d('(aa)bbb(cc)', i, '(aa)bbb', 6, 'da)')
+    validate_edit1d('(aa)bbb(cc)', i, 'ca)', '(aa)bbb', 7)
+    validate_edit1d('(aa)bbb(cc)', i, 'da)', '(aa)bbb', 6)
 
-    validate_edit1d('(aa)bbb(cc)', i, '(aa)bbb()', 8, 'ci)')
-    validate_edit1d('(aa)bbb(cc)', i, '(aa)bbb()', 8, 'di)')
+    validate_edit1d('(aa)bbb(cc)', i, 'ci)', '(aa)bbb()', 8)
+    validate_edit1d('(aa)bbb(cc)', i, 'di)', '(aa)bbb()', 8)
   end
 end
 
@@ -1383,11 +1369,11 @@ T['Search method']['works with "next" in Operator-pending mode'] = function()
   child.lua([[MiniAi.config.search_method = 'next']])
 
   for i = 4, 8 do
-    validate_edit1d('(aa)(bbb)(cc)', i, '(aa)(bbb)', 9, 'ca)')
-    validate_edit1d('(aa)(bbb)(cc)', i, '(aa)(bbb)', 8, 'da)')
+    validate_edit1d('(aa)(bbb)(cc)', i, 'ca)', '(aa)(bbb)', 9)
+    validate_edit1d('(aa)(bbb)(cc)', i, 'da)', '(aa)(bbb)', 8)
 
-    validate_edit1d('(aa)(bbb)(cc)', i, '(aa)(bbb)()', 10, 'ci)')
-    validate_edit1d('(aa)(bbb)(cc)', i, '(aa)(bbb)()', 10, 'di)')
+    validate_edit1d('(aa)(bbb)(cc)', i, 'ci)', '(aa)(bbb)()', 10)
+    validate_edit1d('(aa)(bbb)(cc)', i, 'di)', '(aa)(bbb)()', 10)
   end
 end
 
@@ -1438,11 +1424,11 @@ T['Search method']['works with "prev" in Operator-pending mode'] = function()
   child.lua([[MiniAi.config.search_method = 'prev']])
 
   for i = 4, 8 do
-    validate_edit1d('(aa)(bbb)(cc)', i, '(bbb)(cc)', 0, 'ca)')
-    validate_edit1d('(aa)(bbb)(cc)', i, '(bbb)(cc)', 0, 'da)')
+    validate_edit1d('(aa)(bbb)(cc)', i, 'ca)', '(bbb)(cc)', 0)
+    validate_edit1d('(aa)(bbb)(cc)', i, 'da)', '(bbb)(cc)', 0)
 
-    validate_edit1d('(aa)(bbb)(cc)', i, '()(bbb)(cc)', 1, 'ci)')
-    validate_edit1d('(aa)(bbb)(cc)', i, '()(bbb)(cc)', 1, 'di)')
+    validate_edit1d('(aa)(bbb)(cc)', i, 'ci)', '()(bbb)(cc)', 1)
+    validate_edit1d('(aa)(bbb)(cc)', i, 'di)', '()(bbb)(cc)', 1)
   end
 end
 
@@ -1520,18 +1506,18 @@ T['Search method']['works with "nearest" in Operator-pending mode'] = function()
   child.lua([[MiniAi.config.search_method = 'nearest']])
 
   for i = 4, 6 do
-    validate_edit1d('(aa)(bbb)(cc)', i, '(bbb)(cc)', 0, 'ca)')
-    validate_edit1d('(aa)(bbb)(cc)', i, '(bbb)(cc)', 0, 'da)')
+    validate_edit1d('(aa)(bbb)(cc)', i, 'ca)', '(bbb)(cc)', 0)
+    validate_edit1d('(aa)(bbb)(cc)', i, 'da)', '(bbb)(cc)', 0)
 
-    validate_edit1d('(aa)(bbb)(cc)', i, '()(bbb)(cc)', 1, 'ci)')
-    validate_edit1d('(aa)(bbb)(cc)', i, '()(bbb)(cc)', 1, 'di)')
+    validate_edit1d('(aa)(bbb)(cc)', i, 'ci)', '()(bbb)(cc)', 1)
+    validate_edit1d('(aa)(bbb)(cc)', i, 'di)', '()(bbb)(cc)', 1)
   end
   for i = 7, 8 do
-    validate_edit1d('(aa)(bbb)(cc)', i, '(aa)(bbb)', 9, 'ca)')
-    validate_edit1d('(aa)(bbb)(cc)', i, '(aa)(bbb)', 8, 'da)')
+    validate_edit1d('(aa)(bbb)(cc)', i, 'ca)', '(aa)(bbb)', 9)
+    validate_edit1d('(aa)(bbb)(cc)', i, 'da)', '(aa)(bbb)', 8)
 
-    validate_edit1d('(aa)(bbb)(cc)', i, '(aa)(bbb)()', 10, 'ci)')
-    validate_edit1d('(aa)(bbb)(cc)', i, '(aa)(bbb)()', 10, 'di)')
+    validate_edit1d('(aa)(bbb)(cc)', i, 'ci)', '(aa)(bbb)()', 10)
+    validate_edit1d('(aa)(bbb)(cc)', i, 'di)', '(aa)(bbb)()', 10)
   end
 end
 
@@ -1556,10 +1542,10 @@ end
 
 T['Textobject']['works in Operator-pending mode'] = function()
   local lines, cursor = { 'aa(bb', 'cccc', 'dd)ee' }, { 2, 0 }
-  validate_edit(lines, cursor, { 'aaee' }, { 1, 2 }, 'da)')
-  validate_edit(lines, cursor, { 'aaee' }, { 1, 2 }, 'dva)')
-  validate_edit(lines, cursor, { '' }, { 1, 0 }, 'dVa)')
-  validate_edit(lines, cursor, { 'aabb', 'ccc', 'ddee' }, { 1, 2 }, 'd<C-v>a)')
+  validate_edit(lines, cursor, 'da)', { 'aaee' }, { 1, 2 })
+  validate_edit(lines, cursor, 'dva)', { 'aaee' }, { 1, 2 })
+  validate_edit(lines, cursor, 'dVa)', { '' }, { 1, 0 })
+  validate_edit(lines, cursor, 'd<C-v>a)', { 'aabb', 'ccc', 'ddee' }, { 1, 2 })
 end
 
 T['Textobject']['can be cancelled'] = function()
@@ -1615,12 +1601,12 @@ end
 
 T['Textobject']['collapses multiline textobject'] = function()
   local lines = { '(', 'a', ')' }
-  validate_edit(lines, { 2, 0 }, { '' }, { 1, 0 }, 'da)')
+  validate_edit(lines, { 2, 0 }, 'da)', { '' }, { 1, 0 })
 
   local validate = function()
-    validate_edit(lines, { 1, 0 }, { '()' }, { 1, 1 }, 'di)')
-    validate_edit(lines, { 2, 0 }, { '()' }, { 1, 1 }, 'di)')
-    validate_edit(lines, { 3, 0 }, { '()' }, { 1, 1 }, 'di)')
+    validate_edit(lines, { 1, 0 }, 'di)', { '()' }, { 1, 1 })
+    validate_edit(lines, { 2, 0 }, 'di)', { '()' }, { 1, 1 })
+    validate_edit(lines, { 3, 0 }, 'di)', { '()' }, { 1, 1 })
   end
 
   child.o.selection = 'inclusive'
@@ -1632,10 +1618,10 @@ end
 T['Textobject']['works with multibyte characters'] = function()
   -- Each multibyte character takes two column counts
   local line = '(ыы)ффф(ыы)'
-  validate_edit1d(line, 1, 'ффф(ыы)', 0, 'da)')
-  validate_edit1d(line, 1, '()ффф(ыы)', 1, 'di)')
-  validate_edit1d(line, 6, '(ыы)ффф', 10, 'da)')
-  validate_edit1d(line, 6, '(ыы)ффф()', 13, 'di)')
+  validate_edit1d(line, 1, 'da)', 'ффф(ыы)', 0)
+  validate_edit1d(line, 1, 'di)', '()ффф(ыы)', 1)
+  validate_edit1d(line, 6, 'da)', '(ыы)ффф', 10)
+  validate_edit1d(line, 6, 'di)', '(ыы)ффф()', 13)
 end
 
 T['Textobject']['respects `v:count`'] = function()
@@ -1684,10 +1670,10 @@ T['Textobject']['falls back in case of absent textobject id'] = function()
 
   -- Operator-pending mode
   expect.match(child.fn.maparg('a', 'o'), pattern)
-  validate_edit1d('aaa bbb', 0, 'bbb', 0, 20, 'd', 'a', 'w')
+  validate_edit1d('aaa bbb', 0, { 'd', 'a', 'w' }, 'bbb', 0, 20)
 
   expect.match(child.fn.maparg('i', 'o'), pattern)
-  validate_edit1d('aaa bbb', 0, ' bbb', 0, 10, 'd', 'i', 'w')
+  validate_edit1d('aaa bbb', 0, { 'd', 'i', 'w' }, ' bbb', 0, 10)
 
   -- Custom textobject
   local map = function(mode, lhs)
@@ -1703,10 +1689,10 @@ T['Textobject']['falls back in case of absent textobject id'] = function()
 
   -- Operator-pending mode
   map('o', 'ac')
-  validate_edit1d('aaa bbb', 0, 'bb', 0, 10, 'd', 'a', 'c')
+  validate_edit1d('aaa bbb', 0, { 'd', 'a', 'c' }, 'bb', 0, 10)
 
   map('o', 'ic')
-  validate_edit1d('aaa bbb', 0, 'bb', 0, 10, 'd', 'i', 'c')
+  validate_edit1d('aaa bbb', 0, { 'd', 'i', 'c' }, 'bb', 0, 10)
 end
 
 T['Textobject']['falls back in case of absent textobject id and different main mapping'] = function()
@@ -1738,10 +1724,10 @@ T['Textobject']['falls back in case of absent textobject id and different main m
 
   -- Operator-pending mode
   map('o', 'Ac')
-  validate_edit1d('aaa bbb', 0, 'bb', 0, 10, 'd', 'A', 'c')
+  validate_edit1d('aaa bbb', 0, { 'd', 'A', 'c' }, 'bb', 0, 10)
 
   map('o', 'Ic')
-  validate_edit1d('aaa bbb', 0, 'bb', 0, 10, 'd', 'I', 'c')
+  validate_edit1d('aaa bbb', 0, { 'd', 'I', 'c' }, 'bb', 0, 10)
 end
 
 T['Textobject']["works with 'langmap'"] = function()
@@ -1775,22 +1761,23 @@ T['Textobject']["works with 'langmap'"] = function()
 
   -- Operator-pending mode
   -- - Registered textobject
-  validate_edit1d('aa(bb)cc', 3, 'aa()cc', 3, 'dk)')
+  validate_edit1d('aa(bb)cc', 3, 'dk)', 'aa()cc', 3)
 
   -- - Default textobject
-  validate_edit1d('aa bb cc', 3, 'aa  cc', 3, 'dkw')
+  validate_edit1d('aa bb cc', 3, 'dkw', 'aa  cc', 3)
 
   -- - Custom textobject
   map('o', 'ic')
-  validate_edit1d('aa bb cc', 3, 'aa  cc', 3, 'dkc')
+  validate_edit1d('aa bb cc', 3, 'dkc', 'aa  cc', 3)
 end
 
 T['Textobject']['works with empty output region'] = function()
   local validate = function(start_column)
-    validate_edit1d('a()b', start_column, 'a()b', 2, 'ci)')
-    eq(get_mode(), 'i')
+    validate_edit1d('a()b', start_column, 'di)', 'a()b', 2)
 
-    validate_edit1d('a()b', start_column, 'a()b', 2, 'di)')
+    validate_edit1d('a()b', start_column, 'ci)', 'a()b', 2)
+    eq(get_mode(), 'i')
+    child.ensure_normal_mode()
   end
 
   validate(0)
@@ -1875,10 +1862,10 @@ T['Textobject']['ensures that output is not covered by reference'] = function()
 
   -- Empty region
   validate_tobj1d('a()b(c)', 2, 'i)', { 6, 6 })
-  validate_edit1d('a()b(c)', 2, 'a()b(c)', 2, 'di)')
-  validate_edit1d('a()b(c)', 2, 'a()b(c)', 2, 'ci)')
-  validate_edit1d('a()b(c)', 2, 'a()b()', 5, 'd2i)')
-  validate_edit1d('a()b(c)', 2, 'a()b()', 5, 'c2i)')
+  validate_edit1d('a()b(c)', 2, 'di)', 'a()b(c)', 2)
+  validate_edit1d('a()b(c)', 2, 'ci)', 'a()b(c)', 2)
+  validate_edit1d('a()b(c)', 2, 'd2i)', 'a()b()', 5)
+  validate_edit1d('a()b(c)', 2, 'c2i)', 'a()b()', 5)
 end
 
 T['Textobject']['opens just enough folds'] = function()
@@ -1978,7 +1965,7 @@ T['Textobject']['respects `vim.{g,b}.miniai_disable`'] = new_set({
     validate_tobj1d('(  aa  )', 0, 'i(', { 2, 7 })
 
     -- It shouldn't recognize new textobjects
-    validate_edit1d('*bb*', 1, '*bb*', 1, 'ci*')
+    validate_edit1d('*bb*', 1, 'ci*', '*bb*', 1)
   end,
 })
 
@@ -2032,17 +2019,17 @@ T['Textobject next/last']['works in Operator-pending mode'] = function()
 
   -- Next
   lines, cursor = { '(aa)(bb', 'ccccc', 'dddd)ee' }, { 1, 0 }
-  validate_edit(lines, cursor, { '(aa)ee' }, { 1, 4 }, 'dan)')
-  validate_edit(lines, cursor, { '(aa)ee' }, { 1, 4 }, 'dvan)')
-  validate_edit(lines, cursor, { '' }, { 1, 0 }, 'dVan)')
-  validate_edit(lines, cursor, { '(aa)bb', 'cccc', 'ddddee' }, { 1, 4 }, 'd<C-v>an)')
+  validate_edit(lines, cursor, 'dan)', { '(aa)ee' }, { 1, 4 })
+  validate_edit(lines, cursor, 'dvan)', { '(aa)ee' }, { 1, 4 })
+  validate_edit(lines, cursor, 'dVan)', { '' }, { 1, 0 })
+  validate_edit(lines, cursor, 'd<C-v>an)', { '(aa)bb', 'cccc', 'ddddee' }, { 1, 4 })
 
   -- Last
   lines, cursor = { 'aa(bbbb', 'ccccc', 'dd)(ee)' }, { 3, 5 }
-  validate_edit(lines, cursor, { 'aa(ee)' }, { 1, 2 }, 'dal)')
-  validate_edit(lines, cursor, { 'aa(ee)' }, { 1, 2 }, 'dval)')
-  validate_edit(lines, cursor, { '' }, { 1, 0 }, 'dVal)')
-  validate_edit(lines, cursor, { 'aabbbb', 'cccc', 'dd(ee)' }, { 1, 2 }, 'd<C-v>al)')
+  validate_edit(lines, cursor, 'dal)', { 'aa(ee)' }, { 1, 2 })
+  validate_edit(lines, cursor, 'dval)', { 'aa(ee)' }, { 1, 2 })
+  validate_edit(lines, cursor, 'dVal)', { '' }, { 1, 0 })
+  validate_edit(lines, cursor, 'd<C-v>al)', { 'aabbbb', 'cccc', 'dd(ee)' }, { 1, 2 })
 end
 
 T['Textobject next/last']['works with different mappings'] = function()
@@ -2131,11 +2118,11 @@ end
 
 T['Motion']['works in Operator-pending mode'] = function()
   local validate = function(motion_keys, after_line, after_column)
-    validate_edit1d('aa(bbb)', 4, after_line, after_column, 'd' .. motion_keys .. ')')
+    validate_edit1d('aa(bbb)', 4, 'd' .. motion_keys .. ')', after_line, after_column)
 
-    child.ensure_normal_mode()
-    validate_edit1d('aa(bbb)', 4, after_line, after_column, 'c' .. motion_keys .. ')')
+    validate_edit1d('aa(bbb)', 4, 'c' .. motion_keys .. ')', after_line, after_column)
     eq(get_mode(), 'i')
+    child.ensure_normal_mode()
   end
 
   validate('g[', 'aabb)', 2)
@@ -2285,8 +2272,8 @@ T['Builtin']['Bracket']['handles inner whitespace'] = function(key)
   local whitespace_line = left .. '  ' .. right
   local after_line = side == 'open' and whitespace_line or (left .. right)
   local after_column = side == 'open' and 3 or 1
-  validate_edit1d(whitespace_line, 0, after_line, after_column, { 'ci', key })
-  validate_edit1d(whitespace_line, 0, after_line, after_column, { 'di', key })
+  validate_edit1d(whitespace_line, 0, { 'ci', key }, after_line, after_column)
+  validate_edit1d(whitespace_line, 0, { 'di', key }, after_line, after_column)
 end
 
 T['Builtin']['Bracket']['is balanced'] = function(key)
@@ -2320,10 +2307,10 @@ T['Builtin']['Bracket']['works with empty region'] = function(key)
   local line = 'a' .. left .. right
   for i = 0, 1 do
     validate_tobj1d(line, i, { 'i', key }, { 3, 3 })
-    validate_edit1d(line, i, line, 2, { 'ci', key })
-    validate_edit1d(line, i, line, 2, { 'di', key })
+    validate_edit1d(line, i, { 'ci', key }, line, 2)
+    validate_edit1d(line, i, { 'di', key }, line, 2)
 
-    validate_edit1d(line, i, 'a' .. left .. 'xxx' .. right, 2, { 'gri', key })
+    validate_edit1d(line, i, { 'gri', key }, 'a' .. left .. 'xxx' .. right, 2)
   end
 end
 
@@ -2423,8 +2410,8 @@ T['Builtin']['Quote']['works with empty region'] = function(key)
   local line = 'a' .. key .. key
   for i = 0, 1 do
     validate_tobj1d(line, i, 'i' .. key, { 3, 3 })
-    validate_edit1d(line, i, line, 2, 'ci' .. key)
-    validate_edit1d(line, i, line, 2, 'di' .. key)
+    validate_edit1d(line, i, 'ci' .. key, line, 2)
+    validate_edit1d(line, i, 'di' .. key, line, 2)
   end
 end
 
@@ -2682,16 +2669,18 @@ T['Builtin']['Argument']['works with whitespace padding in separator pattern'] =
   end
 
   -- Operator-pending mode
-  validate_edit1d('f( xx  ,   yy    ,     zz )', 3,  'f( yy    ,     zz )', 3, 'daA')
-  validate_edit1d('f( xx  ,   yy    ,     zz )', 11, 'f( xx    ,     zz )', 5, 'daA')
-  validate_edit1d('f( xx  ,   yy    ,     zz )', 23, 'f( xx  ,   yy )',    13, 'daA')
+  validate_edit1d('f( xx  ,   yy    ,     zz )', 3,  'daA', 'f( yy    ,     zz )', 3)
+  validate_edit1d('f( xx  ,   yy    ,     zz )', 11, 'daA', 'f( xx    ,     zz )', 5)
+  validate_edit1d('f( xx  ,   yy    ,     zz )', 23, 'daA', 'f( xx  ,   yy )',    13)
 end
 
 T['Builtin']['Argument']['works in Operator-pending mode'] = function()
   local validate = function(before_line, before_column, after_line, after_column, keys)
-    validate_edit1d(before_line, before_column, after_line, after_column, 'd' .. keys)
-    validate_edit1d(before_line, before_column, after_line, after_column, 'c' .. keys)
-    eq(child.fn.mode(), 'i')
+    validate_edit1d(before_line, before_column, 'd' .. keys, after_line, after_column)
+
+    validate_edit1d(before_line, before_column, 'c' .. keys, after_line, after_column)
+    eq(get_mode(), 'i')
+    child.ensure_normal_mode()
   end
 
   -- Normal cases
@@ -2742,8 +2731,8 @@ T['Builtin']['Function call']['works'] = function()
   -- Empty arguments
   validate_tobj1d('ff()', 0, 'af', { 1, 4 })
   validate_tobj1d('ff()', 0, 'if', { 4, 4 })
-  validate_edit1d('ff()', 0, 'ff()', 3, 'di)')
-  validate_edit1d('ff()', 0, 'ff()', 3, 'ci)')
+  validate_edit1d('ff()', 0, 'di)', 'ff()', 3)
+  validate_edit1d('ff()', 0, 'ci)', 'ff()', 3)
 end
 
 T['Builtin']['Function call']['works consecutively'] = function()
@@ -2809,8 +2798,8 @@ T['Builtin']['Tag']['works'] = function()
 
   -- Should work with empty region
   validate_tobj1d('<x></x>', 0, 'it', { 4, 4 })
-  validate_edit1d('<x></x>', 0, '<x></x>', 3, 'dit')
-  validate_edit1d('<x></x>', 0, '<x></x>', 3, 'cit')
+  validate_edit1d('<x></x>', 0, 'dit', '<x></x>', 3)
+  validate_edit1d('<x></x>', 0, 'cit', '<x></x>', 3)
 end
 
 T['Builtin']['Tag']['works consecutively'] = function()
@@ -2984,8 +2973,8 @@ end
 
 T['Builtin']['User prompt']['handles <C-c>, <Esc>, <CR> in user input'] = function()
   local validate_nothing = function(ai_type, key)
-    validate_edit1d('(aaa)', 2, '(aaa)', 2, { 'v', ai_type, '?', key })
-    validate_edit1d('(aaa)', 2, '(aaa)', 2, { 'v', ai_type, '?', '(<CR>', key })
+    validate_edit1d('(aaa)', 2, { 'v', ai_type, '?', key }, '(aaa)', 2)
+    validate_edit1d('(aaa)', 2, { 'v', ai_type, '?', '(<CR>', key }, '(aaa)', 2)
   end
 
   -- Should do nothing on any `<C-c>` and `<Esc>` (in both input and output)
@@ -3071,10 +3060,10 @@ end
 
 T['Builtin']['Default']['supports any identifier which can be `getcharstr()` output'] = function()
   -- - <C-j> is '\n'
-  validate_edit({ 'aaa', 'bbb', 'ccc' }, { 2, 0 }, { 'aaa', 'ccc' }, { 2, 0 }, 'd', 'a', '<C-j>')
+  validate_edit({ 'aaa', 'bbb', 'ccc' }, { 2, 0 }, { 'd', 'a', '<C-j>' }, { 'aaa', 'ccc' }, { 2, 0 })
   -- - Actually used multibyte (not like `<BS>`)
-  validate_edit1d('aыbbы', 0, 'aы', 1, 'd', 'a', 'ы')
-  validate_edit1d('a“bb“', 0, 'a“', 1, 'd', 'a', '“')
+  validate_edit1d('aыbbы', 0, { 'd', 'a', 'ы' }, 'aы', 1)
+  validate_edit1d('a“bb“', 0, { 'd', 'a', '“' }, 'a“', 1)
 end
 
 T['Builtin']['Default']['includes maximum right edge characters'] = function()
@@ -3105,12 +3094,12 @@ end
 
 T['Builtin']['Default']['works with empty region'] = function()
   validate_tobj1d('a__bb_', 0, 'i_', { 3, 3 })
-  validate_edit1d('a__bb_', 0, 'a__bb_', 2, 'di_')
-  validate_edit1d('a__bb_', 0, 'a__bb_', 2, 'ci_')
+  validate_edit1d('a__bb_', 0, 'di_', 'a__bb_', 2)
+  validate_edit1d('a__bb_', 0, 'ci_', 'a__bb_', 2)
 
   validate_tobj1d('____', 0, 'i_', { 2, 2 })
-  validate_edit1d('____', 0, '____', 1, 'di_')
-  validate_edit1d('____', 0, '____', 1, 'ci_')
+  validate_edit1d('____', 0, 'di_', '____', 1)
+  validate_edit1d('____', 0, 'ci_', '____', 1)
 end
 
 T['Builtin']['Default']['can not be covering'] = function()
@@ -3129,10 +3118,10 @@ T['Builtin']['Default']['can not be covering'] = function()
 end
 
 T['Builtin']['Default']['detects covering with smallest width'] = function()
-  validate_edit1d('_a_bb_', 2, '__bb_', 1, 'di_')
-  validate_edit1d('_aa_b_', 3, '_aa__', 4, 'di_')
+  validate_edit1d('_a_bb_', 2, 'di_', '__bb_', 1)
+  validate_edit1d('_aa_b_', 3, 'di_', '_aa__', 4)
 
-  validate_edit1d('_a_b_c_b_a_', 5, '_a_b__b_a_', 5, 'di_')
+  validate_edit1d('_a_b_c_b_a_', 5, 'di_', '_a_b__b_a_', 5)
 end
 
 local set_custom_tobj = function(tbl) child.lua('MiniAi.config.custom_textobjects = ' .. vim.inspect(tbl)) end
@@ -3161,13 +3150,13 @@ T['Custom textobject']['supports any identifier which can be `getcharstr()` outp
     }
   ]])
 
-  validate_edit({ '@aaa#' }, { 1, 3 }, { '@#' }, { 1, 1 }, 'd', 'i', '<C-v>')
-  validate_edit({ 'ЫaaaЫ' }, { 1, 3 }, { 'ЫЫ' }, { 1, 2 }, 'd', 'i', 'ы')
-  validate_edit({ '「aaa」' }, { 1, 3 }, { '「」' }, { 1, 3 }, 'd', 'i', '「')
+  validate_edit({ '@aaa#' }, { 1, 3 }, { 'd', 'i', '<C-v>' }, { '@#' }, { 1, 1 })
+  validate_edit({ 'ЫaaaЫ' }, { 1, 3 }, { 'd', 'i', 'ы' }, { 'ЫЫ' }, { 1, 2 })
+  validate_edit({ '「aaa」' }, { 1, 3 }, { 'd', 'i', '「' }, { '「」' }, { 1, 3 })
 
   -- But not <C-c>, which is reserved for cancelling
   child.cmd('nnoremap <C-c> <C-\\><C-n>')
-  validate_edit({ '!!aaa!!' }, { 1, 3 }, { '!!aaa!!' }, { 1, 3 }, 'd', 'i', '<C-c>')
+  validate_edit({ '!!aaa!!' }, { 1, 3 }, { 'd', 'i', '<C-c>' }, { '!!aaa!!' }, { 1, 3 })
 end
 
 T['Custom textobject']['overrides module builtin'] = function()
@@ -3371,8 +3360,8 @@ end
 T['Custom textobject']['works with empty region'] = function()
   set_custom_tobj({ x = { 'x()()()xx()' } })
   validate_tobj1d('xxx', 0, 'ix', { 2, 2 })
-  validate_edit1d('xxx', 0, 'xxx', 1, 'dix')
-  validate_edit1d('xxx', 0, 'xxx', 1, 'cix')
+  validate_edit1d('xxx', 0, 'dix', 'xxx', 1)
+  validate_edit1d('xxx', 0, 'cix', 'xxx', 1)
 end
 
 T['Custom textobject']['works with quantifiers in patterns'] = function()
@@ -3504,8 +3493,8 @@ T['Custom textobject']['documented examples']['Lua block string'] = function()
 
   local line = [=[aa[[]]]=]
   validate_tobj1d(line, 0, 'is', { 5, 5 })
-  validate_edit1d(line, 0, line, 4, 'dis')
-  validate_edit1d(line, 0, line, 4, 'cis')
+  validate_edit1d(line, 0, 'dis', line, 4)
+  validate_edit1d(line, 0, 'cis', line, 4)
 end
 
 return T

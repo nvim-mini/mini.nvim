@@ -133,6 +133,23 @@ Helpers.new_child_neovim = function()
     MiniTest.expect.equality(child.api.nvim_buf_get_mark(0, '>'), last)
   end
 
+  child.validate_edit = function(lines_before, cursor_before, keys, lines_after, cursor_after)
+    child.ensure_normal_mode()
+
+    child.set_lines(lines_before)
+    child.set_cursor(cursor_before[1], cursor_before[2])
+
+    if vim.is_callable(keys) then keys() end
+    if not vim.is_callable(keys) then child.type_keys(keys) end
+
+    Helpers.expect.equality(child.get_lines(), lines_after)
+    Helpers.expect.equality(child.get_cursor(), cursor_after)
+  end
+
+  child.validate_edit1d = function(line_before, col_before, keys, line_after, col_after)
+    child.validate_edit({ line_before }, { 1, col_before }, keys, { line_after }, { 1, col_after })
+  end
+
   -- Work with 'mini.nvim':
   -- - `mini_load` - load with "normal" table config
   -- - `mini_load_strconfig` - load with "string" config, which is still a

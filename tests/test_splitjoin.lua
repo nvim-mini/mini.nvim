@@ -13,36 +13,12 @@ local get_cursor = function(...) return child.get_cursor(...) end
 local set_lines = function(...) return child.set_lines(...) end
 local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end
+local validate_edit = function(...) return child.validate_edit(...) end
 
 -- Helper wrappers
 local simplepos_to_pos = function(x) return { line = x[1], col = x[2] } end
 
 local validate_positions = function(out, ref) eq(out, vim.tbl_map(simplepos_to_pos, ref)) end
-
--- More general validators
-local validate_edit = function(lines_before, cursor_before, lines_after, cursor_after, fun, ...)
-  child.ensure_normal_mode()
-  set_lines(lines_before)
-  set_cursor(cursor_before[1], cursor_before[2])
-
-  fun(...)
-
-  eq(get_lines(), lines_after)
-  eq(get_cursor(), cursor_after)
-  child.ensure_normal_mode()
-end
-
-local validate_keys = function(lines_before, cursor_before, lines_after, cursor_after, keys)
-  child.ensure_normal_mode()
-  set_lines(lines_before)
-  set_cursor(cursor_before[1], cursor_before[2])
-
-  type_keys(keys)
-
-  eq(get_lines(), lines_after)
-  eq(get_cursor(), cursor_after)
-  child.ensure_normal_mode()
-end
 
 -- Output test set ============================================================
 local T = new_set({
@@ -144,13 +120,13 @@ T['toggle()'] = new_set()
 local toggle = function(...) return child.lua_get('MiniSplitjoin.toggle(...)', { ... }) end
 
 T['toggle()']['works'] = function()
-  validate_edit({ '(aaa, bb, c)' }, { 1, 0 }, { '(', '\taaa,', '\tbb,', '\tc', ')' }, { 1, 0 }, toggle)
-  validate_edit({ '[aaa, bb, c]' }, { 1, 0 }, { '[', '\taaa,', '\tbb,', '\tc', ']' }, { 1, 0 }, toggle)
-  validate_edit({ '{aaa, bb, c}' }, { 1, 0 }, { '{', '\taaa,', '\tbb,', '\tc', '}' }, { 1, 0 }, toggle)
+  validate_edit({ '(aaa, bb, c)' }, { 1, 0 }, toggle, { '(', '\taaa,', '\tbb,', '\tc', ')' }, { 1, 0 })
+  validate_edit({ '[aaa, bb, c]' }, { 1, 0 }, toggle, { '[', '\taaa,', '\tbb,', '\tc', ']' }, { 1, 0 })
+  validate_edit({ '{aaa, bb, c}' }, { 1, 0 }, toggle, { '{', '\taaa,', '\tbb,', '\tc', '}' }, { 1, 0 })
 
-  validate_edit({ '(', '\taaa,', '\tbb,', '\tc', ')' }, { 1, 0 }, { '(aaa, bb, c)' }, { 1, 0 }, toggle)
-  validate_edit({ '[', '\taaa,', '\tbb,', '\tc', ']' }, { 1, 0 }, { '[aaa, bb, c]' }, { 1, 0 }, toggle)
-  validate_edit({ '{', '\taaa,', '\tbb,', '\tc', '}' }, { 1, 0 }, { '{aaa, bb, c}' }, { 1, 0 }, toggle)
+  validate_edit({ '(', '\taaa,', '\tbb,', '\tc', ')' }, { 1, 0 }, toggle, { '(aaa, bb, c)' }, { 1, 0 })
+  validate_edit({ '[', '\taaa,', '\tbb,', '\tc', ']' }, { 1, 0 }, toggle, { '[aaa, bb, c]' }, { 1, 0 })
+  validate_edit({ '{', '\taaa,', '\tbb,', '\tc', '}' }, { 1, 0 }, toggle, { '{aaa, bb, c}' }, { 1, 0 })
 end
 
 T['toggle()']['explicitly calls `split()` or `join()`'] = function()
@@ -198,8 +174,10 @@ T['toggle()']['explicitly calls `split()` or `join()`'] = function()
 end
 
 T['toggle()']['respects `opts.position`'] = function()
-  validate_edit({ ' (aa)' }, { 1, 0 }, { ' (', ' \taa', ' )' }, { 1, 0 }, toggle, { position = { line = 1, col = 2 } })
-  validate_edit({ ' (aa)' }, { 1, 1 }, { ' (aa)' }, { 1, 1 }, toggle, { position = { line = 1, col = 1 } })
+  local f = function() toggle({ position = { line = 1, col = 2 } }) end
+  validate_edit({ ' (aa)' }, { 1, 0 }, f, { ' (', ' \taa', ' )' }, { 1, 0 })
+  f = function() toggle({ position = { line = 1, col = 1 } }) end
+  validate_edit({ ' (aa)' }, { 1, 1 }, f, { ' (aa)' }, { 1, 1 })
 end
 
 T['toggle()']['respects `opts.region`'] = function()
@@ -219,12 +197,14 @@ end
 T['toggle()']['respects `opts.detect.brackets`'] = function()
   -- Global
   child.lua("MiniSplitjoin.config.detect.brackets = { '%b{}' }")
-  validate_edit({ '[aaa]' }, { 1, 0 }, { '[aaa]' }, { 1, 0 }, toggle)
-  validate_edit({ '{aaa}' }, { 1, 0 }, { '{', '\taaa', '}' }, { 1, 0 }, toggle)
+  validate_edit({ '[aaa]' }, { 1, 0 }, toggle, { '[aaa]' }, { 1, 0 })
+  validate_edit({ '{aaa}' }, { 1, 0 }, toggle, { '{', '\taaa', '}' }, { 1, 0 })
 
   -- Local
-  validate_edit({ '(aaa)' }, { 1, 0 }, { '(aaa)' }, { 1, 0 }, toggle, { detect = { brackets = {} } })
-  validate_edit({ '(aaa)' }, { 1, 0 }, { '(aaa)' }, { 1, 0 }, toggle, { detect = { brackets = { '%b[]' } } })
+  local f = function() toggle({ detect = { brackets = {} } }) end
+  validate_edit({ '(aaa)' }, { 1, 0 }, f, { '(aaa)' }, { 1, 0 })
+  f = function() toggle({ detect = { brackets = { '%b[]' } } }) end
+  validate_edit({ '(aaa)' }, { 1, 0 }, f, { '(aaa)' }, { 1, 0 })
 end
 
 T['toggle()']['returns `nil` if no positions are found'] = function()
@@ -238,13 +218,13 @@ T['toggle()']['respects `vim.{g,b}.minisplitjoin_disable`'] = new_set({
 }, {
   test = function(var_type)
     child[var_type].minisplitjoin_disable = true
-    validate_edit({ '(aaa)' }, { 1, 0 }, { '(aaa)' }, { 1, 0 }, toggle)
+    validate_edit({ '(aaa)' }, { 1, 0 }, toggle, { '(aaa)' }, { 1, 0 })
   end,
 })
 
 T['toggle()']['respects `vim.b.minisplitjoin_config`'] = function()
   child.lua([[vim.b.minisplitjoin_config = { detect = { brackets = { '%b[]' } } }]])
-  validate_edit({ '(aaa)' }, { 1, 0 }, { '(aaa)' }, { 1, 0 }, toggle)
+  validate_edit({ '(aaa)' }, { 1, 0 }, toggle, { '(aaa)' }, { 1, 0 })
 end
 
 T['split()'] = new_set()
@@ -252,91 +232,90 @@ T['split()'] = new_set()
 local split = function(...) return child.lua_get('MiniSplitjoin.split(...)', { ... }) end
 
 T['split()']['works'] = function()
-  validate_edit({ '(aaa, bb, c)' }, { 1, 0 }, { '(', '\taaa,', '\tbb,', '\tc', ')' }, { 1, 0 }, split)
-  validate_edit({ '[aaa, bb, c]' }, { 1, 0 }, { '[', '\taaa,', '\tbb,', '\tc', ']' }, { 1, 0 }, split)
-  validate_edit({ '{aaa, bb, c}' }, { 1, 0 }, { '{', '\taaa,', '\tbb,', '\tc', '}' }, { 1, 0 }, split)
+  validate_edit({ '(aaa, bb, c)' }, { 1, 0 }, split, { '(', '\taaa,', '\tbb,', '\tc', ')' }, { 1, 0 })
+  validate_edit({ '[aaa, bb, c]' }, { 1, 0 }, split, { '[', '\taaa,', '\tbb,', '\tc', ']' }, { 1, 0 })
+  validate_edit({ '{aaa, bb, c}' }, { 1, 0 }, split, { '{', '\taaa,', '\tbb,', '\tc', '}' }, { 1, 0 })
 end
 
---stylua: ignore
 T['split()']['works for arguments on multiple lines'] = function()
-  validate_edit({ '(a', 'b',   'c)' },     { 1, 0 }, { '(', '\ta', '\tb', '\tc', ')' }, { 1, 0 }, split)
-  validate_edit({ '(a', '\tb', '\t\tc)' }, { 1, 0 }, { '(', '\ta', '\t\tb', '\t\t\tc', '\t\t)' }, { 1, 0 }, split)
+  validate_edit({ '(a', 'b', 'c)' }, { 1, 0 }, split, { '(', '\ta', '\tb', '\tc', ')' }, { 1, 0 })
+  validate_edit({ '(a', '\tb', '\t\tc)' }, { 1, 0 }, split, { '(', '\ta', '\t\tb', '\t\t\tc', '\t\t)' }, { 1, 0 })
 
-  validate_edit({ '(a', 'b, c', 'd)' }, { 1, 0 }, { '(', '\ta', '\tb,', '\tc', '\td', ')' }, { 1, 0 }, split)
+  validate_edit({ '(a', 'b, c', 'd)' }, { 1, 0 }, split, { '(', '\ta', '\tb,', '\tc', '\td', ')' }, { 1, 0 })
 
   -- This can be better, but currently is outside of cost/benefit ratio
-  validate_edit({ '(', '\ta,', '\tb', ')' }, { 1, 0 }, { "(", "", "\t\ta,", "\t", "\t\tb", "\t)" }, { 1, 0 }, split)
+  validate_edit({ '(', '\ta,', '\tb', ')' }, { 1, 0 }, split, { '(', '', '\t\ta,', '\t', '\t\tb', '\t)' }, { 1, 0 })
 end
 
 T['split()']['works on any part inside or on brackets'] = function()
-  validate_edit({ 'b( a )b' }, { 1, 0 }, { 'b( a )b' }, { 1, 0 }, split)
-  validate_edit({ 'b( a )b' }, { 1, 1 }, { 'b(', '\ta', ')b' }, { 1, 1 }, split)
-  validate_edit({ 'b( a )b' }, { 1, 2 }, { 'b(', '\ta', ')b' }, { 2, 1 }, split)
-  validate_edit({ 'b( a )b' }, { 1, 3 }, { 'b(', '\ta', ')b' }, { 2, 1 }, split)
-  validate_edit({ 'b( a )b' }, { 1, 4 }, { 'b(', '\ta', ')b' }, { 2, 1 }, split)
-  validate_edit({ 'b( a )b' }, { 1, 5 }, { 'b(', '\ta', ')b' }, { 3, 0 }, split)
-  validate_edit({ 'b( a )b' }, { 1, 6 }, { 'b( a )b' }, { 1, 6 }, split)
+  validate_edit({ 'b( a )b' }, { 1, 0 }, split, { 'b( a )b' }, { 1, 0 })
+  validate_edit({ 'b( a )b' }, { 1, 1 }, split, { 'b(', '\ta', ')b' }, { 1, 1 })
+  validate_edit({ 'b( a )b' }, { 1, 2 }, split, { 'b(', '\ta', ')b' }, { 2, 1 })
+  validate_edit({ 'b( a )b' }, { 1, 3 }, split, { 'b(', '\ta', ')b' }, { 2, 1 })
+  validate_edit({ 'b( a )b' }, { 1, 4 }, split, { 'b(', '\ta', ')b' }, { 2, 1 })
+  validate_edit({ 'b( a )b' }, { 1, 5 }, split, { 'b(', '\ta', ')b' }, { 3, 0 })
+  validate_edit({ 'b( a )b' }, { 1, 6 }, split, { 'b( a )b' }, { 1, 6 })
 end
 
 T['split()']['works on indented line'] = function()
-  validate_edit({ '\t (aaa, bb, c)' }, { 1, 2 }, { '\t (', '\t \taaa,', '\t \tbb,', '\t \tc', '\t )' }, { 1, 2 }, split)
+  validate_edit({ '\t (aaa, bb, c)' }, { 1, 2 }, split, { '\t (', '\t \taaa,', '\t \tbb,', '\t \tc', '\t )' }, { 1, 2 })
 end
 
 T['split()']['works inside comments'] = function()
   -- After 'commentstring'
   child.bo.commentstring = '# %s'
-  validate_edit({ '# (aaa)' }, { 1, 2 }, { '# (', '# \taaa', '# )' }, { 1, 2 }, split)
+  validate_edit({ '# (aaa)' }, { 1, 2 }, split, { '# (', '# \taaa', '# )' }, { 1, 2 })
 
   -- After any entry in 'comments'
   child.bo.comments = ':---,:--'
-  validate_edit({ '-- (aaa)' }, { 1, 3 }, { '-- (', '-- \taaa', '-- )' }, { 1, 3 }, split)
-  validate_edit({ '--- (aaa)' }, { 1, 4 }, { '--- (', '--- \taaa', '--- )' }, { 1, 4 }, split)
+  validate_edit({ '-- (aaa)' }, { 1, 3 }, split, { '-- (', '-- \taaa', '-- )' }, { 1, 3 })
+  validate_edit({ '--- (aaa)' }, { 1, 4 }, split, { '--- (', '--- \taaa', '--- )' }, { 1, 4 })
 
   -- Respects `b` flag
   child.bo.comments = 'b:*'
-  validate_edit({ '*(aaa)' }, { 1, 1 }, { '*(', '\taaa', ')' }, { 1, 1 }, split)
-  validate_edit({ '* (aaa)' }, { 1, 2 }, { '* (', '* \taaa', '* )' }, { 1, 2 }, split)
-  validate_edit({ '*\t(aaa)' }, { 1, 2 }, { '*\t(', '*\t\taaa', '*\t)' }, { 1, 2 }, split)
+  validate_edit({ '*(aaa)' }, { 1, 1 }, split, { '*(', '\taaa', ')' }, { 1, 1 })
+  validate_edit({ '* (aaa)' }, { 1, 2 }, split, { '* (', '* \taaa', '* )' }, { 1, 2 })
+  validate_edit({ '*\t(aaa)' }, { 1, 2 }, split, { '*\t(', '*\t\taaa', '*\t)' }, { 1, 2 })
 
   -- Respects `f` flag (ignores as comment leader)
   child.bo.comments = 'f:-'
-  validate_edit({ '-(aaa)' }, { 1, 1 }, { '-(', '\taaa', ')' }, { 1, 1 }, split)
-  validate_edit({ '- (aaa)' }, { 1, 2 }, { '- (', '\taaa', ')' }, { 1, 2 }, split)
-  validate_edit({ '-\t(aaa)' }, { 1, 2 }, { '-\t(', '\taaa', ')' }, { 1, 2 }, split)
+  validate_edit({ '-(aaa)' }, { 1, 1 }, split, { '-(', '\taaa', ')' }, { 1, 1 })
+  validate_edit({ '- (aaa)' }, { 1, 2 }, split, { '- (', '\taaa', ')' }, { 1, 2 })
+  validate_edit({ '-\t(aaa)' }, { 1, 2 }, split, { '-\t(', '\taaa', ')' }, { 1, 2 })
 end
 
 T['split()']['works with trailing separator'] = function()
-  validate_edit({ '(aa, b,)' }, { 1, 0 }, { '(', '\taa,', '\tb,', ')' }, { 1, 0 }, split)
+  validate_edit({ '(aa, b,)' }, { 1, 0 }, split, { '(', '\taa,', '\tb,', ')' }, { 1, 0 })
 end
 
 T['split()']['correctly increases indent of commented line in non-commented block'] = function()
   child.bo.commentstring = '# %s'
-  validate_edit({ '(aa', '# b', 'c)' }, { 1, 0 }, { '(', '\taa', '\t# b', '\tc', ')' }, { 1, 0 }, split)
+  validate_edit({ '(aa', '# b', 'c)' }, { 1, 0 }, split, { '(', '\taa', '\t# b', '\tc', ')' }, { 1, 0 })
 end
 
 T['split()']['ignores separators inside nested arguments'] = function()
   validate_edit(
     { '(a, (b, c), [d, e], {f, e})' },
     { 1, 0 },
+    split,
     { '(', '\ta,', '\t(b, c),', '\t[d, e],', '\t{f, e}', ')' },
-    { 1, 0 },
-    split
+    { 1, 0 }
   )
 end
 
 T['split()']['ignores separators inside quotes'] = function()
-  validate_edit({ [[(a, 'b, c', "d, e")]] }, { 1, 0 }, { '(', '\ta,', "\t'b, c',", '\t"d, e"', ')' }, { 1, 0 }, split)
+  validate_edit({ [[(a, 'b, c', "d, e")]] }, { 1, 0 }, split, { '(', '\ta,', "\t'b, c',", '\t"d, e"', ')' }, { 1, 0 })
 end
 
 T['split()']['works in empty brackets'] = function()
-  validate_edit({ '()' }, { 1, 0 }, { '(', ')' }, { 1, 0 }, split)
-  validate_edit({ '()' }, { 1, 1 }, { '(', ')' }, { 2, 0 }, split)
+  validate_edit({ '()' }, { 1, 0 }, split, { '(', ')' }, { 1, 0 })
+  validate_edit({ '()' }, { 1, 1 }, split, { '(', ')' }, { 2, 0 })
 end
 
 T['split()']["respects 'expandtab' and 'shiftwidth' for indenting"] = function()
   child.o.expandtab = true
   child.o.shiftwidth = 3
-  validate_edit({ '(aaa)' }, { 1, 0 }, { '(', '   aaa', ')' }, { 1, 0 }, split)
+  validate_edit({ '(aaa)' }, { 1, 0 }, split, { '(', '   aaa', ')' }, { 1, 0 })
 end
 
 T['split()']['returns `nil` if no positions are found'] = function()
@@ -353,39 +332,44 @@ T['split()']['returns `nil` if no positions are found'] = function()
 end
 
 T['split()']['respects `opts.position`'] = function()
-  validate_edit({ ' (aaa)' }, { 1, 0 }, { ' (', ' \taaa', ' )' }, { 1, 0 }, split, { position = { line = 1, col = 2 } })
-  validate_edit({ ' (aaa)' }, { 1, 1 }, { ' (aaa)' }, { 1, 1 }, split, { position = { line = 1, col = 1 } })
+  local f = function() split({ position = { line = 1, col = 2 } }) end
+  validate_edit({ ' (aaa)' }, { 1, 0 }, f, { ' (', ' \taaa', ' )' }, { 1, 0 })
+  f = function() split({ position = { line = 1, col = 1 } }) end
+  validate_edit({ ' (aaa)' }, { 1, 1 }, f, { ' (aaa)' }, { 1, 1 })
 end
 
 T['split()']['respects `opts.region`'] = function()
   local lines = { '(a, ")", b)' }
   local region = { from = { line = 1, col = 1 }, to = { line = 1, col = 11 } }
-  validate_edit(lines, { 1, 0 }, { '(', '\ta,', '\t")",', '\tb', ')' }, { 1, 0 }, split, { region = region })
+  local f = function() split({ region = region }) end
+  validate_edit(lines, { 1, 0 }, f, { '(', '\ta,', '\t")",', '\tb', ')' }, { 1, 0 })
 end
 
 T['split()']['respects `opts.detect.brackets`'] = function()
   -- Global
   child.lua("MiniSplitjoin.config.detect.brackets = { '%b{}' }")
-  validate_edit({ '[aaa]' }, { 1, 0 }, { '[aaa]' }, { 1, 0 }, split)
-  validate_edit({ '{aaa}' }, { 1, 0 }, { '{', '\taaa', '}' }, { 1, 0 }, split)
+  validate_edit({ '[aaa]' }, { 1, 0 }, split, { '[aaa]' }, { 1, 0 })
+  validate_edit({ '{aaa}' }, { 1, 0 }, split, { '{', '\taaa', '}' }, { 1, 0 })
 
   -- Local
-  validate_edit({ '(aaa)' }, { 1, 0 }, { '(aaa)' }, { 1, 0 }, split, { detect = { brackets = {} } })
-  validate_edit({ '(aaa)' }, { 1, 0 }, { '(aaa)' }, { 1, 0 }, split, { detect = { brackets = { '%b[]' } } })
+  local f = function() split({ detect = { brackets = {} } }) end
+  validate_edit({ '(aaa)' }, { 1, 0 }, f, { '(aaa)' }, { 1, 0 })
+  f = function() split({ detect = { brackets = { '%b[]' } } }) end
+  validate_edit({ '(aaa)' }, { 1, 0 }, f, { '(aaa)' }, { 1, 0 })
 end
 
 T['split()']['respects `opts.detect.separator`'] = function()
   -- Global
   child.lua("MiniSplitjoin.config.detect.separator = '|'")
-  validate_edit({ '(a|b)' }, { 1, 0 }, { '(', '\ta|', '\tb', ')' }, { 1, 0 }, split)
+  validate_edit({ '(a|b)' }, { 1, 0 }, split, { '(', '\ta|', '\tb', ')' }, { 1, 0 })
 
   -- Local
-  local opts = { detect = { separator = '[,;]' } }
-  validate_edit({ '(a, b; c)' }, { 1, 0 }, { '(', '\ta,', '\tb;', '\tc', ')' }, { 1, 0 }, split, opts)
+  local f = function() split({ detect = { separator = '[,;]' } }) end
+  validate_edit({ '(a, b; c)' }, { 1, 0 }, f, { '(', '\ta,', '\tb;', '\tc', ')' }, { 1, 0 })
 
   -- Empty separator should mean no internal separator
-  opts = { detect = { separator = '' } }
-  validate_edit({ '(a, b; c)' }, { 1, 0 }, { '(', '\ta, b; c', ')' }, { 1, 0 }, split, opts)
+  f = function() split({ detect = { separator = '' } }) end
+  validate_edit({ '(a, b; c)' }, { 1, 0 }, f, { '(', '\ta, b; c', ')' }, { 1, 0 })
 end
 
 T['split()']['respects `opts.detect.exclude_regions`'] = function()
@@ -394,21 +378,14 @@ T['split()']['respects `opts.detect.exclude_regions`'] = function()
   validate_edit(
     { '(a, (b, c), [d, e])' },
     { 1, 0 },
+    split,
     { '(', '\ta,', '\t(b,', '\tc),', '\t[d, e]', ')' },
-    { 1, 0 },
-    split
+    { 1, 0 }
   )
 
   -- Local
-  local opts = { detect = { exclude_regions = { '%b()' } } }
-  validate_edit(
-    { '(a, (b, c), [d, e])' },
-    { 1, 0 },
-    { '(', '\ta,', '\t(b, c),', '\t[d,', '\te]', ')' },
-    { 1, 0 },
-    split,
-    opts
-  )
+  local f = function() split({ detect = { exclude_regions = { '%b()' } } }) end
+  validate_edit({ '(a, (b, c), [d, e])' }, { 1, 0 }, f, { '(', '\ta,', '\t(b, c),', '\t[d,', '\te]', ')' }, { 1, 0 })
 end
 
 T['split()']['respects `opts.split.hooks_pre`'] = function()
@@ -470,13 +447,13 @@ T['split()']['respects `vim.{g,b}.minisplitjoin_disable`'] = new_set({
 }, {
   test = function(var_type)
     child[var_type].minisplitjoin_disable = true
-    validate_edit({ '(aaa)' }, { 1, 0 }, { '(aaa)' }, { 1, 0 }, split)
+    validate_edit({ '(aaa)' }, { 1, 0 }, split, { '(aaa)' }, { 1, 0 })
   end,
 })
 
 T['split()']['respects `vim.b.minisplitjoin_config`'] = function()
   child.lua([[vim.b.minisplitjoin_config = { detect = { brackets = { '%b[]' } } }]])
-  validate_edit({ '(aaa)' }, { 1, 0 }, { '(aaa)' }, { 1, 0 }, split)
+  validate_edit({ '(aaa)' }, { 1, 0 }, split, { '(aaa)' }, { 1, 0 })
 end
 
 T['join()'] = new_set()
@@ -484,52 +461,52 @@ T['join()'] = new_set()
 local join = function(...) return child.lua_get('MiniSplitjoin.join(...)', { ... }) end
 
 T['join()']['works'] = function()
-  validate_edit({ '(', '\taaa,', '\tbb,', '\tc', ')' }, { 1, 0 }, { '(aaa, bb, c)' }, { 1, 0 }, join)
-  validate_edit({ '[', '\taaa,', '\tbb,', '\tc', ']' }, { 1, 0 }, { '[aaa, bb, c]' }, { 1, 0 }, join)
-  validate_edit({ '{', '\taaa,', '\tbb,', '\tc', '}' }, { 1, 0 }, { '{aaa, bb, c}' }, { 1, 0 }, join)
+  validate_edit({ '(', '\taaa,', '\tbb,', '\tc', ')' }, { 1, 0 }, join, { '(aaa, bb, c)' }, { 1, 0 })
+  validate_edit({ '[', '\taaa,', '\tbb,', '\tc', ']' }, { 1, 0 }, join, { '[aaa, bb, c]' }, { 1, 0 })
+  validate_edit({ '{', '\taaa,', '\tbb,', '\tc', '}' }, { 1, 0 }, join, { '{aaa, bb, c}' }, { 1, 0 })
 
-  validate_edit({ '(', 'aaa)' }, { 1, 0 }, { '(aaa)' }, { 1, 0 }, join)
-  validate_edit({ ' \t(', 'aaa)' }, { 1, 2 }, { ' \t(aaa)' }, { 1, 2 }, join)
+  validate_edit({ '(', 'aaa)' }, { 1, 0 }, join, { '(aaa)' }, { 1, 0 })
+  validate_edit({ ' \t(', 'aaa)' }, { 1, 2 }, join, { ' \t(aaa)' }, { 1, 2 })
 end
 
 T['join()']['does nothing if arguments are on single line'] = function()
-  validate_edit({ '(aa, b)' }, { 1, 0 }, { '(aa, b)' }, { 1, 0 }, join)
+  validate_edit({ '(aa, b)' }, { 1, 0 }, join, { '(aa, b)' }, { 1, 0 })
 end
 
 T['join()']['works inside comments'] = function()
   -- After 'commentstring'
   child.bo.commentstring = '# %s'
-  validate_edit({ '# (', '# \taaa', '# )' }, { 1, 2 }, { '# (aaa)' }, { 1, 2 }, join)
+  validate_edit({ '# (', '# \taaa', '# )' }, { 1, 2 }, join, { '# (aaa)' }, { 1, 2 })
 
   -- After any entry in 'comments'
   child.bo.comments = ':---,:--'
-  validate_edit({ '-- (', '-- \taaa', '-- )' }, { 1, 3 }, { '-- (aaa)' }, { 1, 3 }, join)
-  validate_edit({ '--- (', '--- \taaa', '--- )' }, { 1, 4 }, { '--- (aaa)' }, { 1, 4 }, join)
+  validate_edit({ '-- (', '-- \taaa', '-- )' }, { 1, 3 }, join, { '-- (aaa)' }, { 1, 3 })
+  validate_edit({ '--- (', '--- \taaa', '--- )' }, { 1, 4 }, join, { '--- (aaa)' }, { 1, 4 })
 
   -- Respects `b` flag
   child.bo.comments = 'b:*'
-  validate_edit({ '*(', '\t*aaa', '*)' }, { 1, 1 }, { '*(*aaa*)' }, { 1, 1 }, join)
-  validate_edit({ '* (', '\t* aaa', '* )' }, { 1, 2 }, { '* (aaa)' }, { 1, 2 }, join)
-  validate_edit({ '*\t(', '\t*\taaa', '*\t)' }, { 1, 2 }, { '*\t(aaa)' }, { 1, 2 }, join)
+  validate_edit({ '*(', '\t*aaa', '*)' }, { 1, 1 }, join, { '*(*aaa*)' }, { 1, 1 })
+  validate_edit({ '* (', '\t* aaa', '* )' }, { 1, 2 }, join, { '* (aaa)' }, { 1, 2 })
+  validate_edit({ '*\t(', '\t*\taaa', '*\t)' }, { 1, 2 }, join, { '*\t(aaa)' }, { 1, 2 })
 
   -- Respects `f` flag (ignores as comment leader)
   child.bo.comments = 'f:-'
-  validate_edit({ '(', '-aaa', ')' }, { 1, 0 }, { '(-aaa)' }, { 1, 0 }, join)
-  validate_edit({ '(', '- aaa', ')' }, { 1, 0 }, { '(- aaa)' }, { 1, 0 }, join)
-  validate_edit({ '(', '-\taaa', ')' }, { 1, 0 }, { '(-\taaa)' }, { 1, 0 }, join)
-  validate_edit({ '- (', '- aaa', '- )' }, { 1, 2 }, { '- (- aaa- )' }, { 1, 2 }, join)
+  validate_edit({ '(', '-aaa', ')' }, { 1, 0 }, join, { '(-aaa)' }, { 1, 0 })
+  validate_edit({ '(', '- aaa', ')' }, { 1, 0 }, join, { '(- aaa)' }, { 1, 0 })
+  validate_edit({ '(', '-\taaa', ')' }, { 1, 0 }, join, { '(-\taaa)' }, { 1, 0 })
+  validate_edit({ '- (', '- aaa', '- )' }, { 1, 2 }, join, { '- (- aaa- )' }, { 1, 2 })
 end
 
-T['join()']['works in empty brackets'] = function() validate_edit({ '()' }, { 1, 0 }, { '()' }, { 1, 0 }, join) end
+T['join()']['works in empty brackets'] = function() validate_edit({ '()' }, { 1, 0 }, join, { '()' }, { 1, 0 }) end
 
 T['join()']['joins nested multiline argument into single line'] = function()
   validate_edit(
     { '(', '\ta,', '\t(', '\t\tb,', '\t\tc', '\t),', '\td', ')' },
     { 1, 0 },
+    join,
     -- To not have padded brackets in nested arguments, join them separately
     { '(a, ( b, c ), d)' },
-    { 1, 0 },
-    join
+    { 1, 0 }
   )
 end
 
@@ -547,56 +524,54 @@ T['join()']['returns `nil` if no positions are found'] = function()
 end
 
 T['join()']['respects `opts.position`'] = function()
-  validate_edit({ ' (', ' \taaa', ' )' }, { 1, 0 }, { ' (aaa)' }, { 1, 0 }, join, { position = { line = 1, col = 2 } })
-  validate_edit({ ' (aaa)' }, { 1, 1 }, { ' (aaa)' }, { 1, 1 }, join, { position = { line = 1, col = 1 } })
+  local f = function() join({ position = { line = 1, col = 2 } }) end
+  validate_edit({ ' (', ' \taaa', ' )' }, { 1, 0 }, f, { ' (aaa)' }, { 1, 0 })
+  f = function() join({ position = { line = 1, col = 1 } }) end
+  validate_edit({ ' (aaa)' }, { 1, 1 }, f, { ' (aaa)' }, { 1, 1 })
 end
 
 T['join()']['respects `opts.region`'] = function()
   local lines = { '(', '\ta,', '\t")",', '\tb', ')' }
   local region = { from = { line = 1, col = 1 }, to = { line = 5, col = 0 } }
-  validate_edit(lines, { 1, 0 }, { '(a, ")", b)' }, { 1, 0 }, join, { region = region })
+  local f = function() join({ region = region }) end
+  validate_edit(lines, { 1, 0 }, f, { '(a, ")", b)' }, { 1, 0 })
 end
 
 T['join()']['respects `opts.detect.brackets`'] = function()
   -- Global
   child.lua("MiniSplitjoin.config.detect.brackets = { '%b{}' }")
-  validate_edit({ '[aaa]' }, { 1, 0 }, { '[aaa]' }, { 1, 0 }, join)
-  validate_edit({ '{', '\taaa', '}' }, { 1, 0 }, { '{aaa}' }, { 1, 0 }, join)
+  validate_edit({ '[aaa]' }, { 1, 0 }, join, { '[aaa]' }, { 1, 0 })
+  validate_edit({ '{', '\taaa', '}' }, { 1, 0 }, join, { '{aaa}' }, { 1, 0 })
 
   -- Local
-  validate_edit({ '(aaa)' }, { 1, 0 }, { '(aaa)' }, { 1, 0 }, join, { detect = { brackets = {} } })
-  validate_edit({ '(aaa)' }, { 1, 0 }, { '(aaa)' }, { 1, 0 }, join, { detect = { brackets = { '%b[]' } } })
+  local f = function() join({ detect = { brackets = {} } }) end
+  validate_edit({ '(aaa)' }, { 1, 0 }, f, { '(aaa)' }, { 1, 0 })
+  f = function() join({ detect = { brackets = { '%b[]' } } }) end
+  validate_edit({ '(aaa)' }, { 1, 0 }, f, { '(aaa)' }, { 1, 0 })
 end
 
 T['join()']['respects `opts.detect.separator`'] = function()
   -- Global
   child.lua("MiniSplitjoin.config.detect.separator = '|'")
-  validate_edit({ '(', '\ta|', '\tb', ')' }, { 1, 0 }, { '(a| b)' }, { 1, 0 }, join)
+  validate_edit({ '(', '\ta|', '\tb', ')' }, { 1, 0 }, join, { '(a| b)' }, { 1, 0 })
 
   -- Local
-  local opts = { detect = { separator = '[,;]' } }
-  validate_edit({ '(', '\ta,', '\tb;', '\tc', ')' }, { 1, 0 }, { '(a, b; c)' }, { 1, 0 }, join, opts)
+  local f = function() join({ detect = { separator = '[,;]' } }) end
+  validate_edit({ '(', '\ta,', '\tb;', '\tc', ')' }, { 1, 0 }, f, { '(a, b; c)' }, { 1, 0 })
 
   -- Empty separator should mean no internal separator
-  opts = { detect = { separator = '' } }
-  validate_edit({ '(', '\ta, b; c', ')' }, { 1, 0 }, { '(a, b; c)' }, { 1, 0 }, join, opts)
+  f = function() join({ detect = { separator = '' } }) end
+  validate_edit({ '(', '\ta, b; c', ')' }, { 1, 0 }, f, { '(a, b; c)' }, { 1, 0 })
 end
 
 T['join()']['respects `opts.detect.exclude_regions`'] = function()
   -- Global
   child.lua("MiniSplitjoin.config.detect.exclude_regions = { '%b[]' }")
-  validate_edit({ '(', '\ta,', '\t(b,', '\tc),', '\t[d, e]', ')' }, { 1, 0 }, { '(a, (b, c), [d, e])' }, { 1, 0 }, join)
+  validate_edit({ '(', '\ta,', '\t(b,', '\tc),', '\t[d, e]', ')' }, { 1, 0 }, join, { '(a, (b, c), [d, e])' }, { 1, 0 })
 
   -- Local
-  local opts = { detect = { exclude_regions = { '%b()' } } }
-  validate_edit(
-    { '(', '\ta,', '\t(b, c),', '\t[d,', '\te]', ')' },
-    { 1, 0 },
-    { '(a, (b, c), [d, e])' },
-    { 1, 0 },
-    join,
-    opts
-  )
+  local f = function() join({ detect = { exclude_regions = { '%b()' } } }) end
+  validate_edit({ '(', '\ta,', '\t(b, c),', '\t[d,', '\te]', ')' }, { 1, 0 }, f, { '(a, (b, c), [d, e])' }, { 1, 0 })
 end
 
 T['join()']['respects `opts.join.hooks_pre`'] = function()
@@ -658,13 +633,13 @@ T['join()']['respects `vim.{g,b}.minisplitjoin_disable`'] = new_set({
 }, {
   test = function(var_type)
     child[var_type].minisplitjoin_disable = true
-    validate_edit({ '(', 'aaa', ')' }, { 1, 0 }, { '(', 'aaa', ')' }, { 1, 0 }, join)
+    validate_edit({ '(', 'aaa', ')' }, { 1, 0 }, join, { '(', 'aaa', ')' }, { 1, 0 })
   end,
 })
 
 T['join()']['respects `vim.b.minisplitjoin_config`'] = function()
   child.lua([[vim.b.minisplitjoin_config = { detect = { brackets = { '%b[]' } } }]])
-  validate_edit({ '(', 'aaa', ')' }, { 1, 0 }, { '(', 'aaa', ')' }, { 1, 0 }, join)
+  validate_edit({ '(', 'aaa', ')' }, { 1, 0 }, join, { '(', 'aaa', ')' }, { 1, 0 })
 end
 
 T['gen_hook'] = new_set()
@@ -673,9 +648,9 @@ T['gen_hook']['pad_brackets()'] = new_set()
 
 T['gen_hook']['pad_brackets()']['works'] = function()
   child.lua('MiniSplitjoin.config.join.hooks_post = { MiniSplitjoin.gen_hook.pad_brackets() }')
-  validate_edit({ '(', '\taaa,', '\tbb,', '\tc', ')' }, { 1, 0 }, { '( aaa, bb, c )' }, { 1, 0 }, join)
-  validate_edit({ '[', '\taaa,', '\tbb,', '\tc', ']' }, { 1, 0 }, { '[ aaa, bb, c ]' }, { 1, 0 }, join)
-  validate_edit({ '{', '\taaa,', '\tbb,', '\tc', '}' }, { 1, 0 }, { '{ aaa, bb, c }' }, { 1, 0 }, join)
+  validate_edit({ '(', '\taaa,', '\tbb,', '\tc', ')' }, { 1, 0 }, join, { '( aaa, bb, c )' }, { 1, 0 })
+  validate_edit({ '[', '\taaa,', '\tbb,', '\tc', ']' }, { 1, 0 }, join, { '[ aaa, bb, c ]' }, { 1, 0 })
+  validate_edit({ '{', '\taaa,', '\tbb,', '\tc', '}' }, { 1, 0 }, join, { '{ aaa, bb, c }' }, { 1, 0 })
 
   -- Should return correctly updated input
   set_lines({ '(', 'a,', 'b', ')' })
@@ -686,32 +661,32 @@ end
 
 T['gen_hook']['pad_brackets()']['does not act in case of no arguments'] = function()
   child.lua('MiniSplitjoin.config.join.hooks_post = { MiniSplitjoin.gen_hook.pad_brackets() }')
-  validate_edit({ '(', ')' }, { 1, 0 }, { '()' }, { 1, 0 }, join)
+  validate_edit({ '(', ')' }, { 1, 0 }, join, { '()' }, { 1, 0 })
 end
 
 T['gen_hook']['pad_brackets()']['respects `opts.pad`'] = function()
   child.lua("MiniSplitjoin.config.join.hooks_post = { MiniSplitjoin.gen_hook.pad_brackets({ pad = '  ' }) }")
-  validate_edit({ '(', 'aa,', 'b', ')' }, { 1, 0 }, { '(  aa, b  )' }, { 1, 0 }, join)
+  validate_edit({ '(', 'aa,', 'b', ')' }, { 1, 0 }, join, { '(  aa, b  )' }, { 1, 0 })
 end
 
 T['gen_hook']['pad_brackets()']['respects `opts.brackets`'] = function()
   child.lua([[MiniSplitjoin.config.join.hooks_post = {
     MiniSplitjoin.gen_hook.pad_brackets({ brackets = { '%b{}' } }),
   }]])
-  validate_edit({ '(', 'aa,', 'b', ')' }, { 1, 0 }, { '(aa, b)' }, { 1, 0 }, join)
-  validate_edit({ '[', 'aa,', 'b', ']' }, { 1, 0 }, { '[aa, b]' }, { 1, 0 }, join)
-  validate_edit({ '{', 'aa,', 'b', '}' }, { 1, 0 }, { '{ aa, b }' }, { 1, 0 }, join)
+  validate_edit({ '(', 'aa,', 'b', ')' }, { 1, 0 }, join, { '(aa, b)' }, { 1, 0 })
+  validate_edit({ '[', 'aa,', 'b', ']' }, { 1, 0 }, join, { '[aa, b]' }, { 1, 0 })
+  validate_edit({ '{', 'aa,', 'b', '}' }, { 1, 0 }, join, { '{ aa, b }' }, { 1, 0 })
 end
 
 T['gen_hook']['add_trailing_separator()'] = new_set()
 
 T['gen_hook']['add_trailing_separator()']['works'] = function()
   child.lua('MiniSplitjoin.config.split.hooks_post = { MiniSplitjoin.gen_hook.add_trailing_separator() }')
-  validate_edit({ '(aa)' }, { 1, 0 }, { '(', '\taa,', ')' }, { 1, 0 }, split)
-  validate_edit({ '[aa]' }, { 1, 0 }, { '[', '\taa,', ']' }, { 1, 0 }, split)
-  validate_edit({ '{aa}' }, { 1, 0 }, { '{', '\taa,', '}' }, { 1, 0 }, split)
+  validate_edit({ '(aa)' }, { 1, 0 }, split, { '(', '\taa,', ')' }, { 1, 0 })
+  validate_edit({ '[aa]' }, { 1, 0 }, split, { '[', '\taa,', ']' }, { 1, 0 })
+  validate_edit({ '{aa}' }, { 1, 0 }, split, { '{', '\taa,', '}' }, { 1, 0 })
 
-  validate_edit({ '(aa, b)' }, { 1, 0 }, { '(', '\taa,', '\tb,', ')' }, { 1, 0 }, split)
+  validate_edit({ '(aa, b)' }, { 1, 0 }, split, { '(', '\taa,', '\tb,', ')' }, { 1, 0 })
 
   -- Should return correctly updated input
   set_lines({ '(aa)' })
@@ -722,40 +697,40 @@ end
 
 T['gen_hook']['add_trailing_separator()']['does nothing if there is already trailing separator'] = function()
   child.lua('MiniSplitjoin.config.split.hooks_post = { MiniSplitjoin.gen_hook.add_trailing_separator() }')
-  validate_edit({ '(aa,)' }, { 1, 0 }, { '(', '\taa,', ')' }, { 1, 0 }, split)
-  validate_edit({ '(aa, b,)' }, { 1, 0 }, { '(', '\taa,', '\tb,', ')' }, { 1, 0 }, split)
+  validate_edit({ '(aa,)' }, { 1, 0 }, split, { '(', '\taa,', ')' }, { 1, 0 })
+  validate_edit({ '(aa, b,)' }, { 1, 0 }, split, { '(', '\taa,', '\tb,', ')' }, { 1, 0 })
 end
 
 T['gen_hook']['add_trailing_separator()']['does not act in case of no arguments'] = function()
   child.lua('MiniSplitjoin.config.split.hooks_post = { MiniSplitjoin.gen_hook.add_trailing_separator() }')
-  validate_edit({ '()' }, { 1, 0 }, { '(', ')' }, { 1, 0 }, split)
+  validate_edit({ '()' }, { 1, 0 }, split, { '(', ')' }, { 1, 0 })
 end
 
 T['gen_hook']['add_trailing_separator()']['respects `opts.sep`'] = function()
   child.lua([[MiniSplitjoin.config.split.hooks_post = {
     MiniSplitjoin.gen_hook.add_trailing_separator({ sep = '!'}),
   }]])
-  validate_edit({ '(aa)' }, { 1, 0 }, { '(', '\taa!', ')' }, { 1, 0 }, split)
+  validate_edit({ '(aa)' }, { 1, 0 }, split, { '(', '\taa!', ')' }, { 1, 0 })
 end
 
 T['gen_hook']['add_trailing_separator()']['respects `opts.brackets`'] = function()
   child.lua([[MiniSplitjoin.config.split.hooks_post = {
     MiniSplitjoin.gen_hook.add_trailing_separator({ brackets = { '%b{}' }}),
   }]])
-  validate_edit({ '(aa)' }, { 1, 0 }, { '(', '\taa', ')' }, { 1, 0 }, split)
-  validate_edit({ '[aa]' }, { 1, 0 }, { '[', '\taa', ']' }, { 1, 0 }, split)
-  validate_edit({ '{aa}' }, { 1, 0 }, { '{', '\taa,', '}' }, { 1, 0 }, split)
+  validate_edit({ '(aa)' }, { 1, 0 }, split, { '(', '\taa', ')' }, { 1, 0 })
+  validate_edit({ '[aa]' }, { 1, 0 }, split, { '[', '\taa', ']' }, { 1, 0 })
+  validate_edit({ '{aa}' }, { 1, 0 }, split, { '{', '\taa,', '}' }, { 1, 0 })
 end
 
 T['gen_hook']['del_trailing_separator()'] = new_set()
 
 T['gen_hook']['del_trailing_separator()']['works'] = function()
   child.lua('MiniSplitjoin.config.join.hooks_post = { MiniSplitjoin.gen_hook.del_trailing_separator() }')
-  validate_edit({ '(', '\taa,', ')' }, { 1, 0 }, { '(aa)' }, { 1, 0 }, join)
-  validate_edit({ '[', '\taa,', ']' }, { 1, 0 }, { '[aa]' }, { 1, 0 }, join)
-  validate_edit({ '{', '\taa,', '}' }, { 1, 0 }, { '{aa}' }, { 1, 0 }, join)
+  validate_edit({ '(', '\taa,', ')' }, { 1, 0 }, join, { '(aa)' }, { 1, 0 })
+  validate_edit({ '[', '\taa,', ']' }, { 1, 0 }, join, { '[aa]' }, { 1, 0 })
+  validate_edit({ '{', '\taa,', '}' }, { 1, 0 }, join, { '{aa}' }, { 1, 0 })
 
-  validate_edit({ '(', '\taa,', '\tb,', ')' }, { 1, 0 }, { '(aa, b)' }, { 1, 0 }, join)
+  validate_edit({ '(', '\taa,', '\tb,', ')' }, { 1, 0 }, join, { '(aa, b)' }, { 1, 0 })
 
   -- Should return correctly updated input
   set_lines({ '(', '\taa,', ')' })
@@ -766,24 +741,24 @@ end
 
 T['gen_hook']['del_trailing_separator()']['does nothing if there is already no trailing separator'] = function()
   child.lua('MiniSplitjoin.config.join.hooks_post = { MiniSplitjoin.gen_hook.del_trailing_separator() }')
-  validate_edit({ '(', '\taa', ')' }, { 1, 0 }, { '(aa)' }, { 1, 0 }, join)
-  validate_edit({ '(', '\taa,', '\tb', ')' }, { 1, 0 }, { '(aa, b)' }, { 1, 0 }, join)
+  validate_edit({ '(', '\taa', ')' }, { 1, 0 }, join, { '(aa)' }, { 1, 0 })
+  validate_edit({ '(', '\taa,', '\tb', ')' }, { 1, 0 }, join, { '(aa, b)' }, { 1, 0 })
 end
 
 T['gen_hook']['del_trailing_separator()']['respects `opts.sep`'] = function()
   child.lua([[MiniSplitjoin.config.join.hooks_post = {
     MiniSplitjoin.gen_hook.del_trailing_separator({ sep = '!'}),
   }]])
-  validate_edit({ '(', '\taa!', ')' }, { 1, 0 }, { '(aa)' }, { 1, 0 }, join)
+  validate_edit({ '(', '\taa!', ')' }, { 1, 0 }, join, { '(aa)' }, { 1, 0 })
 end
 
 T['gen_hook']['del_trailing_separator()']['respects `opts.brackets`'] = function()
   child.lua([[MiniSplitjoin.config.join.hooks_post = {
     MiniSplitjoin.gen_hook.del_trailing_separator({ brackets = { '%b{}' }}),
   }]])
-  validate_edit({ '(', '\taa,', ')' }, { 1, 0 }, { '(aa,)' }, { 1, 0 }, join)
-  validate_edit({ '[', '\taa,', ']' }, { 1, 0 }, { '[aa,]' }, { 1, 0 }, join)
-  validate_edit({ '{', '\taa,', '}' }, { 1, 0 }, { '{aa}' }, { 1, 0 }, join)
+  validate_edit({ '(', '\taa,', ')' }, { 1, 0 }, join, { '(aa,)' }, { 1, 0 })
+  validate_edit({ '[', '\taa,', ']' }, { 1, 0 }, join, { '[aa,]' }, { 1, 0 })
+  validate_edit({ '{', '\taa,', '}' }, { 1, 0 }, join, { '{aa}' }, { 1, 0 })
 end
 
 T['split_at()'] = new_set()
@@ -793,36 +768,28 @@ local split_at = function(positions)
 end
 
 T['split_at()']['works'] = function()
-  validate_edit({ '(aaa)' }, { 1, 2 }, { '(', '\taaa', ')' }, { 2, 2 }, split_at, { { 1, 1 }, { 1, 4 } })
+  local f = function() split_at({ { 1, 1 }, { 1, 4 } }) end
+  validate_edit({ '(aaa)' }, { 1, 2 }, f, { '(', '\taaa', ')' }, { 2, 2 })
 
-  validate_edit({ '()' }, { 1, 1 }, { '(', '', ')' }, { 3, 0 }, split_at, { { 1, 1 }, { 1, 1 } })
+  f = function() split_at({ { 1, 1 }, { 1, 1 } }) end
+  validate_edit({ '()' }, { 1, 1 }, f, { '(', '', ')' }, { 3, 0 })
 
-  validate_edit(
-    { '(aaa, bb, c)' },
-    { 1, 7 },
-    { '(', '\taaa,', '\tbb,', '\tc', ')' },
-    { 3, 2 },
-    split_at,
-    { { 1, 1 }, { 1, 5 }, { 1, 9 }, { 1, 11 } }
-  )
+  f = function() split_at({ { 1, 1 }, { 1, 5 }, { 1, 9 }, { 1, 11 } }) end
+  validate_edit({ '(aaa, bb, c)' }, { 1, 7 }, f, { '(', '\taaa,', '\tbb,', '\tc', ')' }, { 3, 2 })
 
-  validate_edit({ '(aaa)' }, { 1, 2 }, { '(aaa)' }, { 1, 2 }, split_at, {})
+  f = function() split_at({}) end
+  validate_edit({ '(aaa)' }, { 1, 2 }, f, { '(aaa)' }, { 1, 2 })
 end
 
 T['split_at()']['works not on single line'] = function()
-  validate_edit(
-    { 'aabb', 'ccdd' },
-    { 1, 3 },
-    { 'aa', '\tbb', '\tcc', 'dd' },
-    { 2, 2 },
-    split_at,
-    { { 1, 2 }, { 2, 2 } }
-  )
+  local f = function() split_at({ { 1, 2 }, { 2, 2 } }) end
+  validate_edit({ 'aabb', 'ccdd' }, { 1, 3 }, f, { 'aa', '\tbb', '\tcc', 'dd' }, { 2, 2 })
 end
 
 T['split_at()']['properly tracks cursor'] = function()
-  validate_edit({ '()' }, { 1, 0 }, { '(', ')' }, { 1, 0 }, split_at, { { 1, 1 } })
-  validate_edit({ '()' }, { 1, 1 }, { '(', ')' }, { 2, 0 }, split_at, { { 1, 1 } })
+  local f = function() split_at({ { 1, 1 } }) end
+  validate_edit({ '()' }, { 1, 0 }, f, { '(', ')' }, { 1, 0 })
+  validate_edit({ '()' }, { 1, 1 }, f, { '(', ')' }, { 2, 0 })
 
   local cursors = {
     { before = { 1, 0 }, after = { 1, 0 } },
@@ -835,45 +802,30 @@ T['split_at()']['properly tracks cursor'] = function()
     { before = { 1, 7 }, after = { 3, 0 } },
     { before = { 1, 8 }, after = { 3, 1 } },
   }
+  f = function() split_at({ { 1, 2 }, { 1, 7 } }) end
   for _, cursor in ipairs(cursors) do
-    validate_edit(
-      { 'b( aaa )b' },
-      cursor.before,
-      { 'b(', '\taaa', ')b' },
-      cursor.after,
-      split_at,
-      { { 1, 2 }, { 1, 7 } }
-    )
+    validate_edit({ 'b( aaa )b' }, cursor.before, f, { 'b(', '\taaa', ')b' }, cursor.after)
   end
 end
 
 T['split_at()']['copies indent of current line'] = function()
-  validate_edit(
-    { ' \t (aaa)' },
-    { 1, 5 },
-    { ' \t (', ' \t \taaa', ' \t )' },
-    { 2, 5 },
-    split_at,
-    { { 1, 4 }, { 1, 7 } }
-  )
+  local f = function() split_at({ { 1, 4 }, { 1, 7 } }) end
+  validate_edit({ ' \t (aaa)' }, { 1, 5 }, f, { ' \t (', ' \t \taaa', ' \t )' }, { 2, 5 })
 end
 
 T['split_at()']['does not increase indent of blank lines'] = function()
-  validate_edit(
-    { '(', 'a,b)' },
-    { 2, 3 },
-    { '(', '', '\ta,', '\tb', ')' },
-    { 5, 0 },
-    split_at,
-    { { 1, 1 }, { 2, 2 }, { 2, 3 } }
-  )
+  local f = function() split_at({ { 1, 1 }, { 2, 2 }, { 2, 3 } }) end
+  validate_edit({ '(', 'a,b)' }, { 2, 3 }, f, { '(', '', '\ta,', '\tb', ')' }, { 5, 0 })
 
-  validate_edit({ '  (', ')' }, { 2, 0 }, { '  (', '  ', ')' }, { 3, 0 }, split_at, { { 1, 3 } })
+  f = function() split_at({ { 1, 3 } }) end
+  validate_edit({ '  (', ')' }, { 2, 0 }, f, { '  (', '  ', ')' }, { 3, 0 })
 end
 
 T['split_at()']['handles extra whitespace'] = function()
-  validate_edit({ '(   aaa   )' }, { 1, 5 }, { '(', '\taaa', ')' }, { 2, 2 }, split_at, { { 1, 1 }, { 1, 7 } })
-  validate_edit({ '(   aaa   )' }, { 1, 5 }, { '(', '\taaa', ')' }, { 2, 2 }, split_at, { { 1, 3 }, { 1, 9 } })
+  local f = function() split_at({ { 1, 1 }, { 1, 7 } }) end
+  validate_edit({ '(   aaa   )' }, { 1, 5 }, f, { '(', '\taaa', ')' }, { 2, 2 })
+  f = function() split_at({ { 1, 3 }, { 1, 9 } }) end
+  validate_edit({ '(   aaa   )' }, { 1, 5 }, f, { '(', '\taaa', ')' }, { 2, 2 })
 end
 
 T['split_at()']['correctly tracks input positions'] = function()
@@ -885,56 +837,50 @@ end
 
 --stylua: ignore
 T['split_at()']['works inside comments'] = function()
+  local validate = function(lines_before, cursor_before, split_at_opts, lines_after, cursor_after)
+    local f = function() split_at(split_at_opts) end
+    validate_edit(lines_before, cursor_before, f, lines_after, cursor_after)
+  end
+
   -- After 'commentstring'
   child.bo.commentstring = '# %s'
-  validate_edit({ '# (aaa)' }, { 1, 2 }, { '# (', '# \taaa', '# )' }, { 1, 2 }, split_at, { { 1, 3 }, { 1, 6 } })
+  validate({ '# (aaa)' }, { 1, 2 }, { { 1, 3 }, { 1, 6 } }, { '# (', '# \taaa', '# )' }, { 1, 2 })
 
   -- After any entry in 'comments'
   child.bo.comments = ':---,:--'
-  validate_edit({ '-- (aaa)' },  { 1, 3 }, { '-- (',  '-- \taaa',  '-- )' },  { 1, 3 }, split_at, { { 1, 4 }, { 1, 7 } })
-  validate_edit({ '--- (aaa)' }, { 1, 4 }, { '--- (', '--- \taaa', '--- )' }, { 1, 4 }, split_at, { { 1, 5 }, { 1, 8 } })
+  validate({ '-- (aaa)' },  { 1, 3 }, { { 1, 4 }, { 1, 7 } }, { '-- (',  '-- \taaa',  '-- )' },  { 1, 3 })
+  validate({ '--- (aaa)' }, { 1, 4 }, { { 1, 5 }, { 1, 8 } }, { '--- (', '--- \taaa', '--- )' }, { 1, 4 })
 
   -- Respects `b` flag
   child.bo.comments = 'b:*'
-  validate_edit({ '*(aaa)' }, { 1, 1 }, { '*(', '\taaa', ')' }, { 1, 1 }, split_at, { { 1, 2 }, { 1, 5 } })
-  validate_edit({ '* (aaa)' }, { 1, 2 }, { '* (', '* \taaa', '* )' }, { 1, 2 }, split_at, { { 1, 3 }, { 1, 6 } })
-  validate_edit({ '*\t(aaa)' }, { 1, 2 }, { '*\t(', '*\t\taaa', '*\t)' }, { 1, 2 }, split_at, { { 1, 3 }, { 1, 6 } })
+  validate({ '*(aaa)' }, { 1, 1 }, { { 1, 2 }, { 1, 5 } }, { '*(', '\taaa', ')' }, { 1, 1 })
+  validate({ '* (aaa)' }, { 1, 2 }, { { 1, 3 }, { 1, 6 } }, { '* (', '* \taaa', '* )' }, { 1, 2 })
+  validate({ '*\t(aaa)' }, { 1, 2 }, { { 1, 3 }, { 1, 6 } }, { '*\t(', '*\t\taaa', '*\t)' }, { 1, 2 })
 
   -- Respects `f` flag (ignores as comment leader)
   child.bo.comments = 'f:-'
-  validate_edit({ '-(aaa)' }, { 1, 1 }, { '-(', '\taaa', ')' }, { 1, 1 }, split_at, { { 1, 2 }, { 1, 5 } })
-  validate_edit({ '- (aaa)' }, { 1, 2 }, { '- (', '\taaa', ')' }, { 1, 2 }, split_at, { { 1, 3 }, { 1, 6 } })
-  validate_edit({ '-\t(aaa)' }, { 1, 2 }, { '-\t(', '\taaa', ')' }, { 1, 2 }, split_at, { { 1, 3 }, { 1, 6 } })
+  validate({ '-(aaa)' }, { 1, 1 }, { { 1, 2 }, { 1, 5 } }, { '-(', '\taaa', ')' }, { 1, 1 })
+  validate({ '- (aaa)' }, { 1, 2 }, { { 1, 3 }, { 1, 6 } }, { '- (', '\taaa', ')' }, { 1, 2 })
+  validate({ '-\t(aaa)' }, { 1, 2 }, { { 1, 3 }, { 1, 6 } }, { '-\t(', '\taaa', ')' }, { 1, 2 })
 end
 
 T['split_at()']['correctly increases indent of commented line in non-commented block'] = function()
   child.bo.commentstring = '# %s'
 
-  validate_edit(
-    { '(aa', '# b', 'c)' },
-    { 1, 0 },
-    { '(', '\taa', '\t# b', '\tc', ')' },
-    { 1, 0 },
-    split_at,
-    { { 1, 1 }, { 3, 1 } }
-  )
+  local f = function() split_at({ { 1, 1 }, { 3, 1 } }) end
+  validate_edit({ '(aa', '# b', 'c)' }, { 1, 0 }, f, { '(', '\taa', '\t# b', '\tc', ')' }, { 1, 0 })
 end
 
 T['split_at()']['uses first and last positions to determine indent range'] = function()
-  validate_edit(
-    { '(a, b, c)' },
-    { 1, 0 },
-    { '(', 'a,', 'b,', '\tc', ')' },
-    { 1, 0 },
-    split_at,
-    { { 1, 6 }, { 1, 3 }, { 1, 1 }, { 1, 8 } }
-  )
+  local f = function() split_at({ { 1, 6 }, { 1, 3 }, { 1, 1 }, { 1, 8 } }) end
+  validate_edit({ '(a, b, c)' }, { 1, 0 }, f, { '(', 'a,', 'b,', '\tc', ')' }, { 1, 0 })
 end
 
 T['split_at()']["respects 'expandtab' and 'shiftwidth' for indent increase"] = function()
   child.o.expandtab = true
   child.o.shiftwidth = 3
-  validate_edit({ '(aaa)' }, { 1, 0 }, { '(', '   aaa', ')' }, { 1, 0 }, split_at, { { 1, 1 }, { 1, 4 } })
+  local f = function() split_at({ { 1, 1 }, { 1, 4 } }) end
+  validate_edit({ '(aaa)' }, { 1, 0 }, f, { '(', '   aaa', ')' }, { 1, 0 })
 end
 
 T['join_at()'] = new_set()
@@ -944,31 +890,29 @@ local join_at = function(positions)
 end
 
 T['join_at()']['works'] = function()
-  validate_edit(
-    { '(', '\taaa,', '   bb,', 'c', ')' },
-    { 2, 2 },
-    { '(aaa, bb, c)' },
-    { 1, 2 },
-    join_at,
-    { { 1, 1 }, { 2, 4 }, { 3, 3 }, { 4, 1 } }
-  )
+  local f = function() join_at({ { 1, 1 }, { 2, 4 }, { 3, 3 }, { 4, 1 } }) end
+  validate_edit({ '(', '\taaa,', '   bb,', 'c', ')' }, { 2, 2 }, f, { '(aaa, bb, c)' }, { 1, 2 })
 
-  validate_edit({ '(', 'aaa', ')' }, { 2, 2 }, { '(', 'aaa', ')' }, { 2, 2 }, join_at, {})
+  f = function() join_at({}) end
+  validate_edit({ '(', 'aaa', ')' }, { 2, 2 }, f, { '(', 'aaa', ')' }, { 2, 2 })
 end
 
 T['join_at()']['works on single line'] = function()
-  validate_edit({ '(', '\ta', '\tb', ')' }, { 1, 0 }, { '(a b)' }, { 1, 0 }, join_at, { { 1, 1 }, { 1, 1 }, { 1, 1 } })
+  local f = function() join_at({ { 1, 1 }, { 1, 1 }, { 1, 1 } }) end
+  validate_edit({ '(', '\ta', '\tb', ')' }, { 1, 0 }, f, { '(a b)' }, { 1, 0 })
 end
 
 T['join_at()']['joins line at any its column'] = function()
   for i = 1, 4 do
-    validate_edit({ '   (', '\taaa', ')' }, { 2, 2 }, { '   (aaa)' }, { 1, 5 }, join_at, { { 1, i }, { 2, i } })
+    local f = function() join_at({ { 1, i }, { 2, i } }) end
+    validate_edit({ '   (', '\taaa', ')' }, { 2, 2 }, f, { '   (aaa)' }, { 1, 5 })
   end
 end
 
 T['join_at()']['properly tracks cursor'] = function()
-  validate_edit({ '(', ')' }, { 1, 0 }, { '()' }, { 1, 0 }, join_at, { { 1, 1 } })
-  validate_edit({ '(', ')' }, { 2, 0 }, { '()' }, { 1, 1 }, join_at, { { 1, 1 } })
+  local f = function() join_at({ { 1, 1 } }) end
+  validate_edit({ '(', ')' }, { 1, 0 }, f, { '()' }, { 1, 0 })
+  validate_edit({ '(', ')' }, { 2, 0 }, f, { '()' }, { 1, 1 })
 
   local cursors = {
     { before = { 1, 0 }, after = { 1, 0 } },
@@ -981,31 +925,20 @@ T['join_at()']['properly tracks cursor'] = function()
     { before = { 3, 0 }, after = { 1, 5 } },
     { before = { 3, 1 }, after = { 1, 6 } },
   }
+  f = function() join_at({ { 1, 2 }, { 2, 4 } }) end
   for _, cursor in ipairs(cursors) do
-    validate_edit({ 'b(', '\taaa ', ')b' }, cursor.before, { 'b(aaa)b' }, cursor.after, join_at, { { 1, 2 }, { 2, 4 } })
+    validate_edit({ 'b(', '\taaa ', ')b' }, cursor.before, f, { 'b(aaa)b' }, cursor.after)
   end
 end
 
 T['join_at()']['handles extra whitespace'] = function()
-  validate_edit(
-    { '( \t', '\t\ta  ', '  b\t\t', ' \t  )' },
-    { 1, 0 },
-    { '(a b)' },
-    { 1, 0 },
-    join_at,
-    { { 1, 1 }, { 2, 1 }, { 3, 1 } }
-  )
+  local f = function() join_at({ { 1, 1 }, { 2, 1 }, { 3, 1 } }) end
+  validate_edit({ '( \t', '\t\ta  ', '  b\t\t', ' \t  )' }, { 1, 0 }, f, { '(a b)' }, { 1, 0 })
 end
 
 T['join_at()']['correctly works with positions on last line'] = function()
-  validate_edit(
-    { '(', 'a', ')b' },
-    { 1, 0 },
-    { '(a )b' },
-    { 1, 0 },
-    join_at,
-    { { 1, 1 }, { 2, 1 }, { 3, 1 }, { 3, 2 } }
-  )
+  local f = function() join_at({ { 1, 1 }, { 2, 1 }, { 3, 1 }, { 3, 2 } }) end
+  validate_edit({ '(', 'a', ')b' }, { 1, 0 }, f, { '(a )b' }, { 1, 0 })
 end
 
 T['join_at()']['correctly tracks input positions'] = function()
@@ -1017,30 +950,30 @@ end
 
 --stylua: ignore
 T['join_at()']['works inside comments'] = function()
-  local two_lines_pos = { { 1, 1 }, { 2, 1 } }
+  local f = function() join_at({ { 1, 1 }, { 2, 1 } }) end
 
   -- After 'commentstring'
   child.bo.commentstring = '# %s'
-  validate_edit({ '# (', '# \taaa', '# )' }, { 1, 2 }, { '# (aaa)' }, { 1, 2 }, join_at, two_lines_pos)
-  validate_edit({ '# (', 'aaa',     '# )' }, { 1, 2 }, { '# (aaa)' }, { 1, 2 }, join_at, two_lines_pos)
+  validate_edit({ '# (', '# \taaa', '# )' }, { 1, 2 }, f, { '# (aaa)' }, { 1, 2 })
+  validate_edit({ '# (', 'aaa',     '# )' }, { 1, 2 }, f, { '# (aaa)' }, { 1, 2 })
 
   -- After any entry in 'comments'
   child.bo.comments = ':---,:--'
-  validate_edit({ '-- (',  '-- \taaa',  '-- )' },  { 1, 3 }, { '-- (aaa)' },  { 1, 3 }, join_at, two_lines_pos)
-  validate_edit({ '--- (', '--- \taaa', '--- )' }, { 1, 4 }, { '--- (aaa)' }, { 1, 4 }, join_at, two_lines_pos)
+  validate_edit({ '-- (',  '-- \taaa',  '-- )' },  { 1, 3 }, f, { '-- (aaa)' },  { 1, 3 })
+  validate_edit({ '--- (', '--- \taaa', '--- )' }, { 1, 4 }, f, { '--- (aaa)' }, { 1, 4 })
 
   -- Respects `b` flag
   child.bo.comments = 'b:*'
-  validate_edit({ '*(', '\t*aaa', '*)' }, { 1, 1 }, { '*(*aaa*)' }, { 1, 1 }, join_at, two_lines_pos)
-  validate_edit({ '* (', '\t* aaa', '* )' }, { 1, 2 }, { '* (aaa)' }, { 1, 2 }, join_at, two_lines_pos)
-  validate_edit({ '*\t(', '\t*\taaa', '*\t)' }, { 1, 2 }, { '*\t(aaa)' }, { 1, 2 }, join_at, two_lines_pos)
+  validate_edit({ '*(', '\t*aaa', '*)' }, { 1, 1 }, f, { '*(*aaa*)' }, { 1, 1 })
+  validate_edit({ '* (', '\t* aaa', '* )' }, { 1, 2 }, f, { '* (aaa)' }, { 1, 2 })
+  validate_edit({ '*\t(', '\t*\taaa', '*\t)' }, { 1, 2 }, f, { '*\t(aaa)' }, { 1, 2 })
 
   -- Respects `f` flag (ignores as comment leader)
   child.bo.comments = 'f:-'
-  validate_edit({ '(', '-aaa', ')' }, { 1, 0 }, { '(-aaa)' }, { 1, 0 }, join_at, two_lines_pos)
-  validate_edit({ '(', '- aaa', ')' }, { 1, 0 }, { '(- aaa)' }, { 1, 0 }, join_at, two_lines_pos)
-  validate_edit({ '(', '-\taaa', ')' }, { 1, 0 }, { '(-\taaa)' }, { 1, 0 }, join_at, two_lines_pos)
-  validate_edit({ '- (', '- aaa', '- )' }, { 1, 2 }, { '- (- aaa- )' }, { 1, 2 }, join_at, two_lines_pos)
+  validate_edit({ '(', '-aaa', ')' }, { 1, 0 }, f, { '(-aaa)' }, { 1, 0 })
+  validate_edit({ '(', '- aaa', ')' }, { 1, 0 }, f, { '(- aaa)' }, { 1, 0 })
+  validate_edit({ '(', '-\taaa', ')' }, { 1, 0 }, f, { '(-\taaa)' }, { 1, 0 })
+  validate_edit({ '- (', '- aaa', '- )' }, { 1, 2 }, f, { '- (- aaa- )' }, { 1, 2 })
 end
 
 T['get_visual_region()'] = new_set()
@@ -1171,8 +1104,8 @@ T['Mappings'] = new_set()
 T['Mappings']['Toggle'] = new_set()
 
 T['Mappings']['Toggle']['works in Normal mode'] = function()
-  validate_keys({ '(aa, b)' }, { 1, 0 }, { '(', '\taa,', '\tb', ')' }, { 1, 0 }, 'gS')
-  validate_keys({ '(', '\taa,', '\tb', ')' }, { 1, 0 }, { '(aa, b)' }, { 1, 0 }, 'gS')
+  validate_edit({ '(aa, b)' }, { 1, 0 }, 'gS', { '(', '\taa,', '\tb', ')' }, { 1, 0 })
+  validate_edit({ '(', '\taa,', '\tb', ')' }, { 1, 0 }, 'gS', { '(aa, b)' }, { 1, 0 })
 
   -- Should also work with dot-repeat
   set_lines({ '(', '(', 'a', ')', ')' })
@@ -1186,8 +1119,8 @@ T['Mappings']['Toggle']['works in Normal mode'] = function()
 end
 
 T['Mappings']['Toggle']['works in Visual mode'] = function()
-  validate_keys({ '(aa, ")", b)' }, { 1, 0 }, { '(', '\taa,', '\t")",', '\tb', ')' }, { 1, 0 }, 'VgS')
-  validate_keys({ '(aa)', 'bb' }, { 1, 0 }, { '(aa)bb' }, { 1, 0 }, 'VjgS')
+  validate_edit({ '(aa, ")", b)' }, { 1, 0 }, 'VgS', { '(', '\taa,', '\t")",', '\tb', ')' }, { 1, 0 })
+  validate_edit({ '(aa)', 'bb' }, { 1, 0 }, 'VjgS', { '(aa)bb' }, { 1, 0 })
 end
 
 T['Mappings']['Toggle']['works with different mapping'] = function()
@@ -1195,8 +1128,8 @@ T['Mappings']['Toggle']['works with different mapping'] = function()
   child.api.nvim_del_keymap('x', 'gS')
 
   reload_module({ mappings = { toggle = 'gs' } })
-  validate_keys({ '(aa, b)' }, { 1, 0 }, { '(', '\taa,', '\tb', ')' }, { 1, 0 }, 'gs')
-  validate_keys({ '(aa, ")", b)' }, { 1, 0 }, { '(', '\taa,', '\t")",', '\tb', ')' }, { 1, 0 }, 'Vgs')
+  validate_edit({ '(aa, b)' }, { 1, 0 }, 'gs', { '(', '\taa,', '\tb', ')' }, { 1, 0 })
+  validate_edit({ '(aa, ")", b)' }, { 1, 0 }, 'Vgs', { '(', '\taa,', '\t")",', '\tb', ')' }, { 1, 0 })
 end
 
 T['Mappings']['Toggle']['respects `vim.{g,b}.minisplitjoin_disable`'] = new_set({
@@ -1204,7 +1137,7 @@ T['Mappings']['Toggle']['respects `vim.{g,b}.minisplitjoin_disable`'] = new_set(
 }, {
   test = function(var_type)
     child[var_type].minisplitjoin_disable = true
-    validate_keys({ '(aaa)' }, { 1, 0 }, { '(aaa)' }, { 1, 0 }, 'gS')
+    validate_edit({ '(aaa)' }, { 1, 0 }, 'gS', { '(aaa)' }, { 1, 0 })
   end,
 })
 
@@ -1213,7 +1146,7 @@ T['Mappings']['Split'] = new_set()
 T['Mappings']['Split']['works in Normal mode'] = function()
   reload_module({ mappings = { split = 'S' } })
 
-  validate_keys({ '(aa, b)' }, { 1, 0 }, { '(', '\taa,', '\tb', ')' }, { 1, 0 }, 'S')
+  validate_edit({ '(aa, b)' }, { 1, 0 }, 'S', { '(', '\taa,', '\tb', ')' }, { 1, 0 })
 
   -- Should also work with dot-repeat
   set_lines({ '((a))' })
@@ -1228,7 +1161,7 @@ end
 
 T['Mappings']['Split']['works in Visual mode'] = function()
   reload_module({ mappings = { split = 'S' } })
-  validate_keys({ '(aa, ")", b)' }, { 1, 0 }, { '(', '\taa,', '\t")",', '\tb', ')' }, { 1, 0 }, 'VS')
+  validate_edit({ '(aa, ")", b)' }, { 1, 0 }, 'VS', { '(', '\taa,', '\t")",', '\tb', ')' }, { 1, 0 })
 end
 
 T['Mappings']['Split']['respects `vim.{g,b}.minisplitjoin_disable`'] = new_set({
@@ -1237,7 +1170,7 @@ T['Mappings']['Split']['respects `vim.{g,b}.minisplitjoin_disable`'] = new_set({
   test = function(var_type)
     reload_module({ mappings = { split = 'S' } })
     child[var_type].minisplitjoin_disable = true
-    validate_keys({ '(aaa)' }, { 1, 0 }, { '(aaa)' }, { 1, 0 }, 'S')
+    validate_edit({ '(aaa)' }, { 1, 0 }, 'S', { '(aaa)' }, { 1, 0 })
   end,
 })
 
@@ -1246,7 +1179,7 @@ T['Mappings']['Join'] = new_set()
 T['Mappings']['Join']['works in Normal mode'] = function()
   reload_module({ mappings = { join = 'J' } })
 
-  validate_keys({ '(', '\taa,', '\tb', ')' }, { 1, 0 }, { '(aa, b)' }, { 1, 0 }, 'J')
+  validate_edit({ '(', '\taa,', '\tb', ')' }, { 1, 0 }, 'J', { '(aa, b)' }, { 1, 0 })
 
   -- Should also work with dot-repeat
   set_lines({ '(', '(', 'a', ')', ')' })
@@ -1261,7 +1194,7 @@ end
 
 T['Mappings']['Join']['works in Visual mode'] = function()
   reload_module({ mappings = { join = 'J' } })
-  validate_keys({ '(aa)', 'bb' }, { 1, 0 }, { '(aa)bb' }, { 1, 0 }, 'VjJ')
+  validate_edit({ '(aa)', 'bb' }, { 1, 0 }, 'VjJ', { '(aa)bb' }, { 1, 0 })
 end
 
 T['Mappings']['Join']['respects `vim.{g,b}.minisplitjoin_disable`'] = new_set({
@@ -1270,7 +1203,7 @@ T['Mappings']['Join']['respects `vim.{g,b}.minisplitjoin_disable`'] = new_set({
   test = function(var_type)
     reload_module({ mappings = { join = 'J' } })
     child[var_type].minisplitjoin_disable = true
-    validate_keys({ '(', 'aaa', ')' }, { 1, 0 }, { '(', 'aaa', ')' }, { 1, 0 }, 'J')
+    validate_edit({ '(', 'aaa', ')' }, { 1, 0 }, 'J', { '(', 'aaa', ')' }, { 1, 0 })
   end,
 })
 

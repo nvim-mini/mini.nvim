@@ -19,6 +19,7 @@ local get_lines = function(...) return child.get_lines(...) end
 local make_path = function(...) return table.concat({ ... }, path_sep):gsub(path_sep .. path_sep, path_sep) end
 local make_testpath = function(...) return make_path(dir_bracketed_path, ...) end
 local type_keys = function(...) return child.type_keys(...) end
+local validate_edit = function(...) return child.validate_edit(...) end
 
 local edit_test_file = function(rel_path) child.cmd('edit ' .. make_testpath(rel_path)) end
 local get_bufname = function(buf_id) return child.api.nvim_buf_get_name(buf_id or 0) end
@@ -117,18 +118,6 @@ local validate_wrap = function(validate, n_items)
 end
 
 -- More general validators
-local validate_edit = function(lines_before, cursor_before, keys, lines_after, cursor_after)
-  child.ensure_normal_mode()
-  set_lines(lines_before)
-  set_cursor(cursor_before[1], cursor_before[2])
-
-  type_keys(keys)
-
-  eq(get_lines(), lines_after)
-  eq(get_cursor(), cursor_after)
-  child.ensure_normal_mode()
-end
-
 local validate_move = function(cursor_before, keys, cursor_after)
   child.ensure_normal_mode()
   set_cursor(cursor_before[1], cursor_before[2])
