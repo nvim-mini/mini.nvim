@@ -45,11 +45,12 @@ local new_uri_scratch_buf = function()
 end
 
 -- Common test helpers
-local validate_buf_name = function(buf_id, name)
+local validate_buf_name = function(buf_id, ref_name)
   buf_id = buf_id or child.api.nvim_get_current_buf()
-  name = name ~= '' and full_path(name) or ''
-  name = name:gsub('/+$', '')
-  eq(child.api.nvim_buf_get_name(buf_id):gsub('\\', '/'), name)
+  local name = child.api.nvim_buf_get_name(buf_id):gsub('\\', '/'):gsub('/+$', '')
+  ref_name = ref_name ~= '' and full_path(ref_name) or ''
+  ref_name = ref_name:gsub('\\', '/'):gsub('/+$', '')
+  eq(name, ref_name)
 end
 
 local validate_partial_equal = function(test_tbl, ref_tbl)

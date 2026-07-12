@@ -67,9 +67,9 @@ end
 
 local validate_buf_name = function(buf_id, ref_name)
   buf_id = buf_id or child.api.nvim_get_current_buf()
-  local name = child.api.nvim_buf_get_name(buf_id):gsub('\\', '/')
+  local name = child.api.nvim_buf_get_name(buf_id):gsub('\\', '/'):gsub('/+$', '')
   ref_name = ref_name ~= '' and full_path(ref_name) or ''
-  ref_name = ref_name:gsub('\\', '/'):gsub('[\\/]+$', '')
+  ref_name = ref_name:gsub('\\', '/'):gsub('/+$', '')
   eq(name, ref_name)
 end
 

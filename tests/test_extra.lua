@@ -39,10 +39,12 @@ local get_picker_matches = forward_lua('MiniPick.get_picker_matches')
 local is_picker_active = forward_lua('MiniPick.is_picker_active')
 
 -- Common test helpers
-local validate_buf_name = function(buf_id, name)
+local validate_buf_name = function(buf_id, ref_name)
   buf_id = buf_id or child.api.nvim_get_current_buf()
-  name = name ~= '' and full_path(name) or ''
-  eq(child.api.nvim_buf_get_name(buf_id), name)
+  local name = child.api.nvim_buf_get_name(buf_id):gsub('\\', '/'):gsub('/+$', '')
+  ref_name = ref_name ~= '' and full_path(ref_name) or ''
+  ref_name = ref_name:gsub('\\', '/'):gsub('/+$', '')
+  eq(name, ref_name)
 end
 
 local validate_edit = function(lines_before, cursor_before, keys, lines_after, cursor_after)
