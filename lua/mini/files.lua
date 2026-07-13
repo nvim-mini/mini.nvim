@@ -12,7 +12,7 @@
 ---   rename (all three are LSP aware), copy, move.
 ---   See |MiniFiles-manipulation| for an overview.
 ---
---- - Use as default file explorer instead of `netrw`.
+--- - Use as default file explorer instead of built-in one.
 ---
 --- - Configurable:
 ---     - Filter/prefix/sort of file system entries.
@@ -654,7 +654,7 @@ end
 --- # Options ~
 ---
 --- `options.use_as_default_explorer` is a boolean indicating whether this module
---- will be used as a default file explorer to edit directory (instead of `netrw`).
+--- is used as a default file explorer to edit directory (instead of built-in).
 --- Note: to work with directory in |arglist|, do not lazy load this module.
 ---
 --- `options.permanent_delete` is a boolean indicating whether to perform
@@ -1367,13 +1367,19 @@ H.create_autocommands = function(config)
   end
 
   if config.options.use_as_default_explorer then
-    -- Stop 'netrw' from showing. Needs `VimEnter` event autocommand if
-    -- this is called prior 'netrw' is set up
+    -- Stop using default explorer (whether it is already set up or not)
+    -- - Neovim<0.13 uses `netrw` and it is still present on Neovim>=0.13
     vim.cmd('silent! autocmd! FileExplorer *')
     vim.cmd('autocmd VimEnter * ++once silent! autocmd! FileExplorer *')
+    -- - Neovim>=0.13 uses `dir.lua`
+    if vim.fn.has('nvim-0.13') == 1 then
+      vim.cmd('silent! autocmd! nvim.dir *')
+      vim.cmd('autocmd VimEnter * ++once silent! autocmd! nvim.dir *')
+    end
 
     -- - Use `nested` to allow other events (`BufWinEnter` for 'mini.clue')
     local opts = { nested = true, group = gr, callback = H.track_dir_edit, desc = 'Track directory edit' }
+    -- TODO: Use `au FileType directory` after Neovim=0.12 support is dropped
     vim.api.nvim_create_autocmd('BufEnter', opts)
   end
 

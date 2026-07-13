@@ -14,7 +14,7 @@ Features:
   rename (all three are LSP aware), copy, move.
   See |MiniFiles-manipulation| for an overview.
 
-- Use as default file explorer instead of `netrw`.
+- Use as default file explorer instead of built-in one.
 
 - Configurable:
     - Filter/prefix/sort of file system entries.
@@ -692,7 +692,7 @@ Here are some alternatives: >lua
 # Options ~
 
 `options.use_as_default_explorer` is a boolean indicating whether this module
-will be used as a default file explorer to edit directory (instead of `netrw`).
+is used as a default file explorer to edit directory (instead of built-in).
 Note: to work with directory in |arglist|, do not lazy load this module.
 
 `options.permanent_delete` is a boolean indicating whether to perform

@@ -6289,20 +6289,16 @@ T['LSP']['respects `options.lsp_timeout`'] = function()
   eq(child.lua_get('_G.lsp_requests'), {})
 end
 
-T['Default explorer'] = new_set({
-  hooks = {
-    pre_case = function()
-      if child.fn.has('nvim-0.13') == 1 then
-        MiniTest.skip('Default explorer is being reworked on Nightly, so tests are not stable')
-      end
-    end,
-  },
-})
+T['Default explorer'] = new_set()
 
 T['Default explorer']['works on startup'] = function()
   vim.loop.os_setenv('USE_AS_DEFAULT_EXPLORER', 'true')
   child.restart({ '-u', make_test_path('init-default-explorer.lua'), '--', test_dir_path })
   child.expect_screenshot()
+
+  -- Placeholder buffer for directory path should be empty
+  local dir_buf_id = child.fn.bufnr(test_dir_path)
+  eq(child.api.nvim_buf_get_lines(dir_buf_id, 0, -1, false), { '' })
 
   -- Should hide scratch buffer on file open
   type_keys('G')
@@ -6322,6 +6318,8 @@ end
 T['Default explorer']['works in `:edit .`'] = function()
   child.cmd('edit ' .. test_dir_path)
   child.expect_screenshot()
+  local dir_buf_id = child.fn.bufnr(test_dir_path)
+  eq(child.api.nvim_buf_get_lines(dir_buf_id, 0, -1, false), { '' })
 end
 
 T['Default explorer']['works in `:vsplit .`'] = function()

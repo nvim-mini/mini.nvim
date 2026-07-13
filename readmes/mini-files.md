@@ -34,7 +34,7 @@ https://github.com/nvim-mini/mini.nvim/assets/24854248/530483a5-fe9a-4e18-9813-a
 
 - Manipulate files and directories by editing text buffers: create, delete, rename (all three are LSP aware), copy, move. See `:h MiniFiles-manipulation` for an overview.
 
-- Use as default file explorer instead of `netrw`.
+- Use as default file explorer instead of built-in one.
 
 - Configurable:
     - Filter/prefix/sort of file system entries.
