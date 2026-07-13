@@ -26,23 +26,36 @@ fi
 
 # Ensure documentation was generated and is good quality
 GENDOC_FILES=$(echo "$STAGED_FILES" | grep -E "^(doc|lua)/")
-DOC_FILES=$(echo "$STAGED_FILES" | grep -E "^doc/")
 if [ -n "$GENDOC_FILES" ]; then
     printf "Check gendoc:     "
-    make --silent gendoc >/dev/null 2>&1
 
-    # Running `gendoc` should not add new changes to staged "doc/" files
-    # Fail if there are not fully staged files (i.e. with `M ` status)
-    UNSTAGED_DOCS=$(git status --porcelain=v1 -- $DOC_FILES | grep -E '^([ M?][M?])')
-    if [ -n "$UNSTAGED_DOCS" ]; then
+    # Running `gendoc` should not add new changes to any "doc/" files
+    DOCDIFF_BEFORE=$(git diff -- doc/*)
+    make --silent gendoc >/dev/null 2>&1
+    DOCDIFF_AFTER=$(git diff -- doc/*)
+    if [ "$DOCDIFF_BEFORE" != "$DOCDIFF_AFTER" ];  then
         echo "FAIL"
-        echo "  Documentation was not properly generated and/or staged."
-        echo "  Stage generated doc/ changes and re-commit."
+        echo "  Documentation was not properly generated."
+        echo "  Review generated changes, stage relevant ones, re-commit."
         exit 1
+    fi
+
+    # There should not be unstaged doc if its source file has staged changes
+    GEN_FILES=$(echo "$STAGED_FILES" | grep -E '^lua/mini/.+\.lua$')
+    if [ -n "$GEN_FILES" ]; then
+        DOC_TARGET=$(echo "$GEN_FILES" | sed -E 's|^lua/mini/(.+)\.lua$|doc/mini-\1.txt|')
+        DOC_TARGET_UNSTAGED=$(echo "$DOC_TARGET" | xargs git diff --name-only --)
+        if [ -n "$DOC_TARGET_UNSTAGED" ]; then
+            echo "FAIL"
+            echo "  Documentation for not all staged lua/mini/* files was staged."
+            echo "  Stage relevant ones and re-commit."
+            exit 1
+        fi
     fi
     echo "OK"
 fi
 
+DOC_FILES=$(echo "$STAGED_FILES" | grep -E "^doc/")
 if [ -n "$DOC_FILES" ]; then
     printf "Check lintdoc:    "
     make --silent lintdoc || exit 1
