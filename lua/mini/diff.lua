@@ -1157,7 +1157,7 @@ H.update_buf_cache = function(buf_id)
   new_cache.summary = new_cache.summary or {}
   new_cache.viz_lines = new_cache.viz_lines or {}
 
-  new_cache.overlay = false
+  if new_cache.overlay == nil then new_cache.overlay = false end
   new_cache.overlay_lines = new_cache.overlay_lines or {}
 
   H.cache[buf_id] = new_cache

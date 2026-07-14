@@ -577,6 +577,23 @@ T['toggle_overlay()']['works'] = function()
   child.expect_screenshot()
 end
 
+T['toggle_overlay()']['works in hidden buffers'] = function()
+  local buf_id = new_buf()
+  child.api.nvim_buf_set_lines(buf_id, 0, -1, false, { 'AAA', 'uuu', 'BBB' })
+  set_ref_text(buf_id, { 'AAA', 'BBB' })
+  eq(get_buf_data(buf_id).overlay, false)
+  toggle_overlay(buf_id)
+  eq(get_buf_data(buf_id).overlay, true)
+
+  set_buf(buf_id)
+  eq(get_buf_data(0).overlay, true)
+  child.expect_screenshot()
+
+  toggle_overlay(buf_id)
+  eq(get_buf_data(buf_id).overlay, false)
+  child.expect_screenshot()
+end
+
 T['toggle_overlay()']['validates arguments'] = function()
   expect.error(function() toggle_overlay('a') end, '`buf_id`.*valid buffer id')
 
