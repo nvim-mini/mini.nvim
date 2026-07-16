@@ -864,11 +864,9 @@ MiniSurround.find = function()
   -- Make array of unique positions to cycle through
   local pos_array = H.surr_to_pos_array(surr)
 
-  -- Cycle cursor through positions
-  local dir = H.cache.direction or 'right'
-  H.cursor_cycle(pos_array, dir)
-
-  -- Open 'enough folds' to show cursor
+  -- Cycle cursor through positions and open enough folds
+  vim.cmd("normal! m'")
+  H.cursor_cycle(pos_array, H.cache.direction or 'right')
   vim.cmd('normal! zv')
 end
 

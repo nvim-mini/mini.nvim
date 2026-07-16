@@ -1547,6 +1547,21 @@ T['Find surrounding']['opens just enough folds'] = function()
   eq(child.fn.foldclosed(3), 3)
 end
 
+T['Find surrounding']['adds jumplist entry'] = function()
+  set_lines({ '(aa', 'b)' })
+
+  local validate = function(init_pos, keys, ref_pos)
+    set_cursor(unpack(init_pos))
+    type_keys(keys)
+    eq(get_cursor(), ref_pos)
+    type_keys('``')
+    eq(get_cursor(), init_pos)
+  end
+
+  validate({ 1, 1 }, { 'sf', ')' }, { 2, 1 })
+  validate({ 2, 1 }, { 'sF', ')' }, { 1, 0 })
+end
+
 T['Find surrounding']['respects `config.n_lines`'] = function()
   reload_module({ n_lines = 2 })
   local lines = { '(', '', '', 'a', '', '', ')' }
