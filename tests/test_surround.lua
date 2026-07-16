@@ -1527,6 +1527,26 @@ T['Find surrounding']['works in Operator-pending mode'] = function()
   validate_dot('(aa) (bb) (cc)', 11, 'sFl(', 8, '(aacc)')
 end
 
+T['Find surrounding']['opens just enough folds'] = function()
+  set_lines({ '(aa', 'b)', 'c', 'd' })
+
+  -- Manually create two nested closed folds
+  set_cursor(3, 0)
+  type_keys('zf', 'G')
+  type_keys('zf', 'gg')
+  eq(child.fn.foldlevel(1), 1)
+  eq(child.fn.foldlevel(3), 2)
+  eq(child.fn.foldclosed(2), 1)
+  eq(child.fn.foldclosed(3), 1)
+
+  -- Moving cursor should open just enough folds
+  set_cursor(1, 1)
+  type_keys('sf', ')')
+  eq(get_cursor(), { 2, 1 })
+  eq(child.fn.foldclosed(2), -1)
+  eq(child.fn.foldclosed(3), 3)
+end
+
 T['Find surrounding']['respects `config.n_lines`'] = function()
   reload_module({ n_lines = 2 })
   local lines = { '(', '', '', 'a', '', '', ')' }
