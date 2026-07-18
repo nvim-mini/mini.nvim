@@ -1,6 +1,6 @@
 --|---------|---------|---------|---------|---------|---------|---------|---------|
 01|┌OOT/tests/dir-files/real ┐┌ b.txt ──────────────────┐                          
-02|│ a.lua                  ││Line 1                   │                          
+02|│ a.lua                  ││// Preview of a file shou│                          
 03|│ b.txt                  ││Line 2                   │                          
 04|│ c.gif                  ││Line 3                   │                          
 05|│ LICENSE                ││Line 4                   │                          

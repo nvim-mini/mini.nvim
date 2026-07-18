@@ -2577,9 +2577,13 @@ H.window_set_view = function(win_id, view)
   buf_data.win_id = win_id
 
   -- Set cursor (if defined), visible only in directories
-  pcall(H.window_set_cursor, win_id, view.cursor)
+  local ok_cursor = pcall(vim.api.nvim_win_set_cursor, win_id, view.cursor)
+  -- - Tweak cursor here, before `CursorMoved`, event to reduce flicker
+  local is_dir = H.fs_get_type(buf_data.path) == 'directory'
+  if ok_cursor and is_dir then pcall(H.window_tweak_cursor, win_id, buf_id) end
+
   -- NOTE: set 'cursorline[opt]' here because changing buffer might remove it
-  vim.wo[win_id].cursorline = H.fs_get_type(buf_data.path) == 'directory'
+  vim.wo[win_id].cursorline = is_dir
   local culopt = vim.wo[win_id].cursorlineopt
   if culopt:find('line') == nil then vim.wo[win_id].cursorlineopt = culopt .. ',line' end
 
@@ -2589,15 +2593,6 @@ H.window_set_view = function(win_id, view)
 
   -- Update border highlight based on buffer status
   H.window_update_border_hl(win_id)
-end
-
-H.window_set_cursor = function(win_id, cursor)
-  if type(cursor) ~= 'table' then return end
-
-  vim.api.nvim_win_set_cursor(win_id, cursor)
-
-  -- Tweak cursor here and don't rely on `CursorMoved` event to reduce flicker
-  H.window_tweak_cursor(win_id, vim.api.nvim_win_get_buf(win_id))
 end
 
 H.window_tweak_cursor = function(win_id, buf_id)
