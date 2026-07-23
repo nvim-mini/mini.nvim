@@ -598,7 +598,7 @@ H.get_neigh = function(neigh_type)
   local is_command_mode = vim.fn.mode() == 'c'
   -- Get line and add '\r' and '\n' to always return 2 characters
   local line = is_command_mode and vim.fn.getcmdline() or vim.api.nvim_get_current_line()
-  line = '\r' .. line .. '\n'
+  line = '\r' .. line:gsub('%z', ' ') .. '\n'
   -- Get start character index accounting for added '\r' at the start
   --typos: ignore
   local start = is_command_mode and vim.fn.charidx(line, vim.fn.getcmdpos()) or vim.fn.charcol('.')

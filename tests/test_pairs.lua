@@ -692,6 +692,20 @@ T['Open action']['works with multibyte characters'] = function()
   -- Omit testing Terminal mode in the hope that it is the same
 end
 
+T['Open action']['works in special lines'] = function()
+  -- With null character
+  -- - Insert mode
+  set_lines({ '\0null byte' })
+  type_keys('A', '(')
+  eq(get_lines(), { '\0null byte()' })
+  child.ensure_normal_mode()
+
+  -- - Command-line mode
+  child.lua('MiniPairs.map("c", "(", { action = "open", pair = "()" } )')
+  type_keys(':', '<C-v>000', 'null byte', '(')
+  eq(child.fn.getcmdline(), '\nnull byte()')
+end
+
 T['Open action']['does not break undo sequence in Insert mode'] = function()
   type_keys('i', '((', '<Esc>')
   eq(get_lines(), { '(())' })
@@ -788,6 +802,23 @@ T['Close action']['works with multibyte characters'] = function()
   eq(child.fn.getcmdpos(), 1)
 
   -- Omit testing Terminal mode in the hope that it is the same
+end
+
+T['Close action']['works in special lines'] = function()
+  -- With null character
+  -- - Insert mode
+  set_lines({ '\0null byte()' })
+  set_cursor(1, 11)
+  type_keys('i', ')')
+  eq(get_lines(), { '\0null byte()' })
+  eq(get_cursor(), { 1, 12 })
+  child.ensure_normal_mode()
+
+  -- - Command-line mode
+  child.lua('MiniPairs.map("c", ")", { action = "close", pair = "()" } )')
+  type_keys(':', '<C-v>000', 'null byte()<Left>', ')')
+  eq(child.fn.getcmdline(), '\nnull byte()')
+  eq(child.fn.getcmdpos(), 13)
 end
 
 T['Close action']['does not break undo sequence in Insert mode'] = function()
@@ -920,6 +951,28 @@ T['Closeopen action']['works with multibyte characters'] = function()
   -- Omit testing Terminal mode in the hope that it is the same
 end
 
+T['Closeopen action']['works in special lines'] = function()
+  -- With null character
+  -- - Insert mode
+  set_lines({ '\0null byte' })
+  type_keys('A', '"')
+  eq(get_lines(), { '\0null byte""' })
+  eq(get_cursor(), { 1, 11 })
+  type_keys('"')
+  eq(get_lines(), { '\0null byte""' })
+  eq(get_cursor(), { 1, 12 })
+  child.ensure_normal_mode()
+
+  -- - Command-line mode
+  child.lua([[MiniPairs.map('c', '"', { action = 'closeopen', pair = '""' } )]])
+  type_keys(':', '<C-v>000', 'null byte', '"')
+  eq(child.fn.getcmdline(), '\nnull byte""')
+  eq(child.fn.getcmdpos(), 12)
+  type_keys('"')
+  eq(child.fn.getcmdline(), '\nnull byte""')
+  eq(child.fn.getcmdpos(), 13)
+end
+
 T['Closeopen action']['does not break undo sequence in Insert mode'] = function()
   -- Open
   set_lines({})
@@ -1014,6 +1067,23 @@ T['<BS> action']['works'] = function()
   type_keys(':aa()bb', '<Left>', '<Left>', '<Left>')
   type_keys('<BS>')
   child.expect_screenshot()
+end
+
+T['<BS> action']['works in special lines'] = function()
+  -- With null character
+  -- - Insert mode
+  set_lines({ '\0null byte()' })
+  set_cursor(1, 11)
+  type_keys('i', '<BS>')
+  eq(get_lines(), { '\0null byte' })
+  eq(get_cursor(), { 1, 10 })
+  child.ensure_normal_mode()
+
+  -- - Command-line mode
+  reload_module({ modes = { command = true } })
+  type_keys(':', '<C-v>000', 'null byte()<Left>', '<BS>')
+  eq(child.fn.getcmdline(), '\nnull byte')
+  eq(child.fn.getcmdpos(), 11)
 end
 
 T['<BS> action']['respects `key` argument'] = function()
@@ -1127,6 +1197,16 @@ T['<CR> action']['works'] = function()
   -- There should be no side effects
   eq(child.o.eventignore, '')
   eq(child.o.lazyredraw, false)
+end
+
+T['<CR> action']['works in special lines'] = function()
+  -- With null character
+  -- - Insert mode
+  set_lines({ '\0null byte()' })
+  set_cursor(1, 11)
+  type_keys('i', '<CR>')
+  eq(get_lines(), { '\0null byte(', '', ')' })
+  eq(get_cursor(), { 2, 0 })
 end
 
 T['<CR> action']['respects `key` argument'] = function()
