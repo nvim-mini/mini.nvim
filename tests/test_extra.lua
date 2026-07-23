@@ -2035,6 +2035,9 @@ T['pickers']['git_hunks()']['respects `local_opts.n_context`'] = new_set({ param
     mock_git_repo(repo_dir)
     child.fn.chdir(repo_dir)
 
+    -- Ensure consistent preview highlighting on different versions
+    if child.fn.has('nvim-0.13') == 1 then child.lua('vim.treesitter.get_parser = function() return nil end') end
+
     -- Zero context
     local mock_path = join_path('mocks', 'git-diff-unified-' .. n_context)
     local diff_lines = child.fn.readfile(mock_path)
