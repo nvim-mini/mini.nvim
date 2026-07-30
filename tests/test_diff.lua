@@ -772,22 +772,32 @@ T['set_ref_text()']['works'] = function()
   -- Should work with table input (as an array of lines)
   validate({ 'aaa', 'bbb' }, 'aaa\nbbb\n', ref_hunks)
 
-  -- Should work with empty table to remove reference text
-  validate({}, nil, {})
-
   -- Should work with string input
   validate('aaa\n\n', 'aaa\n\n', ref_hunks)
 
   -- Should append newline if not present
   validate('aaa\nccc', 'aaa\nccc\n', ref_hunks)
   validate('aaa\nccc\n', 'aaa\nccc\n', ref_hunks)
+
+  -- Should be able to set empty reference text (whole buffer is "add" hunk)
+  local buf_add_hunk = { { buf_start = 1, buf_count = 1, ref_start = 0, ref_count = 0, type = 'add' } }
+  validate('', '', buf_add_hunk)
+  validate({}, '', buf_add_hunk)
+
+  -- Should be able to set reference text of one single empty line
+  local one_empt_line_hunks = { { buf_start = 1, buf_count = 1, ref_start = 1, ref_count = 1, type = 'change' } }
+  validate('\n', '\n', one_empt_line_hunks)
+  validate({ '' }, '\n', one_empt_line_hunks)
+
+  -- Should remove reference text with `nil` input
+  validate(nil, nil, {})
 end
 
 T['set_ref_text()']['removing reference text removes visualization'] = function()
   set_lines({ 'aaa', 'bbb' })
   set_ref_text(0, { 'aaa' })
   child.expect_screenshot()
-  set_ref_text(0, {})
+  set_ref_text(0, nil)
   child.expect_screenshot()
 end
 
@@ -2690,8 +2700,8 @@ T['Diff']['sets proper summary buffer-local variables'] = function()
   validate_summary_string({ 'AAA', 'uuu', 'BBB', 'ccc', 'DDD' }, { 'AAA', 'BBB', 'CCC', 'DDD' }, '#2 +1 ~1')
 
   -- Should still set if enabled but no ref text
-  validate_summary_string({ 'AAA', 'uuu' }, {}, '')
-  set_ref_text(0, {})
+  validate_summary_string({ 'AAA', 'uuu' }, nil, '')
+  set_ref_text(0, nil)
   eq(child.b.minidiff_summary, { source_name = 'dummy' })
 end
 

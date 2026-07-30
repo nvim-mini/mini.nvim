@@ -20,6 +20,18 @@ There are following change types:
 
 - Set `{}` as `config.custom_textobjects` default (instead of `nil`). This is more consistent with other modules and should not have visible side effects.
 
+## mini.diff
+
+### Refine
+
+- Update the behavior of `set_ref_text()` to be able to set truly empty reference text (to indicate that the whole buffer is a single "add" hunk):
+
+    - Allow `nil` reference text to unset reference text. This was and is the default.
+
+    - Empty string `''` and empty array `{}` set empty reference text. The latter previously unset the reference text, but now it doesn't.
+
+        Use `'\n'` or `{ '' }` to set a single empty line as a reference text.
+
 ## mini.surround
 
 ### Evolve

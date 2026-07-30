@@ -592,22 +592,28 @@ end
 --- already enabled.
 ---
 ---@param buf_id __diff_buf_id
----@param text string|table New reference text. Either a string with `\n` used to
----   separate lines or array of lines. Use empty table to unset current
----   reference text (results into no hunks shown). Default: `{}`.
----   Note: newline character is appended at the end (if it is not there already)
----   for better diffs.
+---@param text string|table|nil New reference text. Default: `nil`. Can be:
+---   - String with `\n` separating lines.
+---   - Array of strings representing lines.
+---   - `nil` to unset current reference text (results in no hunks shown).
+---
+--- Notes:
+---   - Empty string `''` and empty array `{}` set empty reference text (whole
+---     buffer text is a single "add" hunk). Use `'\n'` or `{ '' }` to set a single
+---     empty line as a reference text.
+---   - Newline character is appended (if not already there) at the end of the
+---     non-empty reference text for better diffs.
 MiniDiff.set_ref_text = function(buf_id, text)
   buf_id = H.validate_buf_id(buf_id)
-  if not (type(text) == 'table' or type(text) == 'string') then H.error('`text` should be either string or array.') end
-  if type(text) == 'table' then text = #text > 0 and table.concat(text, '\n') or nil end
+  if type(text) == 'table' then text = table.concat(text, '\n') .. (#text > 0 and '\n' or '') end
+  if not (type(text) == 'string' or text == nil) then H.error('`text` should be either string, array, or nil.') end
 
   -- Enable if not already enabled
   if not H.is_buf_enabled(buf_id) then MiniDiff.enable(buf_id) end
   if not H.is_buf_enabled(buf_id) then H.error('Can not set reference text for not enabled buffer.') end
 
   -- Appending '\n' makes more intuitive diffs at end-of-file
-  if text ~= nil and string.sub(text, -1) ~= '\n' then text = text .. '\n' end
+  if not (text == nil or text == '' or text:sub(-1) == '\n') then text = text .. '\n' end
   if text == nil then
     H.clear_all_diff(buf_id)
     vim.cmd('redraw')
@@ -1750,7 +1756,7 @@ H.git_set_ref_text = vim.schedule_wrap(function(buf_id)
 
   -- NOTE: Do not cache buffer's name to react to its possible rename
   local path = H.get_buf_realpath(buf_id)
-  if path == '' then return buf_set_ref_text({}) end
+  if path == '' then return buf_set_ref_text(nil) end
   local cwd, basename = vim.fn.fnamemodify(path, ':h'), vim.fn.fnamemodify(path, ':t')
 
   -- Set
@@ -1768,7 +1774,7 @@ H.git_set_ref_text = vim.schedule_wrap(function(buf_id)
     --   does not yet have file created).
     -- - 'Relative can not be used outside working tree' (when opening file
     --   inside '.git' directory).
-    if exit_code ~= 0 or stdout_feed[1] == nil then return buf_set_ref_text({}) end
+    if exit_code ~= 0 or stdout_feed[1] == nil then return buf_set_ref_text(nil) end
 
     -- Set reference text accounting for possible 'crlf' end of line in index
     local text = table.concat(stdout_feed, ''):gsub('\r\n', '\n')

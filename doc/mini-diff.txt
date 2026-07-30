@@ -516,11 +516,17 @@ already enabled.
 
 Parameters ~
 {buf_id} `(number)` Target buffer identifier. Default: 0 for current buffer.
-{text} `(string|table)` New reference text. Either a string with `\n` used to
-  separate lines or array of lines. Use empty table to unset current
-  reference text (results into no hunks shown). Default: `{}`.
-  Note: newline character is appended at the end (if it is not there already)
-  for better diffs.
+{text} `(string|table|nil)` New reference text. Default: `nil`. Can be:
+  - String with `\n` separating lines.
+  - Array of strings representing lines.
+  - `nil` to unset current reference text (results in no hunks shown).
+
+Notes:
+  - Empty string `''` and empty array `{}` set empty reference text (whole
+    buffer text is a single "add" hunk). Use `'\n'` or `{ '' }` to set a single
+    empty line as a reference text.
+  - Newline character is appended (if not already there) at the end of the
+    non-empty reference text for better diffs.
 
 ------------------------------------------------------------------------------
                                                            *MiniDiff.gen_source*
