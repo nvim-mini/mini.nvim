@@ -2414,6 +2414,63 @@ T['Overlay']['works when "change" overlaps with "delete"'] = function()
   child.expect_screenshot()
 end
 
+T['Overlay']['highlights parts of hunks immediately'] = function()
+  child.set_size(10, 15)
+  local validate = function(ref_text)
+    set_buf(new_scratch_buf())
+    set_lines({ 'aaa', 'bbb', 'ccc', 'ddd', 'eee' })
+    set_ref_text(0, ref_text)
+    set_cursor(3, 0)
+    type_keys('zt')
+    toggle_overlay(0)
+    child.expect_screenshot()
+  end
+
+  -- Add
+  validate({ 'aaa', 'eee' })
+
+  -- Change with word diff
+  validate({ 'aaa', 'BBB', 'CCC', 'DDD', 'eee' })
+
+  child.lua('MiniDiff.config.options.linematch = 0')
+  validate({ 'aaa', 'BBB', 'CCC', 'DDD', 'eee' })
+
+  -- Change without word diff
+  child.lua('MiniDiff.config.options.linematch = 0')
+  validate({ 'aaa', 'BBB', 'CCC', 'eee' })
+
+  -- NOTE: no test for "Delete" hunk since it has no buffer lines highlighted
+end
+
+T['Overlay']['highlights parts of hunks when scrolling up'] = function()
+  child.set_size(10, 15)
+  local validate = function(ref_text)
+    set_buf(new_scratch_buf())
+    set_lines({ 'aaa', 'bbb', 'ccc', 'ddd', 'eee' })
+    set_ref_text(0, ref_text)
+    set_cursor(5, 0)
+    type_keys('zt')
+    toggle_overlay(0)
+    type_keys('<C-y>')
+    child.expect_screenshot()
+  end
+
+  -- Add
+  validate({ 'aaa', 'eee' })
+
+  -- Change with word diff
+  validate({ 'aaa', 'BBB', 'CCC', 'DDD', 'eee' })
+
+  child.lua('MiniDiff.config.options.linematch = 0')
+  validate({ 'aaa', 'BBB', 'CCC', 'DDD', 'eee' })
+
+  -- Change without word diff
+  child.lua('MiniDiff.config.options.linematch = 0')
+  validate({ 'aaa', 'BBB', 'CCC', 'eee' })
+
+  -- NOTE: no test for "Delete" hunk since it has no buffer lines highlighted
+end
+
 T['Overlay']['uses correct highlight groups'] = function()
   set_lines({ 'AAA', 'uuu', 'BBB', 'CcC', 'DDD', 'FFF' })
   set_ref_text(0, { 'AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF' })
@@ -2465,19 +2522,26 @@ T['Overlay']['uses correct highlight groups in uneven change hunks'] = function(
   set_ref_text(0, { 'aaa', 'bbb', 'ccc', 'ddd' })
   local extmarks = get_overlay_extmarks(0, 1, 5)
 
-  eq(#extmarks, 1)
+  -- Lines are highlighted one by one for granular reveal when scrolling
+  eq(#extmarks, 3)
+
   -- Both changed reference lines should be shown as virtual lines
   local virt_lines = extmarks[1][4].virt_lines
   eq(virt_lines[1][1][2], 'MiniDiffOverChange')
   eq(virt_lines[2][1][2], 'MiniDiffOverChange')
 
   -- All three changed lines should be highlighted as whole lines
-  eq(extmarks[1][2], 1)
-  eq(extmarks[1][3], 0)
-  eq(extmarks[1][4].end_row, 4)
-  eq(extmarks[1][4].end_col, 0)
-  eq(extmarks[1][4].hl_eol, true)
-  eq(extmarks[1][4].hl_group, 'MiniDiffOverContextBuf')
+  local validate_single = function(id)
+    eq(extmarks[id][2], id)
+    eq(extmarks[id][3], 0)
+    eq(extmarks[id][4].end_row, id + 1)
+    eq(extmarks[id][4].end_col, 0)
+    eq(extmarks[id][4].hl_eol, true)
+    eq(extmarks[id][4].hl_group, 'MiniDiffOverContextBuf')
+  end
+  validate_single(1)
+  validate_single(2)
+  validate_single(3)
 end
 
 T['Overlay']['respects `view.priority`'] = function()

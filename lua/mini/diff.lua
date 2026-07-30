@@ -1392,8 +1392,10 @@ H.append_overlay = function(overlay_lines, l_num, data)
 end
 
 H.append_overlay_add = function(overlay_lines, hunk, priority)
-  local data = { type = 'add', to = hunk.buf_start + hunk.buf_count - 1, priority = priority }
-  H.append_overlay(overlay_lines, hunk.buf_start, data)
+  -- Append one by one to have them reveal granularly when scrolling up
+  for lnum = hunk.buf_start, hunk.buf_start + hunk.buf_count - 1 do
+    H.append_overlay(overlay_lines, lnum, { type = 'add', priority = priority })
+  end
 end
 
 H.append_overlay_change = function(overlay_lines, hunk, ref_lines, buf_lines, priority)
@@ -1417,9 +1419,13 @@ H.append_overlay_change = function(overlay_lines, hunk, ref_lines, buf_lines, pr
     local l = { { ref_lines[i] .. H.overlay_suffix, 'MiniDiffOverChange' } }
     table.insert(changed_lines, l)
   end
-  local to = hunk.buf_start + hunk.buf_count - 1
-  local data = { type = 'change', to = to, lines = changed_lines, show_above = true, priority = priority }
+  local data = { type = 'change', lines = changed_lines, show_above = true, priority = priority }
   H.append_overlay(overlay_lines, hunk.buf_start, data)
+
+  -- - Append one by one to have them reveal granularly when scrolling up
+  for lnum = hunk.buf_start + 1, hunk.buf_start + hunk.buf_count - 1 do
+    H.append_overlay(overlay_lines, lnum, { type = 'change', priority = priority })
+  end
 end
 
 H.append_overlay_delete = function(overlay_lines, hunk, ref_lines, priority)
@@ -1440,7 +1446,7 @@ H.draw_overlay_line = function(buf_id, ns_id, row, data)
 
   -- "Add"/"Change" hunks highlight whole lines in affected buffer range
   if data.type ~= 'delete' then
-    opts.end_row, opts.end_col, opts.hl_eol = data.to, 0, true
+    opts.end_row, opts.end_col, opts.hl_eol = row + 1, 0, true
     opts.hl_group = data.type == 'add' and 'MiniDiffOverAdd' or 'MiniDiffOverContextBuf'
   end
 
