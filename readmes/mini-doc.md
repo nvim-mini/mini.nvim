@@ -126,13 +126,9 @@ Stable branch:
 ```lua
 -- No need to copy this inside `setup()`. Will be used automatically.
 {
-  -- Lua string pattern to determine if line has documentation annotation.
-  -- First capture group should describe possible section id. Default value
-  -- means that annotation line should:
-  -- - Start with `---` at first column.
-  -- - Any non-whitespace after `---` will be treated as new section id.
-  -- - Single whitespace at the start of main text will be ignored.
-  annotation_pattern = '^%-%-%-(%S*) ?',
+  -- Function which extracts part of line used to denote annotation.
+  -- For more information see 'Notes' in |MiniDoc.config|.
+  annotation_extractor = function(l) return string.find(l, '^%-%-%-(%S*) ?') end,
 
   -- Identifier of block annotation lines until first captured identifier
   default_section_id = '@text',
@@ -150,9 +146,11 @@ Stable branch:
     sections = {
       ['@alias'] = --<function: registers alias in MiniDoc.current.aliases>,
       ['@class'] = --<function>,
+      ['@diagnostic'] = --<function: ignores any section content>,
       -- For most typical usage see |MiniDoc.afterlines_to_code|
       ['@eval'] = --<function: evaluates lines; replaces with their return>,
       ['@field'] = --<function>,
+      ['@overload'] = --<function>,
       ['@param'] = --<function>,
       ['@private'] = --<function: registers block for removal>,
       ['@return'] = --<function>,
@@ -160,6 +158,8 @@ Stable branch:
       ['@signature'] = --<function: formats signature of documented object>,
       ['@tag'] = --<function: turns its line in proper tag lines>,
       ['@text'] = --<function: purposefully does nothing>,
+      ['@toc'] = --<function: clears all section lines>,
+      ['@toc_entry'] = --<function: registers lines for table of contents>,
       ['@type'] = --<function>,
       ['@usage'] = --<function>,
     },
