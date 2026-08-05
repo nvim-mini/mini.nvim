@@ -1077,7 +1077,7 @@ T['pickers']['commands()']['works'] = function()
 
   child.lua_notify('_G.return_item = MiniExtra.pickers.commands()')
   validate_picker_name('Commands')
-  type_keys("'chdir")
+  type_keys("'hi")
   child.expect_screenshot({ ignore_text = { 9 } })
 
   -- Should have proper preview
@@ -1087,11 +1087,11 @@ T['pickers']['commands()']['works'] = function()
 
   -- Should properly choose
   type_keys('<CR>')
-  eq(child.fn.getcmdline(), 'chdir ')
-  eq(child.fn.getcmdpos(), 7)
+  eq(child.fn.getcmdline(), 'hide ')
+  eq(child.fn.getcmdpos(), 6)
 
   -- Should return chosen value
-  eq(child.lua_get('_G.return_item'), 'chdir')
+  eq(child.lua_get('_G.return_item'), 'hide')
 
   -- Should work without set up 'mini.pick'
   child.mini_unload('pick')
