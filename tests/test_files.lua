@@ -6357,6 +6357,12 @@ T['Default explorer']['is opened only for the current buffer'] = function()
   eq(is_explorer_active(), true)
 end
 
+T['Default explorer']['is not opened during diff-mode'] = function()
+  child.wo.diff = true
+  child.lua("vim.cmd('edit .')")
+  eq(is_explorer_active(), false)
+end
+
 T['Default explorer']['handles close without opening file'] = function()
   child.lua([[
     _G.log = {}
