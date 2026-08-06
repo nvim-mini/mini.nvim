@@ -397,10 +397,10 @@ T['Autocomplete']['works'] = function()
   child.expect_screenshot()
 
   -- Should trigger after the first character
-  expect_screenshot_after_keys('b')
+  expect_screenshot_after_keys('c')
 
   -- Should respect `wildmenu=pum,fuzzy`, which is set by default
-  expect_screenshot_after_keys('f')
+  expect_screenshot_after_keys('m')
 
   -- Should react to text deletion
   expect_screenshot_after_keys('<BS>')
@@ -483,7 +483,7 @@ T['Autocomplete']['does not throw completion related errors'] = function()
 end
 
 T['Autocomplete']['is not triggered when wildmenu is visible'] = function()
-  type_keys(':', 'b')
+  type_keys(':', 'c')
   eq(has_pum(), true)
   expect_screenshot_after_keys('<Tab>')
   type_keys('<Esc>')

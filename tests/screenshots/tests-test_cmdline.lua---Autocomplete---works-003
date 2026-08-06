@@ -3,12 +3,12 @@
 02|~                   
 03|~                   
 04|~                   
-05| bfirst             
-06| sbfirst            
-07| tabfind            
-08| tabfirst           
-09| bufdo              
-10|:bf                 
+05| cmap               
+06| cmenu              
+07| cmapclear          
+08| wincmd             
+09| autocmd            
+10|:cm                 
 
 --|---------|---------|
 01|00000000000000000000
