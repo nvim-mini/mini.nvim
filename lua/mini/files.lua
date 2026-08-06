@@ -1420,7 +1420,7 @@ end
 
 -- Autocommands ---------------------------------------------------------------
 H.track_dir_edit = function(data)
-  -- Make early returns
+  -- Open explorer only on intentional directory edit (not in a script)
   if vim.api.nvim_get_current_buf() ~= data.buf then return end
 
   if vim.b.minifiles_processed_dir then
@@ -1437,12 +1437,17 @@ H.track_dir_edit = function(data)
   local path = vim.api.nvim_buf_get_name(0)
   if vim.fn.isdirectory(path) ~= 1 then return end
 
-  -- Make directory buffer disappear when it is not needed
-  vim.bo.bufhidden = 'wipe'
-  vim.b.minifiles_processed_dir = true
+  -- Delay opening to not act if the buffer was opened temporarily in a script
+  vim.schedule(function()
+    if vim.api.nvim_get_current_buf() ~= data.buf then return end
 
-  -- Open directory without history
-  vim.schedule(function() MiniFiles.open(path, false) end)
+    -- Make directory buffer disappear when it is not needed
+    vim.bo.bufhidden = 'wipe'
+    vim.b.minifiles_processed_dir = true
+
+    -- Open directory without history
+    MiniFiles.open(path, false)
+  end)
 end
 
 -- Explorers ------------------------------------------------------------------

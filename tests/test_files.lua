@@ -6350,6 +6350,13 @@ T['Default explorer']['works in `:tabfind .`'] = function()
   eq(child.cmd('messages'), '')
 end
 
+T['Default explorer']['is opened only for the current buffer'] = function()
+  child.lua("vim.cmd('edit .'); vim.cmd('enew')")
+  eq(is_explorer_active(), false)
+  child.cmd('bprev')
+  eq(is_explorer_active(), true)
+end
+
 T['Default explorer']['handles close without opening file'] = function()
   child.lua([[
     _G.log = {}
