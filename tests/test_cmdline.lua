@@ -296,7 +296,6 @@ T['default_autopeek_statuscolumn()'] = new_set({
       load_module()
 
       child.o.showtabline, child.o.laststatus = 0, 0
-      child.o.ruler = false
     end,
   },
 })

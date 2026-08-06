@@ -183,7 +183,6 @@ local T = new_set({
 
       -- Make more comfortable screenshots
       child.o.laststatus = 0
-      child.o.ruler = false
       child.set_size(15, 40)
     end,
     post_once = child.stop,

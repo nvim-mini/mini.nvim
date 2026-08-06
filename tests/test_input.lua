@@ -190,7 +190,6 @@ local T = new_set({
       child.set_size(10, 20)
       child.o.laststatus = 0
       child.o.showtabline = 0
-      child.o.ruler = false
       child.o.statusline = 'My statusline'
       child.o.tabline = 'My tabline'
       child.o.winminwidth = 1

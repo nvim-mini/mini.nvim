@@ -195,7 +195,6 @@ local T = new_set({
 
       -- Make more comfortable screenshots
       child.o.laststatus = 0
-      child.o.ruler = false
       child.o.showtabline = 0
 
       -- Mock `vim.notify()`

@@ -8,6 +8,8 @@ require('mini.hues').setup({ background = '#11262d', foreground = '#c0c8cc', aut
 vim.g.colors_name = 'minitest-scheme'
 
 -- - Make screenshot tests more robust across Neovim versions
+vim.o.ruler = false
+vim.o.rulerformat = '%='
 vim.o.statusline = '%<%f %l,%c%V'
 
 if vim.fn.has('nvim-0.11') == 1 then
