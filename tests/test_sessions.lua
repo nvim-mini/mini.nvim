@@ -593,10 +593,18 @@ T['write()']['works'] = function()
   child.fn.mkdir(empty_dir_path)
   reload_module({ autowrite = false, directory = empty_dir_path })
 
-  -- Setup buffers
+  -- Setup buffers and autocommands
   child.cmd('e foo | e bar')
   local buf_names_expected = get_buf_names()
-  child.lua([[MiniSessions.write('new_session')]])
+  child.lua('_G.n_pre, _G.n_post = 0, 0')
+  child.cmd('au SessionWritePost * lua _G.n_post = _G.n_post + 1')
+  if child.fn.has('nvim-0.13') == 1 then child.cmd('au SessionWritePre * lua _G.n_pre = _G.n_pre + 1') end
+
+  child.lua('MiniSessions.write("new_session")')
+
+  -- Should trigger session-related events
+  eq(child.lua_get('_G.n_post'), 1)
+  eq(child.lua_get('_G.n_pre'), child.fn.has('nvim-0.13'))
 
   -- Should update `v:this_session`
   local path_expected = make_path(empty_dir_path, 'new_session')
@@ -1213,6 +1221,8 @@ T['Autoreading sessions'] = new_set()
 T['Autoreading sessions']['works'] = function()
   child.restart({ '-u', 'tests/dir-sessions/init-files/autoread.lua' })
   validate_session_loaded('local/Session.vim')
+  local ref_events = vim.fn.has('nvim-0.12') == 1 and { 'SessionLoadPre', 'SessionLoadPost' } or { 'SessionLoadPost' }
+  eq(child.lua_get('_G.event_log'), ref_events)
 end
 
 T['Autoreading sessions']['does not autoread if Neovim started to show something'] = function()
@@ -1253,9 +1263,16 @@ T['Autowriting sessions']['works'] = function()
   eq(child.fn.filereadable(path_local), 1)
 
   child.cmd('e bbb | w')
+  child.cmd('au SessionWritePost * call writefile([""], "SessionWritePost")')
+  if child.fn.has('nvim-0.13') == 1 then child.cmd('au SessionWritePre * call writefile([""], "SessionWritePre")') end
+
   child.restart({ '-u', 'NONE' })
   child.cmd('source ' .. path_local)
   compare_buffer_names(get_buf_names(), { 'aaa', 'bbb' })
+
+  -- should trigger session-related events
+  eq(child.fn.filereadable('SessionWritePost'), 1)
+  eq(child.fn.filereadable('SessionWritePre'), child.fn.has('nvim-0.13'))
 end
 
 return T

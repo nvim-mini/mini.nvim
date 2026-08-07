@@ -499,7 +499,7 @@ H.create_autocommands = function(config)
     local autowrite = function()
       if H.get_this_session() ~= '' then MiniSessions.write(nil, { force = true }) end
     end
-    local opts = { group = gr, callback = autowrite, desc = 'Autowrite current session' }
+    local opts = { group = gr, nested = true, once = true, callback = autowrite, desc = 'Autowrite current session' }
     vim.api.nvim_create_autocmd('VimLeavePre', opts)
   end
 end
