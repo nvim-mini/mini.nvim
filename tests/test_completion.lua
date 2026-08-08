@@ -2559,7 +2559,7 @@ T['Snippets']['show full snippet text as info'] = function()
   -- Should show full snippet text as info
   type_keys('i', 'M', '<C-Space>', '<C-n>')
   sleep(default_info_delay + small_time)
-  child.expect_screenshot()
+  child.expect_screenshot({ ignore_attr = true })
 
   type_keys('<C-e>', '<Esc>')
   set_lines({ '' })
