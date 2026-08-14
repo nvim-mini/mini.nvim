@@ -25,11 +25,25 @@ local data_std_path = xdg_data_home .. (helpers.is_windows() and '/nvim-data' or
 
 local make_testpath = function(...) return join_path(test_dir_absolute, ...) end
 
-local cleanup_index_file = function()
-  -- Clean up possibly written index file as it affects multiple test cases
+local make_temppath = function(name)
+  local temp_dir = make_testpath('temp')
+  vim.fn.mkdir(temp_dir, 'p')
+  MiniTest.finally(function() vim.fn.delete(temp_dir, 'rf') end)
+
+  return join_path(temp_dir, name)
+end
+
+local cleanup = function()
+  -- Remove possibly written index file as it affects multiple test cases
   local default_index_path = data_std_path .. '/mini-visits-index'
   if vim.fn.filereadable(default_index_path) == 0 then return end
   vim.fn.delete(default_index_path)
+
+  -- Remove mocked `data` directory
+  vim.fn.delete(data_std_path, 'rf')
+
+  -- Remove temporary directory
+  vim.fn.delete(make_testpath('temp'), 'rf')
 end
 
 -- Common test wrappers
@@ -125,8 +139,9 @@ local test_track_delay = 2 * small_time
 local T = new_set({
   hooks = {
     pre_case = function()
+      pcall(child.lua, 'MiniVisits.config.autowrite = false')
       child.setup()
-      cleanup_index_file()
+      cleanup()
 
       -- Make `stdpath('data')` point to test directory
       local lua_cmd = string.format([[vim.loop.os_setenv('XDG_DATA_HOME', %s)]], vim.inspect(xdg_data_home))
@@ -140,9 +155,9 @@ local T = new_set({
       child.o.laststatus = 0
     end,
     post_once = function()
+      pcall(child.lua, 'MiniVisits.config.autowrite = false')
       child.stop()
-      cleanup_index_file()
-      vim.fn.delete(data_std_path, 'rf')
+      cleanup()
     end,
   },
   n_retry = helpers.get_n_retry(2),
@@ -1579,8 +1594,7 @@ T['set_index()']['works'] = function()
 end
 
 T['set_index()']['treats set index as whole history and not only current session'] = function()
-  local store_path = make_testpath('tmp-index')
-  MiniTest.finally(vim.schedule_wrap(function() vim.fn.delete(store_path, 'rf') end))
+  local store_path = make_temppath('tmp-index')
   child.fn.writefile({ 'return { aaa = { bbb = { count = 10, latest = 10 } } }' }, store_path)
 
   child.lua('MiniVisits.config.track.delay = 10')
@@ -1703,8 +1717,7 @@ T['read_index()']['works'] = function()
 end
 
 T['read_index()']['respects `store_path` argument'] = function()
-  local store_path = make_testpath('test-index')
-  MiniTest.finally(function() vim.fn.delete(store_path) end)
+  local store_path = make_temppath('test-index')
   child.fn.writefile({ 'return { aaa = { bbb = { count = 10, latest = 10 } } }' }, store_path)
 
   eq(read_index(store_path), { aaa = { bbb = { count = 10, latest = 10 } } })
@@ -1716,8 +1729,7 @@ T['read_index()']['returns `nil` if can not locate file'] = function()
 end
 
 T['read_index()']['throws error if Lua sourcing failed'] = function()
-  local store_path = make_testpath('test-index')
-  MiniTest.finally(function() vim.fn.delete(store_path) end)
+  local store_path = make_temppath('test-index')
   child.fn.writefile({ 'return {' }, store_path)
   expect.error(function() read_index(store_path) end)
 end
@@ -1753,8 +1765,7 @@ end
 
 T['write_index()']['respects arguments'] = function()
   -- Should create non-existing parent directories
-  local store_path = make_testpath('nondir/subdir/test-index')
-  MiniTest.finally(function() vim.fn.delete(store_path) end)
+  local store_path = make_temppath('nondir/subdir/test-index')
   local path, cwd = make_testpath('file'), getcwd()
   local index = { [cwd] = { [path] = { count = 1, latest = child_time() } } }
   write_index(store_path, index)
@@ -2293,8 +2304,7 @@ T['Storing']['respects `config.store.normalize`'] = function()
 end
 
 T['Storing']['respects `config.store.path`'] = function()
-  local store_path = make_testpath('test-index')
-  MiniTest.finally(function() vim.fn.delete(store_path) end)
+  local store_path = make_temppath('test-index')
   child.lua('MiniVisits.config.store.path = ' .. vim.inspect(store_path))
 
   child.stop()
