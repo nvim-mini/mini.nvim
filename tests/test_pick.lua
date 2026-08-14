@@ -2116,22 +2116,25 @@ T['default_choose()']['works for file path'] = function()
 end
 
 T['default_choose()']['works for relative file path'] = function()
-  local lua_cmd =
-    string.format([[MiniPick.start({ source = { items = { 'a.lua' }, cwd = %s } })]], vim.inspect(real_files_dir))
-  child.lua_notify(lua_cmd)
+  local cwd_data = child.cmd_capture('verbose pwd')
+  start({ source = { items = { 'a.lua' }, cwd = real_files_dir } })
   type_keys('<CR>')
+
   validate_buf_name(0, real_file('a.lua'))
+  eq(child.cmd_capture('verbose pwd'), cwd_data)
 
   -- Should open path in relative form for nicer `:buffers`
   expect.match(child.cmd_capture('buffers'):gsub('\\', '/'), '[^/]tests/dir%-pick')
 
   -- Should respect source's cwd (thanks to window-local cwd)
-  child.lua('_G.cwd = ' .. vim.inspect(test_dir_absolute .. '/builtin-tests'))
   child.fn.chdir(test_dir_absolute)
-  child.lua_notify('MiniPick.start({ source = { items = { { path = "file" } }, cwd = _G.cwd } })')
+  cwd_data = child.cmd_capture('verbose pwd')
+
+  start({ source = { items = { { path = 'file' } }, cwd = test_dir_absolute .. '/builtin-tests' } })
   type_keys('<CR>')
+
   validate_buf_name(0, full_path(test_dir_absolute .. '/builtin-tests/file'))
-  eq(child.fn.getcwd(), test_dir_absolute)
+  eq(child.cmd_capture('verbose pwd'), cwd_data)
 end
 
 T['default_choose()']['works for URI path'] = function()
