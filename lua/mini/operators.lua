@@ -1312,13 +1312,16 @@ end
 
 -- A hack to restore previous dot-repeat action
 H.cancel_redo = function() end
-(function()
-  local has_ffi, ffi = pcall(require, 'ffi')
-  if not has_ffi then return end
-  local has_cancel_redo = pcall(ffi.cdef, 'void CancelRedo(void)')
-  if not has_cancel_redo then return end
-  H.cancel_redo = function() pcall(ffi.C.CancelRedo) end
-end)()
+local has_ffi, ffi = pcall(require, 'ffi')
+if has_ffi then
+  local has_fun = function(fun)
+    if not pcall(ffi.cdef, 'void ' .. fun .. '(void)') then return end
+    return (pcall(getmetatable(ffi.C).__index, ffi.C, fun))
+  end
+  -- TODO: simplify after Neovim=0.12 support is dropped
+  local fun_name = has_fun('redo_cancel') and 'redo_cancel' or (has_fun('CancelRedo') and 'CancelRedo' or nil)
+  if fun_name ~= nil then H.cancel_redo = function() pcall(ffi.C[fun_name]) end end
+end
 
 H.cmd_normal = function(command, opts)
   opts = opts or {}
