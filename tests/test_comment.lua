@@ -594,22 +594,22 @@ T['Operator']['works in Visual mode'] = function()
 end
 
 T['Operator']['allows dot-repeat after initial Visual mode'] = function()
-  -- local example_lines = { 'aa', ' aa', '  aa', '', '  aa', ' aa', 'aa' }
-
-  set_lines(example_lines)
+  set_lines({ 'aa', ' aa', '', ' aa', 'aa' })
   set_cursor(2, 2)
   type_keys('vip', 'gc')
-  eq(get_lines(), { '# aa', '#  aa', '#   aa', '', '  aa', ' aa', 'aa' })
+  eq(get_lines(), { '# aa', '#  aa', '', ' aa', 'aa' })
   eq(get_cursor(), { 1, 0 })
 
-  -- Dot-repeat after first application in Visual mode should apply to the same
-  -- relative region
+  -- Dot-repeat behavior after first application in Visual mode depends on
+  -- Neovim version:
+  -- - Neovim<0.13 applies operator to the same relative region at cursor.
+  -- - Neovim>=0.13 re-computes visual region and applies operator to it.
   type_keys('.')
-  eq(get_lines(), example_lines)
+  eq(get_lines(), { 'aa', ' aa', '', ' aa', 'aa' })
 
-  set_cursor(3, 0)
+  set_cursor(4, 0)
   type_keys('.')
-  eq(get_lines(), { 'aa', ' aa', '  # aa', '  #', '  # aa', ' aa', 'aa' })
+  eq(get_lines(), { 'aa', ' aa', '', '#  aa', '# aa' })
 end
 
 T['Operator']['works with different mapping'] = function()

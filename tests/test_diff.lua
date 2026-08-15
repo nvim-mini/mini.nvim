@@ -3046,22 +3046,24 @@ end
 
 T['Textobject']['can work in Visual mode'] = function()
   load_module({ mappings = { textobject = 'GH' } })
-  set_lines({ 'aaa', 'uuu', 'vvv', 'bbb', 'ccc', 'www' })
+  set_lines({ 'aaa', 'uuu', 'vvv', 'bbb', 'www', 'xxx', 'ccc' })
   set_ref_text(0, { 'aaa', 'bbb', 'ccc' })
 
   set_cursor(2, 0)
   type_keys('v', 'GH', 'd')
-  eq(get_lines(), { 'aaa', 'bbb', 'ccc', 'www' })
+  eq(get_lines(), { 'aaa', 'bbb', 'www', 'xxx', 'ccc' })
   eq(get_cursor(), { 2, 0 })
 
-  -- Dot-repeat after first application in Visual mode should apply to the same
-  -- relative region
+  -- Dot-repeat behavior after first application in Visual mode depends on
+  -- Neovim version:
+  -- - Neovim<0.13 applies operator to the same relative region at cursor.
+  -- - Neovim>=0.13 re-computes visual region and applies operator to it.
   set_ref_text(0, { 'aaa', 'bbb', 'ccc' })
 
-  set_cursor(1, 0)
+  set_cursor(3, 0)
   type_keys('.')
-  eq(get_lines(), { 'ccc', 'www' })
-  eq(get_cursor(), { 1, 0 })
+  eq(get_lines(), { 'aaa', 'bbb', 'ccc' })
+  eq(get_cursor(), { 3, 0 })
 end
 
 T['Textobject']['prefers operator mappings in Visual mode'] = function()
