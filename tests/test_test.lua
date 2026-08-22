@@ -599,38 +599,41 @@ T['execute()']['properly calls `reporter` methods'] = function()
   collect_general()
 
   child.lua([[
-  _G.update_history = {}
-  _G.reporter = {
-    start = function(all_cases) _G.all_cases = all_cases end,
-    update = function(case_num)
-      table.insert(_G.update_history, { case_num = case_num, state = _G.all_cases[case_num].exec.state })
-    end,
-    finish = function() _G.was_in_finish = true end,
-  }]])
+    _G.log = {}
+    _G.reporter = {
+      start = function(all_cases)
+        table.insert(_G.log, { stage = 'start' })
+        _G.all_cases = all_cases
+      end,
+      update = function(case_num)
+        table.insert(_G.log, { stage = 'update', case_num = case_num, state = _G.all_cases[case_num].exec.state })
+      end,
+      finish = function() table.insert(_G.log, { stage = 'finish' }) end,
+    }]])
 
-  child.lua([[MiniTest.execute(_G.cases, { reporter = _G.reporter })]])
+  child.lua('MiniTest.execute(_G.cases, { reporter = _G.reporter })')
   eq(child.lua_get('#_G.all_cases'), 2)
-  eq(child.lua_get('_G.update_history'), {
-    { case_num = 1, state = "Executing 'pre' hook #1" },
-    { case_num = 1, state = "Executing 'pre' hook #2" },
-    { case_num = 1, state = 'Executing test' },
-    { case_num = 1, state = "Executing 'post' hook #1" },
-    { case_num = 1, state = 'Fail' },
-    { case_num = 2, state = "Executing 'pre' hook #1" },
-    { case_num = 2, state = 'Executing test' },
-    { case_num = 2, state = "Executing 'post' hook #1" },
-    { case_num = 2, state = "Executing 'post' hook #2" },
-    { case_num = 2, state = 'Pass' },
+  eq(child.lua_get('_G.log'), {
+    { stage = 'start' },
+    { stage = 'update', case_num = 1, state = "Executing 'pre' hook #1" },
+    { stage = 'update', case_num = 1, state = "Executing 'pre' hook #2" },
+    { stage = 'update', case_num = 1, state = 'Executing test' },
+    { stage = 'update', case_num = 1, state = "Executing 'post' hook #1" },
+    { stage = 'update', case_num = 1, state = 'Fail' },
+    { stage = 'update', case_num = 2, state = "Executing 'pre' hook #1" },
+    { stage = 'update', case_num = 2, state = 'Executing test' },
+    { stage = 'update', case_num = 2, state = "Executing 'post' hook #1" },
+    { stage = 'update', case_num = 2, state = "Executing 'post' hook #2" },
+    { stage = 'update', case_num = 2, state = 'Pass' },
+    { stage = 'finish' },
   })
-  eq(child.lua_get('_G.was_in_finish'), true)
-end
 
-T['execute()']['handles no cases'] = function()
-  child.lua('MiniTest.execute({})')
-  eq(child.lua_get('MiniTest.current.all_cases'), {})
-
-  -- Should throw message
-  eq(get_latest_message(), '(mini.test) No cases to execute.')
+  -- Should also call all methods if no cases is supplied
+  child.lua('_G.log, _G.all_cases = {}, {}')
+  child.lua('MiniTest.execute({}, { reporter = _G.reporter })')
+  eq(child.lua_get('#_G.all_cases'), 0)
+  eq(child.lua_get('_G.log'), { { stage = 'start' }, { stage = 'finish' } })
+  eq(get_latest_message(), '')
 end
 
 T['execute()']['handles async-adjacent functions'] = function()

@@ -473,6 +473,7 @@ Overview of execution process:
 - Call `reporter.finish()` (if present).
 
 Notes:
+- Execution still goes through the reporter if zero cases are supplied.
 - Execution is done in asynchronous fashion with scheduling. This allows
   making meaningful progress report during execution.
 - This function doesn't return anything. Instead, it updates `cases` in

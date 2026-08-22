@@ -575,6 +575,7 @@ end
 --- - Call `reporter.finish()` (if present).
 ---
 --- Notes:
+--- - Execution still goes through the reporter if zero cases are supplied.
 --- - Execution is done in asynchronous fashion with scheduling. This allows
 ---   making meaningful progress report during execution.
 --- - This function doesn't return anything. Instead, it updates `cases` in
@@ -592,12 +593,6 @@ MiniTest.execute = function(cases, opts)
   H.check_type('cases', cases, 'table')
 
   MiniTest.current.all_cases = cases
-
-  -- Verify correct arguments
-  if #cases == 0 then
-    H.message('No cases to execute.')
-    return
-  end
 
   opts = vim.tbl_deep_extend('force', H.get_config().execute, opts or {})
   local reporter = opts.reporter or (H.is_headless and MiniTest.gen_reporter.stdout() or MiniTest.gen_reporter.buffer())
@@ -1021,7 +1016,7 @@ MiniTest.gen_reporter.buffer = function(opts)
 
     -- Force writing lines
     local lines = H.overview_reporter.finish_lines(all_cases)
-    replace_last(2, lines, true)
+    replace_last(#all_cases == 0 and 0 or 2, lines, true)
     set_cursor(start_line)
   end
 
