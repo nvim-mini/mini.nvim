@@ -633,6 +633,17 @@ MiniHues.apply_palette = function(palette, plugins, opts)
   hi('gitcommitUntracked',     { link='Comment' })
   hi('gitcommitUntrackedFile', { fg=p.cyan,   bg=nil })
 
+  -- Quickfix/location list
+  hi('qfError',      { link='DiagnosticError' })
+  hi('qfFileName',   { link='Title' })
+  hi('qfInfo',       { link='DiagnosticInfo' })
+  hi('qfLineNr',     { link='Comment' })
+  hi('qfNote',       { link='DiagnosticHint' })
+  hi('qfSeparator1', { link='Delimiter' })
+  hi('qfSeparator2', { link='Delimiter' })
+  hi('qfText',       { link='Normal' })
+  hi('qfWarning',    { link='DiagnosticWarn' })
+
   -- Built-in diagnostic
   -- Logic:
   -- - Error is red.
