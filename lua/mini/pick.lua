@@ -1415,12 +1415,13 @@ MiniPick.builtin.grep_live = function(local_opts, opts)
   local tool = local_opts.tool or H.grep_get_tool()
   if tool == 'fallback' or not H.is_executable(tool) then H.error('`grep_live` needs non-fallback executable tool.') end
 
+  local default_source = { show = H.get_config().source.show or H.show_with_icons }
+  opts = vim.tbl_deep_extend('force', { source = default_source }, opts or {})
   local globs = H.is_array_of(local_opts.globs, 'string') and local_opts.globs or {}
   local globs_suffix = #globs == 0 and '' or (' | ' .. table.concat(globs, ', '))
-  local method = local_opts.method
-  local get_name = function() return string.format('Grep live (%s %s%s)', tool, method, globs_suffix) end
-  local default_source = { name = get_name(), show = H.get_config().source.show or H.show_with_icons }
-  opts = vim.tbl_deep_extend('force', { source = default_source }, opts or {})
+  local init_name, method = opts.source.name or 'Grep live', local_opts.method
+  local get_name = function() return string.format('%s (%s %s%s)', init_name, tool, method, globs_suffix) end
+  opts.source.name = opts.source.name or get_name()
 
   local cwd = H.full_path(opts.source.cwd or vim.fn.getcwd())
   local set_items_opts, spawn_opts = { do_match = false, querytick = H.querytick }, { cwd = cwd }
@@ -1451,7 +1452,7 @@ MiniPick.builtin.grep_live = function(local_opts, opts)
   end
   local mappings = { add_glob = { char = '<C-o>', func = ag }, switch_method = { char = '<C-e>', func = sm } }
 
-  opts = vim.tbl_deep_extend('force', opts or {}, { source = { items = {}, match = match }, mappings = mappings })
+  opts = vim.tbl_deep_extend('force', opts, { source = { items = {}, match = match }, mappings = mappings })
   return MiniPick.start(opts)
 end
 

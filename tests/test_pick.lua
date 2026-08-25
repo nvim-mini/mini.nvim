@@ -3528,6 +3528,11 @@ T['builtin.grep_live()']['respects `opts`'] = function()
   mock_fn_executable({ 'rg' })
   builtin_grep_live({}, { source = { name = 'My name' } })
   validate_picker_option('source.name', 'My name')
+
+  type_keys('<C-e>')
+  validate_picker_option('source.name', 'My name (rg plain)')
+  type_keys('<C-o>', '*.lua', '<CR>')
+  validate_picker_option('source.name', 'My name (rg plain | *.lua)')
 end
 
 T['builtin.grep_live()']['respects `opts.source.cwd` for cli spawn'] = function()
