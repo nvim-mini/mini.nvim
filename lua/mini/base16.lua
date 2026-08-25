@@ -617,6 +617,17 @@ H.apply_palette = function(palette, use_cterm)
   hi('gitcommitUntracked',     {link='Comment'})
   hi('gitcommitUntrackedFile', {fg=p.base0A, bg=nil, attr=nil,    sp=nil})
 
+  -- Quickfix/location list
+  hi('qfError',      {link='DiagnosticError'})
+  hi('qfFileName',   {link='Title'})
+  hi('qfInfo',       {link='DiagnosticInfo'})
+  hi('qfLineNr',     {link='Comment'})
+  hi('qfNote',       {link='DiagnosticHint'})
+  hi('qfSeparator1', {link='Delimiter'})
+  hi('qfSeparator2', {link='Delimiter'})
+  hi('qfText',       {link='Normal'})
+  hi('qfWarning',    {link='DiagnosticWarn'})
+
   -- Built-in diagnostic
   hi('DiagnosticError', {fg=p.base08, bg=nil, attr=nil, sp=nil})
   hi('DiagnosticHint',  {fg=p.base0D, bg=nil, attr=nil, sp=nil})
