@@ -54,6 +54,7 @@ Table of contents:
   Manage and expand snippets ................................. |mini.snippets|
   Split and join arguments .................................. |mini.splitjoin|
   Start screen ................................................ |mini.starter|
+  Statuscolumn ........................................... |mini.statuscolumn|
   Statusline ............................................... |mini.statusline|
   Surround actions ........................................... |mini.surround|
   Tabline ..................................................... |mini.tabline|
@@ -315,6 +316,9 @@ local configuration.
   are fully customizable both in terms of what they do and how they look
   (with reasonable defaults). Item selection can be done using prefix query
   with instant visual feedback.
+
+- |mini.statuscolumn| - fast |'statuscolumn'| with improved defaults, fully
+  customizable content, and automatic dimming inside inactive windows.
 
 - |mini.statusline| - minimal and fast statusline. Has ability to use custom
   content supplied with concise function (using module's provided section

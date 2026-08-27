@@ -57,6 +57,7 @@ body:
         - mini.snippets
         - mini.splitjoin
         - mini.starter
+        - mini.statuscolumn
         - mini.statusline
         - mini.surround
         - mini.tabline

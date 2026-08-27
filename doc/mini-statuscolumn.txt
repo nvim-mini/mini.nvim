@@ -1,0 +1,288 @@
+*mini.statuscolumn* Statuscolumn
+
+MIT License Copyright (c) 2026 Evgeni Chasnovski
+
+------------------------------------------------------------------------------
+                                                              *MiniStatuscolumn*
+Features:
+
+- Fast |'statuscolumn'| with improved defaults.
+- Fully customizable content via functions that take precomputed useful data.
+- |MiniStatuscolumn.gen_content.main()| for simplified customization.
+- Automatic dimming inside inactive windows content.
+
+Notes:
+- Works best on Neovim>=0.11.
+
+# Setup ~
+
+This module needs a setup with `require('mini.statuscolumn').setup({})`
+(replace `{}` with your `config` table). It will create global Lua table
+`MiniStatuscolumn` which you can use for scripting or manually (with
+`:lua MiniStatuscolumn.*`).
+
+See |MiniStatuscolumn.config| for `config` structure and default values.
+
+# Suggested option values ~
+
+- Default content works best with enabled |'number'|.
+
+- Depending on how distinctive |hl-FoldColumn| is from |hl-LineNr|, it might
+  be a good idea to use minimal fold column characters in |'fillchars'|.
+  Like `foldopen:🯘` and `foldclose:🮥`, while `foldsep` and `foldinner` (on
+  Neovim>=0.12) set to a single space.
+
+# Comparisons ~
+
+- [luukvball/statuscol.nvim](https://github.com/luukvbaal/statuscol.nvim):
+    - A framework with building blocks and configuration: custom sections,
+      sign filters, fold functions.
+      While this module aims to provide a performant |'statuscolumn'| with
+      a sensible default with a limited (yet enough) customization and an
+      entry point to building own |'statuscolumn'|.
+
+- [folke/snacks.nvim#statuscolumn](https://github.com/folke/snacks.nvim):
+    - An opinionated |'statuscolumn'| implementation with a limited
+      customization.
+      While this module provides more opportunities for building custom
+      implementation and more customization.
+
+# Highlight groups ~
+*MiniStatuscolumn-hl-groups*
+
+- `MiniStatuscolumnDim` - dimmed column. By default is a dimmed |hl-LineNr|.
+- `MiniStatuscolumnDimCursor` - dimmed column at cursor line.
+- `MiniStatuscolumnSep` - separator of column and text.
+- `MiniStatuscolumnSepCursor` - separator of column and text at cursor line.
+
+------------------------------------------------------------------------------
+                                                      *MiniStatuscolumn.setup()*
+                       `MiniStatuscolumn.setup`({config})
+Module setup
+
+Parameters ~
+{config} `(table|nil)` Module config table. See |MiniStatuscolumn.config|.
+
+Usage ~
+>lua
+  require('mini.statuscolumn').setup() -- use default config
+  -- OR
+  require('mini.statuscolumn').setup({}) -- replace {} with your config table
+<
+------------------------------------------------------------------------------
+                                                       *MiniStatuscolumn.config*
+                           `MiniStatuscolumn.config`
+Defaults ~
+>lua
+  MiniStatuscolumn.config = {
+    -- Statuscolumn content as functions that return statusline-like string
+    content = {
+      -- Content of an active window
+      active = nil,
+      -- Content of an inactive window
+      inactive = nil,
+    },
+
+    -- Whether to dim column content in inactive windows
+    dim_inactive = true,
+  }
+<
+# Content ~
+
+`config.content` is a table that defines |'statuscolumn'| content for active
+(`content.active`) and inactive (`content.inactive`) windows. Each content is
+a function that takes a single `data` argument with a useful info about the
+current Neovim state (precomputed only when needed to improve performance) and
+should return a |'statusline'| like string.
+
+An input `data` argument is a table with the following fields:
+- <buf_id> `(number)` - identifier of a drawn buffer.
+- <is_cursorlinenr> `(boolean)` - whether |hl-CursorLineNr| conditions are met.
+- <is_foldcolumn_fixed> `(boolean)` - whether |'foldcolumn'| has fixed width.
+- <is_signcolumn_fixed> `(boolean)` - whether |'signcolumn'| has fixed width.
+- <is_statuscolumn_empty> `(boolean)` - whether |'statuscolumn'| default content
+  is empty. Useful to determine if anything should be drawn.
+- <opt_cursorline> `(boolean)` - current value of |'cursorline'|.
+- <opt_cursorlineopt> `(string)` - current value of |'cursorlineopt'|.
+- <opt_foldcolumn> `(string)` - current value of |'foldcolumn'|.
+- <opt_number> `(boolean)` - current value of |'number'|.
+- <opt_relativenumber> `(boolean)` - current value of |'relativenumber'|.
+- <opt_signcolumn> `(string)` - current value of |'signcolumn'|.
+- <win_id> `(number)` - identifier of a drawn window.
+
+Example custom content: >lua
+
+  -- Show sign and separator if statuscolumn is not empty
+  local active = function(data)
+    return data.is_statuscolumn_empty and '' or '%s│'
+  end
+  -- Show nothing in inactive windows
+  local inactive = function(_) return '' end
+  local content = { active = active, inactive = inactive }
+  require('mini.statuscolumn').setup({ content = content })
+<
+If one content function is missing, the other is used in its place.
+If both content functions are missing, the default content is used: the output
+of |MiniStatuscolumn.gen_content.main()| with the following specification: >lua
+
+  { fold = '%C', lnum = '%l', sign = '%s' }, -- Default sections
+  { format = '=lfs', sep = '▏' },  -- Line-fold-sign-separator format
+  { ltype = 'virt', lnum = '•' },  -- Dot in virtual lines
+  { ltype = 'wrap', lnum = '↳' },  -- Arrow in wrapped lines
+  { win = 'inactive', sep = ' ' }, -- No separator in inactive windows
+<
+Default content works best with enabled |'number'|, otherwise statuscolumn width
+might fluctuate if there are wrapped or virtual lines due to special symbols.
+
+Notes:
+- Make sure that custom content functions are as fast as possible since they
+  will be called VERY frequently: at least every non-pure-cursor-move redraw
+  (during typing, window scroll, etc.) for every visible line in every visible
+  window. A rough estimate: about 100 times per redraw and about 1 million
+  times per hour of text editing.
+- For performance reasons there are several |'statuscolumn'| optimizations
+  that affect any implementation. Like pre-computed width and when it changes.
+  Make sure to read |'statuscolumn'| to be aware of them.
+
+# Dim inactive windows ~
+
+`config.dim` is a boolean that defines whether to dim statuscolumn content
+in inactive windows. It means that all |'statuscolumn'| relevant highlight
+groups are overridden to be `MiniStatuscolumnDimCursor` at cursor line and
+`MiniStatuscolumnDim` everywhere else. Default: `true`.
+
+Default values of dimming highlight groups are computed as a dimmed variant
+of |hl-LineNr| group, meaning its foreground is computed to be closer to its
+background. The used approach is good enough, if not - define groups manually.
+
+------------------------------------------------------------------------------
+                                                  *MiniStatuscolumn.gen_content*
+                         `MiniStatuscolumn.gen_content`
+Content generators
+
+This is a table with function elements. Call to actually get a content table.
+
+------------------------------------------------------------------------------
+                                           *MiniStatuscolumn.gen_content.main()*
+              `MiniStatuscolumn.gen_content.main`({spec}, {opts})
+Main content generator
+
+Generates a content that can be customized via selected "info" fields applied
+at selected drawn line "coordinates".
+
+"Info" string fields (as |'statusline'| like text):
+- <fold> - fold section. Default: `'%C'`.
+- <sign> - sign section. Default: `'%s'`.
+- <lnum> - line number section. Default: `'%l'`.
+- <sep> - separator between column and in-buffer text. Default: `' '`.
+  Highlighted with groups `MiniStatuscolumnSep` and `MiniStatuscolumnSepCursor`
+  The latter is used under the conditions described in |hl-CursorLineNr|.
+- <format> - order of sections (excluding <sep>) as a string containing only
+  `f` (fold), `s` (sign), `l` (lnum), and `=` (as `%=` in |'statusline'| syntax).
+  Default: `'fs=l'`.
+
+"Coordinate" fields:
+- <win> - type of drawn window. One of `'active'`, `'inactive'`.
+- <pos> - position of drawn line relative to the cursor. One of `'cursor'`,
+  `'above'`, `'below'`. Note: value does not depend on the |'relativenumber'|,
+  unlike |hl-LineNrAbove| and |hl-LineNrBelow|.
+- <ltype> - type of drawn line. One of `'text'` (next to the regular buffer
+  text), `'virt'` (next to the virtual line), `'wrap'` (next to the wrapped part
+  of buffer text).
+
+Customization is done via an array specification that acts as a sequence of
+rules applied on top of the previous ones. Each rule/item should define at
+least one "info" field and may filter by one or more "coordinate" field.
+It is recommended to start with wider rules and go towards narrower ones.
+If an "info" field is not defined after all rules are processed, its
+default value is used.
+
+Each section is clickable with mouse. Clicks will be processed with an
+`opts.click` function and can be customized per section-coordinate.
+
+Examples of content specification:
+
+- Specification for default `content` in |MiniStatuscolumn.config|.
+  Use as a template to adjust/remove added behavior: >lua
+
+  local statuscolumn = require('mini.statuscolumn')
+  local spec = {
+    -- Prefer visible separator with a more efficient order to use
+    -- usually present whitespace to the right of signs
+    { format = '=lfs', sep = '▏' },
+    -- Use custom symbol for virtual lines
+    { ltype = 'virt', lnum = '•' },
+    -- Use custom symbol for wrapped lines
+    { ltype = 'wrap', lnum = '↳' },
+    -- Hide separator to better indicate inactive windows
+    { win = 'inactive', sep = ' ' },
+  }
+  statuscolumn.setup({ content = statuscolumn.gen_content.main(spec) })
+<
+- Ways to configure separator:
+
+  - Thicker separator at cursor: `{ pos = 'cursor', sep = '▍' }`.
+
+  - More cell-centered separator: `{ format='=fsl', sep='│' }`
+
+- Ways to indicate inactive windows:
+
+  - Hide regular non-cursor line: define `MiniStatuscolumnDim` highlight group
+    to have the same foreground and background. It will still show cursor line
+    and lines which have signs or line number with special highlighting (like
+    diagnostics, diff status, etc.).
+
+  - Show nothing: `{ win='inactive', fold='', lnum='', sign='' }`
+
+  - Hide separator: `{ win='inactive', sep='' }`
+
+- Force highlighting: `{ pos='cursor', ltype='virt', lnum='%#CursorLineNr#•' }`.
+  Has problems that it overrides highlighting from extmarks.
+
+Notes:
+- Implementation of |'statuscolumn'| has some performance trade-offs when it
+  comes to computing which areas are clickable. Suggested usage:
+    - Use one <format> per window type, as section order is better to persist
+      across lines of the same window.
+    - Clicking the cell that contains text should work. Clicking an empty cell
+      of known section might not always work.
+    - On Neovim<0.13 the `ltype` is always the one that is used in the top
+      window line.
+
+Parameters ~
+{spec} `(table[]|nil)` Specification array. Default: `{}`, which imitates
+  default |'statuscolumn'|.
+{opts} `(table|nil)` Options. Possible fields:
+  - <click> `(function)` - action to perform on mouse click in statuscolumn.
+    Default: |MiniStatuscolumn.default_click()|.
+
+    Called with a single table `data` argument with the following fields:
+    - <button> `(string)` - mouse button, as described in `@` |'statusline'| flag.
+    - <modifiers> `(string)` - modifiers, as described in `@` |'statusline'| flag.
+    - <n_clicks> `(number)` - number of clicks.
+    - <ltype> `(string)` - line type "coordinate" field.
+    - <section> `(string)` - section name. One of `'fold'`, `'sign'`, `'lnum'`, `'sep'`.
+    - <mousepos> `(table)` - output of |getmousepos()|. Can be used to determine
+      line number, window identifier/type, etc.
+
+    Notes:
+   - On Neovim<0.13 it is only possible to split statuscolumn line into
+     "clicking ranges" once per window. This is why `data.ltype` might have
+     not correct values. Should work as expected on Neovim>=0.13.
+   - A best available (but somewhat limiting) pattern to identify what was
+     clicked is to use |screenstring()| with <screenrow> and <screencol>
+     fields of <mousepos>. For example, if wrapped and virtual lines are
+     identified by known symbols, it helps known that click was done on them.
+
+------------------------------------------------------------------------------
+                                              *MiniStatuscolumn.default_click()*
+                    `MiniStatuscolumn.default_click`({data})
+Default mouse click handler
+
+Makes clicked window and line current. Centers the line on double click.
+
+Parameters ~
+{data} `(table)` As described in |MiniStatuscolumn.gen_content.main()|.
+
+
+ vim:tw=78:ts=8:noet:ft=help:norl:

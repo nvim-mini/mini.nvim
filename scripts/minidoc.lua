@@ -42,6 +42,7 @@ local modules = {
   'snippets',
   'splitjoin',
   'starter',
+  'statuscolumn',
   'statusline',
   'surround',
   'tabline',

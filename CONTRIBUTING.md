@@ -316,6 +316,12 @@ Here is a list of all highlight groups defined inside 'mini.nvim' modules. See d
     - `MiniStarterSection`
     - `MiniStarterQuery`
 
+- 'mini.statuscolumn':
+    - `MiniStatuscolumnDim`
+    - `MiniStatuscolumnDimCursor`
+    - `MiniStatuscolumnSep`
+    - `MiniStatuscolumnSepCursor`
+
 - 'mini.statusline':
     - `MiniStatuslineDevinfo`
     - `MiniStatuslineFileinfo`
