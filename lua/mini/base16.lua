@@ -838,6 +838,11 @@ H.apply_palette = function(palette, use_cterm)
     hi('MiniStarterSection',    {fg=p.base0F, bg=nil, attr=nil,    sp=nil})
     hi('MiniStarterQuery',      {fg=p.base0B, bg=nil, attr='bold', sp=nil})
 
+    hi('MiniStatuscolumnDim',       {fg=p.base02, bg=p.base01, attr=nil, sp=nil})
+    hi('MiniStatuscolumnDimCursor', {link='CursorLineNr'})
+    hi('MiniStatuscolumnSep',       {link='LineNr'})
+    hi('MiniStatuscolumnSepCursor', {link='CursorLineNr'})
+
     hi('MiniStatuslineDevinfo',     {fg=p.base04, bg=p.base02, attr=nil,    sp=nil})
     hi('MiniStatuslineFileinfo',    {link='MiniStatuslineDevinfo'})
     hi('MiniStatuslineFilename',    {fg=p.base03, bg=p.base01, attr=nil,    sp=nil})
