@@ -987,6 +987,11 @@ MiniHues.apply_palette = function(palette, plugins, opts)
     hi('MiniStarterSection',    { fg=p.purple,  bg=nil })
     hi('MiniStarterQuery',      { fg=p.green,   bg=nil, bold=true })
 
+    hi('MiniStatuscolumnDim',       { fg=p.bg_mid, bg=nil })
+    hi('MiniStatuscolumnDimCursor', { link='CursorLineNr' })
+    hi('MiniStatuscolumnSep',       { link='LineNr' })
+    hi('MiniStatuscolumnSepCursor', { link='CursorLineNr' })
+
     hi('MiniStatuslineDevinfo',     { fg=p.fg_mid, bg=p.bg_mid })
     hi('MiniStatuslineFileinfo',    { link='MiniStatuslineDevinfo' })
     hi('MiniStatuslineFilename',    { fg=p.fg_mid, bg=p.accent_bg })
