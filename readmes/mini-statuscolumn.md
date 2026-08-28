@@ -21,7 +21,7 @@ If you want to help this project grow but don't know where to start, check out [
 ## Demo
 
 <!-- Demo source: https://github.com/nvim-mini/assets/blob/main/demo/demo-statuscolumn.mp4 -->
-https://github.com/user-attachments/assets/a9b803e5-2399-4ca5-b41a-b1eab1ed098a
+https://github.com/user-attachments/assets/63ed48eb-9fdf-4b59-b190-bbdc10fd28d9
 
 ## Features
 
@@ -32,6 +32,7 @@ https://github.com/user-attachments/assets/a9b803e5-2399-4ca5-b41a-b1eab1ed098a
 
 Notes:
 - Works best on Neovim>=0.11.
+- Default content follows the behavior defined by options for the built-in statuscolumn sections. Like `'number'`, `'signcolumn'`, `'foldcolumn'`, etc.
 
 ## Installation
 

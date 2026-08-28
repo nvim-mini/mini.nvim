@@ -11,6 +11,8 @@
 ---
 --- Notes:
 --- - Works best on Neovim>=0.11.
+--- - Default content follows the behavior defined by options for the built-in
+---   statuscolumn sections. Like |'number'|, |'signcolumn'|, |'foldcolumn'|, etc.
 ---
 --- # Setup ~
 ---
@@ -23,7 +25,7 @@
 ---
 --- # Suggested option values ~
 ---
---- - Default content works best with enabled |'number'|.
+--- - Default content works best with enabled |'number'| and |'signcolumn'|.
 ---
 --- - Depending on how distinctive |hl-FoldColumn| is from |hl-LineNr|, it might
 ---   be a good idea to use minimal fold column characters in |'fillchars'|.
@@ -111,6 +113,10 @@ end
 --- - <opt_signcolumn> `(string)` - current value of |'signcolumn'|.
 --- - <win_id> `(number)` - identifier of a drawn window.
 ---
+--- The data about target line (for which content is evaluated) can be accessed
+--- as described in |'statuscolumn'| via the dedicated |v:| variables.
+--- Like |v:lnum|, |v:relnum|, and |v:virtnum|.
+---
 --- Example custom content: >lua
 ---
 ---   -- Show sign and separator if statuscolumn is not empty
@@ -189,6 +195,10 @@ MiniStatuscolumn.gen_content = {}
 --- - <format> - order of sections (excluding <sep>) as a string containing only
 ---   `f` (fold), `s` (sign), `l` (lnum), and `=` (as `%=` in |'statusline'| syntax).
 ---   Default: `'fs=l'`.
+---
+--- NOTE: using dedicated |'statusline'| syntax, as in default values, makes
+--- section content follow their respective options. Like using `%l` will show
+--- nothing if |'number'| is disabled.
 ---
 --- "Coordinate" fields:
 --- - <win> - type of drawn window. One of `'active'`, `'inactive'`.
