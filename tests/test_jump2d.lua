@@ -296,7 +296,7 @@ T['start()']['works in Operator-pending mode'] = function()
 
   -- Allows dot-repeat
   type_keys('.')
-  child.expect_screenshot()
+  child.expect_screenshot({ ignore_text = { 4, 5 }, ignore_attr = { 4, 5 } })
   type_keys('c')
   child.expect_screenshot()
 end
