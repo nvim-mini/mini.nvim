@@ -41,10 +41,10 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest ]
-        neovim_version: [ 'v0.10.4', 'v0.11.7', 'v0.12.3', 'nightly' ]
+        neovim_version: [ 'v0.10.4', 'v0.11.7', 'v0.12.5', 'nightly' ]
         include:
         - os: windows-latest
-          neovim_version: v0.12.3
+          neovim_version: v0.12.5
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -70,7 +70,7 @@ jobs:
         uses: rhysd/action-setup-vim@v1
         with:
           neovim: true
-          version: v0.12.3
+          version: v0.12.5
 
       - name: Generate documentation
         run: make --silent gendoc
@@ -121,7 +121,7 @@ jobs:
         uses: rhysd/action-setup-vim@v1
         with:
           neovim: true
-          version: v0.12.3
+          version: v0.12.5
 
       - name: Lint new commits
         run: make --silent lintcommit-ci
