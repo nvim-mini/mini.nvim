@@ -93,7 +93,7 @@ Defaults ~
 
 `config.content` is a table that defines |'statuscolumn'| content for active
 (`content.active`) and inactive (`content.inactive`) windows. Each content is
-a function that takes a single `data` argument with a useful info about the
+a function that takes a single `data` argument with useful info about the
 current Neovim state (precomputed only when needed to improve performance) and
 should return a |'statusline'| like string.
 
@@ -281,8 +281,8 @@ Parameters ~
      not correct values. Should work as expected on Neovim>=0.13.
    - A best available (but somewhat limiting) pattern to identify what was
      clicked is to use |screenstring()| with <screenrow> and <screencol>
-     fields of <mousepos>. For example, if wrapped and virtual lines are
-     identified by known symbols, it helps known that click was done on them.
+     fields of <mousepos>. For example, fixed distinctive symbols for wrapped
+     and virtual lines can help identifying that click was done on them.
 
 ------------------------------------------------------------------------------
                                               *MiniStatuscolumn.default_click()*

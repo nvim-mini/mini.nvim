@@ -94,7 +94,7 @@ end
 ---
 --- `config.content` is a table that defines |'statuscolumn'| content for active
 --- (`content.active`) and inactive (`content.inactive`) windows. Each content is
---- a function that takes a single `data` argument with a useful info about the
+--- a function that takes a single `data` argument with useful info about the
 --- current Neovim state (precomputed only when needed to improve performance) and
 --- should return a |'statusline'| like string.
 ---
@@ -289,8 +289,8 @@ MiniStatuscolumn.gen_content = {}
 ---      not correct values. Should work as expected on Neovim>=0.13.
 ---    - A best available (but somewhat limiting) pattern to identify what was
 ---      clicked is to use |screenstring()| with <screenrow> and <screencol>
----      fields of <mousepos>. For example, if wrapped and virtual lines are
----      identified by known symbols, it helps known that click was done on them.
+---      fields of <mousepos>. For example, fixed distinctive symbols for wrapped
+---      and virtual lines can help identifying that click was done on them.
 MiniStatuscolumn.gen_content.main = function(spec, opts)
   spec = spec or {}
   H.validate_main_content_spec(spec)
@@ -544,7 +544,7 @@ H.make_statuscolumn_functions = function(active, inactive)
   au('OptionSet', options, update_win_cache, 'Update window cache')
 
   -- - Frequent cache update needed to react on non-fixed signcolumn/foldcolumn
-  --   changing their width. Like after adding a sing or fold.
+  --   changing their width. Like after adding a sign or fold.
   --   Schedule as otherwise `nvim_eval_statusline()` returns outdated value.
   local track_empty_statuscolumn = vim.schedule_wrap(function(win_id, toprow)
     local cache = get_win_cache(win_id)
