@@ -372,7 +372,7 @@ MiniSessions.restart = function()
   table.insert(after, 'vim.o.termguicolors = ' .. tostring(vim.o.termguicolors))
   table.insert(after, 'vim.notify("(mini.sessions) Restarted")')
 
-  local bang = vim.fn.has('nvim-0.13') == 1 and '!' or ''
+  local bang = vim.fn.has('nvim-0.12.5') == 1 and '!' or ''
   local ok, msg = pcall(vim.cmd, 'restart' .. bang .. ' lua ' .. table.concat(after, ';'))
   if not ok then H.error(msg) end
 end
