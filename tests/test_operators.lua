@@ -646,7 +646,7 @@ T['Exchange']['works charwise in Normal mode'] = function()
 
   -- With dot-repeat allowing multiple exchanges
   validate_edit1d('a bb', 0, { 'gxiw', 'w', '.' }, 'bb a', 3)
-  validate_edit1d('a bb ccc dddd', 0, { 'gxiw', 'w', '.', 'w.w.' }, 'bb a dddd ccc', 10)
+  validate_edit1d('a bb ccc dddd', 0, { 'gxiw', 'w', '.', 'w', '.', 'w', '.' }, 'bb a dddd ccc', 10)
 
   -- Different order
   local keys_back = { 'gxiw', 'b', 'gxiw' }
@@ -683,7 +683,8 @@ T['Exchange']['works linewise in Normal mode'] = function()
 
   -- With dot-repeat allowing multiple exchanges
   validate_edit({ 'aa', 'bb' }, { 1, 0 }, { 'gx_', 'j', '.' }, { 'bb', 'aa' }, { 2, 0 })
-  validate_edit({ 'aa', 'bb', 'cc', 'dd' }, { 1, 0 }, { 'gx_', 'j', '.', 'j.j.' }, { 'bb', 'aa', 'dd', 'cc' }, { 4, 0 })
+  --stylua: ignore
+  validate_edit({ 'aa', 'bb', 'cc', 'dd' }, { 1, 0 }, { 'gx_', 'j', '.', 'j', '.', 'j', '.' }, { 'bb', 'aa', 'dd', 'cc' }, { 4, 0 })
 
   -- Different order
   local keys_back = { 'gx_', 'k', 'gx_' }
@@ -719,7 +720,8 @@ T['Exchange']['works blockwise in Normal mode'] = function()
 
   -- With dot-repeat allowing multiple exchanges
   validate_edit({ 'a bb', 'c dd' }, { 1, 0 }, { 'gxie', 'w', '.' }, { 'b ab', 'd cd' }, { 1, 2 })
-  validate_edit({ 'a b x y', 'c d u v' }, { 1, 0 }, { 'gxie', 'w', '.', 'w.w.' }, { 'b a y x', 'd c v u' }, { 1, 6 })
+  --stylua: ignore
+  validate_edit({ 'a b x y', 'c d u v' }, { 1, 0 }, { 'gxie', 'w', '.', 'w', '.', 'w', '.' }, { 'b a y x', 'd c v u' }, { 1, 6 })
 
   -- Different order
   local keys_back = { 'gxil', 'b', 'gxie' }
@@ -768,14 +770,15 @@ T['Exchange']['works with `[count]` in Normal mode'] = function()
   validate_edit1d('aa bb cc dd ee ', 0, { '2gxaw', '2w', 'gx3aw' }, 'cc dd ee aa bb ', 9)
 
   -- With dot-repeat
-  validate_edit1d('aa bb cc dd ', 0, { '2gxaw', '2w', '.', '0.2w.' }, 'aa bb cc dd ', 6)
+  validate_edit1d('aa bb cc dd ', 0, { '2gxaw', '2w', '.', '0', '.', '2w', '.' }, 'aa bb cc dd ', 6)
 end
 
 T['Exchange']['works in Normal mode for line'] = function()
   validate_edit({ 'aa', 'bb' }, { 1, 0 }, { 'gxx', 'j', 'gxx' }, { 'bb', 'aa' }, { 2, 0 })
 
   -- With dot-repeat
-  validate_edit({ 'aa', 'bb', 'cc', 'dd' }, { 1, 0 }, { 'gxx', 'j', '.', 'j.j.' }, { 'bb', 'aa', 'dd', 'cc' }, { 4, 0 })
+  --stylua: ignore
+  validate_edit({ 'aa', 'bb', 'cc', 'dd' }, { 1, 0 }, { 'gxx', 'j', '.', 'j', '.', 'j', '.' }, { 'bb', 'aa', 'dd', 'cc' }, { 4, 0 })
 end
 
 T['Exchange']['works with `[count]` in Normal mode for line'] = function()
@@ -791,7 +794,7 @@ T['Exchange']['works with `[count]` in Normal mode for line'] = function()
   validate_edit(
     { 'aa', 'bb', 'cc', 'dd' },
     { 1, 0 },
-    { '2gxx', '2j', '.', 'gg.2j.' },
+    { '2gxx', '2j', '.', 'gg', '.', '2j', '.' },
     { 'aa', 'bb', 'cc', 'dd' },
     { 3, 0 }
   )

@@ -2886,7 +2886,7 @@ T['Reproducing keys']['Operator-pending mode']['!'] = function()
   validate_edit(
     { 'cc', 'bb', '', 'dd', 'aa' },
     { 1, 0 },
-    { '!', 'i', 'p', 'sort<CR>G.' },
+    { '!', 'i', 'p', 'sort<CR>', 'G', '.' },
     { 'bb', 'cc', '', 'aa', 'dd' },
     { 4, 0 }
   )
@@ -2933,7 +2933,7 @@ T['Reproducing keys']['Operator-pending mode']['>'] = function()
   validate_edit({ 'aa', '', 'bb' }, { 1, 0 }, { '>', 'i', 'p' }, { '\taa', '', 'bb' }, { 1, 0 })
 
   -- Dot-repeat
-  validate_edit({ 'aa', '', 'bb' }, { 1, 0 }, { '>', 'i', 'p', '.2j.' }, { '\t\taa', '', '\tbb' }, { 3, 0 })
+  validate_edit({ 'aa', '', 'bb' }, { 1, 0 }, { '>', 'i', 'p', '.', '2', 'j', '.' }, { '\t\taa', '', '\tbb' }, { 3, 0 })
 
   -- User keymap
   validate_edit({ 'aa', '', 'bb' }, { 1, 0 }, { '>', 'i', 'F' }, { '\taa', '', 'bb' }, { 1, 0 })
@@ -2946,7 +2946,8 @@ T['Reproducing keys']['Operator-pending mode']['<'] = function()
   validate_edit({ '\t\taa', '', 'bb' }, { 1, 0 }, { '<', 'i', 'p' }, { '\taa', '', 'bb' }, { 1, 0 })
 
   -- Dot-repeat
-  validate_edit({ '\t\t\taa', '', '\tbb' }, { 1, 0 }, { '<', 'i', 'p', '.2j.' }, { '\taa', '', 'bb' }, { 3, 1 })
+  --stylua: ignore
+  validate_edit({ '\t\t\taa', '', '\tbb' }, { 1, 0 }, { '<', 'i', 'p', '.', '2', 'j', '.' }, { '\taa', '', 'bb' }, { 3, 1 })
 
   -- User keymap
   validate_edit({ '\t\taa', '', 'bb' }, { 1, 0 }, { '<', 'i', 'F' }, { '\taa', '', 'bb' }, { 1, 0 })
@@ -3388,8 +3389,8 @@ T["'mini.nvim' compatibility"]['mini.ai'] = function()
 
   validate_edit1d('(a(b(cc)b)a)', 5, 'd2i)', '(a()a)', 3)
 
-  validate_edit1d('(a(b(cc)b)a)', 5, 'di)l.', '(a()a)', 3)
-  validate_edit1d('(aa) (bb)', 1, 'ci)cc<Esc>W.', '(cc) (cc)', 7)
+  validate_edit1d('(a(b(cc)b)a)', 5, { 'di)l', '.' }, '(a()a)', 3)
+  validate_edit1d('(aa) (bb)', 1, { 'ci)cc<Esc>W', '.' }, '(cc) (cc)', 7)
 
   validate_edit1d('(aa) (bb) (cc)', 6, 'dil)', '() (bb) (cc)', 1)
   validate_edit1d('(aa) (bb) (cc)', 11, 'd2il)', '() (bb) (cc)', 1)
@@ -3405,8 +3406,8 @@ T["'mini.nvim' compatibility"]['mini.ai'] = function()
 
   validate_edit1d('(a(b(cc)b)a)', 5, 'd2a)', '(aa)', 2)
 
-  validate_edit1d('(a(b(cc)b)a)', 5, 'da).', '(aa)', 2)
-  validate_edit1d('(aa) (bb)', 1, 'ca)cc<Esc>W.', 'cc cc', 4)
+  validate_edit1d('(a(b(cc)b)a)', 5, { 'da)', '.' }, '(aa)', 2)
+  validate_edit1d('(aa) (bb)', 1, { 'ca)cc<Esc>W', '.' }, 'cc cc', 4)
 
   validate_edit1d('(aa) (bb) (cc)', 6, 'dal)', ' (bb) (cc)', 0)
   validate_edit1d('(aa) (bb) (cc)', 11, 'd2al)', ' (bb) (cc)', 0)

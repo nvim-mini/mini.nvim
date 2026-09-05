@@ -1400,14 +1400,14 @@ T['Find surrounding']['works without dot-repeat'] = function()
   validate_find({ '(aaa)' }, { 1, 4 }, { { 1, 0 }, { 1, 4 }, { 1, 0 } }, type_keys, 'sf', ')')
 
   -- Does not override dot-repeat
-  set_lines({ '(aaa)' })
+  set_lines({ 'a(aaa)' })
   set_cursor(1, 0)
-  type_keys('r]', 'u') -- dot-repeatable action
+  type_keys('rb') -- dot-repeatable action
   set_cursor(1, 2)
   type_keys('sf', ')')
   type_keys('.')
-  eq(get_lines(), { '(aaa]' })
-  eq(get_cursor(), { 1, 4 })
+  eq(get_lines(), { 'b(aaab' })
+  eq(get_cursor(), { 1, 5 })
 end
 
 T['Find surrounding']['works in left direction without dot-repeat'] = function()
@@ -1416,14 +1416,14 @@ T['Find surrounding']['works in left direction without dot-repeat'] = function()
   validate_find({ '(aaa)' }, { 1, 2 }, { { 1, 0 }, { 1, 4 }, { 1, 0 } }, type_keys, 'sF', ')')
 
   -- Does not override dot-repeat
-  set_lines({ '(aaa)' })
+  set_lines({ 'a(aaa)' })
   set_cursor(1, 0)
-  type_keys('r[', 'u') -- dot-repeatable action
+  type_keys('rb')
   set_cursor(1, 2)
   type_keys('sF', ')')
   type_keys('.')
-  eq(get_lines(), { '[aaa)' })
-  eq(get_cursor(), { 1, 0 })
+  eq(get_lines(), { 'bbaaa)' })
+  eq(get_cursor(), { 1, 1 })
 end
 
 --stylua: ignore

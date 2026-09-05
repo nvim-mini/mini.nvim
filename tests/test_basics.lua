@@ -342,7 +342,7 @@ T['Mappings']['Basic']['go'] = function()
   eq(get_cursor(), { 1, 1 })
 
   -- Should allow different `v:count` in dot-repeat
-  type_keys('1.')
+  type_keys({ '1', '.' })
   eq(get_lines(), { 'aaa', '', '', '', '', '', '' })
   eq(get_cursor(), { 1, 1 })
 end
@@ -369,7 +369,7 @@ T['Mappings']['Basic']['gO'] = function()
   eq(get_cursor(), { 6, 1 })
 
   -- Should allow different `v:count` in dot-repeat
-  type_keys('1.')
+  type_keys({ '1', '.' })
   eq(get_lines(), { '', '', '', '', '', '', 'aaa' })
   eq(get_cursor(), { 7, 1 })
 end
