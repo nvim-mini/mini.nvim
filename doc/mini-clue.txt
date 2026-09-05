@@ -84,11 +84,7 @@ Notes:
       after |i_CTRL-O|) due to implementation difficulties.
     - Can have unexpected behavior with custom operators.
 
-- Has (mostly solved) issues with macros:
-    - All triggers are disabled during macro recording due to technical
-      reasons.
-    - The `@` and `Q` keys are specially mapped inside |MiniClue.setup()|
-      (if the key is not already mapped) to temporarily disable triggers.
+- All triggers are disabled during macro recording due to technical reasons.
 
 # Setup ~
 

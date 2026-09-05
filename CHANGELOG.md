@@ -20,6 +20,12 @@ There are following change types:
 
 - Set `{}` as `config.custom_textobjects` default (instead of `nil`). This is more consistent with other modules and should not have visible side effects.
 
+## mini.clue
+
+### Evolve
+
+- Stop creating custom `@` and `Q` mappings that temporarily disable triggers during macro execution. This seems to be not needed (at least on Neovim>=0.10) and removing should not have effect on a regular usage.
+
 ## mini.diff
 
 ### Refine

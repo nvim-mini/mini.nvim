@@ -52,6 +52,13 @@ local make_test_map = function(mode, lhs, opts)
   child.lua(lua_cmd)
 end
 
+local ensure_macro_maps = function()
+  -- Neovim>=0.13 removed default `Q` mapping for replaying the latest recorded
+  -- macro. Remap it for test coverage similar to Neovim<0.13.
+  if child.fn.has('nvim-0.13') == 0 then return end
+  child.cmd("nnoremap <expr> Q reg_recorded()=='' ? '' : '@'.reg_recorded()")
+end
+
 -- Custom validators
 local validate_trigger_keymap = function(mode, keys, buf_id)
   buf_id = buf_id or child.api.nvim_get_current_buf()
@@ -215,8 +222,7 @@ end
 
 T['setup()']['creates mappings for `@` and `Q`'] = function()
   load_module()
-  expect.match(child.lua_get("vim.fn.maparg('@', 'n', false, true).desc"), 'macro.*mini%.clue')
-  expect.match(child.lua_get("vim.fn.maparg('Q', 'n', false, true).desc"), 'macro.*mini%.clue')
+  ensure_macro_maps()
 
   -- Mappings should respect [count]
   type_keys('qq', 'ia<Esc>', 'q')
@@ -3184,6 +3190,7 @@ end
 T['Reproducing keys']['works with macros'] = function()
   mock_comment_operators()
   load_module({ triggers = { { mode = 'n', keys = 'g' }, { mode = 'o', keys = 'i' }, { mode = 'i', keys = '<C-r>' } } })
+  ensure_macro_maps()
   validate_trigger_keymap('n', 'g')
   validate_trigger_keymap('o', 'i')
 
@@ -3249,6 +3256,7 @@ end
 T['Reproducing keys']["works with macros and 'mini.jump'"] = function()
   child.lua("require('mini.jump').setup()")
   load_module()
+  ensure_macro_maps()
   set_lines({ '  [aaa][bbb][ccc]' })
 
   type_keys(small_time, 'qq', '0f', '[', 'r(f', ']', 'r)', 'q')

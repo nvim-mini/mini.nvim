@@ -87,9 +87,7 @@ Notes:
     - Doesn't work as part of a command in "temporary Normal mode" (like after `<C-o>` in Insert mode) due to implementation difficulties.
     - Can have unexpected behavior with custom operators.
 
-- Has (mostly solved) issues with macros:
-    - All triggers are disabled during macro recording due to technical reasons.
-    - The `@` and `Q` keys are specially mapped inside `MiniClue.setup()` to temporarily disable triggers.
+- All triggers are disabled during macro recording due to technical reasons.
 
 ## Config quick start
 

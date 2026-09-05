@@ -82,11 +82,7 @@
 ---       after |i_CTRL-O|) due to implementation difficulties.
 ---     - Can have unexpected behavior with custom operators.
 ---
---- - Has (mostly solved) issues with macros:
----     - All triggers are disabled during macro recording due to technical
----       reasons.
----     - The `@` and `Q` keys are specially mapped inside |MiniClue.setup()|
----       (if the key is not already mapped) to temporarily disable triggers.
+--- - All triggers are disabled during macro recording due to technical reasons.
 ---
 --- # Setup ~
 ---
@@ -1198,24 +1194,6 @@ H.apply_config = function(config)
 
   -- Create trigger keymaps for all existing buffers
   MiniClue.enable_all_triggers()
-
-  -- Tweak macro execution
-  local exec_macro = function(key, register)
-    if register == nil then return end
-    MiniClue.disable_all_triggers()
-    vim.schedule(function() MiniClue.enable_all_triggers() end)
-    -- NOTE: Use `t` flag for "Handle as if typed" for better integration with
-    -- other modules/plugins (like 'mini.jump').
-    pcall(vim.api.nvim_feedkeys, vim.v.count1 .. key .. register, 'nt', false)
-  end
-
-  local macro_keymap_opts = { nowait = true, desc = "Execute macro without 'mini.clue' triggers" }
-
-  local exec_register_macro = function() exec_macro('@', H.getcharstr()) end
-  if vim.fn.maparg('@', 'n') == '' then vim.keymap.set('n', '@', exec_register_macro, macro_keymap_opts) end
-
-  local exec_latest_macro = function() exec_macro('Q', '') end
-  if vim.fn.maparg('Q', 'n') == '' then vim.keymap.set('n', 'Q', exec_latest_macro, macro_keymap_opts) end
 end
 
 H.is_disabled = function(buf_id)
@@ -1250,7 +1228,12 @@ H.create_autocommands = function()
   au('Filetype', vim.tbl_keys(H.ft_to_enable), ensure_triggers, 'Ensure buffer-local trigger keymaps')
 
   -- Disable all triggers (current and future) when recording macro as they
-  -- interfere with what is actually recorded
+  -- interfere with what is actually recorded.
+  -- NOTE: Previously it was also a problem for macro replay, but it seems to
+  -- not be the case at least on Neovim>=0.10. If it ever is the case again,
+  -- consider updating trigger RHS to check for `vim.fn.reg_executing() ~= ''`,
+  -- temporarily disable triggers, and return after doing
+  -- `pcall(vim.api.nvim_feedkeys, trigger.keys, 'mit', false)`.
   local cache_disable
   local disable_all_plus = function()
     MiniClue.disable_all_triggers()
@@ -1496,7 +1479,7 @@ H.state_apply_postkeys = vim.schedule_wrap(function(postkeys)
 
   -- Defer check of whether postkeys resulted into window.
   -- Could not find proper way to check this which guarantees to be executed
-  -- after `nvim_feedkeys()` takes effect **end** doesn't result into flicker
+  -- after `nvim_feedkeys()` takes effect **and** doesn't result into flicker
   -- when consecutively applying "submode" keys.
   vim.defer_fn(function()
     if #H.state.query == 0 then H.window_close() end
