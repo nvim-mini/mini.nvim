@@ -530,6 +530,28 @@ T['Mappings']['Basic']['*/#'] = function()
   eq(get_cursor(), { 5, 0 })
 end
 
+T['Mappings']['Basic']['<C-c>'] = function()
+  child.set_size(10, 20)
+  load_module()
+  child.o.cursorline = false
+  child.o.number = false
+  child.o.laststatus = 0
+
+  set_lines({ 'aaa', 'bbb', 'bbb' })
+  child.cmd('echo "Hello!"')
+  if child.fn.has('nvim-0.13') == 1 then type_keys('Q') end
+  type_keys('/', 'bbb', '<CR>')
+
+  eq(child.v.hlsearch, 1)
+  type_keys('<C-c>')
+  child.expect_screenshot()
+  eq(child.v.hlsearch, 0)
+  if child.fn.has('nvim-0.13') == 1 then
+    local ns_id = vim.api.nvim_create_namespace('nvim.multicursor')
+    eq(child.api.nvim_buf_get_extmarks(0, ns_id, 0, -1, { limit = 1 }), {})
+  end
+end
+
 T['Mappings']['Basic']['<C-s>'] = function()
   local test_file_path = 'tests/ctrl-s.txt'
   MiniTest.finally(function() child.fn.delete(test_file_path) end)
