@@ -2796,6 +2796,15 @@ T['Builtin']['Tag']['works'] = function()
   -- Should work with empty tag name
   validate_tobj1d('<>aaa</>', 3, 'at', { 1, 8 })
 
+  -- Should work with whitespace before `>`
+  validate_tobj1d('<x >aaa</x >', 3, 'at', { 1, 12 })
+  validate_tobj1d('<x>aaa</x >', 3, 'at', { 1, 11 })
+  validate_tobj1d('<x >aaa</x>', 3, 'at', { 1, 11 })
+
+  validate_tobj({ '<x', '>aaa</x', '>' }, { 2, 1 }, 'at', { { 1, 1 }, { 3, 1 } })
+  validate_tobj({ '<x>aaa</x', '>' }, { 1, 3 }, 'at', { { 1, 1 }, { 2, 1 } })
+  validate_tobj({ '<x', '>aaa</x>' }, { 2, 1 }, 'at', { { 1, 1 }, { 2, 8 } })
+
   -- Should work with empty region
   validate_tobj1d('<x></x>', 0, 'it', { 4, 4 })
   validate_edit1d('<x></x>', 0, 'dit', '<x></x>', 3)
