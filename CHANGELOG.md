@@ -20,6 +20,12 @@ There are following change types:
 
 - Set `{}` as `config.custom_textobjects` default (instead of `nil`). This is more consistent with other modules and should not have visible side effects.
 
+## mini.basics
+
+### Expand
+
+- Add `<C-c>` basic mapping that acts as "Stop, clear, redraw" (a combination of `:h CTRL-C` and `:h CTRL-L-default`).
+
 ## mini.clue
 
 ### Evolve

@@ -208,11 +208,15 @@ end
 ---  | g/    | Visual          | Search inside current visual selection        |
 ---  | *     | Visual          | Search forward for current visual selection   |
 ---  | #     | Visual          | Search backward for current visual selection  |
+---  | <C-c> | Normal          | Stop, clear, redraw                           |
 ---  | <C-s> | Normal, Visual, | Save and go to Normal mode                    |
 ---  |       |     Insert      |                                               |
 --- <
 --- Notes:
 --- - See |[count]| for its meaning.
+--- - The <C-c> mapping is basically a combination of |CTRL-C| and |CTRL-L-default|.
+---   This combines related actions under one mapping. Particularly useful with
+---   enabled `mappings.windows` as it overrides |CTRL-L-default|.
 --- - On Neovim>=0.11 there are |[<Space>| / |]<Space>| for adding empty lines.
 ---   The `gO` and `go` mappings are still created as they are more aligned with
 ---   similarly purposed |O| and |o| keys (although sometimes conflict with |gO|).
@@ -264,6 +268,7 @@ end
 ---     - `<C-j>` - focus on below window (see |CTRL-W_J|).
 ---     - `<C-k>` - focus on above window (see |CTRL-W_K|).
 ---     - `<C-l>` - focus on right window (see |CTRL-W_L|).
+---       Note: this overrides |CTRL-L-default|. Use <C-c> set up in `mappings.basic`.
 --- - Window resize (all use arrow keys; variants of |:resize|; respect |[count]|):
 ---     - `<C-left>`  - decrease window width.
 ---     - `<C-down>`  - decrease window height.
@@ -565,6 +570,12 @@ H.apply_mappings = function(config)
     -- Search inside visually highlighted text. Use `silent = false` for it to
     -- make effect immediately.
     map('x', 'g/', '<esc>/\\%V', { silent = false, desc = 'Search inside visual selection' })
+
+    -- Stop, clear, redraw. Basically `:h CTRL-C` and `:h CTRL-L-default`.
+    local mc_clear = 'call nvim_buf_clear_namespace(0, nvim_create_namespace("nvim.multicursor"), 0, -1)'
+    local cmds = { 'silent normal! <C-c>', 'let v:hlsearch = 0', 'diffupdate', mc_clear, 'silent normal! <C-l>' }
+    if vim.fn.has('nvim-0.13') == 0 then table.remove(cmds, 4) end
+    map('n', '<C-c>', '<Cmd>' .. table.concat(cmds, '<CR><Cmd>') .. '<CR>', { desc = 'Stop, clear, redraw' })
 
     -- Alternative way to save and exit in Normal mode.
     -- NOTE: Adding `redraw` helps with `cmdheight=0` if buffer is not modified
