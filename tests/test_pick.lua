@@ -3779,6 +3779,19 @@ T['builtin.cli()']['works'] = function()
   eq(child.lua_get('_G.cli_item'), 'aa')
 end
 
+T['builtin.cli()']['works with missing command'] = function()
+  mock_cli_return({ 'should be not used' })
+  child.lua('_G.spawn_error = "ENOENT: no such file or directory"')
+  expect.error(
+    function() child.lua('_G.cli_item = MiniPick.builtin.cli({ command = { "missing-command" } })') end,
+    'Could not execute system command: { "missing%-command" }'
+  )
+
+  eq(is_picker_active(), false)
+  eq(child.lua_get('_G.cli_item'), vim.NIL)
+  eq(get_process_log(), {})
+end
+
 T['builtin.cli()']['respects `local_opts.postprocess`'] = function()
   mock_cli_return({ 'aa', 'bb' })
   child.lua([[_G.postprocess = function(...) _G.args = { ... }; return { 'x', 'y', 'z' } end]])
@@ -4584,6 +4597,18 @@ T['set_picker_items_from_cli()']['correctly processes stdout feed'] = function()
   mock_stdout_feed({ 'aa\nbb\r\ncc\rdd\nee\r\n' })
   set_picker_items_from_cli(test_command)
   eq(get_picker_items(), { 'aa', 'bb', 'cc\rdd', 'ee' })
+end
+
+T['set_picker_items_from_cli()']['correctly detect spawn error'] = function()
+  start_with_items({ 'a' })
+  child.lua('_G.spawn_error = "ENOENT: no such file or directory"')
+  mock_stdout_feed({ 'should be not used' })
+  local err_pattern = 'Could not execute system command: { "missing%-command" }'
+  expect.error(function() set_picker_items_from_cli({ 'missing-command' }) end, err_pattern)
+
+  eq(is_picker_active(), false)
+  validate_spawn_log({ { executable = 'missing-command', options = { args = {} } } })
+  eq(get_process_log(), {})
 end
 
 T['set_picker_items_from_cli()']['correctly detects error in stdout feed'] = function()

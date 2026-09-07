@@ -69,6 +69,8 @@ vim.loop.spawn = function(path, options, on_exit)
   options_without_callables.stdio = nil
   table.insert(_G.spawn_log, { executable = path, options = options_without_callables })
 
+  if _G.spawn_error then return nil, _G.spawn_error end
+
   vim.schedule(function() on_exit() end)
 
   n_pid = n_pid + 1

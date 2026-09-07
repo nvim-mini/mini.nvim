@@ -1787,6 +1787,10 @@ MiniPick.set_picker_items_from_cli = function(command, opts)
   process, pid = vim.loop.spawn(executable, spawn_opts, function()
     if not process:is_closing() then process:close() end
   end)
+  if process == nil then
+    MiniPick.stop()
+    error('Could not execute system command: ' .. vim.inspect(command))
+  end
   -- NOTE: `cancel` is better name, but go with `vim.system():kill` for future
   local kill = function()
     if stdout:is_active() then stdout:read_stop() end
