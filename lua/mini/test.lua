@@ -121,11 +121,9 @@
 --- # Highlight groups ~
 --- *MiniTest-hl-groups*
 ---
---- - `MiniTestEmphasis` - emphasis highlighting. By default it is a bold text.
---- - `MiniTestFail` - highlighting of failed cases. By default it is a bold
----   text with `vim.g.terminal_color_1` color (red).
---- - `MiniTestPass` - highlighting of passed cases. By default it is a bold
----   text with `vim.g.terminal_color_2` color (green).
+--- - `MiniTestEmphasis` - emphasis highlighting.
+--- - `MiniTestFail` - highlighting of failed cases.
+--- - `MiniTestPass` - highlighting of passed cases.
 ---
 --- To change any highlight group, set it directly with |nvim_set_hl()|.
 ---
@@ -1702,14 +1700,16 @@ H.create_autocommands = function()
 end
 
 H.create_default_hl = function()
-  local set_default_hl = function(name, data)
-    data.default = true
-    vim.api.nvim_set_hl(0, name, data)
+  local hi_copy_with_bold = function(to, from)
+    local data = vim.api.nvim_get_hl(0, { name = from, link = false })
+    -- NOTE: do not use `default=true` since it needs recomputation to be valid
+    data.default, data.bold = nil, true
+    vim.api.nvim_set_hl(0, to, data)
   end
 
-  set_default_hl('MiniTestFail', { fg = vim.g.terminal_color_1 or '#FF0000', bold = true })
-  set_default_hl('MiniTestPass', { fg = vim.g.terminal_color_2 or '#00FF00', bold = true })
-  set_default_hl('MiniTestEmphasis', { bold = true })
+  hi_copy_with_bold('MiniTestFail', 'DiagnosticError')
+  hi_copy_with_bold('MiniTestPass', 'DiagnosticOk')
+  vim.api.nvim_set_hl(0, 'MiniTestEmphasis', { default = true, bold = true })
 end
 
 H.is_disabled = function() return vim.g.minitest_disable == true or vim.b.minitest_disable == true end

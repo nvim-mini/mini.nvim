@@ -159,8 +159,8 @@ end
 
 T['setup()']['ensures colors'] = function()
   child.cmd('colorscheme default')
-  expect.match(child.cmd_capture('hi MiniTestFail'), 'gui=bold')
-  expect.match(child.cmd_capture('hi MiniTestPass'), 'gui=bold')
+  expect.match(child.cmd_capture('hi MiniTestFail'), 'gui=bold guifg=#ffc0b9')
+  expect.match(child.cmd_capture('hi MiniTestPass'), 'gui=bold guifg=#b3f6c0')
   expect.match(child.cmd_capture('hi MiniTestEmphasis'), 'gui=bold')
 end
 
