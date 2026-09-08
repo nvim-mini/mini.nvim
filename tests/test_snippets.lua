@@ -240,7 +240,11 @@ end
 
 T['setup()']['ensures colors'] = function()
   child.cmd('colorscheme default')
-  expect.match(child.cmd_capture('hi MiniSnippetsCurrent'), 'gui=underdouble guisp=#')
+  expect.match(child.cmd_capture('hi MiniSnippetsCurrent'), 'gui=underdouble guisp=#fce094')
+
+  -- Changing bg with enabled colorscheme should recompute computed attributes
+  child.cmd('set bg=light')
+  expect.match(child.cmd_capture('hi MiniSnippetsCurrent'), 'gui=underdouble guisp=#6b5300')
 end
 
 T['setup()']['adds "code-snippets" filetype detection'] = function()

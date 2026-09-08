@@ -169,6 +169,11 @@ end
 T['setup()']['ensures colors'] = function()
   child.cmd('colorscheme default')
   expect.match(child.cmd_capture('hi MiniStatuscolumnSep'), 'links to LineNr')
+  expect.match(child.cmd_capture('hi MiniStatuscolumnDim'), 'guifg=#2a2c32 guibg=#14161b')
+
+  -- Changing bg with enabled colorscheme should recompute computed attributes
+  child.cmd('set bg=light')
+  expect.match(child.cmd_capture('hi MiniStatuscolumnDim'), 'guifg=#c5c8cf guibg=#e0e2ea')
 end
 
 --stylua: ignore
@@ -185,6 +190,7 @@ T['setup()']['correctly computes dimmed highlight attributes'] = function()
     local ref = child.api.nvim_get_hl(0, { name = 'MiniStatuscolumnDim', link = true })
     if ref.fg then ref.fg = string.format('#%06x', ref.fg) end
     if ref.bg then ref.bg = string.format('#%06x', ref.bg) end
+    hl_ref.default = true
     eq(ref, hl_ref)
   end
 
@@ -211,7 +217,6 @@ T['setup()']['correctly computes dimmed highlight attributes'] = function()
   -- Should recompute after changing color scheme
   child.cmd('hi clear')
   child.api.nvim_set_hl(0, 'LineNr', { fg = '#656565', bg = '#010101' })
-  expect.match(child.cmd_capture('hi MiniStatuscolumnDim'), 'cleared')
   child.cmd('doautocmd ColorScheme')
   expect.match(child.cmd_capture('hi MiniStatuscolumnDim'), 'guifg=#272727 guibg=#010101')
 end

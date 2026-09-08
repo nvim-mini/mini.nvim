@@ -1702,8 +1702,7 @@ end
 H.create_default_hl = function()
   local hi_copy_with_bold = function(to, from)
     local data = vim.api.nvim_get_hl(0, { name = from, link = false })
-    -- NOTE: do not use `default=true` since it needs recomputation to be valid
-    data.default, data.bold = nil, true
+    data.default, data.bold = true, true
     vim.api.nvim_set_hl(0, to, data)
   end
 

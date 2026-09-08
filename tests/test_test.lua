@@ -162,6 +162,11 @@ T['setup()']['ensures colors'] = function()
   expect.match(child.cmd_capture('hi MiniTestFail'), 'gui=bold guifg=#ffc0b9')
   expect.match(child.cmd_capture('hi MiniTestPass'), 'gui=bold guifg=#b3f6c0')
   expect.match(child.cmd_capture('hi MiniTestEmphasis'), 'gui=bold')
+
+  -- Changing bg with enabled colorscheme should recompute computed attributes
+  child.cmd('set bg=light')
+  expect.match(child.cmd_capture('hi MiniTestFail'), 'gui=bold guifg=#590008')
+  expect.match(child.cmd_capture('hi MiniTestPass'), 'gui=bold guifg=#005523')
 end
 
 T['new_set()'] = new_set()

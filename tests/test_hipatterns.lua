@@ -129,7 +129,11 @@ end
 T['setup()']['ensures colors'] = function()
   load_module()
   child.cmd('colorscheme default')
-  expect.match(child.cmd_capture('hi MiniHipatternsFixme'), 'gui=bold,reverse')
+  expect.match(child.cmd_capture('hi MiniHipatternsFixme'), 'gui=bold,reverse guifg=#ffc0b9')
+
+  -- Changing bg with enabled colorscheme should recompute computed attributes
+  child.cmd('set bg=light')
+  expect.match(child.cmd_capture('hi MiniHipatternsFixme'), 'gui=bold,reverse guifg=#590008')
 end
 
 T['setup()']['auto enables in all visible buffers'] = function()

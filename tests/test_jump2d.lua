@@ -179,6 +179,10 @@ end
 T['setup()']['ensures colors'] = function()
   child.cmd('colorscheme default')
   expect.match(child.cmd_capture('hi MiniJump2dSpot'), 'gui=bold,nocombine guifg=[Ww]hite guibg=[Bb]lack')
+
+  -- Changing bg with enabled colorscheme should recompute computed attributes
+  child.cmd('set bg=light')
+  expect.match(child.cmd_capture('hi MiniJump2dSpot'), 'gui=bold,nocombine guifg=[Bb]lack guibg=[Ww]hite')
 end
 
 T['setup()']['applies `config.mappings`'] = function()
