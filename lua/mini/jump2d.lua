@@ -793,21 +793,20 @@ H.create_autocommands = function(config)
   au('ColorScheme', '*', H.create_default_hl, 'Ensure colors')
 end
 
---stylua: ignore
 H.create_default_hl = function()
-  local set_default_hl = function(name, data)
+  local hi = function(name, data)
     data.default = true
     vim.api.nvim_set_hl(0, name, data)
   end
 
   local is_light_bg = vim.o.background == 'light'
-  local bg_color = is_light_bg and 'white' or 'black'
-  local fg_color = is_light_bg and 'black' or 'white'
+  local bg = is_light_bg and 'White' or 'Black'
+  local fg = is_light_bg and 'Black' or 'White'
 
-  set_default_hl('MiniJump2dSpot',       { fg = fg_color, bg = bg_color, bold = true, nocombine = true })
-  set_default_hl('MiniJump2dSpotAhead',  { fg = 'grey',   bg = bg_color, nocombine = true })
-  set_default_hl('MiniJump2dSpotUnique', { link = 'MiniJump2dSpot' })
-  set_default_hl('MiniJump2dDim',        { link = 'Comment' })
+  hi('MiniJump2dSpot', { fg = fg, bg = bg, bold = true, nocombine = true })
+  hi('MiniJump2dSpotAhead', { fg = 'Grey', bg = bg, nocombine = true })
+  hi('MiniJump2dSpotUnique', { link = 'MiniJump2dSpot' })
+  hi('MiniJump2dDim', { link = 'Comment' })
 end
 
 H.is_disabled = function() return vim.g.minijump2d_disable == true or vim.b.minijump2d_disable == true end
