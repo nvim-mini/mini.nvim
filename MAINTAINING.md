@@ -239,7 +239,6 @@ Here is a rough outline of how to act (with some Git commit hashes for illustrat
 - Add tests in 'tests' directory. Use 'tests/dir-xxx' name for module-specific non-test helpers.
 - Update 'lua/init.lua' to mention new module: both in initial table of contents and list of modules.
 - Add new module to the following files:
-    - 'scripts/minidoc.lua' to generate separate help file.
     - 'scripts/dual_sync.sh' to include new module.
     - 'scripts/dual_release.sh' to include new module.
     - '.github/ISSUE_TEMPLATE/bug-report.yml' to be included in a dropdown menu.
