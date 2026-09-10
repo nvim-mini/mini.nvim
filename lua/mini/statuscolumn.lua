@@ -647,8 +647,7 @@ H.make_main_content_map = function(spec, click)
         local content_str = ltype_map.format:gsub('[=fls]', format_repl)
 
         -- NOTE: show separator hl based on whether it is configured to show
-        -- "CursorLine" highlighting in the column (`:h hl-CursorLineNr`, but
-        -- it works for fold and sign: https://github.com/vim/vim/issues/20480)
+        -- "CursorLine" highlighting in the column (`:h hl-CursorLineNr`).
         -- It also helps with drawing issues, since statuscolumn is not redrawn
         -- on cursor movement with 'nocursorline', which makes cursor separator
         -- not update also.

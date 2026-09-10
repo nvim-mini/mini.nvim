@@ -300,6 +300,9 @@ T['gen_content']['main()']["respects 'cursorline'"] = function()
   -- in cases described in `:h hl-CursorLineNr`. It should span across wrapped
   -- parts and line's virtual text.
   child.o.cursorline = true
+  -- - How sign and fold columns behave should not matter
+  child.o.signcolumn = 'no'
+  child.o.foldcolumn = '0'
   set_cursor(7, 0)
   child.lua('MiniStatuscolumn.setup({ content = MiniStatuscolumn.gen_content.main({ { sep = "|" } }) })')
   child.expect_screenshot()
