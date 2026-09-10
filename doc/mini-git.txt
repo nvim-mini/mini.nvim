@@ -211,6 +211,7 @@ There are several `User` events triggered during command execution:
 Module setup
 
 Besides general side effects (see |mini.nvim|), it also:
+- Resolves `job.git_executable` in |MiniGit.config| with |exepath()|.
 - Sets up auto enabling in every normal buffer for an actual file on disk.
 - Creates |:Git| command.
 
@@ -249,7 +250,9 @@ Defaults ~
 
 `config.job` contains options for customizing CLI executions.
 
-`job.git_executable` defines a full path to Git executable. Default: "git".
+`job.git_executable` defines a full path to Git executable, as defined
+by |exepath()|. Its full value is resolved once when calling |MiniGit.setup()|.
+Default: "git".
 
 `job.timeout` is a duration (in ms) from job start until it is forced to stop.
 Default: 30000.

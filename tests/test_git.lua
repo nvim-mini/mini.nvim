@@ -29,6 +29,8 @@ local git_repo_dir = git_root_dir .. path_sep .. '.git-dir'
 local git_dir_path = git_root_dir .. path_sep .. 'dir-in-git'
 local git_file_path = git_root_dir .. path_sep .. 'file-in-git'
 
+local git_exec = '/path/to/git'
+
 -- Time constants
 local repo_watch_delay = 50
 local small_time = helpers.get_time_const(10)
@@ -77,10 +79,11 @@ local mock_change_git_index = function()
   child.loop.fs_rename(index_path .. '.lock', index_path)
 end
 
-local mock_executable = function()
+local mock_exepath = function()
+  child.lua('_G.git_exec = ' .. vim.inspect(git_exec))
   child.lua([[
-    _G.orig_executable = vim.fn.executable
-    vim.fn.executable = function(exec) return exec == 'git' and 1 or _G.orig_executable(exec) end
+    _G.orig_exepath = vim.fn.exepath
+    vim.fn.exepath = function(exec) return exec == 'git' and _G.git_exec or _G.orig_exepath(exec) end
   ]])
 end
 
@@ -113,9 +116,9 @@ local validate_git_spawn_log = function(ref_log)
     elseif ref == nil then
       eq(real, 'Reference does not have entry for present spawn log entry')
     elseif vim.islist(ref) then
-      eq(real, { executable = 'git', options = { args = ref, cwd = real.options.cwd } })
+      eq(real, { executable = git_exec, options = { args = ref, cwd = real.options.cwd } })
     else
-      eq(real, { executable = 'git', options = ref })
+      eq(real, { executable = git_exec, options = ref })
     end
   end
 end
@@ -159,7 +162,7 @@ local T = new_set({
       child.set_size(10, 15)
       mock_spawn()
       mock_notify()
-      mock_executable()
+      mock_exepath()
 
       -- Populate child with frequently used paths
       child.lua('_G.git_root_dir, _G.git_repo_dir = ' .. vim.inspect(git_root_dir) .. ', ' .. vim.inspect(git_repo_dir))
@@ -2320,6 +2323,7 @@ T[':Git'] = new_set({
 local validate_command_init_setup = function(log_index, executable, cwd)
   log_index = log_index or 1
   executable = executable or 'git'
+  if executable == 'git' then executable = git_exec end
   cwd = cwd or child.fn.getcwd()
 
   local spawn_log = get_spawn_log()
@@ -2366,6 +2370,7 @@ end
 
 local validate_command_call = function(log_index, args, executable, cwd)
   executable = executable or 'git'
+  if executable == 'git' then executable = git_exec end
   cwd = cwd or child.fn.getcwd()
 
   local log_entry = get_spawn_log()[log_index]
@@ -2776,7 +2781,7 @@ T[':Git']['works with no initial subcommand data'] = function()
 end
 
 T[':Git']['checks for present executable'] = function()
-  child.lua('vim.fn.executable = function() return 0 end')
+  child.lua('vim.fn.exepath = function() return "" end')
   load_module()
   validate_notifications({ { '(mini.git) There is no `git` executable', 'WARN' } })
   clear_notify_log()
@@ -2787,7 +2792,7 @@ T[':Git']['checks for present executable'] = function()
 end
 
 T[':Git']['respects `job.git_executable`'] = function()
-  child.lua('vim.fn.executable = function() return 1 end')
+  child.lua('vim.fn.exepath = function(x) return x end')
   load_module({ job = { git_executable = 'my_git' } })
 
   child.cmd('Git log')
@@ -3145,14 +3150,14 @@ T[':Git']['events are triggered'] = function()
   eq(log_done, {
     cwd = child.fn.getcwd(),
     exit_code = 0,
-    git_command = { 'git', 'log' },
+    git_command = { git_exec, 'log' },
     git_subcommand = 'log',
     stderr = '',
     stdout = 'abc1234 Hello\ndef4321 World',
   })
 
   local log_split = au_log[2].data
-  eq(log_split.git_command, { 'git', 'log' })
+  eq(log_split.git_command, { git_exec, 'log' })
   eq(log_split.win_source, init_win_id)
   eq(log_split.win_stdout, get_win())
 
@@ -3161,7 +3166,7 @@ T[':Git']['events are triggered'] = function()
   eq(push_err, {
     cwd = child.fn.getcwd(),
     exit_code = 1,
-    git_command = { 'git', 'push', 'origin', 'main' },
+    git_command = { git_exec, 'push', 'origin', 'main' },
     git_subcommand = 'push',
     stderr = 'There was error',
     stdout = '',

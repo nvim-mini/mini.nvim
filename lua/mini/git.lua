@@ -222,6 +222,7 @@ local H = {}
 --- Module setup
 ---
 --- Besides general side effects (see |mini.nvim|), it also:
+--- - Resolves `job.git_executable` in |MiniGit.config| with |exepath()|.
 --- - Sets up auto enabling in every normal buffer for an actual file on disk.
 --- - Creates |:Git| command.
 ---
@@ -243,9 +244,9 @@ MiniGit.setup = function(config)
   H.apply_config(config)
 
   -- Ensure proper Git executable
-  local exec = config.job.git_executable
-  H.has_git = vim.fn.executable(exec) == 1
-  if not H.has_git then H.notify('There is no `' .. exec .. '` executable', 'WARN') end
+  H.git_exec_raw = config.job.git_executable
+  H.git_exec = vim.fn.exepath(H.git_exec_raw)
+  if H.git_exec == '' then H.notify('There is no `' .. H.git_exec_raw .. '` executable', 'WARN') end
 
   -- Define behavior
   H.create_autocommands()
@@ -264,7 +265,9 @@ end
 ---
 --- `config.job` contains options for customizing CLI executions.
 ---
---- `job.git_executable` defines a full path to Git executable. Default: "git".
+--- `job.git_executable` defines a full path to Git executable, as defined
+--- by |exepath()|. Its full value is resolved once when calling |MiniGit.setup()|.
+--- Default: "git".
 ---
 --- `job.timeout` is a duration (in ms) from job start until it is forced to stop.
 --- Default: 30000.
@@ -516,7 +519,7 @@ MiniGit.enable = function(buf_id)
   buf_id = H.validate_buf_id(buf_id)
 
   -- Don't enable more than once
-  if H.is_buf_enabled(buf_id) or H.is_disabled(buf_id) or not H.has_git then return end
+  if H.is_buf_enabled(buf_id) or H.is_disabled(buf_id) or H.git_exec == '' then return end
 
   -- Enable only in buffers which *can* be part of Git repo
   local path = H.get_buf_realpath(buf_id)
@@ -673,9 +676,7 @@ end)
 
 -- Command --------------------------------------------------------------------
 H.command_impl = function(input)
-  if not H.has_git then
-    return H.notify('There is no `' .. MiniGit.config.job.git_executable .. '` executable', 'ERROR')
-  end
+  if H.git_exec == '' then return H.notify('There is no `' .. H.git_exec_raw .. '` executable', 'ERROR') end
 
   H.ensure_git_subcommands()
 
@@ -698,7 +699,7 @@ H.command_impl = function(input)
 
   -- Setup spawn arguments
   local args = vim.tbl_map(H.expandcmd, input.fargs)
-  local command = { MiniGit.config.job.git_executable, unpack(args) }
+  local command = { H.git_exec, unpack(args) }
   local cwd = H.get_git_cwd()
 
   local cmd_data = { cmd_input = input, git_command = command, cwd = cwd }
@@ -1175,7 +1176,7 @@ end
 
 H.git_cli_output = function(args, cwd, env)
   if cwd ~= nil and (vim.fn.isdirectory(cwd) ~= 1 or cwd == '') then return {} end
-  local command = { MiniGit.config.job.git_executable, '--no-pager', unpack(args) }
+  local command = { H.git_exec, '--no-pager', unpack(args) }
   local res = H.cli_run(command, cwd, nil, { env = env }).out
   if res == '' then return {} end
   return vim.split(res, '\n')
@@ -1622,7 +1623,7 @@ H.is_file_entry_header = function(lnum) return vim.fn.getline(lnum):find('^diff 
 -- CLI ------------------------------------------------------------------------
 H.git_cmd = function(args)
   -- Use '-c gc.auto=0' to disable `stderr` "Auto packing..." messages
-  return { MiniGit.config.job.git_executable, '-c', 'gc.auto=0', unpack(args) }
+  return { H.git_exec, '-c', 'gc.auto=0', unpack(args) }
 end
 
 H.make_spawn_env = function(env_vars)
