@@ -2370,10 +2370,10 @@ H.buffer_update_directory = function(buf_id, path, opts, is_preview)
     local icon_start, name_start = l:match('^/%d+/().-()/')
 
     -- NOTE: Use `right_gravity = false` for persistent highlights during edit
-    local icon_opts = { hl_group = icon_hl[i], end_col = name_start - 1, right_gravity = false }
+    local icon_opts = { hl_group = icon_hl[i], end_col = name_start - 1, right_gravity = false, priority = 101 }
     set_hl(i - 1, icon_start - 1, icon_opts)
 
-    local name_opts = { hl_group = name_hl[i], end_row = i, end_col = 0, right_gravity = false }
+    local name_opts = { hl_group = name_hl[i], end_row = i, end_col = 0, right_gravity = false, priority = 102 }
     set_hl(i - 1, name_start - 1, name_opts)
   end
 end
