@@ -886,6 +886,15 @@ T['start()']['respects `opts.hl_group_dim`'] = function()
   child.expect_screenshot()
 end
 
+T['start()']['can be shown over extmarks with default priority'] = function()
+  local ns_id = child.api.nvim_create_namespace('test')
+  child.api.nvim_buf_set_extmark(0, ns_id, 0, 0, { hl_group = 'String', end_row = 0, end_col = 2 })
+  child.api.nvim_buf_set_extmark(0, ns_id, 0, 3, { virt_text_pos = 'overlay', virt_text = { { '!', 'Special' } } })
+  start({ labels = 'jk', view = { dim = true } })
+  type_keys('j', 'j')
+  child.expect_screenshot()
+end
+
 T['start()']['respects `vim.{g,b}.minijump2d_disable`'] = new_set({
   parametrize = { { 'g' }, { 'b' } },
 }, {
