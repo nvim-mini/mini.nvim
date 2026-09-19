@@ -2780,6 +2780,11 @@ T['default_key()']['works with special keys'] = function()
   validate_key({}, 'ab', { input = 'ab', caret = 3 })
   validate_key({}, ' \n\f', { input = ' \n\f', caret = 4 })
   validate_key({}, ' \t', { input = ' \t', caret = 3 })
+
+  -- Should work with some specially translated (`vim.fn.keytrans()`) keys
+  validate_key({}, '<', { input = '<', caret = 2 })
+  validate_key({}, '\\', { input = '\\', caret = 2 })
+  validate_key({}, '|', { input = '|', caret = 2 })
 end
 
 T['default_key()']['respects `opts.autopair`'] = function()

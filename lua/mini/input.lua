@@ -2115,7 +2115,7 @@ end
 
 H.is_special_char = function(x)
   -- Remove allowed character that are specially translated
-  x = x:gsub('[%s<]', '')
+  x = x:gsub('[%s<\\|]', '')
   return vim.fn.keytrans(x) ~= x
 end
 
