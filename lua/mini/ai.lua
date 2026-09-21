@@ -642,7 +642,8 @@ MiniAi.config = {
 ---     Default: 1.
 ---   - <reference_region> - region to try to cover (see |MiniAi-glossary|). It
 ---     is guaranteed that output region will not be inside or equal to this one.
----     Default: empty region at cursor position.
+---     Default: current selection in Visual mode, empty region at cursor position
+---     in other modes.
 ---   - <search_method> - Search method. Default: `config.search_method`.
 ---
 ---@return table|nil Region of textobject or `nil` if no textobject different
@@ -1348,18 +1349,14 @@ H.expr_textobject = function(mode, ai_type, opts)
     if vim.fn.maparg(res, mode) ~= '' then res = '<Ignore>' .. res end
     return res
   end
-  opts = vim.tbl_deep_extend('force', H.get_default_opts(), opts or {})
 
   -- Clear cache
   H.cache = {}
 
   -- Construct call options based on mode
-  local reference_region_field, operator_pending_field, vis_mode_field = 'nil', 'nil', 'nil'
-
-  if mode == 'x' then
-    -- Use Visual selection as reference region for Visual mode mappings
-    reference_region_field = vim.inspect(H.get_visual_region(), { newline = '', indent = '' })
-  end
+  -- NOTE: Do not precompute reference region to recompute it with multicursor
+  local operator_pending_field, vis_mode_field = 'nil', 'nil'
+  local search_method = (opts or {}).search_method or H.get_config().search_method
 
   if mode == 'o' then
     -- Supply `operator_pending` flag in Operator-pending mode
@@ -1373,12 +1370,11 @@ H.expr_textobject = function(mode, ai_type, opts)
   -- Make expression
   return '<Cmd>lua '
     .. string.format(
-      [[MiniAi.select_textobject('%s', %s, { search_method = %s, n_times = %d, reference_region = %s, operator_pending = %s, vis_mode = %s })]],
+      'MiniAi.select_textobject("%s", %s, { search_method = %s, n_times = %d, operator_pending = %s, vis_mode = %s })',
       ai_type,
       vim.inspect(tobj_id),
-      vim.inspect(opts.search_method),
+      vim.inspect(search_method),
       vim.v.count1,
-      reference_region_field,
       operator_pending_field,
       vis_mode_field
     )
@@ -1529,13 +1525,14 @@ H.find_textobject_region = function(tobj_spec, ai_type, opts)
 end
 
 H.get_default_opts = function()
+  local ref_region = H.is_visual_mode() and H.get_visual_region()
+    or { from = { line = vim.fn.line('.'), col = vim.fn.col('.') } }
+
   local config = H.get_config()
-  local cur_pos = vim.api.nvim_win_get_cursor(0)
   return {
     n_lines = config.n_lines,
     n_times = vim.v.count1,
-    -- Empty region at cursor position
-    reference_region = { from = { line = cur_pos[1], col = cur_pos[2] + 1 } },
+    reference_region = ref_region,
     search_method = config.search_method,
   }
 end

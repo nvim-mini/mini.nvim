@@ -643,7 +643,8 @@ Parameters ~
     Default: 1.
   - <reference_region> - region to try to cover (see |MiniAi-glossary|). It
     is guaranteed that output region will not be inside or equal to this one.
-    Default: empty region at cursor position.
+    Default: current selection in Visual mode, empty region at cursor position
+    in other modes.
   - <search_method> - Search method. Default: `config.search_method`.
 
 Return ~

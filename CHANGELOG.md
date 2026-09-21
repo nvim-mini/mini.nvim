@@ -19,6 +19,7 @@ There are following change types:
 ### Evolve
 
 - Set `{}` as `config.custom_textobjects` default (instead of `nil`). This is more consistent with other modules and should not have visible side effects.
+- Update `find_textobject()` to have current selection as the default `reference_region` if Visual mode is active. This better aligns with the common usage and allows a dynamic region computation as part of the mappings.
 
 ## mini.basics
 

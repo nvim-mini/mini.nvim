@@ -183,7 +183,16 @@ end
 
 T['find_textobject()'] = new_set()
 
-T['find_textobject()']['works'] = function() validate_find1d('aa(bb)cc', 3, { 'a', ')' }, { 3, 6 }) end
+T['find_textobject()']['works'] = function()
+  validate_find1d('aa(bb)cc', 3, { 'a', ')' }, { 3, 6 })
+
+  -- Should use current selection in Visual mode as default reference region
+  set_lines({ '((aa)(bb))' })
+  set_cursor(1, 3)
+  type_keys('v')
+  set_cursor(1, 6)
+  eq(find_textobject('a', ')'), { from = { line = 1, col = 1 }, to = { line = 1, col = 10 } })
+end
 
 T['find_textobject()']['respects `id` argument'] = function() validate_find1d('(aa[bb]cc)', 4, { 'a', ']' }, { 4, 7 }) end
 
