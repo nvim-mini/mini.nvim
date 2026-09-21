@@ -1120,9 +1120,7 @@ end
 ---     Used in that mode's mappings, shouldn't be used directly. Default: `false`.
 MiniAi.select_textobject = function(ai_type, id, opts)
   if H.is_disabled() then return end
-
   opts = opts or {}
-  local operator_pending = opts.operator_pending
 
   -- Exit to Normal before getting textobject id. This way invalid id doesn't
   -- result into staying in current mode (which seems to be more convenient).
@@ -1130,8 +1128,6 @@ MiniAi.select_textobject = function(ai_type, id, opts)
 
   local tobj = MiniAi.find_textobject(ai_type, id, opts)
   if tobj == nil then return end
-
-  local set_cursor = function(position) vim.api.nvim_win_set_cursor(0, { position.line, position.col - 1 }) end
 
   -- Allow empty regions
   local tobj_is_empty = tobj.to == nil
@@ -1179,10 +1175,10 @@ MiniAi.select_textobject = function(ai_type, id, opts)
     --   built-in visual selection).
     -- - Open just enough folds to have both ends visible.
     -- - Respect exclusive selection (including when selecting end of line)
-    set_cursor(tobj.from)
+    vim.api.nvim_win_set_cursor(0, { tobj.from.line, tobj.from.col - 1 })
     vim.cmd('normal! zv')
     vim.cmd('normal! ' .. vis_mode)
-    set_cursor(tobj.to)
+    vim.api.nvim_win_set_cursor(0, { tobj.to.line, tobj.to.col - 1 })
     if vim.o.selection == 'exclusive' and not tobj_is_empty then vim.cmd('set whichwrap=l | normal! l') end
     vim.cmd('normal! zv')
 
@@ -2080,14 +2076,11 @@ H.is_visual_mode = function(mode)
 end
 
 H.exit_to_normal_mode = function()
-  -- Don't use `<C-\><C-n>` in command-line window as they close it
-  if vim.fn.getcmdwintype() ~= '' then
-    local is_vis, cur_mode = H.is_visual_mode()
-    if is_vis then vim.cmd('normal! ' .. cur_mode) end
-  else
-    -- '\28\14' is an escaped version of `<C-\><C-n>`
-    vim.cmd('normal! \28\14')
-  end
+  -- '\28\14' is an escaped version of `<C-\><C-n>`. Don't use in command-line
+  -- window as they close it.
+  if vim.fn.getcmdwintype() == '' then return vim.cmd('normal! \28\14') end
+  local is_vis, cur_mode = H.is_visual_mode()
+  if is_vis then vim.cmd('normal! ' .. cur_mode) end
 end
 
 H.get_visual_region = function()
