@@ -1890,6 +1890,44 @@ T['Textobject']['opens just enough folds'] = function()
   eq(child.fn.foldclosed(6), -1)
 end
 
+T['Textobject']['does not trigger extra `ModeChanged` events'] = function()
+  child.lua([[_G.line = function(ai_type, id, opts)
+    local line = vim.fn.line('.')
+    local from = { line = line, col = 1 }
+    local to = { line = line, col = vim.fn.getline('.'):len() }
+    return { from = from, to = to, vis_mode = 'V' }
+  end]])
+  child.lua('MiniAi.config.custom_textobjects = { g = _G.line }')
+
+  child.lua('_G.log = {}')
+  child.cmd('au ModeChanged * lua table.insert(_G.log, { vim.v.event.old_mode, vim.v.event.new_mode })')
+
+  local validate = function(mode_key, ai_keys, ref_log)
+    set_lines({ '(<aa>)' })
+    set_cursor(1, 1)
+
+    type_keys(mode_key)
+    child.lua('_G.log = {}')
+    type_keys(ai_keys)
+    eq(child.lua_get('_G.log'), ref_log)
+
+    child.lua('_G.log = {}')
+    child.ensure_normal_mode()
+  end
+
+  -- Visual mode
+  validate('v', 'a)', {})
+  validate('v', 'a>', {})
+  validate('v', 'ag', { { 'v', 'V' } })
+  validate('V', 'ag', {})
+
+  -- Operator-pending mode
+  validate('d', 'a)', { { 'no', 'n' }, { 'n', 'v' }, { 'v', 'n' } })
+  validate('d', 'a>', { { 'no', 'n' }, { 'n', 'v' }, { 'v', 'n' } })
+  validate('d', 'ag', { { 'no', 'n' }, { 'n', 'V' }, { 'V', 'n' } })
+  validate('dV', 'ag', { { 'noV', 'n' }, { 'n', 'V' }, { 'V', 'n' } })
+end
+
 T['Textobject']['shows reminder after one idle second'] = new_set({ parametrize = { { 'a' }, { 'i' } } }, {
   test = function(key)
     child.set_size(5, 70)

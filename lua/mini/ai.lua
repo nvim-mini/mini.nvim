@@ -1122,12 +1122,9 @@ MiniAi.select_textobject = function(ai_type, id, opts)
   if H.is_disabled() then return end
   opts = opts or {}
 
-  -- Exit to Normal before getting textobject id. This way invalid id doesn't
-  -- result into staying in current mode (which seems to be more convenient).
-  H.exit_to_normal_mode()
-
   local tobj = MiniAi.find_textobject(ai_type, id, opts)
-  if tobj == nil then return end
+  -- NOTE: don't stay in current mode for bad id (seems to be more convenient)
+  if tobj == nil then return H.ensure_normal_mode() end
 
   -- Allow empty regions
   local tobj_is_empty = tobj.to == nil
@@ -1171,13 +1168,18 @@ MiniAi.select_textobject = function(ai_type, id, opts)
     vim.o.virtualedit = 'onemore'
 
     -- Select region:
-    -- - Go from start to end stay at range end in Visual mode (as done in
+    -- - Ensure target visual mode if needed. Preserve active Visual mode.
+    -- - Go from start to end to stay at range end in Visual mode (as does
     --   built-in visual selection).
     -- - Open just enough folds to have both ends visible.
     -- - Respect exclusive selection (including when selecting end of line)
+    local is_vis, cur_mode = H.is_visual_mode()
+    if not is_vis then H.ensure_normal_mode() end
+    if cur_mode ~= vis_mode and (not is_vis or tobj.vis_mode ~= nil) then vim.cmd('normal! ' .. vis_mode) end
+
     vim.api.nvim_win_set_cursor(0, { tobj.from.line, tobj.from.col - 1 })
     vim.cmd('normal! zv')
-    vim.cmd('normal! ' .. vis_mode)
+    vim.cmd('normal! o')
     vim.api.nvim_win_set_cursor(0, { tobj.to.line, tobj.to.col - 1 })
     if vim.o.selection == 'exclusive' and not tobj_is_empty then vim.cmd('set whichwrap=l | normal! l') end
     vim.cmd('normal! zv')
@@ -2075,7 +2077,7 @@ H.is_visual_mode = function(mode)
   return mode == 'v' or mode == 'V' or mode == '\22', mode
 end
 
-H.exit_to_normal_mode = function()
+H.ensure_normal_mode = function()
   -- '\28\14' is an escaped version of `<C-\><C-n>`. Don't use in command-line
   -- window as they close it.
   if vim.fn.getcmdwintype() == '' then return vim.cmd('normal! \28\14') end
