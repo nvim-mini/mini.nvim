@@ -651,7 +651,14 @@ MiniAi.config = {
 MiniAi.find_textobject = function(ai_type, id, opts)
   if not (ai_type == 'a' or ai_type == 'i') then H.error([[`ai_type` should be one of 'a' or 'i'.]]) end
   H.check_type('id', id, 'string')
-  opts = vim.tbl_deep_extend('force', H.get_default_opts(), opts or {})
+
+  local config = H.get_config()
+  opts = opts or {}
+  opts.n_lines = opts.n_lines or config.n_lines
+  opts.n_times = opts.n_times or 1
+  opts.reference_region = opts.reference_region
+    or (H.is_visual_mode() and H.get_visual_region() or { from = { line = vim.fn.line('.'), col = vim.fn.col('.') } })
+  opts.search_method = opts.search_method or config.search_method
   H.validate_search_method(opts.search_method)
 
   -- Get textobject specification
@@ -1522,19 +1529,6 @@ H.find_textobject_region = function(tobj_spec, ai_type, opts)
 
   -- Convert to region
   return neigh.span_to_region(final_span, find_res.vis_mode)
-end
-
-H.get_default_opts = function()
-  local ref_region = H.is_visual_mode() and H.get_visual_region()
-    or { from = { line = vim.fn.line('.'), col = vim.fn.col('.') } }
-
-  local config = H.get_config()
-  return {
-    n_lines = config.n_lines,
-    n_times = vim.v.count1,
-    reference_region = ref_region,
-    search_method = config.search_method,
-  }
 end
 
 -- Work with argument textobject ----------------------------------------------
