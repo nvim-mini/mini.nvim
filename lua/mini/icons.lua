@@ -531,6 +531,7 @@ MiniIcons.mock_nvim_web_devicons = function()
   local M = {}
 
   -- Main functions which get icon and highlight group
+  local default_global
   M.get_icon = function(name, ext, opts)
     -- Preferring 'name' first leads to a slightly different behavior compared to
     -- the original in case both `name` and `ext` is supplied:
@@ -543,13 +544,17 @@ MiniIcons.mock_nvim_web_devicons = function()
     local is_file = type(name) == 'string'
     local category = is_file and 'file' or 'extension'
     local icon, hl, is_default = MiniIcons.get(category, is_file and name or ext)
-    if is_default and not (opts or {}).default then return nil, nil end
+    local use_default = (opts or {}).default
+    if use_default == nil then use_default = default_global end
+    if is_default and not use_default then return end
     return icon, hl
   end
 
   M.get_icon_by_filetype = function(ft, opts)
     local icon, hl, is_default = MiniIcons.get('filetype', ft)
-    if is_default and not (opts or {}).default then return nil, nil end
+    local use_default = (opts or {}).default
+    if use_default == nil then use_default = default_global end
+    if is_default and not use_default then return end
     return icon, hl
   end
 
@@ -615,7 +620,7 @@ MiniIcons.mock_nvim_web_devicons = function()
   M.set_icon = function() end
   M.set_icon_by_filetype = function() end
   M.set_up_highlights = function() end
-  M.setup = function() end
+  M.setup = function(opts) default_global = (opts or {}).default end
 
   -- Mock. Prefer `package.preload` as it seems to be a better practice.
   local modname = 'nvim-web-devicons'

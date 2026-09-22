@@ -859,6 +859,21 @@ T['mock_nvim_web_devicons()']['works'] = function()
     eq(child.lua_get('type(devicons.' .. method .. ')'), 'function')
   end
 
+  -- Should respect `opts.default` in `setup()`
+  child.lua('_G.devicons.setup({ default = true })')
+  eq(child.lua_get('{ devicons.get_icon("xxx", nil, {}) }'), { 'f', 'Comment' })
+  eq(child.lua_get('{ devicons.get_icon(nil, "xxx", {}) }'), { 'e', 'Comment' })
+  eq(child.lua_get('{ devicons.get_icon("xxx", nil, { default = false }) }'), {})
+  eq(child.lua_get('{ devicons.get_icon(nil, "xxx", { default = false }) }'), {})
+
+  eq(get_icon_by_filetype('xxx', {}), { 't', 'Comment' })
+  eq(get_icon_by_filetype('xxx', { default = false }), {})
+
+  -- - `setup()` should work without arguments
+  child.lua('_G.devicons.setup()')
+  eq(child.lua_get('{ devicons.get_icon("xxx", nil, {}) }'), {})
+  eq(get_icon_by_filetype('xxx', {}), {})
+
   -- Should set global variable which is set in 'plugin/nvim-web-devicons.vim'
   eq(child.g.nvim_web_devicons, 1)
 end
