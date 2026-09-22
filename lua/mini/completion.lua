@@ -89,7 +89,8 @@
 ---   also adding "nosort" flag to preserve initial order when filtering.
 --- - |'shortmess'| is appended with "c" flag for silent <C-n> fallback.
 --- - |'complete'| gets removed "t" flag (if fallback action is default), as it
----   leads to visible lags.
+---   leads to visible lags. The recommended full value of |'complete'| that
+---   achieves the best combination of performance and sources is `.,w,b,kspell`.
 ---
 --- # Snippets ~
 ---
