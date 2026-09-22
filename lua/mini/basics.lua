@@ -575,7 +575,7 @@ H.apply_mappings = function(config)
     local mc_clear = 'call nvim_buf_clear_namespace(0, nvim_create_namespace("nvim.multicursor"), 0, -1)'
     local cmds = { 'silent normal! <C-c>', 'let v:hlsearch = 0', 'diffupdate', mc_clear, 'silent normal! <C-l>' }
     if vim.fn.has('nvim-0.13') == 0 then table.remove(cmds, 4) end
-    map('n', '<C-c>', '<Cmd>' .. table.concat(cmds, '<CR><Cmd>') .. '<CR>', { desc = 'Stop, clear, redraw' })
+    map('n', '<C-C>', '<Cmd>' .. table.concat(cmds, '<CR><Cmd>') .. '<CR>', { desc = 'Stop, clear, redraw' })
 
     -- Alternative way to save and exit in Normal mode.
     -- NOTE: Adding `redraw` helps with `cmdheight=0` if buffer is not modified
