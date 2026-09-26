@@ -12,7 +12,7 @@ There are following change types:
 
 ### Evolve
 
-- Rename `minischeme` color scheme to `miniblue`. To have the previous behavior, use now the equivalent of `:color miniblue`.
+- Update `minischeme` color scheme to use 'mini.hues' and use it in examples as the suggested color scheme instead of `miniwinter`. The previous 'mini.base16' variant is now provided as `miniblue`.
 
 ### Refine
 

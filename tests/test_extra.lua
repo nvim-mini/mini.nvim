@@ -1008,7 +1008,7 @@ T['pickers']['colorschemes()']["can cancel without 'mini.colors'"] = function()
     end
   ]])
 
-  child.cmd('colorscheme miniwinter')
+  child.cmd('colorscheme minischeme')
   -- These customizations can not persist even if there was preview
   child.api.nvim_set_hl(0, 'Normal', { fg = '#000000' })
   child.g.terminal_color_0 = '#010101'
@@ -1020,9 +1020,9 @@ T['pickers']['colorschemes()']["can cancel without 'mini.colors'"] = function()
   type_keys('<C-c>')
 
   eq(child.lua_get('_G.return_item'), vim.NIL)
-  eq(child.g.colors_name, 'miniwinter')
-  expect.match(child.cmd_capture('hi Normal'), 'guifg=#d8d4cd')
-  eq(child.g.terminal_color_0, '#000f15')
+  eq(child.g.colors_name, 'minischeme')
+  expect.match(child.cmd_capture('hi Normal'), 'guifg=#d5d7c0')
+  eq(child.g.terminal_color_0, '#000812')
 
   -- Should work if there is no `g:colors_name` defined before starting picker
   child.g.colors_name = nil

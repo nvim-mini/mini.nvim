@@ -28,6 +28,13 @@ https://user-images.githubusercontent.com/24854248/236634787-ab0c33df-f697-4d96-
 
 ### Bundled color schemes
 
+#### `minischeme`
+
+`minischeme` is the main color scheme that uses blue and yellow base colors:
+
+<a href="https://github.com/nvim-mini/assets/blob/main/demo/demo-minischeme-dark.png?raw=true"> <img alt="minischeme dark" src="https://github.com/nvim-mini/assets/blob/main/demo/demo-minischeme-dark.png?raw=true" style="width: 45%"/> </a>
+<a href="https://github.com/nvim-mini/assets/blob/main/demo/demo-minischeme-light.png?raw=true"> <img alt="minischeme light" src="https://github.com/nvim-mini/assets/blob/main/demo/demo-minischeme-light.png?raw=true" style="width: 45%"/> </a>
+
 #### Four seasons
 
 - `miniwinter`: "icy winter" palette with azure background

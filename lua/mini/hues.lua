@@ -117,6 +117,7 @@
 
 --- Bundled color schemes
 ---
+--- - *minischeme* : blue and yellow main color scheme.
 --- - *miniwinter* : "icy winter" palette with azure background.
 --- - *minispring* : "blooming spring" palette with green background.
 --- - *minisummer* : "hot summer" palette with brown/yellow background.
