@@ -10,6 +10,10 @@ There are following change types:
 
 ## All
 
+### Evolve
+
+- Rename `minischeme` color scheme to `miniblue`. To have the previous behavior, use now the equivalent of `:color miniblue`.
+
 ### Refine
 
 - Stop official support of Neovim 0.9.

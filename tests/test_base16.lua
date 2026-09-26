@@ -17,7 +17,7 @@ local validate_hl_group = function(group_name, target)
 end
 
 -- Data =======================================================================
-local minischeme_palette = {
+local miniblue_palette = {
   base00 = '#112641',
   base01 = '#3a475e',
   base02 = '#606b81',
@@ -36,7 +36,7 @@ local minischeme_palette = {
   base0F = '#00a5c5',
 }
 
-local minischeme_use_cterm = {
+local miniblue_use_cterm = {
   base00 = 235,
   base01 = 238,
   base02 = 60,
@@ -64,7 +64,7 @@ local T = new_set({
       -- Undo the color scheme applied for all tests
       child.cmd('hi clear')
 
-      load_module({ palette = minischeme_palette })
+      load_module({ palette = miniblue_palette })
     end,
     post_once = child.stop,
   },
@@ -85,13 +85,13 @@ T['setup()']['creates `config` field'] = function()
   -- Check default values
   local expect_config = function(field, value) eq(child.lua_get('MiniBase16.config.' .. field), value) end
 
-  expect_config('palette', minischeme_palette)
+  expect_config('palette', miniblue_palette)
   expect_config('use_cterm', vim.NIL)
 end
 
 T['setup()']['respects `config` argument'] = function()
   unload_module()
-  load_module({ palette = minischeme_palette, use_cterm = true })
+  load_module({ palette = miniblue_palette, use_cterm = true })
   eq(child.lua_get('MiniBase16.config.use_cterm'), true)
 end
 
@@ -109,10 +109,10 @@ T['setup()']['validates `config` argument'] = function()
   expect_config_error({ palette = { base00 = '000' } }, 'config.palette.base00', 'HEX')
   expect_config_error({ palette = { base00 = '000000' } }, 'config.palette.base00', 'HEX')
   expect_config_error({ palette = { base00 = '#GGGGGG' } }, 'config.palette.base00', 'HEX')
-  expect_config_error({ palette = minischeme_palette, use_cterm = 'a' }, 'use_cterm', 'boolean or table')
-  expect_config_error({ palette = minischeme_palette, use_cterm = { 'a' } }, 'use_cterm', 'base00')
-  expect_config_error({ palette = minischeme_palette, use_cterm = { base00 = 'a' } }, 'use_cterm.base00', 'cterm color')
-  expect_config_error({ palette = minischeme_palette, use_cterm = { base00 = -1 } }, 'use_cterm.base00', 'cterm color')
+  expect_config_error({ palette = miniblue_palette, use_cterm = 'a' }, 'use_cterm', 'boolean or table')
+  expect_config_error({ palette = miniblue_palette, use_cterm = { 'a' } }, 'use_cterm', 'base00')
+  expect_config_error({ palette = miniblue_palette, use_cterm = { base00 = 'a' } }, 'use_cterm.base00', 'cterm color')
+  expect_config_error({ palette = miniblue_palette, use_cterm = { base00 = -1 } }, 'use_cterm.base00', 'cterm color')
 end
 
 T['setup()']['defines builtin highlight groups'] = function()
@@ -139,21 +139,21 @@ end
 T['setup()']['clears previous colorscheme'] = function()
   local p = child.lua_get('MiniBase16.config.palette')
   child.cmd('colorscheme blue')
-  load_module({ palette = minischeme_palette })
+  load_module({ palette = miniblue_palette })
   validate_hl_group('Normal', ('guifg=%s guibg=%s'):format(p.base05, p.base00))
 end
 
 T['setup()']['respects `config.use_cterm`'] = function()
   local p = child.lua_get('MiniBase16.config.palette')
-  local p_cterm = minischeme_use_cterm
+  local p_cterm = miniblue_use_cterm
 
-  reload_module({ palette = minischeme_palette, use_cterm = true })
+  reload_module({ palette = miniblue_palette, use_cterm = true })
   validate_hl_group(
     'Normal',
     ('ctermfg=%s ctermbg=%s guifg=%s guibg=%s'):format(p_cterm.base05, p_cterm.base00, p.base05, p.base00)
   )
 
-  reload_module({ palette = minischeme_palette, use_cterm = p_cterm })
+  reload_module({ palette = miniblue_palette, use_cterm = p_cterm })
   validate_hl_group(
     'Normal',
     ('ctermfg=%s ctermbg=%s guifg=%s guibg=%s'):format(p_cterm.base05, p_cterm.base00, p.base05, p.base00)
@@ -168,20 +168,20 @@ T['setup()']['respects `config.plugins`'] = function()
 
   -- By default it should load plugin integrations
   clear_highlight()
-  reload_module({ palette = minischeme_palette })
+  reload_module({ palette = miniblue_palette })
   validate_hl_group('MiniCursorword', 'gui=underline')
 
   -- If supplied `false`, should not load plugin integration
   clear_highlight()
   reload_module({
-    palette = minischeme_palette,
+    palette = miniblue_palette,
     plugins = { ['nvim-mini/mini.nvim'] = false, ['echasnovski/mini.nvim'] = false },
   })
   expect.match(child.cmd_capture('hi MiniCursorword'), 'cleared')
 
   -- Should allow loading only chosen integrations
   clear_highlight()
-  reload_module({ palette = minischeme_palette, plugins = { default = false, ['nvim-mini/mini.nvim'] = true } })
+  reload_module({ palette = miniblue_palette, plugins = { default = false, ['nvim-mini/mini.nvim'] = true } })
   validate_hl_group('MiniCursorword', 'gui=underline')
   expect.match(child.cmd_capture('hi GitSignsAdd'), 'cleared')
 end
@@ -208,7 +208,7 @@ T['mini_palette()']['validates arguments'] = function()
 end
 
 T['mini_palette()']['works'] = function()
-  eq(child.lua_get([[MiniBase16.mini_palette('#112641', '#e2e98f', 75)]]), minischeme_palette)
+  eq(child.lua_get([[MiniBase16.mini_palette('#112641', '#e2e98f', 75)]]), miniblue_palette)
 end
 
 T['rgb_palette_to_cterm_palette()'] = new_set()
@@ -230,19 +230,19 @@ T['rgb_palette_to_cterm_palette()']['validates arguments'] = function()
 end
 
 T['rgb_palette_to_cterm_palette()']['works'] = function()
-  eq(child.lua_get('MiniBase16.rgb_palette_to_cterm_palette(...)', { minischeme_palette }), minischeme_use_cterm)
+  eq(child.lua_get('MiniBase16.rgb_palette_to_cterm_palette(...)', { miniblue_palette }), miniblue_use_cterm)
 end
 
-T['minischeme colorscheme'] = new_set()
+T['miniblue colorscheme'] = new_set()
 
-T['minischeme colorscheme']['works with dark background'] = function()
-  child.cmd('colorscheme minischeme')
+T['miniblue colorscheme']['works with dark background'] = function()
+  child.cmd('colorscheme miniblue')
   child.o.background = 'dark'
   validate_hl_group('Normal', 'ctermfg=186 ctermbg=235 guifg=#e2e98f guibg=#112641')
 end
 
-T['minischeme colorscheme']['works with light background'] = function()
-  child.cmd('colorscheme minischeme')
+T['miniblue colorscheme']['works with light background'] = function()
+  child.cmd('colorscheme miniblue')
   child.o.background = 'light'
   validate_hl_group('Normal', 'ctermfg=18 ctermbg=254 guifg=#002a83 guibg=#e2e5ca')
 end

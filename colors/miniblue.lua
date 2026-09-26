@@ -1,4 +1,4 @@
--- Color scheme 'minischeme'
+-- Color scheme 'miniblue'
 -- Derived from base16 (https://github.com/chriskempson/base16) and
 -- mini_palette palette generator
 local use_cterm, palette
@@ -91,5 +91,5 @@ end
 
 if palette then
   require('mini.base16').setup({ palette = palette, use_cterm = use_cterm })
-  vim.g.colors_name = 'minischeme'
+  vim.g.colors_name = 'miniblue'
 end
