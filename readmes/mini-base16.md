@@ -27,10 +27,10 @@ If you want to help this project grow but don't know where to start, check out [
 
 ## Demo
 
-Using `minischeme` color scheme:
+Using `miniblue` color scheme:
 
-<a href="https://github.com/nvim-mini/assets/blob/main/demo/demo-base16_minischeme-dark.png?raw=true"> <img alt="minischeme dark" src="https://github.com/nvim-mini/assets/blob/main/demo/demo-base16_minischeme-dark.png?raw=true" style="width: 45%"/> </a>
-<a href="https://github.com/nvim-mini/assets/blob/main/demo/demo-base16_minischeme-light.png?raw=true"> <img alt="minischeme light" src="https://github.com/nvim-mini/assets/blob/main/demo/demo-base16_minischeme-light.png?raw=true" style="width: 45%"/> </a>
+<a href="https://github.com/nvim-mini/assets/blob/main/demo/demo-base16_miniblue-dark.png?raw=true"> <img alt="miniblue dark" src="https://github.com/nvim-mini/assets/blob/main/demo/demo-base16_miniblue-dark.png?raw=true" style="width: 45%"/> </a>
+<a href="https://github.com/nvim-mini/assets/blob/main/demo/demo-base16_miniblue-light.png?raw=true"> <img alt="miniblue light" src="https://github.com/nvim-mini/assets/blob/main/demo/demo-base16_miniblue-light.png?raw=true" style="width: 45%"/> </a>
 
 Using `minicyan` color scheme:
 

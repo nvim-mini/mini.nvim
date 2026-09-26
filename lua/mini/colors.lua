@@ -356,7 +356,7 @@
 ---   MiniColors.get_colorscheme()
 ---
 ---   -- Get registered color scheme by name
----   MiniColors.get_colorscheme('minischeme', { new_name = 'maxischeme' })
+---   MiniColors.get_colorscheme('miniblue', { new_name = 'maxischeme' })
 --- <
 ---@class Colorscheme
 ---

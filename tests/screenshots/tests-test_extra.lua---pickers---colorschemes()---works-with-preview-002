@@ -3,7 +3,7 @@
 02|~                                       
 03|~                                       
 04|~                                       
-05|┌ minicyan ──────────────┐              
+05|┌ miniblue ──────────────┐              
 06|│@attribute              │              
 07|│@attribute.builtin      │              
 08|│@boolean                │              
@@ -12,7 +12,7 @@
 11|│@comment                │              
 12|│@comment.documentation  │              
 13|│@comment.error          │              
-14|└ Colorschemes ── 2|6|34 ┘              
+14|└ Colorschemes ── 2|6|35 ┘              
 15|                                        
 
 --|---------|---------|---------|---------|

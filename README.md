@@ -243,7 +243,7 @@ This plugin comes with several color schemes (all have both dark and light varia
 
 - Based on ['mini.base16'](readmes/mini-base16.md):
     - `minicyan`: cyan and grey main colors with medium contrast and saturation palette.
-    - `minischeme`: blue and yellow main colors with high contrast and saturation palette.
+    - `miniblue`: blue and yellow main colors with high contrast and saturation palette.
 
     You can see how they look in ['mini.base16' README](readmes/mini-base16.md#demo).
 
