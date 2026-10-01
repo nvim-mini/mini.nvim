@@ -811,6 +811,7 @@ T['gen_clues']['g()'] = new_set()
 T['gen_clues']['g()']['works'] = function()
   -- Check this only on Neovim>=0.11, as there are many new built-in mappings
   if child.fn.has('nvim-0.11') == 0 then return end
+  if vim.fn.has('nvim-0.13') == 0 then child.ensure_cursor_highlighting_in_visual_mode() end
 
   child.lua([[
     local miniclue = require('mini.clue')
@@ -859,6 +860,7 @@ end
 T['gen_clues']['z()'] = new_set()
 
 T['gen_clues']['z()']['works'] = function()
+  if vim.fn.has('nvim-0.13') == 0 then child.ensure_cursor_highlighting_in_visual_mode() end
   child.lua([[
     local miniclue = require('mini.clue')
     miniclue.setup({
@@ -1127,6 +1129,7 @@ end
 T['gen_clues']['marks()'] = new_set()
 
 T['gen_clues']['marks()']['works'] = function()
+  if vim.fn.has('nvim-0.13') == 0 then child.ensure_cursor_highlighting_in_visual_mode() end
   child.lua([[
     local miniclue = require('mini.clue')
     miniclue.setup({
@@ -1183,6 +1186,7 @@ end
 T['gen_clues']['registers()'] = new_set()
 
 T['gen_clues']['registers()']['works'] = function()
+  if vim.fn.has('nvim-0.13') == 0 then child.ensure_cursor_highlighting_in_visual_mode() end
   child.lua([[
     local miniclue = require('mini.clue')
     miniclue.setup({
@@ -1896,6 +1900,7 @@ T['Clues']['handles no description'] = function()
 end
 
 T['Clues']['handles an array of modes'] = function()
+  if vim.fn.has('nvim-0.13') == 0 then child.ensure_cursor_highlighting_in_visual_mode() end
   load_module({
     clues = { { mode = { 'n', 'x' }, keys = '<Space>a', desc = 'Clue <Space>a' } },
     triggers = { { mode = { 'n', 'x' }, keys = '<Space>' } },
@@ -3425,6 +3430,7 @@ T["'mini.nvim' compatibility"]['mini.ai'] = function()
 end
 
 T["'mini.nvim' compatibility"]['mini.align'] = function()
+  if vim.fn.has('nvim-0.13') == 0 then child.ensure_cursor_highlighting_in_visual_mode() end
   child.set_size(10, 30)
   child.o.cmdheight = 5
 

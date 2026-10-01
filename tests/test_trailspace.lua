@@ -118,6 +118,7 @@ T['highlight()']['works only in Normal mode'] = new_set({
   parametrize = { { 'i' }, { 'v' }, { 'R' }, { ':' } },
 }, {
   test = function(mode_key)
+    if mode_key == 'v' and vim.fn.has('nvim-0.13') == 0 then child.ensure_cursor_highlighting_in_visual_mode() end
     type_keys(mode_key)
     child.lua('MiniTrailspace.highlight()')
     -- Should be no highlighting

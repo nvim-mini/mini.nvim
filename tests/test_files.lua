@@ -3234,6 +3234,8 @@ T['Mappings']['`go_in` works'] = function()
 end
 
 T['Mappings']['`go_in` works in linewise Visual mode'] = function()
+  if vim.fn.has('nvim-0.13') == 0 then child.ensure_cursor_highlighting_in_visual_mode() end
+
   local has_opened_buffer = function(name)
     local path = join_path(test_dir_path, name)
     for _, buf_id in ipairs(child.api.nvim_list_bufs()) do

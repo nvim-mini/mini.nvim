@@ -1326,6 +1326,7 @@ T['Autopeek']['works with virtual lines'] = function()
 end
 
 T['Autopeek']['hides visual selection'] = function()
+  if vim.fn.has('nvim-0.13') == 0 then child.ensure_cursor_highlighting_in_visual_mode() end
   child.set_size(15, 20)
 
   -- The range preview is already a preview of Visual selection

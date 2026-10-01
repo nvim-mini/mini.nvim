@@ -270,6 +270,7 @@ T['start()']['works'] = function()
 end
 
 T['start()']['works in Visual mode'] = function()
+  if vim.fn.has('nvim-0.13') == 0 then child.ensure_cursor_highlighting_in_visual_mode() end
   child.set_size(5, 40)
   child.o.showcmd = false
 

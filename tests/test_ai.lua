@@ -1939,6 +1939,7 @@ end
 
 T['Textobject']['shows reminder after one idle second'] = new_set({ parametrize = { { 'a' }, { 'i' } } }, {
   test = function(key)
+    if vim.fn.has('nvim-0.13') == 0 then child.ensure_cursor_highlighting_in_visual_mode() end
     child.set_size(5, 70)
     child.o.cmdheight = 1
 
@@ -2017,6 +2018,7 @@ T['Textobject']['respects `vim.{g,b}.miniai_disable`'] = new_set({
 })
 
 T['Textobject']['respects `config.silent`'] = function()
+  if vim.fn.has('nvim-0.13') == 0 then child.ensure_cursor_highlighting_in_visual_mode() end
   child.set_size(5, 40)
   child.o.showcmd = false
   child.lua('MiniAi.config.silent = true')
@@ -3048,6 +3050,7 @@ T['Builtin']['User prompt']['handles <C-c>, <Esc>, <CR> in user input'] = functi
 end
 
 T['Builtin']['User prompt']['colors its prompts'] = function()
+  if vim.fn.has('nvim-0.13') == 0 then child.ensure_cursor_highlighting_in_visual_mode() end
   child.set_size(5, 40)
   child.o.showmode = false
 

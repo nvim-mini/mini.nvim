@@ -198,6 +198,16 @@ Helpers.new_child_neovim = function()
     child.mini_load_strconfig(name, strconfig)
   end
 
+  child.ensure_cursor_highlighting_in_visual_mode = function()
+    if vim.fn.has('nvim-0.13') == 1 then return end
+
+    -- The default: 'n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20,t:block-blinkon500-blinkoff500-TermCursor'
+    -- Ensure 'v' is not 'block' in order to highlight visual selection at cursor position
+    local guicursor_v0_10 = 'n-c-sm:block,v:ver25,i-ci-ve:ver25,r-cr-o:hor20'
+    local guicursor = guicursor_v0_10 .. ',t:block-blinkon500-blinkoff500-TermCursor'
+    child.o.guicursor = vim.fn.has('nvim-0.11') == 1 and guicursor or guicursor_v0_10
+  end
+
   child.expect_screenshot = function(opts, path)
     opts = opts or {}
     local screenshot_opts = { redraw = opts.redraw }

@@ -1877,6 +1877,7 @@ T['Scroll']["does not automatically animate result of 'incsearch'"] = function()
 end
 
 T['Scroll']['does not animate in Select mode'] = function()
+  if vim.fn.has('nvim-0.13') == 0 then child.ensure_cursor_highlighting_in_visual_mode() end
   child.set_size(5, 15)
   child.cmd('smap <M-m> <Cmd>call winrestview({ "topline": 3 })<CR>')
 
