@@ -811,6 +811,7 @@ T['gen_clues']['g()'] = new_set()
 T['gen_clues']['g()']['works'] = function()
   -- Check this only on Neovim>=0.11, as there are many new built-in mappings
   if child.fn.has('nvim-0.11') == 0 then return end
+  child.tweak_visual_guicursor()
 
   child.lua([[
     local miniclue = require('mini.clue')
@@ -859,6 +860,7 @@ end
 T['gen_clues']['z()'] = new_set()
 
 T['gen_clues']['z()']['works'] = function()
+  child.tweak_visual_guicursor()
   child.lua([[
     local miniclue = require('mini.clue')
     miniclue.setup({
@@ -1145,6 +1147,7 @@ T['gen_clues']['marks()']['works'] = function()
     })
   ]])
   child.set_size(20, 48)
+  child.tweak_visual_guicursor()
 
   -- Normal mode
   type_keys("'")
@@ -1197,6 +1200,7 @@ T['gen_clues']['registers()']['works'] = function()
     })
   ]])
   child.set_size(25, 48)
+  child.tweak_visual_guicursor()
 
   type_keys('"')
   child.expect_screenshot()
@@ -1896,6 +1900,7 @@ T['Clues']['handles no description'] = function()
 end
 
 T['Clues']['handles an array of modes'] = function()
+  child.tweak_visual_guicursor()
   load_module({
     clues = { { mode = { 'n', 'x' }, keys = '<Space>a', desc = 'Clue <Space>a' } },
     triggers = { { mode = { 'n', 'x' }, keys = '<Space>' } },
@@ -3426,6 +3431,7 @@ end
 
 T["'mini.nvim' compatibility"]['mini.align'] = function()
   child.set_size(10, 30)
+  child.tweak_visual_guicursor()
   child.o.cmdheight = 5
 
   child.lua('require("mini.align").setup()')

@@ -118,6 +118,7 @@ T['highlight()']['works only in Normal mode'] = new_set({
   parametrize = { { 'i' }, { 'v' }, { 'R' }, { ':' } },
 }, {
   test = function(mode_key)
+    if mode_key == 'v' then child.tweak_visual_guicursor() end
     type_keys(mode_key)
     child.lua('MiniTrailspace.highlight()')
     -- Should be no highlighting

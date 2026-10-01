@@ -1327,6 +1327,7 @@ end
 
 T['Autopeek']['hides visual selection'] = function()
   child.set_size(15, 20)
+  child.tweak_visual_guicursor()
 
   -- The range preview is already a preview of Visual selection
   set_cursor(2, 1)

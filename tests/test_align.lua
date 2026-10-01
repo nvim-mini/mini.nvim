@@ -1374,6 +1374,7 @@ T['Align']['shows state after one idle second'] = new_set({
     -- Check this only on Neovim>=0.11, as there is a slight change in
     -- highlighting command line area
     if child.fn.has('nvim-0.11') == 0 then return end
+    child.tweak_visual_guicursor()
     helpers.skip_if_slow()
 
     local expect_screenshot = function() child.expect_screenshot({ redraw = false }) end
@@ -1487,6 +1488,7 @@ T['Align']['respects `vim.{g,b}.minialign_disable`'] = new_set({
 
 T['Align']['respects `config.silent`'] = function()
   child.set_size(12, 20)
+  child.tweak_visual_guicursor()
   child.lua('MiniAlign.config.silent = true')
 
   -- Should not prompt message after idle second
@@ -1518,6 +1520,7 @@ T['Align with preview']['works'] = new_set({
   },
 }, {
   test = function(test_mode)
+    if vim.startswith(test_mode, 'Visual') then child.tweak_visual_guicursor() end
     set_lines({ 'a_b_c', 'aaa_bbb_ccc' })
     set_cursor(1, 0)
     child.fn.setpos("'a", { 0, 2, 5, 0 })
@@ -1616,6 +1619,7 @@ T['Align with preview']['correctly restores visual selection'] = new_set(
   { parametrize = { { 'Visual-char' }, { 'Visual-line' }, { 'Visual-block' } } },
   {
     test = function(test_mode)
+      child.tweak_visual_guicursor()
       set_lines({ 'a_b_c', 'aaa_bbb_ccc', '', 'previous selection' })
       child.fn.setpos("'a", { 0, 2, 5, 0 })
 
@@ -1662,6 +1666,7 @@ T['Align with preview']['respects `vim.{g,b}.minialign_disable`'] = new_set({
 })
 
 T['Align with preview']['respects `config.silent`'] = function()
+  child.tweak_visual_guicursor()
   child.set_size(12, 20)
   child.lua('MiniAlign.config.silent = true')
 
@@ -1752,6 +1757,7 @@ T['Modifiers']['j']['works'] = new_set({
   parametrize = { { 'l' }, { 'c' }, { 'r' }, { 'n' }, { 'u' } },
 }, {
   test = function(user_key)
+    child.tweak_visual_guicursor()
     set_config_opts({ split_pattern = '_' })
     if user_key == 'l' then set_config_opts({ justify_side = 'right' }) end
 
@@ -1853,6 +1859,7 @@ T['Modifiers']['f']['stops on `<Esc>` and `<C-c>`'] = function()
 end
 
 T['Modifiers']['f']['allows empty input'] = function()
+  child.tweak_visual_guicursor()
   set_config_opts({ split_pattern = '_' })
   init_preview_align()
 
@@ -1881,6 +1888,7 @@ end
 T['Modifiers']['i'] = new_set()
 
 T['Modifiers']['i']['works'] = function()
+  child.tweak_visual_guicursor()
   child.o.commentstring = '# %s'
   init_preview_align({ '# aaaaa=b', '"aaaaa=b"', 'a=b', 'aa=b' }, { 'V3j', 'gA' })
 
@@ -1894,6 +1902,7 @@ end
 T['Modifiers']['p'] = new_set()
 
 T['Modifiers']['p']['works'] = function()
+  child.tweak_visual_guicursor()
   set_config_opts({ split_pattern = '_' })
   init_preview_align({ 'a_b_c', 'aaa_bbb_ccc' })
 
@@ -1906,6 +1915,7 @@ end
 T['Modifiers']['t'] = new_set()
 
 T['Modifiers']['t']['works'] = function()
+  child.tweak_visual_guicursor()
   set_config_opts({ split_pattern = '_' })
   init_preview_align({ ' a _ b _ c', '  aaa _ bbb _  ccc' })
 
@@ -1919,6 +1929,7 @@ T['Modifiers']['<BS>'] = new_set()
 
 T['Modifiers']['<BS>']['works'] = new_set({ parametrize = { { 'pre_split' }, { 'pre_justify' }, { 'pre_merge' } } }, {
   test = function(pre_step_name)
+    child.tweak_visual_guicursor()
     set_config_steps({ [pre_step_name] = [[{ MiniAlign.new_step('aaa', function() end) }]] })
     init_preview_align()
     child.expect_screenshot()
@@ -1928,6 +1939,7 @@ T['Modifiers']['<BS>']['works'] = new_set({ parametrize = { { 'pre_split' }, { '
 })
 
 T['Modifiers']['<BS>']['does nothing if no pre-steps'] = function()
+  child.tweak_visual_guicursor()
   local lines = { 'a_b', 'aaa_b' }
   init_preview_align(lines)
   child.expect_screenshot()
@@ -1961,6 +1973,7 @@ T['Modifiers']['<BS>']['prompts to choose if ambiguous'] = function()
 end
 
 local validate_common_split = function(init_lines, modifier_key)
+  child.tweak_visual_guicursor()
   set_lines(init_lines)
   set_cursor(1, 0)
   type_keys('VG', 'gA')

@@ -1940,6 +1940,7 @@ end
 T['Textobject']['shows reminder after one idle second'] = new_set({ parametrize = { { 'a' }, { 'i' } } }, {
   test = function(key)
     child.set_size(5, 70)
+    child.tweak_visual_guicursor()
     child.o.cmdheight = 1
 
     -- Both mappings are applied only after `timeoutlen` milliseconds, because
@@ -2018,6 +2019,7 @@ T['Textobject']['respects `vim.{g,b}.miniai_disable`'] = new_set({
 
 T['Textobject']['respects `config.silent`'] = function()
   child.set_size(5, 40)
+  child.tweak_visual_guicursor()
   child.o.showcmd = false
   child.lua('MiniAi.config.silent = true')
 
@@ -3049,6 +3051,7 @@ end
 
 T['Builtin']['User prompt']['colors its prompts'] = function()
   child.set_size(5, 40)
+  child.tweak_visual_guicursor()
   child.o.showmode = false
 
   set_lines({ '_aaa!' })

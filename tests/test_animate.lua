@@ -1878,6 +1878,7 @@ end
 
 T['Scroll']['does not animate in Select mode'] = function()
   child.set_size(5, 15)
+  child.tweak_visual_guicursor()
   child.cmd('smap <M-m> <Cmd>call winrestview({ "topline": 3 })<CR>')
 
   set_cursor(4, 0)

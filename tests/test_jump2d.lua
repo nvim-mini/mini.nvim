@@ -271,6 +271,7 @@ end
 
 T['start()']['works in Visual mode'] = function()
   child.set_size(5, 40)
+  child.tweak_visual_guicursor()
   child.o.showcmd = false
 
   type_keys('v')

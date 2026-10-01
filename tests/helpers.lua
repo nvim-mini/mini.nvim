@@ -198,6 +198,15 @@ Helpers.new_child_neovim = function()
     child.mini_load_strconfig(name, strconfig)
   end
 
+  child.tweak_visual_guicursor = function()
+    -- After https://github.com/neovim/neovim/pull/42105 there are differences
+    -- in how cursor is highlighted in screenshots with active Visual mode and
+    -- default 'guicursor', This allows to pass same screenshots on different
+    -- Neovim versions.
+    -- TODO: Remove the helper after compatibility with Neovim=0.12 is dropped
+    if vim.fn.has('nvim-0.13') == 0 then child.o.guicursor = 'v:ver25' end
+  end
+
   child.expect_screenshot = function(opts, path)
     opts = opts or {}
     local screenshot_opts = { redraw = opts.redraw }
