@@ -311,18 +311,6 @@ T['setup()']['creates `config` field'] = function()
   expect_config('window.config', vim.NIL)
   expect_config('window.prompt_caret', '▏')
   expect_config('window.prompt_prefix', '> ')
-
-  -- Should temporarily respect deprecated `window.prompt_cursor`
-  local caret_cursor = child.lua([[
-    _G.log = {}
-    vim.notify = function(...) table.insert(_G.log, { ... }) end
-    require('mini.pick').setup({ window = { prompt_cursor = '$' } })
-    return { MiniPick.config.window.prompt_caret, MiniPick.config.window.prompt_cursor }
-  ]])
-  eq(caret_cursor, { '$' })
-  local ref_msg = '(mini.pick) `prompt_cursor` in `config.window` is renamed to `prompt_caret` for better naming consistency.'
-    .. ' It works for now, but will stop in the next release. Sorry for the inconvenience.'
-  eq(child.lua_get('_G.log'), { { ref_msg, child.lua_get('vim.log.levels.WARN') } })
 end
 
 T['setup()']['respects `config` argument'] = function()

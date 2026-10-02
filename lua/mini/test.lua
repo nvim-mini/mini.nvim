@@ -724,27 +724,10 @@ end
 ---   Use `nil` or empty string to not test for pattern matching.
 ---@param opts table|nil Options. Possible fields:
 ---   __test_expect_fail_reason
-MiniTest.expect.error = function(f, pattern, opts, ...)
+MiniTest.expect.error = function(f, pattern, opts)
   H.check_type('pattern', pattern, 'string', true)
 
-  -- Provide backward compatibility for `(f, pattern, ...)` signature.
-  -- TODO: Remove after releasing 'mini.nvim' 0.18.0
-  local args = { ... }
-  local is_valid_opts = type(opts) == 'table'
-    and (opts.fail_reason == nil or type(opts.fail_reason) == 'string' or vim.is_callable(opts.fail_reason))
-  if select('#', ...) > 0 or not (opts == nil or is_valid_opts) then
-    table.insert(args, 1, opts)
-    opts = {}
-    vim.notify(
-      '(mini.test) `expect.error` now does not accept extra arguments for tested function.'
-        .. " It will mostly work until the next 'mini.nvim' release, but not after that."
-        .. ' Use them explicitly inside anonymous function: `expect.error(f, "", 1, 2)` ->'
-        .. ' `expect.error(function() f(1, 2) end, "")`.'
-        .. '\nSorry for the inconvenience.',
-      vim.log.levels.WARN
-    )
-  end
-  local ok, err = pcall(f, unpack(args))
+  local ok, err = pcall(f)
 
   err = tostring(err)
   local has_matched_error = not ok and string.find(err, pattern or '') ~= nil
@@ -762,24 +745,8 @@ end
 ---@param f function Function to be tested for not raising error.
 ---@param opts table|nil Options. Possible fields:
 ---   __test_expect_fail_reason
-MiniTest.expect.no_error = function(f, opts, ...)
-  -- Provide backward compatibility for `(f, ...)` signature.
-  -- TODO: Remove after releasing 'mini.nvim' 0.18.0
-  local args = { ... }
-  local is_valid_opts = type(opts) == 'table' and (opts.fail_prefix == nil or type(opts.fail_prefix) == 'string')
-  if select('#', ...) > 0 or not (opts == nil or is_valid_opts) then
-    table.insert(args, 1, opts)
-    opts = {}
-    vim.notify(
-      '(mini.test) `expect.no_error` now does not accept extra arguments for tested function.'
-        .. " It will mostly work until the next 'mini.nvim' release, but not after that."
-        .. ' Use them explicitly inside anonymous function: `expect.no_error(f, 1, 2)` ->'
-        .. ' `expect.no_error(function() f(1, 2) end)`.'
-        .. '\nSorry for the inconvenience.',
-      vim.log.levels.WARN
-    )
-  end
-  local ok, err = pcall(f, unpack(args))
+MiniTest.expect.no_error = function(f, opts)
+  local ok, err = pcall(f)
   if ok then return true end
 
   opts = opts or {}

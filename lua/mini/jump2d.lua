@@ -489,15 +489,6 @@ MiniJump2d.gen_spotter.pattern = function(pattern, side)
   end
 end
 
--- TODO: Remove after releasing 'mini.nvim' 0.17.0
-MiniJump2d.gen_pattern_spotter = function(pattern, side)
-  local msg = '`gen_pattern_spotter` is moved to `gen_spotter.pattern` for consistency with other modules.'
-    .. ' It still works for now, but will stop working after the next release.'
-    .. ' Sorry for the inconvenience.'
-  H.notify(msg, 'WARN')
-  return MiniJump2d.gen_spotter.pattern(pattern, side)
-end
-
 --- Generate spotter for Vimscript pattern
 ---
 ---@param pattern string|nil Vimscript |pattern|. Default: `\k\+` to match group
@@ -564,15 +555,6 @@ MiniJump2d.gen_spotter.union = function(...)
     end
     return res
   end
-end
-
--- TODO: Remove after releasing 'mini.nvim' 0.17.0
-MiniJump2d.gen_union_spotter = function(...)
-  local msg = '`gen_union_spotter` is moved to `gen_spotter.union` for consistency with other modules.'
-    .. ' It still works for now, but will stop working after the next release.'
-    .. ' Sorry for the inconvenience.'
-  H.notify(msg, 'WARN')
-  return MiniJump2d.gen_spotter.union(...)
 end
 
 --- Default spotter function

@@ -929,29 +929,6 @@ T['expect']['error()']['respects `pattern` argument'] = function()
   expect.no_error(function() MiniTest.expect.error(error, nil) end)
 end
 
--- TODO: Remove after releasing 'mini.nvim' 0.18.0
-T['expect']['error()']['provides backward compatibility for vararg function arguments'] = function()
-  local notify_log = {}
-  local notify_orig = vim.notify
-  vim.notify = function(msg, level)
-    local level_name
-    for k, v in pairs(vim.log.levels) do
-      if v == level then level_name = k end
-    end
-    table.insert(notify_log, { msg, level_name })
-  end
-  MiniTest.finally(function() vim.notify = notify_orig end)
-
-  local f = function(x, y)
-    if x ~= y then error('`x` and `y` are not equal') end
-  end
-
-  expect.no_error(function() MiniTest.expect.error(f, 'not equal', 1, 2) end)
-  expect.error(function() MiniTest.expect.error(f, 'not equal', 1, 1) end)
-
-  eq(#notify_log, 2)
-end
-
 T['expect']['error()']['returns `true` on success'] = function() eq(MiniTest.expect.error(error), true) end
 
 T['expect']['error()']['respects `opts.fail_reason`'] = function()
@@ -972,29 +949,6 @@ T['expect']['no_error()']['works'] = function()
   expect.no_error(function()
     MiniTest.expect.no_error(function() end)
   end)
-end
-
--- TODO: Remove after releasing 'mini.nvim' 0.18.0
-T['expect']['no_error()']['provides backward compatibility for vararg function arguments'] = function()
-  local notify_log = {}
-  local notify_orig = vim.notify
-  vim.notify = function(msg, level)
-    local level_name
-    for k, v in pairs(vim.log.levels) do
-      if v == level then level_name = k end
-    end
-    table.insert(notify_log, { msg, level_name })
-  end
-  MiniTest.finally(function() vim.notify = notify_orig end)
-
-  local f = function(x, y)
-    if x ~= y then error('`x` and `y` are not equal') end
-  end
-
-  expect.error(function() MiniTest.expect.no_error(f, 1, 2) end)
-  expect.no_error(function() MiniTest.expect.no_error(f, 1, 1) end)
-
-  eq(#notify_log, 2)
 end
 
 T['expect']['no_error()']['returns `true` on success'] = function()

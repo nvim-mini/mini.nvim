@@ -2027,14 +2027,6 @@ H.setup_config = function(config)
   if not is_table_or_callable(config.window.config) then
     H.error('`window.config` should be table or callable, not ' .. type(config.window.config))
   end
-  -- TODO: Remove after releasing 'mini.nvim' 0.16.0
-  if config.window.prompt_cursor ~= nil then
-    local msg = '`prompt_cursor` in `config.window` is renamed to `prompt_caret` for better naming consistency.'
-      .. ' It works for now, but will stop in the next release. Sorry for the inconvenience.'
-    H.notify(msg, 'WARN')
-    config.window.prompt_caret = config.window.prompt_cursor
-    config.window.prompt_cursor = nil
-  end
   H.check_type('window.prompt_caret', config.window.prompt_caret, 'string')
   H.check_type('window.prompt_prefix', config.window.prompt_prefix, 'string')
 

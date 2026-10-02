@@ -571,7 +571,7 @@ Parameters ~
 
 ------------------------------------------------------------------------------
                                                        *MiniTest.expect.error()*
-             `MiniTest.expect.error`({f}, {pattern}, {opts}, {...})
+                `MiniTest.expect.error`({f}, {pattern}, {opts})
 Expect function call to raise error
 
 Parameters ~
@@ -585,7 +585,7 @@ Parameters ~
 
 ------------------------------------------------------------------------------
                                                     *MiniTest.expect.no_error()*
-                 `MiniTest.expect.no_error`({f}, {opts}, {...})
+                    `MiniTest.expect.no_error`({f}, {opts})
 Expect function call to not raise error
 
 Parameters ~
