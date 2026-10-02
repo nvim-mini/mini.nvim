@@ -3471,9 +3471,7 @@ T["'mini.nvim' compatibility"]['mini.align'] = function()
   validate_preview('gAap')
 
   -- Works together with 'mini.ai' with `g` as trigger
-  if has_ai then
-    validate_edit({ 'f(', 'a_b', 'aa_b', ')' }, { 2, 0 }, { 'ga', 'if', '_' }, { 'f(', 'a _b', 'aa_b', ')' }, { 1, 1 })
-  end
+  validate_edit({ 'f(', 'a_b', 'aa_b', ')' }, { 2, 0 }, { 'ga', 'if', '_' }, { 'f(', 'a _b', 'aa_b', ')' }, { 1, 1 })
 end
 
 T["'mini.nvim' compatibility"]['mini.basics'] = function()
@@ -3606,9 +3604,7 @@ T["'mini.nvim' compatibility"]['mini.comment'] = function()
   validate_edit({ '## aa', 'bb', '## cc' }, { 1, 0 }, { 'dgc', 'j', '.' }, { 'bb' }, { 1, 0 })
 
   -- Works together with 'mini.ai' when `g` is trigger
-  if has_ai then
-    validate_edit({ 'aa', 'bb', '', 'cc' }, { 1, 0 }, { 'gc', 'ip' }, { '## aa', '## bb', '', 'cc' }, { 1, 0 })
-  end
+  validate_edit({ 'aa', 'bb', '', 'cc' }, { 1, 0 }, { 'gc', 'ip' }, { '## aa', '## bb', '', 'cc' }, { 1, 0 })
 end
 
 T["'mini.nvim' compatibility"]['mini.indentscope'] = function()
