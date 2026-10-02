@@ -836,13 +836,7 @@ Parameters ~
   <a> and <i> fields with captures for `a` and `i` textobjects respectively.
   Each value can be either a string capture (should start with `'@'`) or an
   array of such captures (best among all matches will be chosen).
-{opts} `(table|nil)` Options. Possible values:
-  - <use_nvim_treesitter> - whether to try to use `nvim-treesitter` plugin
-    (if present) to do the query. It used to implement more advanced behavior
-    and more coherent experience if `nvim-treesitter-textobjects` queries are
-    used. However, as |lua-treesitter-core| methods are more capable now,
-    the option will soon be removed. Only present for backward compatibility.
-    Default: `false`.
+{opts} `(table|nil)` Options. Not used at the moment.
 
 Return ~
 `(function)` Function with |MiniAi.find_textobject()| signature which

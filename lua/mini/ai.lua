@@ -1032,13 +1032,7 @@ end
 ---   <a> and <i> fields with captures for `a` and `i` textobjects respectively.
 ---   Each value can be either a string capture (should start with `'@'`) or an
 ---   array of such captures (best among all matches will be chosen).
----@param opts table|nil Options. Possible values:
----   - <use_nvim_treesitter> - whether to try to use `nvim-treesitter` plugin
----     (if present) to do the query. It used to implement more advanced behavior
----     and more coherent experience if `nvim-treesitter-textobjects` queries are
----     used. However, as |lua-treesitter-core| methods are more capable now,
----     the option will soon be removed. Only present for backward compatibility.
----     Default: `false`.
+---@param opts table|nil Options. Not used at the moment.
 ---
 ---@return function Function with |MiniAi.find_textobject()| signature which
 ---   returns array of current buffer regions representing matches for
@@ -1050,8 +1044,18 @@ end
 --- - |Query:iter_captures()| for how all query captures are iterated in case of
 ---   no `nvim-treesitter`.
 MiniAi.gen_spec.treesitter = function(ai_captures, opts)
-  -- TODO: Remove after releasing 'mini.nvim' 0.17.0
-  opts = vim.tbl_deep_extend('force', { use_nvim_treesitter = false }, opts or {})
+  -- TODO: Remove after releasing 'mini.nvim' 0.19.0
+  opts = opts or {}
+  if opts.use_nvim_treesitter then
+    vim.notify(
+      '(mini.ai) `opts.use_nvim_treesitter` in `MiniAi.gen_spec.treesitter()` is deprecated.'
+        .. " It will be removed after the next 'mini.nvim' release in favor of using built-in `vim.treesitter` API."
+        .. ' Drop setting this option.'
+        .. ' In case of problems not addressed in `:h MiniAi.gen_spec.treesitter()`, please open an issue.',
+      vim.log.levels.WARN
+    )
+  end
+
   ai_captures = H.prepare_ai_captures(ai_captures)
 
   -- Tree-sitter ranges are 0-based, end-exclusive, and usually
