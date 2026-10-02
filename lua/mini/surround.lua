@@ -1009,13 +1009,7 @@ MiniSurround.gen_spec = { input = {}, output = {} }
 ---   (`[left.form; right.to]`) and inner (`(left.to; right.from)` both edges
 ---   exclusive, i.e. they won't be a part of surrounding) regions. Each value
 ---   should be a string capture starting with `'@'`.
----@param opts table|nil Options. Possible values:
----   - <use_nvim_treesitter> - whether to try to use `nvim-treesitter` plugin
----     (if present) to do the query. It used to implement more advanced behavior
----     and more coherent experience if `nvim-treesitter-textobjects` queries are
----     used. However, as |lua-treesitter-core| methods are more capable now,
----     the option will soon be removed. Only present for backward compatibility.
----     Default: `false`.
+---@param opts table|nil Options. Not used at the moment.
 ---
 ---@return function Function which returns array of current buffer region pairs
 ---   representing differences between outer and inner captures.
@@ -1027,8 +1021,18 @@ MiniSurround.gen_spec = { input = {}, output = {} }
 ---   no `nvim-treesitter`.
 --- - |MiniAi.gen_spec.treesitter()| for similar |mini.ai| generator.
 MiniSurround.gen_spec.input.treesitter = function(captures, opts)
-  -- TODO: Remove after releasing 'mini.nvim' 0.17.0
-  opts = vim.tbl_deep_extend('force', { use_nvim_treesitter = false }, opts or {})
+  -- TODO: Remove after releasing 'mini.nvim' 0.19.0
+  opts = opts or {}
+  if opts.use_nvim_treesitter then
+    vim.notify(
+      '(mini.surround) `opts.use_nvim_treesitter` in `MiniSurround.gen_spec.input.treesitter()` is deprecated.'
+        .. " It will be removed after the next 'mini.nvim' release in favor of using built-in `vim.treesitter` API."
+        .. ' Drop setting this option.'
+        .. ' In case of problems not addressed in `:h MiniSurround.gen_spec.input.treesitter()`, please open an issue.',
+      vim.log.levels.WARN
+    )
+  end
+
   captures = H.prepare_captures(captures)
 
   -- Tree-sitter ranges are 0-based, end-exclusive, and usually

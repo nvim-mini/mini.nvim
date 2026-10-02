@@ -839,13 +839,7 @@ Parameters ~
   (`[left.form; right.to]`) and inner (`(left.to; right.from)` both edges
   exclusive, i.e. they won't be a part of surrounding) regions. Each value
   should be a string capture starting with `'@'`.
-{opts} `(table|nil)` Options. Possible values:
-  - <use_nvim_treesitter> - whether to try to use `nvim-treesitter` plugin
-    (if present) to do the query. It used to implement more advanced behavior
-    and more coherent experience if `nvim-treesitter-textobjects` queries are
-    used. However, as |lua-treesitter-core| methods are more capable now,
-    the option will soon be removed. Only present for backward compatibility.
-    Default: `false`.
+{opts} `(table|nil)` Options. Not used at the moment.
 
 Return ~
 `(function)` Function which returns array of current buffer region pairs
