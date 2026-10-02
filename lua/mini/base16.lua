@@ -702,8 +702,7 @@ H.apply_palette = function(palette, use_cterm)
 
   -- Plugins
   -- nvim-mini/mini.nvim
-  -- TODO: Remove 'echasnovski/mini.nvim' fallback after September 2026
-  if H.has_integration('nvim-mini/mini.nvim') or H.has_integration('echasnovski/mini.nvim') then
+  if H.has_integration('nvim-mini/mini.nvim') then
     hi('MiniAnimateCursor',      {fg=nil, bg=nil, attr='reverse,nocombine', sp=nil})
     hi('MiniAnimateNormalFloat', {link='NormalFloat'})
 

@@ -175,7 +175,7 @@ T['setup()']['respects `config.plugins`'] = function()
   clear_highlight()
   reload_module({
     palette = minischeme_palette,
-    plugins = { ['nvim-mini/mini.nvim'] = false, ['echasnovski/mini.nvim'] = false },
+    plugins = { ['nvim-mini/mini.nvim'] = false },
   })
   expect.match(child.cmd_capture('hi MiniCursorword'), 'cleared')
 
