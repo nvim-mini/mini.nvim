@@ -851,8 +851,7 @@ MiniHues.apply_palette = function(palette, plugins, opts)
 
   -- Plugins
   -- nvim-mini/mini.nvim
-  -- TODO: Remove 'echasnovski/mini.nvim' fallback after September 2026
-  if has_integration('nvim-mini/mini.nvim') or has_integration('echasnovski/mini.nvim') then
+  if has_integration('nvim-mini/mini.nvim') then
     hi('MiniAnimateCursor',      { fg=nil, bg=nil, reverse=true, nocombine=true })
     hi('MiniAnimateNormalFloat', { link='NormalFloat' })
 

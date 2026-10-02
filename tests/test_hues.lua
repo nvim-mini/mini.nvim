@@ -202,7 +202,7 @@ T['setup()']['respects `config.plugins`'] = function()
   reload_module({
     background = '#222222',
     foreground = '#dddddd',
-    plugins = { ['nvim-mini/mini.nvim'] = false, ['echasnovski/mini.nvim'] = false },
+    plugins = { ['nvim-mini/mini.nvim'] = false },
   })
   expect.match(child.cmd_capture('hi MiniCursorword'), 'cleared')
 
@@ -211,7 +211,7 @@ T['setup()']['respects `config.plugins`'] = function()
   reload_module({
     background = '#222222',
     foreground = '#dddddd',
-    plugins = { default = false, ['echasnovski/mini.nvim'] = true },
+    plugins = { default = false, ['nvim-mini/mini.nvim'] = true },
   })
   validate_hl_group('MiniCursorword', 'cterm=underline gui=underline')
   expect.match(child.cmd_capture('hi GitSignsAdd'), 'cleared')
@@ -500,7 +500,7 @@ end
 
 T['apply_palette()']['respects `plugins`'] = function()
   local palette = make_palette({ background = '#222222', foreground = '#dddddd' })
-  apply_palette(palette, { default = false, ['echasnovski/mini.nvim'] = true })
+  apply_palette(palette, { default = false, ['nvim-mini/mini.nvim'] = true })
   validate_hl_group('MiniCursorword', 'cterm=underline gui=underline')
   validate_hl_group('WhichKey', 'cleared')
 
@@ -509,7 +509,7 @@ T['apply_palette()']['respects `plugins`'] = function()
   child.lua([[require('mini.hues').setup({
     background = '#222222',
     foreground = '#dddddd',
-    plugins = { default = true, ["nvim-mini/mini.nvim"] = false, ["echasnovski/mini.nvim"] = false },
+    plugins = { default = true, ["nvim-mini/mini.nvim"] = false },
   })]])
   apply_palette(palette)
   validate_hl_group('MiniCursorword', 'cleared')
