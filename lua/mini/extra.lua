@@ -1669,7 +1669,7 @@ MiniExtra.pickers.visit_labels = function(local_opts, opts)
     return vim.tbl_map(function(x) return H.normalize_path(H.short_path(x, picker_cwd)) end, all_paths)
   end
 
-  local preview = function(buf_id, label) vim.api.nvim_buf_set_lines(buf_id, 0, -1, false, list_label_paths(label)) end
+  local preview = function(buf_id, label) H.set_buflines(buf_id, list_label_paths(label)) end
   local choose = function(label)
     if label == nil then return end
 
@@ -1869,7 +1869,7 @@ H.preview_cs_hl_groups = function(buf_id, hl_groups)
     lines = vim.tbl_keys(vim.api.nvim_get_hl(0, {}))
     table.sort(lines)
   end
-  vim.api.nvim_buf_set_lines(buf_id, 0, -1, false, lines)
+  H.set_buflines(buf_id, lines)
 
   local ns_id = H.ns_id.pickers
   vim.api.nvim_buf_clear_namespace(buf_id, ns_id, 0, -1)
