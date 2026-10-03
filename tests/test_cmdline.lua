@@ -433,6 +433,34 @@ T['Autocomplete']['works with different completion types'] = function()
 end
 
 T['Autocomplete']['respects mappings'] = function()
+  -- Should work when mapping enters command line mode
+  local validate_enter = function(keys)
+    type_keys(keys)
+    validate_cmdline('a', 2)
+    -- NOTE: would be good to make it work immediately, but not a big issue
+    eq(has_pum(), false)
+    type_keys('b')
+    eq(has_pum(), true)
+    type_keys('<Esc>')
+
+    -- Should work again later
+    type_keys(':', 'a')
+    eq(has_pum(), true)
+    type_keys('<Esc>')
+  end
+
+  child.cmd('nnoremap <C-h> :<C-u>a')
+  validate_enter('<C-h>')
+
+  child.cmd('xnoremap <C-j> :<C-u>a')
+  validate_enter('v<C-j>')
+
+  child.cmd('nnoremap <C-k> :<C-u><C-r>="a"<CR>')
+  validate_enter('<C-k>')
+
+  child.cmd('xnoremap <C-l> :<C-u><C-r>="a"<CR>')
+  validate_enter('v<C-l>')
+
   -- Should not work if Command-line mode is both entered and exited
   child.cmd('nnoremap <C-x> :sort<CR>')
   type_keys('<C-x>')
@@ -879,6 +907,32 @@ T['Autocorrect']['works only in `:` command type'] = function()
 end
 
 T['Autocorrect']['respects mappings'] = function()
+  -- Should work when mapping enters command line mode
+  local validate_enter = function(keys)
+    type_keys(keys)
+    validate_cmdline('ehco', 5)
+    type_keys(' ')
+    validate_cmdline('echo ')
+    type_keys('<Esc>')
+
+    -- Should work again later
+    type_keys(':', 'ehco', ' ')
+    validate_cmdline('echo ')
+    type_keys('<Esc>')
+  end
+
+  child.cmd('nnoremap <C-h> :<C-u>ehco')
+  validate_enter('<C-h>')
+
+  child.cmd('xnoremap <C-j> :<C-u>ehco')
+  validate_enter('v<C-j>')
+
+  child.cmd('nnoremap <C-k> :<C-u><C-r>="ehco"<CR>')
+  validate_enter('<C-k>')
+
+  child.cmd('xnoremap <C-l> :<C-u><C-r>="ehco"<CR>')
+  validate_enter('v<C-l>')
+
   -- Should not work if Command-line mode is both entered and exited
   child.cmd('nnoremap <C-x> :ehco<CR>')
   local ok, err = pcall(type_keys, '<C-x>')
@@ -1274,14 +1328,27 @@ T['Autopeek']["works with 'inccommand'"] = function()
 end
 
 T['Autopeek']['respects mappings'] = function()
+  -- Should work when mapping enters command line mode
+  child.cmd('nnoremap <C-h> :<C-u>1,2')
+  expect_screenshot_after_keys('<C-h>')
+  type_keys('<Esc>')
+
+  child.cmd('xnoremap <C-j> :<C-u>3,4')
+  expect_screenshot_after_keys('v<C-j>')
+  type_keys('<Esc>')
+
+  child.cmd('nnoremap <C-k> :<C-u><C-r>="5,6"<CR>')
+  expect_screenshot_after_keys('<C-k>')
+  type_keys('<Esc>')
+
+  child.cmd('xnoremap <C-l> :<C-u><C-r>="7,8"<CR>')
+  expect_screenshot_after_keys('v<C-l>')
+  type_keys('<Esc>')
+
   -- Should not work if Command-line mode is both entered and exited
   child.cmd('nnoremap <C-x> :2,3sort<CR>')
   type_keys('<C-x>')
   validate_no_peek()
-
-  -- Should work if Command-line mode is only entered
-  child.cmd('nnoremap <C-y> :3,4')
-  expect_screenshot_after_keys('<C-y>')
 end
 
 T['Autopeek']['works in edge cases'] = function()
