@@ -468,6 +468,14 @@ T['Autocomplete']['works in edge cases'] = function()
   validate_special_cmd('g')
   -- :vimgrep
   validate_special_cmd('v')
+
+  -- After mapping with nested command line mode
+  child.cmd('nnoremap <F4> :<C-u><C-r>=1<CR><Home>')
+  type_keys('<F4>')
+  validate_cmdline('1', 1)
+  type_keys('<Esc>')
+  type_keys(':', 'q')
+  eq(has_pum(), true)
 end
 
 T['Autocomplete']['does not throw completion related errors'] = function()
@@ -1274,6 +1282,18 @@ T['Autopeek']['respects mappings'] = function()
   -- Should work if Command-line mode is only entered
   child.cmd('nnoremap <C-y> :3,4')
   expect_screenshot_after_keys('<C-y>')
+end
+
+T['Autopeek']['works in edge cases'] = function()
+  -- After mapping with nested command line mode
+  child.cmd('nnoremap <F4> :<C-u><C-r>=1<CR><Home>')
+  type_keys('<F4>')
+  validate_cmdline('1', 1)
+  type_keys('2,')
+  child.expect_screenshot()
+
+  type_keys('<Esc>')
+  expect_screenshot_after_keys(':3')
 end
 
 T['Autopeek']['uses correct highlight groups'] = function()

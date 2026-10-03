@@ -570,14 +570,12 @@ H.create_autocommands = function()
   end
 
   -- Act on command line events. Notes:
-  -- - Schedule for 'CmdlineEnter' to not act on mappings like `:...`
-  --   (like `:<C-u>...` popular for Visual mode).
   -- - Prefer 'CursorMovedC' to track command line change as it is triggered
   --   both after only position change and after text change. Schedule its
   --   callback to work around autcompletion issues with mocking wildchar.
   -- - Do not schedule 'CmdlineLeave' to be able to set command text before
   --   executing it.
-  au('CmdlineEnter', '*', vim.schedule_wrap(H.on_cmdline_enter), 'Act on command line enter')
+  au('CmdlineEnter', '*', H.on_cmdline_enter, 'Act on command line enter')
   local update_event = vim.fn.has('nvim-0.11') == 1 and 'CursorMovedC' or 'CmdlineChanged'
   au(update_event, '*', vim.schedule_wrap(H.on_cmdline_update), 'Act on command line update')
   au('CmdlineLeave', '*', H.on_cmdline_leave, 'Act on command line leave')
@@ -609,37 +607,44 @@ H.get_config = function() return vim.tbl_deep_extend('force', MiniCmdline.config
 -- Autocommands ---------------------------------------------------------------
 H.on_cmdline_enter = function()
   -- Check for Command-line mode to not act on `:...` mappings
-  if H.is_disabled() or vim.fn.mode() ~= 'c' then return end
+  if H.is_disabled() then return end
 
   -- Act only on "not nested" command line (for simplicity). It can nest after
   -- `c_CTRL-R_=`, since there are CmdlineEnter-CmdlineChanged-CmdlineLeave for
   -- it without explicit leave-enter for the initial normal Ex command mode.
-  -- There doesn't seem to be a way to have `n_nested > 1`, but use counter of
-  -- nested levels instead of a boolean `is_nested` just in case.
-  if H.cache.state ~= nil then
-    H.cache.n_nested = (H.cache.n_nested or 0) + 1
-    return
-  end
+  H.cache.cmdlevel = vim.v.event.cmdlevel
+  if H.cache.cmdlevel > 1 then return end
+
+  -- Schedule for 'CmdlineEnter' to not act on mappings like `:...` (like
+  -- `:<C-u>...` popular for Visual mode).
+  H.on_cmdline_leave_scheduled()
+end
+
+H.on_cmdline_leave_scheduled = vim.schedule_wrap(function()
+  -- Check for Command-line mode to not act on `:...` mappings
+  if H.is_disabled() or vim.fn.mode() ~= 'c' then return end
 
   H.cache = {
     buf_id = vim.api.nvim_get_current_buf(),
     cmd_preview_map = H.get_cmd_preview_map(),
     cmd_type = vim.fn.getcmdtype(),
+    cmdlevel = H.cache.cmdlevel,
     config = H.get_config(),
     peek = {},
     state = H.get_cmd_state(),
     state_prev = H.get_cmd_state(true),
   }
+
   H.cache.autocomplete_predicate = H.cache.config.autocomplete.predicate or MiniCmdline.default_autocomplete_predicate
   H.cache.buf_is_cmdwin = vim.fn.getbufinfo(H.cache.buf_id)[1].command == 1
 
   H.cache.autopeek_predicate = H.cache.config.autopeek.predicate or MiniCmdline.default_autopeek_predicate
   MiniCmdline._peek_statuscolumn = H.make_peek_statuscolumn()
   if H.cache.config.autopeek.enable then H.autopeek() end
-end
+end)
 
 H.on_cmdline_update = function()
-  if H.cache.state == nil or H.cache.n_nested ~= nil then return end
+  if H.cache.state == nil or H.cache.cmdlevel > 1 then return end
 
   -- Track state only if there was an actual change (line or position)
   local state = H.get_cmd_state()
@@ -659,15 +664,12 @@ H.on_cmdline_update = function()
 end
 
 H.on_cmdline_leave = function()
-  if H.cache.state == nil then return end
-  if H.cache.n_nested ~= nil then
-    H.cache.n_nested = H.cache.n_nested > 1 and (H.cache.n_nested - 1) or nil
-    return
-  end
+  H.cache.cmdlevel = vim.v.event.cmdlevel - 1
+  if H.cache.state == nil or H.cache.cmdlevel >= 1 then return end
 
   if H.cache.config.autocorrect.enable and not vim.v.event.abort then H.autocorrect(true) end
   H.peek_hide()
-  H.cache = {}
+  H.cache = { cmdlevel = vim.v.event.cmdlevel }
   MiniCmdline._peek_statuscolumn = nil
 end
 
