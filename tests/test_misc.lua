@@ -265,6 +265,9 @@ T['log_show()']['works'] = function()
   child.cmd('vert split')
   local win_id = child.api.nvim_get_current_win()
 
+  -- Should work with global 'nomodifiable'
+  child.go.modifiable = false
+
   -- Should start showing log in a new scratch buffer in the current window
   child.lua('MiniMisc.log_add("desc", { a = 1 })')
   child.lua('MiniMisc.log_show()')

@@ -2423,4 +2423,10 @@ T['interactive()']['respects `opts.mappings`'] = function()
   eq(n, 4)
 end
 
+T['interactive()']["works with global 'nomodifiable'"] = function()
+  child.lua([[_G.cs = MiniColors.as_colorscheme({ name = 'input_cs', groups = { Normal = { fg = '#ffffff' } } })]])
+  child.go.modifiable = false
+  expect.no_error(function() child.lua('MiniColors.interactive({ colorscheme = _G.cs })') end)
+end
+
 return T

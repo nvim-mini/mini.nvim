@@ -2057,6 +2057,7 @@ H.buffer_reporter = { ns_id = vim.api.nvim_create_namespace('MiniTestBuffer'), n
 H.buffer_reporter.setup_buf_and_win = function(window_opts)
   local buf_id = vim.api.nvim_create_buf(true, true)
   H.set_buf_name(buf_id, 'buffer-reporter')
+  vim.bo[buf_id].modifiable = true
 
   local win_id
   if vim.is_callable(window_opts) then

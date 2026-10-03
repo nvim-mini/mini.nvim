@@ -1396,6 +1396,7 @@ end
 H.create_map_buffer = function()
   local buf_id = vim.api.nvim_create_buf(false, true)
   H.set_buf_name(buf_id, 'content')
+  vim.bo[buf_id].modifiable = true
 
   -- Set buffer local options (which don't involve `noautocmd`)
   vim.bo[buf_id].filetype = 'minimap'

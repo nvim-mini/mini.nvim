@@ -655,6 +655,7 @@ MiniExtra.pickers.git_branches = function(local_opts, opts)
     if win_target == nil or not H.is_valid_win(win_target) then return end
     local buf_id = vim.api.nvim_create_buf(true, true)
     H.set_buf_name(buf_id, item:match('^%*?%s*(%S+)'))
+    vim.bo[buf_id].modifiable = true
     preview(buf_id, item)
     vim.api.nvim_win_set_buf(win_target, buf_id)
   end
@@ -713,6 +714,7 @@ MiniExtra.pickers.git_commits = function(local_opts, opts)
     if win_target == nil or not H.is_valid_win(win_target) then return end
     local buf_id = vim.api.nvim_create_buf(true, true)
     H.set_buf_name(buf_id, item:match('^(%S+)'))
+    vim.bo[buf_id].modifiable = true
     preview(buf_id, item)
     -- Set filetype on opened buffer to trigger appropriate `FileType` event
     vim.bo[buf_id].filetype = 'git'

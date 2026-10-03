@@ -659,6 +659,9 @@ local show_history = forward_lua('MiniNotify.show_history')
 T['show_history()']['works'] = function()
   mock_gettimeofday()
 
+  -- Should work with global 'nomodifiable'
+  child.go.modifiable = false
+
   add('Hello')
   add('World', 'WARN', 'Comment')
   show_history()
@@ -1058,6 +1061,12 @@ T['Window']['handles deleting all buffers'] = function()
   child.cmd('%bdelete')
   validate('content')
   validate('textlock-check-scratch')
+end
+
+T['Window']["works with global 'nomodifiable'"] = function()
+  child.go.modifiable = false
+  add('Hello')
+  child.expect_screenshot()
 end
 
 T['LSP progress'] = new_set({

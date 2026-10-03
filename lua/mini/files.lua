@@ -1990,8 +1990,9 @@ H.explorer_show_help = function(explorer, explorer_buf_id, explorer_win_id)
 
   -- Create buffer
   local buf_id = vim.api.nvim_create_buf(false, true)
-  H.set_buflines(buf_id, lines)
   H.set_buf_name(buf_id, 'help')
+  vim.bo[buf_id].modifiable = true
+  H.set_buflines(buf_id, lines)
 
   vim.keymap.set('n', 'q', '<Cmd>close<CR>', { buffer = buf_id, desc = 'Close this window' })
 
@@ -2190,6 +2191,7 @@ H.buffer_create = function(path, mappings)
   -- Create buffer
   local buf_id = vim.api.nvim_create_buf(false, true)
   H.set_buf_name(buf_id, path)
+  vim.bo[buf_id].modifiable = true
 
   -- Register buffer
   H.opened_buffers[buf_id] = { path = path }

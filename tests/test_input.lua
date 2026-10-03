@@ -1251,6 +1251,11 @@ T['gen_view']['floatwin()']['works'] = function()
   type_keys('<C-c>')
   eq(child.api.nvim_buf_is_valid(buf_id), false)
   eq(child.api.nvim_win_is_valid(win_id), false)
+
+  -- Should work with global 'nomodifiable'
+  child.go.modifiable = false
+  get()
+  expect_screenshot()
 end
 
 T['gen_view']['floatwin()']['uses scope and style for config'] =
