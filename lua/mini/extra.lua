@@ -1283,6 +1283,7 @@ MiniExtra.pickers.manpages = function(local_opts, opts)
   local env = { 'MANWIDTH=999' }
   table.insert(env, vim.env.PATH ~= nil and ('PATH=' .. vim.env.PATH) or nil)
   table.insert(env, vim.env.MANPATH ~= nil and ('MANPATH=' .. vim.env.MANPATH) or nil)
+  table.insert(env, vim.env.HOME ~= nil and ('HOME=' .. vim.env.HOME) or nil)
   local source = { name = 'Manpages', choose = choose, preview = preview }
   opts = vim.tbl_deep_extend('force', { source = source }, opts or {})
   return pick.builtin.cli({ command = { 'man', '-k', '.' }, spawn_opts = { env = env } }, opts)

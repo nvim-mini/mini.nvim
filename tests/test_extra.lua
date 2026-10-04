@@ -3243,12 +3243,13 @@ T['pickers']['manpages()']['works'] = function()
   -- Should compute items with `man -k .` system call
   child.fn.setenv('PATH', '/home,/home/user')
   child.fn.setenv('MANPATH', '/home,/home/manpage')
+  child.fn.setenv('HOME', '/home/user')
   child.lua_notify('_G.return_item = MiniExtra.pickers.manpages()')
   validate_picker_name('Manpages')
   child.expect_screenshot()
 
   local cwd = child.fn.getcwd()
-  local spawn_env = { 'MANWIDTH=999', 'PATH=/home,/home/user', 'MANPATH=/home,/home/manpage' }
+  local spawn_env = { 'MANWIDTH=999', 'PATH=/home,/home/user', 'MANPATH=/home,/home/manpage', 'HOME=/home/user' }
   eq(get_spawn_log(), { { executable = 'man', options = { args = { '-k', '.' }, cwd = cwd, env = spawn_env } } })
   clear_spawn_log()
   clear_process_log()
