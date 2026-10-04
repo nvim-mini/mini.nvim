@@ -1663,6 +1663,9 @@ T['gen_reporter']['buffer'] = new_set({
     pre_case = function()
       child.o.termguicolors = true
       child.set_size(70, 120)
+
+      -- Should work with global 'nomodifiable'
+      child.go.modifiable = false
     end,
   },
   parametrize = {

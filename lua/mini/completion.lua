@@ -1771,6 +1771,7 @@ H.ensure_buffer = function(cache, name)
   local buf_id = vim.api.nvim_create_buf(false, true)
   cache.bufnr = buf_id
   H.set_buf_name(buf_id, name)
+  vim.bo[buf_id].modifiable = true
   vim.bo[buf_id].buftype = 'nofile'
 end
 

@@ -1511,6 +1511,9 @@ local pick_git_branches = forward_lua_notify('MiniExtra.pickers.git_branches')
 T['pickers']['git_branches()']['works'] = function()
   child.set_size(10, 90)
 
+  -- Should work with global 'nomodifiable'
+  child.go.modifiable = false
+
   local repo_dir = test_dir_absolute
   child.fn.chdir(repo_dir)
   mock_git_repo(repo_dir)
@@ -1666,6 +1669,9 @@ local pick_git_commits = forward_lua_notify('MiniExtra.pickers.git_commits')
 
 T['pickers']['git_commits()']['works'] = function()
   child.set_size(33, 100)
+
+  -- Should work with global 'nomodifiable'
+  child.go.modifiable = false
 
   local repo_dir = test_dir_absolute
   child.fn.chdir(repo_dir)

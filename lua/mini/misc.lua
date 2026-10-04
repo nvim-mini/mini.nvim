@@ -168,6 +168,7 @@ MiniMisc.log_show = function()
   if buf_id == nil or not vim.api.nvim_buf_is_valid(buf_id) then
     buf_id = vim.api.nvim_create_buf(true, true)
     vim.api.nvim_buf_set_name(buf_id, 'minimisc://' .. buf_id .. '/log')
+    vim.bo[buf_id].modifiable = true
     H.log_cache.buf_id = buf_id
   end
   local lines = vim.split(vim.inspect(H.log_cache.log), '\n')

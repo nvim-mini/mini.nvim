@@ -1445,6 +1445,14 @@ T['Window']['handles deleting all buffers'] = function()
   validate()
 end
 
+T['Window']["works with global 'nomodifiable'"] = function()
+  child.set_size(10, 20)
+  set_lines(example_lines)
+  child.go.modifiable = false
+  map_open()
+  child.expect_screenshot()
+end
+
 T['Window']["does not respect 'winborder' option"] = function()
   if child.fn.has('nvim-0.11') == 0 then MiniTest.skip("'winborder' option is present on Neovim>=0.11") end
   child.set_size(15, 20)

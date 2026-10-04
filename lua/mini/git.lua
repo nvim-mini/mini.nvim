@@ -1124,6 +1124,7 @@ H.show_in_split = function(mods, lines, subcmd, name)
   -- Prepare buffer
   local buf_id = vim.api.nvim_create_buf(false, true)
   H.set_buf_name(buf_id, name)
+  vim.bo[buf_id].modifiable = true
   vim.api.nvim_buf_set_lines(buf_id, 0, -1, false, lines)
 
   vim.api.nvim_set_current_buf(buf_id)

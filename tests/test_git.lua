@@ -267,6 +267,9 @@ T['show_at_cursor()']['works on commit'] = function()
   set_cursor(1, 0)
   child.lua([[_G.stdio_queue = { { { 'out', 'commit abc123456\nHello' } } }]])
 
+  -- Should work with global 'nomodifiable'
+  child.go.modifiable = false
+
   show_at_cursor()
 
   local ref_args = { '--no-pager', 'show', '--stat', '--patch', 'abc1234' }
@@ -556,6 +559,9 @@ T['show_diff_source()']['works'] = function()
   child.lua([[_G.stdio_queue = {
     { { 'out', 'Line 1\nCurrent line 2\nLine 3' } }, -- Diff source
   }]])
+
+  -- Should work with global 'nomodifiable'
+  child.go.modifiable = false
 
   -- Show diff source
   set_cursor(17, 0)
@@ -1081,6 +1087,9 @@ T['show_range_history()'] = new_set({
 local show_range_history = forward_lua('MiniGit.show_range_history')
 
 T['show_range_history()']['works in Normal mode'] = function()
+  -- Should work with global 'nomodifiable'
+  child.go.modifiable = false
+
   show_range_history()
 
   local ref_git_spawn_log = {
@@ -2392,6 +2401,9 @@ T[':Git']['works'] = function()
     -- Mock non-trivial command execution time
     _G.process_mock_data = { [4] = { duration = _G.dur } }
   ]])
+
+  -- Should work with global 'nomodifiable'
+  child.go.modifiable = false
 
   -- Should execute command synchronously
   local start_time = vim.loop.hrtime()

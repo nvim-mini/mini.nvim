@@ -1685,6 +1685,7 @@ H.buffer_update = function()
     pcall(vim.api.nvim_buf_delete, buf_id, { force = true })
     buf_id = vim.api.nvim_create_buf(false, true)
     H.set_buf_name(buf_id, 'content')
+    vim.bo[buf_id].modifiable = true
   end
 
   -- Compute content data

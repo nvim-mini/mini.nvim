@@ -1799,6 +1799,15 @@ T['Showing keys']['handles deleting all buffers'] = function()
   validate()
 end
 
+T['Showing keys']["works with global 'nomodifiable'"] = function()
+  make_test_map('n', '<Space>aa')
+  load_module({ triggers = { { mode = 'n', keys = '<Space>' } }, window = { delay = 0 } })
+
+  child.go.modifiable = false
+  type_keys(' ')
+  child.expect_screenshot()
+end
+
 T['Showing keys']['respects `vim.b.miniclue_config`'] = function()
   make_test_map('n', '<Space>a')
   load_module({ triggers = { { mode = 'n', keys = '<Space>' } }, window = { delay = 0 } })

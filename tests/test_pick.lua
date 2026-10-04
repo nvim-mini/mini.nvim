@@ -1129,6 +1129,17 @@ T['start()']['can be called in non-Normal modes'] = function()
   -- Use `gv` in picker if want to preserve Visual mode.
 end
 
+T['start()']["works with global 'nomodifiable'"] = function()
+  child.go.modifiable = false
+  start_with_items({ { text = 'a' } })
+  child.expect_screenshot()
+  type_keys('<Tab>')
+  child.expect_screenshot()
+  mock_picker_cwd(test_dir)
+  type_keys('<S-Tab>')
+  child.expect_screenshot()
+end
+
 T['start()']['respects global config'] = function()
   child.lua([[MiniPick.config.window.config = { anchor = 'NW', row = 1 }]])
   start_with_items({ 'a', 'b', 'c' })

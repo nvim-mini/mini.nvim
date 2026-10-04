@@ -541,6 +541,7 @@ MiniNotify.show_history = function()
   if buf_id == nil then
     buf_id = vim.api.nvim_create_buf(true, true)
     H.set_buf_name(buf_id, 'history')
+    vim.bo[buf_id].modifiable = true
     vim.bo[buf_id].filetype = 'mininotify-history'
   end
   H.buffer_refresh(buf_id, notif_arr)
@@ -742,6 +743,7 @@ H.buffer_create = function(prev_buf_id)
   pcall(vim.api.nvim_buf_delete, prev_buf_id, { force = true })
   local buf_id = vim.api.nvim_create_buf(false, true)
   H.set_buf_name(buf_id, 'content')
+  vim.bo[buf_id].modifiable = true
   vim.bo[buf_id].filetype = 'mininotify'
   return buf_id
 end
@@ -905,8 +907,10 @@ H.is_win_in_tabpage = function(win_id) return vim.api.nvim_win_get_tabpage(win_i
 H.is_textlock = function()
   if not H.is_loaded_buf(H.cache.textlock_buf_id) then
     pcall(vim.api.nvim_buf_delete, H.cache.textlock_buf_id, { force = true })
-    H.cache.textlock_buf_id = vim.api.nvim_create_buf(false, true)
-    H.set_buf_name(H.cache.textlock_buf_id, 'textlock-check-scratch')
+    local buf_id = vim.api.nvim_create_buf(false, true)
+    H.set_buf_name(buf_id, 'textlock-check-scratch')
+    vim.bo[buf_id].modifiable = true
+    H.cache.textlock_buf_id = buf_id
   end
   local ok = pcall(vim.api.nvim_buf_set_lines, H.cache.textlock_buf_id, 0, -1, false, {})
   return not ok

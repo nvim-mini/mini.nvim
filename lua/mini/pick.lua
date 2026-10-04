@@ -3654,6 +3654,7 @@ end
 H.create_scratch_buf = function(name)
   local buf_id = vim.api.nvim_create_buf(false, true)
   H.set_buf_name(buf_id, name)
+  vim.bo[buf_id].modifiable = true
   vim.bo[buf_id].matchpairs = ''
   vim.b[buf_id].minicursorword_disable = true
   vim.b[buf_id].miniindentscope_disable = true

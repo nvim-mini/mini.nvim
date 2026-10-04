@@ -854,6 +854,7 @@ MiniColors.interactive = function(opts)
     or MiniColors.as_colorscheme(opts.colorscheme)
   local buf_id = vim.api.nvim_create_buf(true, true)
   H.set_buf_name(buf_id, 'interactive')
+  vim.bo[buf_id].modifiable = true
 
   -- Write header lines
   local header_lines = {

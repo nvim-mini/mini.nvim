@@ -1373,6 +1373,9 @@ T['update()']['Confirm buffer'] = new_set({
       -- window being current (so as to `vim.wo` can work)
       child.cmd('au FileType minideps-confirm lua _G.minideps_ft_win_id = vim.api.nvim_get_current_win()')
 
+      -- Should work with global 'nomodifiable'
+      child.go.modifiable = false
+
       update()
       eq(#get_spawn_log(), 15)
       eq(#get_notify_log(), 3)

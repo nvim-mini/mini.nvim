@@ -161,6 +161,9 @@ T['open()'] = new_set()
 T['open()']['works'] = function()
   local init_buf_id = child.api.nvim_get_current_buf()
 
+  -- Should work with global 'nomodifiable'
+  child.go.modifiable = false
+
   child.lua('MiniStarter.open()')
 
   local buf_cur = child.api.nvim_get_current_buf()
@@ -1106,7 +1109,8 @@ end
 T['Autoopening'] = new_set()
 
 T['Autoopening']['works'] = function()
-  child.restart({ '-u', 'tests/dir-starter/init-files/test-init.lua' })
+  -- Should work with global 'nomodifiable' set by `-M` flag
+  child.restart({ '-M', '-u', 'tests/dir-starter/init-files/test-init.lua' })
   validate_starter_shown()
 
   -- It should result into total single buffer

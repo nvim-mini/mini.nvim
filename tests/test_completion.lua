@@ -1922,6 +1922,18 @@ T['Information window']['handles deleting all buffers'] = function()
   validate()
 end
 
+T['Information window']["works with global 'nomodifiable'"] = function()
+  new_buffer()
+  child.go.modifiable = false
+  child.bo.modifiable = true
+  mock_lsp()
+
+  type_keys('i', 'J', '<C-Space>')
+  type_keys('<C-n>')
+  sleep(default_info_delay + small_time)
+  eq(#get_floating_windows() > 0, true)
+end
+
 T['Information window']['respects `vim.{g,b}.minicompletion_disable`'] = new_set({
   parametrize = { { 'g' }, { 'b' } },
 }, {
@@ -2225,6 +2237,18 @@ T['Signature help']['handles deleting all buffers'] = function()
 
   child.cmd('%bdelete')
   validate()
+end
+
+T['Signature help']["works with global 'nomodifiable'"] = function()
+  new_buffer()
+  child.bo.filetype = 'aaa'
+  child.go.modifiable = false
+  child.bo.modifiable = true
+  mock_lsp()
+
+  type_keys('i', 'abc(')
+  sleep(default_signature_delay + small_time)
+  eq(#get_floating_windows() > 0, true)
 end
 
 T['Signature help']['respects `vim.{g,b}.minicompletion_disable`'] = new_set({

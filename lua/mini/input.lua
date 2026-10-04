@@ -1838,6 +1838,7 @@ H.ensure_floatwin_buf = function(state, chunks)
   else
     buf_id = vim.api.nvim_create_buf(false, true)
     H.set_buf_name(buf_id, 'content')
+    vim.bo[buf_id].modifiable = true
     vim.bo[buf_id].filetype = 'miniinput'
     state.data.floatwin_buf_id = buf_id
   end

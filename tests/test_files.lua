@@ -2009,6 +2009,12 @@ T['show_help()']["respects 'winborder' option"] = function()
   validate('+,-,+,|,+,-,+,|')
 end
 
+T['show_help()']["works with global 'nomodifiable'"] = function()
+  open(test_dir_path)
+  child.go.modifiable = false
+  expect.no_error(show_help)
+end
+
 T['get_fs_entry()'] = new_set()
 
 local get_fs_entry = forward_lua('MiniFiles.get_fs_entry')
@@ -2901,6 +2907,13 @@ T['Windows']["respect 'winborder' option"] = function()
   if child.fn.has('nvim-0.12') == 0 then MiniTest.skip("String array 'winborder' is present on Neovim>=0.12") end
   child.api.nvim_del_autocmd(au_id)
   validate('+,-,+,|,+,-,+,|')
+end
+
+T['Windows']["works with global 'nomodifiable'"] = function()
+  child.go.modifiable = false
+  open(test_dir_path, false, { windows = { preview = true } })
+  eq(is_explorer_active(), true)
+  expect.no_error(function() type_keys('o') end)
 end
 
 T['Preview'] = new_set({
