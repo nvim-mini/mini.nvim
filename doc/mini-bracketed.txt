@@ -272,7 +272,7 @@ Parameters ~
   - <n_times> `(number)` - Number of times to advance. Default: |v:count1|.
   - <wrap> `(boolean)` - Whether to wrap around edges. Default: `true`.
   - <float> `(boolean|table)` - control floating window after movement.
-    For available values see |vim.diagnostic.goto_next()|.
+    For available values see |vim.diagnostic.Opts|.
   - <severity> `(string|table)` - which severity to use.
     For available values see |diagnostic-severity|.
 
