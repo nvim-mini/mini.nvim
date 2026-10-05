@@ -408,7 +408,7 @@ end
 ---@param direction __bracketed_direction
 ---@param opts __bracketed_opts
 ---   - <float> `(boolean|table)` - control floating window after movement.
----     For available values see |vim.diagnostic.goto_next()|.
+---     For available values see |vim.diagnostic.Opts|.
 ---   - <severity> `(string|table)` - which severity to use.
 ---     For available values see |diagnostic-severity|.
 MiniBracketed.diagnostic = function(direction, opts)
@@ -1644,9 +1644,21 @@ end
 
 -- Diagnostic -----------------------------------------------------------------
 H.diagnostic_jump = function(pos, float, severity)
-  vim.diagnostic.jump({ count = 1, pos = pos, float = float, severity = severity })
+  local on_jump = nil
+  if float ~= false then
+    float = type(float) == 'table' and float or {}
+    on_jump = function(_, bufnr)
+      local default_opts = { bufnr = bufnr, scope = 'cursor', focus = false }
+      vim.diagnostic.open_float(vim.tbl_extend('force', default_opts, float))
+    end
+  end
+  vim.diagnostic.jump({ count = 1, pos = pos, on_jump = on_jump, severity = severity })
 end
-if vim.fn.has('nvim-0.11') == 0 then
+if vim.fn.has('nvim-0.12') == 0 and vim.fn.has('nvim-0.11') == 1 then
+  H.diagnostic_jump = function(pos, float, severity)
+    vim.diagnostic.jump({ count = 1, pos = pos, float = float, severity = severity })
+  end
+elseif vim.fn.has('nvim-0.11') == 0 then
   H.diagnostic_jump = function(pos, float, severity)
     vim.diagnostic.goto_next({ cursor_position = pos, float = float, severity = severity })
   end
