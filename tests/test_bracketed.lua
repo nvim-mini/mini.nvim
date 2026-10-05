@@ -1088,7 +1088,7 @@ T['diagnostic()']['opens floating window'] = function()
   diagnostic('forward')
   eq(get_cursor(), all[2])
 
-  -- -- Actual testing of floating window fails for some unimagniable reason.
+  -- -- Actual testing of floating window fails for some unimaginable reason.
   -- -- But everything seems to work fine in real life
   -- local windows = child.api.nvim_list_wins()
   -- eq(#windows, 2)
@@ -1100,6 +1100,20 @@ T['diagnostic()']['opens floating window'] = function()
   -- -- Again, can't test, but seems to works fine.
   -- local windows = child.api.nvim_list_wins()
   -- eq(#windows, 2)
+end
+
+T['diagnostic()']['respects `diagnostic.config().jump.on_jump`'] = function()
+  if child.fn.has('nvim-0.12') == 0 then MiniTest.skip('Diagnostic `on_jump` was introduced in nvim-0.12') end
+
+  child.lua([[
+    _G.count = 0
+    local on_jump = function() _G.count = _G.count + 1 end
+    vim.diagnostic.config({ jump = { on_jump = on_jump }})
+  ]])
+  setup_diagnostic()
+  set_cursor(1, 2)
+  diagnostic('forward')
+  eq(child.lua_get('_G.count'), 1)
 end
 
 T['diagnostic()']['validates `direction`'] = function()
@@ -1121,7 +1135,7 @@ T['diagnostic()']['adds to jumplist'] = function()
 end
 
 T['diagnostic()']['respects `opts.float`'] = function()
-  -- As actual testing of floating window fails for some unimagniable reason,
+  -- As actual testing of floating window fails for some unimaginable reason,
   -- there is no way at the moment to test this. Would be **great** otherwise.
 end
 

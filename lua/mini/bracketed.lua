@@ -1645,7 +1645,7 @@ end
 -- Diagnostic -----------------------------------------------------------------
 H.diagnostic_jump = function(pos, float, severity)
   local on_jump = nil
-  if float ~= false then
+  if vim.diagnostic.config().jump.on_jump == nil and float ~= false then
     float = type(float) == 'table' and float or {}
     on_jump = function(_, bufnr)
       local default_opts = { bufnr = bufnr, scope = 'cursor', focus = false }
