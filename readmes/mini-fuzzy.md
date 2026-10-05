@@ -1,4 +1,4 @@
-<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-fuzzy_readme.png?raw=true" alt="mini.fuzzy" style="max-width:100%;border:solid 2px"/> </p>
+<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-3/logo-mini-module-fuzzy.svg?raw=true" alt="mini.fuzzy" style="max-width:100%;border:solid 2px"/> </p>
 
 ### Minimal and fast fuzzy matching
 

@@ -1,4 +1,4 @@
-<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-completion_readme.png?raw=true" alt="mini.completion" style="max-width:100%;border:solid 2px"/> </p>
+<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-3/logo-mini-module-completion.svg?raw=true" alt="mini.completion" style="max-width:100%;border:solid 2px"/> </p>
 
 ### Autocompletion and signature help plugin
 

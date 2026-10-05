@@ -1,4 +1,4 @@
-<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-clue_readme.png?raw=true" alt="mini.clue" style="max-width:100%;border:solid 2px"/> </p>
+<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-3/logo-mini-module-clue.svg?raw=true" alt="mini.clue" style="max-width:100%;border:solid 2px"/> </p>
 
 ### Show next key clues
 
