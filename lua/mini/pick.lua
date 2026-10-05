@@ -3281,18 +3281,19 @@ H.parse_item_table = function(item)
 
   -- File or Directory
   if type(item.path) == 'string' then
-    local path_type = H.get_fs_type(item.path)
+    local path = H.expand_home(item.path)
+    local path_type = H.get_fs_type(path)
     if path_type == 'file' or path_type == 'uri' then
       --stylua: ignore
       return {
-        type = path_type, path     = item.path,
+        type = path_type, path     = path,
         lnum = item.lnum, end_lnum = item.end_lnum,
         col  = item.col,  end_col  = item.end_col,
         text = item.text,
       }
     end
 
-    if path_type == 'directory' then return { type = 'directory', path = item.path } end
+    if path_type == 'directory' then return { type = 'directory', path = path } end
   end
 
   return {}
@@ -3308,7 +3309,7 @@ H.parse_path = function(x)
   local location_pattern = '()%z(%d+)%z?(%d*)%z?(.*)$'
   local from, lnum, col, rest = x:match(location_pattern)
   local path = x:sub(1, (from or 0) - 1)
-  path = path:sub(1, 1) == '~' and ((vim.loop.os_homedir() or '~') .. path:sub(2)) or path
+  path = H.expand_home(path)
 
   -- Verify that path is real
   local path_type = H.get_fs_type(path)
@@ -3323,6 +3324,7 @@ end
 
 H.get_fs_type = function(path)
   if path == '' then return 'none' end
+  -- NOTE: requires resolved `path` (like no `~` for `/home/user`, etc.)
   if vim.fn.filereadable(path) == 1 then return 'file' end
   if vim.fn.isdirectory(path) == 1 then return 'directory' end
   if H.parse_uri(path) ~= nil then return 'uri' end
@@ -3793,6 +3795,8 @@ H.full_path = function(path) return (vim.fn.fnamemodify(path, ':p'):gsub('(.)/$'
 if H.is_windows then
   H.full_path = function(path) return (vim.fn.fnamemodify(path, ':p'):gsub('(.)[\\/]$', '%1')) end
 end
+
+H.expand_home = function(path) return path:sub(1, 1) == '~' and ((vim.loop.os_homedir() or '~') .. path:sub(2)) or path end
 
 H.parse_uri = function(x)
   local ok, path = pcall(vim.uri_to_fname, x)

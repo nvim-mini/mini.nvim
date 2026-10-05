@@ -1816,7 +1816,7 @@ T['default_preview()']['works for file path with tilde'] = function()
   if path_tilde:sub(1, 1) ~= '~' then return end
 
   child.set_size(5, 15)
-  validate_preview({ path_tilde })
+  validate_preview({ path_tilde, { path = path_tilde, text = path_tilde } })
 end
 
 T['default_preview()']['works for URI path'] = function()
@@ -1875,6 +1875,14 @@ end
 T['default_preview()']['works for directory path'] = function()
   validate_preview({ test_dir, { text = real_files_dir, path = real_files_dir } })
   validate_helper_buf_name(0, 'preview')
+end
+
+T['default_preview()']['works for directory path with tilde'] = function()
+  local path_tilde = child.fn.fnamemodify(full_path(test_dir), ':~')
+  if path_tilde:sub(1, 1) ~= '~' then return end
+
+  child.set_size(5, 15)
+  validate_preview({ path_tilde, { path = path_tilde, text = path_tilde } })
 end
 
 T['default_preview()']['works for buffer'] = function()
@@ -2151,10 +2159,14 @@ T['default_choose()']['works for file path with tilde'] = function()
   local path_tilde = child.fn.fnamemodify(full_path(path), ':~')
   if path_tilde:sub(1, 1) ~= '~' then return end
 
-  child.set_size(5, 15)
-  start_with_items({ path_tilde })
-  type_keys('<CR>')
-  validate_buf_name(0, path)
+  local validate = function(item)
+    start_with_items({ item })
+    type_keys('<CR>')
+    validate_buf_name(0, path)
+    child.cmd('bwipeout')
+  end
+  validate(path_tilde)
+  validate({ path = path_tilde, text = path_tilde })
 end
 
 T['default_choose()']['reuses opened listed buffer for file path'] = function()
@@ -2257,6 +2269,25 @@ T['default_choose()']['works for directory path'] = function()
   start_with_items({ test_dir })
   type_keys('<CR>')
   eq(#child.api.nvim_list_wins(), 2)
+end
+
+T['default_choose()']['works for directory path with tilde'] = function()
+  local path = test_dir
+  local path_tilde = child.fn.fnamemodify(full_path(test_dir), ':~')
+  if path_tilde:sub(1, 1) ~= '~' then return end
+  local directory_filetype = child.fn.has('nvim-0.13') == 0 and 'netrw' or 'directory'
+
+  local validate = function(item)
+    start_with_items({ item })
+    type_keys('<CR>')
+    eq(child.bo.filetype, directory_filetype)
+    validate_buf_name(0, path)
+
+    child.cmd('bwipeout')
+  end
+
+  validate(path_tilde)
+  validate({ path = path_tilde, text = path_tilde })
 end
 
 T['default_choose()']['works for buffer'] = function()
