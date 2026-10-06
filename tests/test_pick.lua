@@ -2239,12 +2239,13 @@ T['default_choose()']['mimics empty buffer reuse'] = function()
 end
 
 T['default_choose()']['works for directory path'] = function()
-  local validate = function(item, path, filetype)
+  local directory_filetype = child.fn.has('nvim-0.13') == 0 and 'netrw' or 'directory'
+  local validate = function(item, path)
     local buf_id_init = child.api.nvim_get_current_buf()
     default_choose(item)
 
     local buf_id_cur = child.api.nvim_get_current_buf()
-    eq(child.bo.filetype, filetype)
+    eq(child.bo.filetype, directory_filetype)
     validate_buf_name(buf_id_init, path)
 
     -- Cleanup
@@ -2253,14 +2254,14 @@ T['default_choose()']['works for directory path'] = function()
     pcall(child.api.nvim_buf_delete, buf_id_cur, { force = true })
   end
 
-  local directory_filetype = child.fn.has('nvim-0.13') == 0 and 'netrw' or 'directory'
-  validate(test_dir, test_dir, directory_filetype)
-  validate({ text = test_dir, path = test_dir }, test_dir, directory_filetype)
+  validate(test_dir, test_dir)
+  validate({ text = test_dir, path = test_dir }, test_dir)
 
   -- Should work with 'mini.files' as default explorer
   child.lua('require("mini.files").setup()')
-  validate(test_dir, test_dir, 'minifiles')
-  validate({ text = test_dir, path = test_dir }, test_dir, 'minifiles')
+  directory_filetype = 'minifiles'
+  validate(test_dir, test_dir)
+  validate({ text = test_dir, path = test_dir }, test_dir)
 
   -- - Should work when there is an already opened file (matters in which code
   --   path 'mini.files' takes when acting as a default explorer).
@@ -2278,12 +2279,11 @@ T['default_choose()']['works for directory path with tilde'] = function()
   local directory_filetype = child.fn.has('nvim-0.13') == 0 and 'netrw' or 'directory'
 
   local validate = function(item)
-    start_with_items({ item })
-    type_keys('<CR>')
+    default_choose(item)
     eq(child.bo.filetype, directory_filetype)
     validate_buf_name(0, path)
 
-    child.cmd('bwipeout')
+    child.cmd('%bwipeout')
   end
 
   validate(path_tilde)
