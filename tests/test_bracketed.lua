@@ -25,6 +25,14 @@ local edit_test_file = function(rel_path) child.cmd('edit ' .. make_testpath(rel
 local get_bufname = function(buf_id) return child.api.nvim_buf_get_name(buf_id or 0) end
 local validate_test_file = function(rel_path) eq(get_bufname(), make_testpath(rel_path)) end
 
+local get_n_visible_floats = function()
+  local n = 0
+  for _, win_id in ipairs(child.api.nvim_tabpage_list_wins(0)) do
+    if child.api.nvim_win_get_config(win_id).relative ~= '' then n = n + 1 end
+  end
+  return n
+end
+
 -- Helper wrappers for iteration directions
 local forward = function(target, ...)
   local command = string.format('MiniBracketed.%s("forward", ...)', target)
@@ -1080,6 +1088,12 @@ T['diagnostic()']['opens just enough folds'] = function()
 end
 
 T['diagnostic()']['opens floating window'] = function()
+  -- Block opened floating window from being autoclosed on `CursorMoved` event.
+  -- There is no additional cursor movement here. This looks like a combo of
+  -- an upstream issue (https://github.com/neovim/neovim/issues/12923) and
+  -- maybe a "child process" setup.
+  child.o.eventignore = 'CursorMoved'
+
   local cur_pos_tbl = setup_diagnostic()
   local all = cur_pos_tbl.all
 
@@ -1087,23 +1101,16 @@ T['diagnostic()']['opens floating window'] = function()
   set_cursor(1, 2)
   diagnostic('forward')
   eq(get_cursor(), all[2])
-
-  -- -- Actual testing of floating window fails for some unimaginable reason.
-  -- -- But everything seems to work fine in real life
-  -- local windows = child.api.nvim_list_wins()
-  -- eq(#windows, 2)
+  eq(get_n_visible_floats(), 1)
 
   -- From diagnostic position and showing floating window
   diagnostic('forward')
   eq(get_cursor(), all[3])
-
-  -- -- Again, can't test, but seems to works fine.
-  -- local windows = child.api.nvim_list_wins()
-  -- eq(#windows, 2)
+  eq(get_n_visible_floats(), 1)
 end
 
 T['diagnostic()']['respects `diagnostic.config().jump.on_jump`'] = function()
-  if child.fn.has('nvim-0.12') == 0 then MiniTest.skip('Diagnostic `on_jump` was introduced in nvim-0.12') end
+  if child.fn.has('nvim-0.12') == 0 then MiniTest.skip('Diagnostic `on_jump` is present on Neovim>=0.12') end
 
   child.lua([[
     _G.count = 0
@@ -1135,8 +1142,11 @@ T['diagnostic()']['adds to jumplist'] = function()
 end
 
 T['diagnostic()']['respects `opts.float`'] = function()
-  -- As actual testing of floating window fails for some unimaginable reason,
-  -- there is no way at the moment to test this. Would be **great** otherwise.
+  child.o.eventignore = 'CursorMoved'
+  setup_diagnostic()
+  set_cursor(1, 2)
+  diagnostic('forward', { float = false })
+  eq(get_n_visible_floats(), 0)
 end
 
 T['diagnostic()']['respects `opts.n_times`'] = function()
