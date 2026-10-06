@@ -1993,6 +1993,7 @@ H.explorer_show_help = function(explorer, explorer_buf_id, explorer_win_id)
   H.set_buf_name(buf_id, 'help')
   vim.bo[buf_id].modifiable = true
   H.set_buflines(buf_id, lines)
+  vim.bo[buf_id].modifiable = false
 
   vim.keymap.set('n', 'q', '<Cmd>close<CR>', { buffer = buf_id, desc = 'Close this window' })
 

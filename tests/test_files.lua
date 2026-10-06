@@ -1904,6 +1904,9 @@ T['show_help()']['works'] = function()
   -- Should focus on help window
   eq(child.api.nvim_get_current_win() ~= win_id_explorer, true)
 
+  -- Buffer should not be modifiable
+  eq(child.bo.modifiable, false)
+
   -- Pressing `q` should close help window, delete buffer, and focus on
   -- explorer at same line
   type_keys('q')

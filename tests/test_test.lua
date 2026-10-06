@@ -1680,6 +1680,7 @@ T['gen_reporter']['buffer'] = new_set({
       -- Unify path separator for more robust testing. Rely on search and replace
       -- to preserve extmark highlighting.
       if package.config:sub(1, 1) == '\\' then
+        child.bo.modifiable = true
         local cur_pos = child.api.nvim_win_get_cursor(0)
         child.cmd([[silent! %s^\S\zs\\^/^g]])
         child.cmd('silent! nohlsearch')
@@ -1704,6 +1705,9 @@ T['gen_reporter']['buffer'] = new_set({
     local execute_command = string.format([[MiniTest.run_file('%s', { execute = { reporter = _G.reporter } })]], path)
     child.lua(execute_command)
     wait_till_not_executing()
+
+    -- Buffer should not be modifiable
+    eq(child.bo.modifiable, false)
 
     expect_screenshot()
 

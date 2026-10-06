@@ -1396,7 +1396,7 @@ end
 H.create_map_buffer = function()
   local buf_id = vim.api.nvim_create_buf(false, true)
   H.set_buf_name(buf_id, 'content')
-  vim.bo[buf_id].modifiable = true
+  vim.bo[buf_id].modifiable = false
 
   -- Set buffer local options (which don't involve `noautocmd`)
   vim.bo[buf_id].filetype = 'minimap'
@@ -1472,7 +1472,9 @@ H.update_map_lines = function()
   end
 
   -- Set map lines. Compute encode data in a way used in mask rescaling
+  vim.bo[buf_id].modifiable = true
   vim.api.nvim_buf_set_lines(buf_id, 0, -1, true, encoded_lines)
+  vim.bo[buf_id].modifiable = false
 
   -- Cache encode data to speed up most frequent scrollbar computation
   H.cache.encode_data = {

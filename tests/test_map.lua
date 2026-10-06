@@ -341,6 +341,9 @@ T['open()']['works'] = function()
   set_cursor(15, 0)
   mock_test_integration()
 
+  -- Should work with global 'nomodifiable'
+  child.go.modifiable = false
+
   map_open()
 
   child.expect_screenshot()
@@ -846,6 +849,9 @@ T['toggle_focus()']['works'] = function()
   -- Should move focus to map window
   child.lua('MiniMap.toggle_focus()')
   eq(child.api.nvim_get_current_win(), get_map_win_id())
+
+  -- Buffer should not be modifiable
+  eq(child.bo.modifiable, false)
 
   -- Moving cursor in map window should move cursor in previous window (line -
   -- first one encoded by the current map line; column - first non-blank)
@@ -1443,14 +1449,6 @@ T['Window']['handles deleting all buffers'] = function()
 
   child.cmd('%bdelete')
   validate()
-end
-
-T['Window']["works with global 'nomodifiable'"] = function()
-  child.set_size(10, 20)
-  set_lines(example_lines)
-  child.go.modifiable = false
-  map_open()
-  child.expect_screenshot()
 end
 
 T['Window']["does not respect 'winborder' option"] = function()

@@ -14,6 +14,12 @@ There are following change types:
 
 - Stop official support of Neovim 0.9.
 
+- Mark as non modifiable custom buffers that are intended to be focused but arbitrary user modifications might cause problems. Affected modules:
+
+    - 'mini.files' (`show_help`)
+    - 'mini.map'
+    - 'mini.test' (`gen_reporter.buffer`)
+
 ## mini.ai
 
 ### Evolve

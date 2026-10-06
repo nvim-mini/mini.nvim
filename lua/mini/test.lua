@@ -2057,7 +2057,7 @@ H.buffer_reporter = { ns_id = vim.api.nvim_create_namespace('MiniTestBuffer'), n
 H.buffer_reporter.setup_buf_and_win = function(window_opts)
   local buf_id = vim.api.nvim_create_buf(true, true)
   H.set_buf_name(buf_id, 'buffer-reporter')
-  vim.bo[buf_id].modifiable = true
+  vim.bo[buf_id].modifiable = false
 
   local win_id
   if vim.is_callable(window_opts) then
@@ -2156,7 +2156,9 @@ H.buffer_reporter.set_lines = function(buf_id, lines, start, finish)
   vim.api.nvim_buf_clear_namespace(buf_id, H.buffer_reporter.ns_id, start, finish)
 
   -- Set lines
+  vim.bo[buf_id].modifiable = true
   vim.api.nvim_buf_set_lines(buf_id, start, finish, true, new_lines)
+  vim.bo[buf_id].modifiable = false
 
   -- Add highlight
   for _, hl_data in ipairs(hl_ranges) do
