@@ -1318,7 +1318,8 @@ MiniExtra.pickers.marks = function(local_opts, opts)
       if path == nil then buf_id = info.pos[1] end
 
       local line, col = info.pos[2], math.abs(info.pos[3])
-      local text = string.format('%s │ %s%s│%s', info.mark:sub(2), path == nil and '' or (path .. '│'), line, col)
+      local line_text = buf_id ~= nil and vim.api.nvim_buf_get_lines(buf_id, line - 1, line, false)[1] or ''
+      local text = string.format('%s │ %5s:%-3s │ %s %s', info.mark:sub(2), line, col, path or '', line_text)
       table.insert(items, { text = text, bufnr = buf_id, path = path, lnum = line, col = col })
     end
   end

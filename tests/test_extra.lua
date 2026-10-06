@@ -3409,7 +3409,7 @@ T['pickers']['marks()']['works'] = function()
 
   -- Should return chosen value
   local path_slash = path:gsub('\\', '/')
-  local ref_item = { col = 6, lnum = 1, path = path_slash, text = 'A │ ' .. path_slash .. '│1│6' }
+  local ref_item = { col = 6, lnum = 1, path = path_slash, text = 'A │     1:6   │ ' .. path_slash .. ' ' }
   eq(child.lua_get('_G.return_item'), ref_item)
 
   -- Should work without set up 'mini.pick'
@@ -3436,6 +3436,30 @@ T['pickers']['marks()']['respects `local_opts.scope`'] = function()
   pick_marks({ scope = 'buf' })
   child.expect_screenshot()
   stop_picker()
+end
+
+T['pickers']['marks()']['shows text of marked line'] = function()
+  setup_marks()
+
+  pick_marks({ scope = 'buf' })
+  eq(
+    vim.tbl_map(function(x) return x.text end, get_picker_items()),
+    {
+        'a │     1:4   │  Line 1-1',
+        'b │     3:6   │  Line 1-3',
+        "' │     1:1   │  Line 1-1", '" │     1:1   │  Line 1-1', '. │     1:1   │  Line 1-1'
+    }
+  )
+  stop_picker()
+
+  mock_slash_path_sep()
+  pick_marks({ scope = 'global' })
+  eq(
+    vim.tbl_map(function(x) return x.text end, get_picker_items()),
+    { 'A │     1:6   │ tests/dir-extra/real-files/a.lua ' }
+  )
+  stop_picker()
+  unmock_slash_path_sep()
 end
 
 T['pickers']['marks()']['respects `opts`'] = function()
