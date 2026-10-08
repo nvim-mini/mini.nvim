@@ -679,8 +679,8 @@ MiniHues.apply_palette = function(palette, plugins, opts)
   hi('DiagnosticSignHint',  { link='DiagnosticHint' })
   hi('DiagnosticSignOk',    { link='DiagnosticOk' })
 
-  hi('DiagnosticDeprecated',  { fg=nil, bg=nil, sp=p.red, strikethrough=true })
-  hi('DiagnosticUnnecessary', { link='Comment' })
+  hi('DiagnosticDeprecated',  { fg=nil, bg=nil, sp=p.red,     strikethrough=true })
+  hi('DiagnosticUnnecessary', { fg=nil, bg=nil, sp=p.fg_mid2, underline=true })
 
   -- Built-in LSP
   hi('LspReferenceText',  { fg=nil, bg=p.bg_mid2 })
