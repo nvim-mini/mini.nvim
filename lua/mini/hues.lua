@@ -1970,11 +1970,11 @@ end
 H.setup_autoadjust = function(palette)
   local gr = vim.api.nvim_create_augroup('MiniHuesAdjust', {})
   local hi = function(name, data) vim.api.nvim_set_hl(0, name, data) end
-  local adjust = function(ev)
+  local adjust = vim.schedule_wrap(function(ev)
     local adjust_all = ev.event == 'VimEnter'
     if adjust_all or ev.match == 'fillchars' then hi('MsgSeparator', H.attr_msgseparator(palette, true)) end
     if adjust_all or ev.match == 'pumborder' then hi('Pmenu', H.attr_pmenu(palette, true)) end
-  end
+  end)
 
   -- Use single autocommand without pattern for performance (skips Neovim doing
   -- pattern matching on the option name). Use 'VimEnter' to work when option
