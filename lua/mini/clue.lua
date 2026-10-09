@@ -1127,6 +1127,7 @@ H.ns_id = {
 -- State of user input
 H.state = {
   trigger = nil,
+  count = 0,
   -- Array of raw keys
   query = {},
   clues = {},
@@ -1411,12 +1412,14 @@ end
 
 H.state_set = function(trigger, query)
   H.state.trigger = trigger
+  H.state.count = vim.v.count
   H.state.query = query
   H.state.clues = H.clues_filter(H.clues_get_all(trigger.mode), query)
 end
 
 H.state_reset = function(keep_window)
   H.state.trigger = nil
+  H.state.count = 0
   H.state.query = {}
   H.state.clues = {}
   H.state.is_after_postkeys = false
@@ -1496,7 +1499,7 @@ H.state_get_query_clue = function()
 end
 
 H.compute_exec_keys = function()
-  local keys_count = vim.v.count > 0 and vim.v.count or ''
+  local keys_count = H.state.count > 0 and H.state.count or ''
   local keys_query = H.query_to_keys(H.state.query)
   local res = keys_count .. keys_query
 
