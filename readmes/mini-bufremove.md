@@ -1,4 +1,4 @@
-<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-bufremove_readme.png?raw=true" alt="mini.bufremove" style="max-width:100%;border:solid 2px"/> </p>
+<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-3/logo-mini-module-bufremove.svg?raw=true" alt="mini.bufremove" style="max-width:100%;border:solid 2px"/> </p>
 
 ### Buffer removing (unshow, delete, wipeout), which saves window layout
 

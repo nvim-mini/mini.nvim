@@ -229,7 +229,7 @@ Here is a rough outline of how to act (with some Git commit hashes for illustrat
 ### Preparation
 
 - Create new module-related assets in https://github.com/nvim-mini/assets:
-    - Logo files. See 'logo-2/generate.lua' in the repo for more details.
+    - Logo files. See 'logo-3/generate.lua' in the repo for more details.
     - Demo video. Preferably under 1 minute screencast showcasing main features. Usually should also display module's config. Use config as close to bare MiniMax as possible. See other demos for reference.
 - Write release blog post for nvim-mini.org. Copy file naming and structure from previous release posts. Mention future beta-testing issue with a placeholder link.
 

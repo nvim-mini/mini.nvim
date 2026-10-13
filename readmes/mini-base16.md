@@ -1,4 +1,4 @@
-<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-base16_readme.png?raw=true" alt="mini.base16" style="max-width:100%;border:solid 2px"/> </p>
+<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-3/logo-mini-module-base16.svg?raw=true" alt="mini.base16" style="max-width:100%;border:solid 2px"/> </p>
 
 ### Fast implementation of [chriskempson/base16](https://github.com/chriskempson/base16) theme for manually supplied palette
 

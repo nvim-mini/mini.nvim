@@ -1,4 +1,4 @@
-<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-jump2d_readme.png?raw=true" alt="mini.jump2d" style="max-width:100%;border:solid 2px"/> </p>
+<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-3/logo-mini-module-jump2d.svg?raw=true" alt="mini.jump2d" style="max-width:100%;border:solid 2px"/> </p>
 
 ### Jump  within visible lines via iterative label filtering
 

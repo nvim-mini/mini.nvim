@@ -1,4 +1,4 @@
-<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-surround_readme.png?raw=true" alt="mini.surround" style="max-width:100%;border:solid 2px"/> </p>
+<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-3/logo-mini-module-surround.svg?raw=true" alt="mini.surround" style="max-width:100%;border:solid 2px"/> </p>
 
 ### Fast and feature-rich surround actions
 

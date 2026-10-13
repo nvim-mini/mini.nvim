@@ -1,4 +1,4 @@
-<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-doc_readme.png?raw=true" alt="mini.doc" style="max-width:100%;border:solid 2px"/> </p>
+<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-3/logo-mini-module-doc.svg?raw=true" alt="mini.doc" style="max-width:100%;border:solid 2px"/> </p>
 
 ### Generation of help files from EmmyLua-like annotations
 
