@@ -1,4 +1,4 @@
-<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-2/logo-visits_readme.png?raw=true" alt="mini.visits" style="max-width:100%;border:solid 2px"/> </p>
+<p align="center"> <img src="https://github.com/nvim-mini/assets/blob/main/logo-3/logo-mini-module-visits.svg?raw=true" alt="mini.visits" style="max-width:100%;border:solid 2px"/> </p>
 
 ### Track and reuse file system visits
 
