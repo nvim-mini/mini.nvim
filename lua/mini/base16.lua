@@ -114,10 +114,10 @@
 ---
 ---   require('mini.base16').setup({ palette = palette, use_cterm = true })
 --- <
---- Activate them as regular |:colorscheme| (for example, `:colorscheme minischeme`).
+--- Activate them as regular |:colorscheme| (for example, `:colorscheme miniblue`).
 ---
---- ## minischeme ~
---- *minischeme*
+--- ## miniblue ~
+--- *miniblue*
 ---
 --- Blue and yellow main colors with high contrast and saturation palette.
 --- Palettes are: >lua

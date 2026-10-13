@@ -950,7 +950,7 @@ T['pickers']['colorschemes()']['works with preview'] = function()
   validate('miniautumn', '#262029')
 
   type_keys('<C-n>')
-  validate('minicyan', '#0a2a2a')
+  validate('miniblue', '#112641')
 
   type_keys('<C-p>')
   validate('miniautumn', '#262029')
@@ -961,13 +961,13 @@ T['pickers']['colorschemes()']['previews with original background'] = function()
 
   child.o.background = 'dark'
   pick_colorschemes()
-  type_keys('^mini', '<C-n>', '<C-n>', '<Tab>')
+  type_keys('^mini', '<C-n>', '<C-n>', '<C-n>', '<Tab>')
   eq(child.o.background, 'light')
   eq(child.g.colors_name, 'miniforcebg')
 
-  type_keys('<C-n>')
+  type_keys('<C-p>', '<C-p>')
   eq(child.o.background, 'dark')
-  eq(child.g.colors_name, 'minischeme')
+  eq(child.g.colors_name, 'miniblue')
 end
 
 T['pickers']['colorschemes()']['can choose marked'] = function()
@@ -978,7 +978,7 @@ T['pickers']['colorschemes()']['can choose marked'] = function()
 end
 
 T['pickers']['colorschemes()']["can cancel with 'mini.colors'"] = function()
-  child.cmd('colorscheme minischeme')
+  child.cmd('colorscheme miniblue')
   -- These customizations should persist even if there was preview
   child.api.nvim_set_hl(0, 'Normal', { fg = '#000000' })
   child.g.terminal_color_0 = '#010101'
@@ -993,7 +993,7 @@ T['pickers']['colorschemes()']["can cancel with 'mini.colors'"] = function()
   eq(child.lua_get('_G.n'), 1)
 
   eq(child.lua_get('_G.return_item'), vim.NIL)
-  eq(child.g.colors_name, 'minischeme')
+  eq(child.g.colors_name, 'miniblue')
   expect.match(child.cmd_capture('hi Normal'), 'guifg=#000000')
   eq(child.g.terminal_color_0, '#010101')
 end
