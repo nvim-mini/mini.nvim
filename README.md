@@ -230,9 +230,10 @@ Including functionality which needs several filetype/language specific implement
 
 ## Plugin color schemes
 
-This plugin comes with several color schemes (all have both dark and light variants). Activate any of them as a regular `colorscheme` (like `:colorscheme miniwinter` or `vim.cmd.colorscheme('miniwinter')`).
+This plugin comes with several color schemes (all have both dark and light variants). Activate any of them as a regular `colorscheme` (like `:colorscheme minischeme` or `vim.cmd.colorscheme('minischeme')`).
 
 - Based on ['mini.hues'](readmes/mini-hues.md) (recommended):
+    - `minischeme`: blue and yellow main color scheme.
     - `miniwinter`: "icy winter" palette with azure background.
     - `minispring`: "blooming spring" palette with green background.
     - `minisummer`: "hot summer" palette with brown/yellow background.

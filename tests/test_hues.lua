@@ -659,12 +659,14 @@ T['Bundled color schemes']['works'] = function()
   end
 
   child.o.background = 'dark'
+  validate('minischeme', '#081823')
   validate('miniwinter', '#11262d')
   validate('minispring', '#1c2617')
   validate('minisummer', '#27211e')
   validate('miniautumn', '#262029')
 
   child.o.background = 'light'
+  validate('minischeme', '#f3f1e9')
   validate('miniwinter', '#dce4e8')
   validate('minispring', '#e0e4de')
   validate('minisummer', '#e9e1dd')
