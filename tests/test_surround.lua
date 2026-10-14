@@ -647,12 +647,12 @@ T['Add surrounding']['respects `config.respect_selection_type` in blockwise mode
   set_lines({ 'aaaaa', 'bbbbb' })
 
   -- - Create mark to be able to perform non-trivial movement
-  set_cursor(2, 3)
+  -- - On Neovim<0.13, forced-blockwise motion was end-exclusive
+  set_cursor(2, child.fn.has('nvim-0.13') == 1 and 2 or 3)
   type_keys('ma')
 
   set_cursor(1, 1)
   type_keys('sa', '<C-v>', '`a', ')')
-  -- - As motion is end-exclusive, it registers end mark one column short.
   eq(get_lines(), { 'a(aa)aa', 'b(bb)bb' })
   eq(get_cursor(), { 1, 2 })
 end

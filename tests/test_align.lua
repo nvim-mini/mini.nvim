@@ -1524,11 +1524,13 @@ T['Align with preview']['works'] = new_set({
     set_lines({ 'a_b_c', 'aaa_bbb_ccc' })
     set_cursor(1, 0)
     child.fn.setpos("'a", { 0, 2, 5, 0 })
+    child.fn.setpos("'b", { 0, 2, 4, 0 })
 
     local init_keys = ({
       ['Normal-char'] = { 'gA', 'v', '`a' },
       ['Normal-line'] = { 'gA', 'V', 'j' },
-      ['Normal-block'] = { 'gA', '<C-v>', '`a' },
+      -- On Neovim<0.13, forced-blockwise motion was end-exclusive
+      ['Normal-block'] = { 'gA', '<C-v>', child.fn.has('nvim-0.13') == 1 and '`b' or '`a' },
       ['Visual-char'] = { 'v', '`a', 'gA' },
       ['Visual-line'] = { 'V', 'j', 'gA' },
       ['Visual-block'] = { '<C-v>', '`a', 'gA' },
