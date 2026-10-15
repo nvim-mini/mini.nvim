@@ -129,7 +129,7 @@ Usual workflow involves performing these steps after every commit in 'mini.nvim'
 - Add label with module name pull request (PR) is about (if any). If PR is worded politely, thank user for doing that.
 - Make sure the PR is valid, i.e. resolves an issue or adds a feature any of which aligns with the project. Ideally, it should have been agreed in the prior created issue (as per [CONTRIBUTING.md](CONTRIBUTING.md)).
 - Review PR code and iterate towards making it have enough code quality. Use first steps of ["Typical workflow for adding change"](#typical-workflow-for-adding-change) as reference. **Note**: if what is left to do requires some overly specific project knowledge (i.e. can be done _much_ quicker if you know how, but requires non-trivial amount of reading/discovering first time), consider merging PR in a new separate branch and finish it manually (usually with preserving original commit authorship).
-- When change is of enough quality, merge it and proceed treating it as regular change.
+- When change is of enough quality and passes CI (except known unrelated fails): merge it (without creating a merge commit; i.e. "rebase and merge" or "squash and merge") and proceed treating it as a regular change.
 
 ## Stopping support for old Neovim version
 
@@ -268,8 +268,8 @@ Here is a rough outline of how to act (with some Git commit hashes for illustrat
 ### Release
 
 - Make standalone plugin:
-    - Create new empty GitHub repository. Disable Issues, limit PRs.
-    - Clone the repo manually. Copy 'LICENSE' file to it, stage, and commit ("docs: add license"). Push.
+    - Create a new empty GitHub repository. Disable Issues, limit PRs, add branch protection rules (copy from the recent standalone repo; can export `json` and then import in the new one).
+    - Clone the repo manually. Copy 'LICENSE' file to it, add 'pkg.json' (adapt from the recent standalone repo), stage, and commit ("docs: add license and `pkg.json`"). Push.
     - Add the following GitHub tags: "lua", "neovim", "neovim-plugin", "mini-nvim".
 - Merge release branch into `main`. Push `main` and sync dual distribution.
 - Check that standalone repo doesn't have some known issues:
