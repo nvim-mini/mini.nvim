@@ -3674,7 +3674,8 @@ T['builtin.help()']['works for help tags with special characters'] = function()
   set_picker_query({ 'c_CTRL-K' })
   type_keys('<Tab>')
   -- Ignore footer as it contains non-reliable number of help tags
-  child.expect_screenshot({ ignore_text = { 14 } })
+  -- Ignore attr on Neovim<0.13 as the tree-sitter-vimdoc grammar changed
+  child.expect_screenshot({ ignore_text = { 14 }, ignore_attr = child.fn.has('nvim-0.13') == 0 })
 end
 
 T['builtin.help()']['works when help window is already opened'] = function()
