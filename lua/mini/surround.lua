@@ -1288,7 +1288,18 @@ H.make_action = function(task, direction, search_method)
 end
 
 -- Work with surrounding info -------------------------------------------------
+H.is_mc_cascade = function() return vim.v.cascading end
+if vim.fn.has('nvim-0.13') == 0 then H.is_mc_cascade = function() return false end end
+
 H.get_surround_spec = function(surr_type)
+  -- Should ask for user input if a result of initial user mapping AND during
+  -- its multicursor cascade (as it will replay all keys).
+  -- BUT should NOT ask for input later as a result of `.`, even during
+  -- multicursor cascade (as it will replay `.`).
+  H.cache.n_calls = H.cache.n_calls or { input = 0, output = 0 }
+  if not H.is_mc_cascade() then H.cache.n_calls[surr_type] = H.cache.n_calls[surr_type] + 1 end
+  if H.cache.n_calls[surr_type] <= 1 then H.cache[surr_type] = nil end
+
   -- Try using cache
   if H.cache[surr_type] ~= nil then return H.cache[surr_type] end
 
