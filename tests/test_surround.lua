@@ -581,6 +581,38 @@ T['Add surrounding']['works in line and block Visual mode'] = function()
   validate_edit({ 'aaa', 'bbb' }, { 1, 0 }, { '<C-v>j$', 'sa', ')' }, { '(aaa', 'bbb)' }, { 1, 1 })
 end
 
+T['Add surrounding']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local validate = function(keys, lines_after, cursor_after, multicursor_after)
+    local lines_before = { 'aa bbb', 'ccc dddd' }
+    child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, cursor_after, multicursor_after)
+    eq(child.fn.mode(), 'n')
+  end
+
+  -- Normal mode
+  local validate_normal = function(init_keys, lines_after, cursor_after, multicursor_after)
+    local keys = { init_keys, 'sa', 'iw', ')', 'W', '.' }
+    validate(keys, lines_after, cursor_after, multicursor_after)
+  end
+  validate_normal('Qj', { '((aa)) bbb', '(ccc) (dddd)' }, { 2, 7 }, { { 1, 2 } })
+  validate_normal('QjQ', { '((aa)) bbb', '((ccc)) (dddd)' }, { 2, 9 }, { { 1, 2 }, { 2, 2 } })
+
+  validate_normal('Qjq=', { '(aa) (bbb)', '(ccc) (dddd)' }, { 2, 7 }, { { 1, 6 } })
+  validate_normal('QjQq=', { '(aa) (bbb)', '(ccc) (dddd)' }, { 2, 7 }, { { 1, 6 }, { 2, 7 } })
+
+  -- Visual mode
+  local validate_visual = function(init_keys, lines_after, cursor_after, multicursor_after)
+    local keys = { init_keys, 'viw', 'sa', ')', 'W', '.', ')' }
+    validate(keys, lines_after, cursor_after, multicursor_after)
+  end
+  validate_visual('Qj', { '((aa)) bbb', '(ccc) (dddd)' }, { 2, 7 }, { { 1, 2 } })
+  validate_visual('QjQ', { '((aa)) bbb', '((ccc)) (dddd)' }, { 2, 9 }, { { 1, 2 }, { 2, 2 } })
+
+  validate_visual('Qjq=', { '(aa) (bbb)', '(ccc) (dddd)' }, { 2, 7 }, { { 1, 6 } })
+  validate_visual('QjQq=', { '(aa) (bbb)', '(ccc) (dddd)' }, { 2, 7 }, { { 1, 6 }, { 2, 7 } })
+end
+
 --stylua: ignore
 T['Add surrounding']['respects `config.respect_selection_type` in linewise mode'] = function()
   child.lua('MiniSurround.config.respect_selection_type = true')
@@ -952,6 +984,48 @@ T['Delete surrounding']['works in extended mappings'] = function()
   eq(get_cursor(), { 1, 8 })
 end
 
+T['Delete surrounding']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local validate = function(keys, lines_after, cursor_after, multicursor_after)
+    local lines_before = { '(aa) (bbb) (cccc)', '(ddd) (eeee) (fffff)' }
+    child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, cursor_after, multicursor_after)
+  end
+
+  -- Cover
+  local validate_cover = function(init_keys, lines_after, multicursor_after)
+    local keys = { init_keys, 'sd', ')', 'W', '.' }
+    validate(keys, lines_after, { 2, 4 }, multicursor_after)
+  end
+  validate_cover('Qj', { 'aa (bbb) (cccc)', 'ddd eeee (fffff)' }, { { 1, 0 } })
+  validate_cover('QjQ', { 'aa (bbb) (cccc)', 'ddd eeee (fffff)' }, { { 1, 0 }, { 2, 0 } })
+
+  validate_cover('Qjq=', { 'aa bbb (cccc)', 'ddd eeee (fffff)' }, { { 1, 3 } })
+  validate_cover('QjQq=', { 'aa bbb (cccc)', 'ddd eeee (fffff)' }, { { 1, 3 }, { 2, 4 } })
+
+  -- Next
+  local validate_next = function(init_keys, multicursor_after)
+    local keys = { init_keys, 'sdn', ')', '.' }
+    validate(keys, { '(aa) bbb cccc', '(ddd) eeee fffff' }, { 2, 11 }, multicursor_after)
+  end
+  validate_next('Qj', { { 1, 9 } })
+  validate_next('QjQ', { { 1, 9 }, { 2, 11 } })
+
+  validate_next('Qjq=', { { 1, 9 } })
+  validate_next('QjQq=', { { 1, 9 }, { 2, 11 } })
+
+  -- Last
+  local validate_last = function(init_keys, multicursor_after)
+    local keys = { '$', init_keys, 'sdl', ')', '.' }
+    validate(keys, { 'aa bbb (cccc)', 'ddd eeee (fffff)' }, { 2, 0 }, multicursor_after)
+  end
+  validate_last('Qj', { { 1, 0 } })
+  validate_last('QjQ', { { 1, 0 }, { 2, 0 } })
+
+  validate_last('Qjq=', { { 1, 0 } })
+  validate_last('QjQq=', { { 1, 0 }, { 2, 0 } })
+end
+
 T['Delete surrounding']['respects `config.n_lines`'] = function()
   reload_module({ n_lines = 2 })
   local lines = { '(', '', '', 'a', '', '', ')' }
@@ -1178,6 +1252,48 @@ T['Replace surrounding']['works in extended mappings'] = function()
   type_keys('.')
   eq(get_lines(), { '(aa) <bb> <cc>' })
   eq(get_cursor(), { 1, 11 })
+end
+
+T['Replace surrounding']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local validate = function(keys, lines_after, cursor_after, multicursor_after)
+    local lines_before = { '(aa) (bbb) (cccc)', '(ddd) (eeee) (fffff)' }
+    child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, cursor_after, multicursor_after)
+  end
+
+  -- Cover
+  local validate_cover = function(init_keys, lines_after, multicursor_after)
+    local keys = { init_keys, 'sr', ')', '>', 'W', '.' }
+    validate(keys, lines_after, { 2, 7 }, multicursor_after)
+  end
+  validate_cover('Qj', { '<aa> (bbb) (cccc)', '<ddd> <eeee> (fffff)' }, { { 1, 1 } })
+  validate_cover('QjQ', { '<aa> (bbb) (cccc)', '<ddd> <eeee> (fffff)' }, { { 1, 1 }, { 2, 1 } })
+
+  validate_cover('Qjq=', { '<aa> <bbb> (cccc)', '<ddd> <eeee> (fffff)' }, { { 1, 6 } })
+  validate_cover('QjQq=', { '<aa> <bbb> (cccc)', '<ddd> <eeee> (fffff)' }, { { 1, 6 }, { 2, 7 } })
+
+  -- Next
+  local validate_next = function(init_keys, multicursor_after)
+    local keys = { init_keys, 'srn', ')', '>', '.' }
+    validate(keys, { '(aa) <bbb> <cccc>', '(ddd) <eeee> <fffff>' }, { 2, 14 }, multicursor_after)
+  end
+  validate_next('Qj', { { 1, 12 } })
+  validate_next('QjQ', { { 1, 12 }, { 2, 14 } })
+
+  validate_next('Qjq=', { { 1, 12 } })
+  validate_next('QjQq=', { { 1, 12 }, { 2, 14 } })
+
+  -- Last
+  local validate_last = function(init_keys, multicursor_after)
+    local keys = { '$', init_keys, 'srl', ')', '>', '.' }
+    validate(keys, { '<aa> <bbb> (cccc)', '<ddd> <eeee> (fffff)' }, { 2, 1 }, multicursor_after)
+  end
+  validate_last('Qj', { { 1, 1 } })
+  validate_last('QjQ', { { 1, 1 }, { 2, 1 } })
+
+  validate_last('Qjq=', { { 1, 1 } })
+  validate_last('QjQq=', { { 1, 1 }, { 2, 1 } })
 end
 
 T['Replace surrounding']['respects `config.n_lines`'] = function()
@@ -1525,6 +1641,83 @@ T['Find surrounding']['works in Operator-pending mode'] = function()
   validate_dot('(aa) (bb) (cc)', 2, 'sF(', 5, 'a) b) (cc)')
   validate_dot('(aa) (bb) (cc)', 2, 'sFn(', 2, '(a)')
   validate_dot('(aa) (bb) (cc)', 11, 'sFl(', 8, '(aacc)')
+end
+
+T['Find surrounding']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local validate = function(keys, cursor_after, multicursor_after)
+    local lines = { '(aa) (bbb) (cccc)', '(ddd) (eeee) (fffff)' }
+    child.validate_mc_edit(lines, { 1, 1 }, keys, lines, cursor_after, multicursor_after)
+  end
+
+  -- Cover
+  -- - No follow means no movement on extra cursor for relative cursor move
+  validate({ 'Qj', 'sf', ')' }, { 2, 4 }, { { 1, 1 } })
+  validate({ 'Qj', 'sF', ')' }, { 2, 0 }, { { 1, 1 } })
+  validate({ 'QjQ', 'sf', ')' }, { 2, 4 }, { { 1, 1 }, { 2, 1 } })
+  validate({ 'QjQ', 'sF', ')' }, { 2, 0 }, { { 1, 1 }, { 2, 1 } })
+
+  validate({ 'Qjq=', 'sf', ')' }, { 2, 4 }, { { 1, 3 } })
+  validate({ 'Qjq=', 'sF', ')' }, { 2, 0 }, { { 1, 0 } })
+  validate({ 'QjQq=', 'sf', ')' }, { 2, 4 }, { { 1, 3 }, { 2, 4 } })
+  validate({ 'QjQq=', 'sF', ')' }, { 2, 0 }, { { 1, 0 }, { 2, 0 } })
+
+  -- Next
+  validate({ 'Qj', 'sfn', ')' }, { 2, 6 }, { { 1, 1 } })
+  validate({ 'Qj', 'sFn', ')' }, { 2, 11 }, { { 1, 1 } })
+  validate({ 'QjQ', 'sfn', ')' }, { 2, 6 }, { { 1, 1 }, { 2, 1 } })
+  validate({ 'QjQ', 'sFn', ')' }, { 2, 11 }, { { 1, 1 }, { 2, 1 } })
+
+  validate({ 'Qjq=', 'sfn', ')' }, { 2, 6 }, { { 1, 5 } })
+  validate({ 'Qjq=', 'sFn', ')' }, { 2, 11 }, { { 1, 9 } })
+  validate({ 'QjQq=', 'sfn', ')' }, { 2, 6 }, { { 1, 5 }, { 2, 6 } })
+  validate({ 'QjQq=', 'sFn', ')' }, { 2, 11 }, { { 1, 9 }, { 2, 11 } })
+
+  -- Last
+  validate({ '$', 'Qj', 'sfl', ')' }, { 2, 6 }, { { 1, 16 } })
+  validate({ '$', 'Qj', 'sFl', ')' }, { 2, 11 }, { { 1, 16 } })
+  validate({ '$', 'QjQ', 'sfl', ')' }, { 2, 6 }, { { 1, 16 }, { 2, 19 } })
+  validate({ '$', 'QjQ', 'sFl', ')' }, { 2, 11 }, { { 1, 16 }, { 2, 19 } })
+
+  validate({ '$', 'Qjq=', 'sfl', ')' }, { 2, 6 }, { { 1, 5 } })
+  validate({ '$', 'Qjq=', 'sFl', ')' }, { 2, 11 }, { { 1, 9 } })
+  validate({ '$', 'QjQq=', 'sfl', ')' }, { 2, 6 }, { { 1, 5 }, { 2, 6 } })
+  validate({ '$', 'QjQq=', 'sFl', ')' }, { 2, 11 }, { { 1, 9 }, { 2, 11 } })
+
+  -- Visual mode
+  local validate_visual = function(keys, lines_after, cursor_after)
+    local lines_before = { '(aa) (bbb)', '(ccc) (dddd)' }
+    set_lines(lines_before)
+    set_cursor(1, 1)
+    type_keys(keys)
+    -- There is currently no documented/robust way to verify visual selection
+    -- at extra cursors. Settle for checking the expected mode and expected
+    -- effect of deleting the selection.
+    eq(child.fn.mode(), 'v')
+    type_keys('d')
+    eq(get_lines(), lines_after)
+    eq(get_cursor(), cursor_after)
+    child.clear_multicursor()
+  end
+  validate_visual({ 'Qj', 'v', 'sf', ')' }, { '( (bbb)', '( (dddd)' }, { 2, 1 })
+  validate_visual({ 'Qj', 'v', 'sF', ')' }, { 'a) (bbb)', 'cc) (dddd)' }, { 2, 0 })
+  validate_visual({ 'Qj', 'v', 'sfn', ')' }, { '(bbb)', '(dddd)' }, { 2, 1 })
+  validate_visual({ 'Qj', 'v', 'sFn', ')' }, { '(', '(' }, { 2, 0 })
+  validate_visual({ '$', 'Qj', 'v', 'sfl', ')' }, { '', '' }, { 2, 0 })
+  validate_visual({ '$', 'Qj', 'v', 'sFl', ')' }, { '(aa', '(ccc' }, { 2, 3 })
+
+  -- Operator-pending mode
+  local validate_opending = function(keys, lines_after, cursor_after, multicursor_after)
+    local lines_before = { '(aa) (bbb)', '(ccc) (dddd)' }
+    child.validate_mc_edit(lines_before, { 1, 1 }, keys, lines_after, cursor_after, multicursor_after)
+  end
+  validate_opending({ 'Qj', 'd', 'sf', ')' }, { '() (bbb)', '() (dddd)' }, { 2, 1 }, { { 1, 1 } })
+  validate_opending({ 'Qj', 'd', 'sF', ')' }, { 'aa) (bbb)', 'ccc) (dddd)' }, { 2, 0 }, { { 1, 0 } })
+  validate_opending({ 'Qj', 'd', 'sfn', ')' }, { '((bbb)', '((dddd)' }, { 2, 1 }, { { 1, 1 } })
+  validate_opending({ 'Qj', 'd', 'sFn', ')' }, { '()', '()' }, { 2, 1 }, { { 1, 1 } })
+  validate_opending({ '$', 'Qj', 'd', 'sfl', ')' }, { ')', ')' }, { 2, 0 }, { { 1, 0 } })
+  validate_opending({ '$', 'Qj', 'd', 'sFl', ')' }, { '(aa)', '(ccc)' }, { 2, 4 }, { { 1, 3 } })
 end
 
 T['Find surrounding']['opens just enough folds'] = function()
