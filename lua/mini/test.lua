@@ -1262,7 +1262,7 @@ MiniTest.new_child_neovim = function()
   --stylua: ignore
   local supported_vim_tables = {
     -- Collections
-    'diagnostic', 'fn', 'highlight', 'hl', 'json', 'loop', 'lsp', 'mpack', 'spell', 'treesitter', 'ui', 'fs',
+    'diagnostic', 'fn', 'highlight', 'hl', 'json', 'loop', 'lsp', 'mpack', 'spell', 'treesitter', 'ui', 'uv', 'fs',
     -- Variables
     'g', 'b', 'w', 't', 'v', 'env',
     -- Options (no 'opt' because not really useful due to use of metatables)
@@ -1470,10 +1470,10 @@ end
 ---
 ---@field diagnostic table Redirection table for |vim.diagnostic|.
 ---@field fn table Redirection table for |vim.fn|.
+---@field fs table Redirection table for |vim.fs|.
 ---@field highlight table Redirection table for |vim.highlight|.
 ---@field hl table Redirection table for |vim.hl|.
 ---@field json table Redirection table for `vim.json`.
----@field loop table Redirection table for |vim.loop|.
 ---@field lsp table Redirection table for `vim.lsp` (|lsp-core|).
 ---@field mpack table Redirection table for |vim.mpack|.
 ---@field spell table Redirection table for |vim.spell|.
@@ -1481,7 +1481,7 @@ end
 ---@field ui table Redirection table for |vim.ui|. Currently of no
 ---   use because it requires sending function through RPC, which is impossible
 ---   at the moment.
----@field fs table Redirection table for |vim.fs|.
+---@field uv table Redirection table for |vim.uv|.
 ---
 ---@field g table Redirection table for |vim.g|.
 ---@field b table Redirection table for |vim.b|.

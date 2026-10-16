@@ -105,7 +105,7 @@ local mock_change_git_index = function()
   child.fn.writefile({}, index_path .. '.lock')
   sleep(micro_time)
   child.fn.delete(index_path)
-  child.loop.fs_rename(index_path .. '.lock', index_path)
+  child.uv.fs_rename(index_path .. '.lock', index_path)
 end
 
 local mock_spawn = function()

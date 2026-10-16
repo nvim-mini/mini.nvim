@@ -2309,7 +2309,7 @@ T['set_branch()']['works with not absolute paths'] = function()
 
   -- Using `~` for home directory should be allowed
   set_branch({ '~' })
-  eq(get_explorer_state().branch, { full_path(child.loop.os_homedir()) })
+  eq(get_explorer_state().branch, { full_path(child.uv.os_homedir()) })
 
   -- Relative paths should be resolved against current working directory
   local nested = make_test_path('nested')
@@ -4638,7 +4638,7 @@ T['File manipulation']['works with problematic names'] = function()
 end
 
 T['File manipulation']['handles backslash on Unix'] = function()
-  if child.loop.os_uname().sysname == 'Windows_NT' then MiniTest.skip('Test is not for Windows.') end
+  if child.uv.os_uname().sysname == 'Windows_NT' then MiniTest.skip('Test is not for Windows.') end
 
   local temp_dir = make_temp_dir('temp', { '\\', 'hello\\', 'wo\\rld' })
   open(temp_dir)

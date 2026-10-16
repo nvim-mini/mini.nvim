@@ -816,7 +816,7 @@ end
 -- There are redirection tables for most of the main Neovim functionality
 T['various redirection tables with methods'] = function()
   eq(child.fn.fnamemodify('hello_lines.lua', ':t:r'), 'hello_lines')
-  eq(child.loop.hrtime() > 0, true)
+  eq(child.uv.hrtime() > 0, true)
   eq(child.lsp.get_clients(), {})
 
   -- And more

@@ -2858,7 +2858,7 @@ end
 
 T['builtin.files()']['works with bad file names'] = function()
   -- Paths with ":" may not be allowed on Windows
-  if child.loop.os_uname().sysname == 'Windows_NT' then return end
+  if child.uv.os_uname().sysname == 'Windows_NT' then return end
 
   local path = join_path(test_dir, 'file:1')
   child.fn.writefile({ 'File with ":" in the name' }, path)

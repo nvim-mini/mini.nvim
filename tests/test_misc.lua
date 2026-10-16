@@ -1132,7 +1132,7 @@ T['setup_termbg_sync()']['handles no response from terminal emulator'] = functio
   validate_termbg_augroup(true)
 
   -- If there is no response from terminal emulator for 1s, delete autocmd
-  child.loop.sleep(no_term_response_delay + small_time)
+  child.uv.sleep(no_term_response_delay + small_time)
   validate_termbg_augroup(false)
 
   -- Should show informative notification
@@ -1158,7 +1158,7 @@ T['setup_termbg_sync()']['handles bad response from terminal emulator'] = functi
   eq(child.lua_get('_G.notify_log'), {})
 
   -- After timeout delay it should cleanup and show all bad responses
-  child.loop.sleep(no_term_response_delay + small_time)
+  child.uv.sleep(no_term_response_delay + small_time)
   validate_termbg_augroup(false)
   local ref_notify = {
     '(mini.misc) `setup_termbg_sync()` did not get proper response from terminal emulator,'

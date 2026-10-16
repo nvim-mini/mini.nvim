@@ -1344,6 +1344,7 @@ T['child']['redirected method tables'] = new_set({
     { 'spell', 'check', { 'thouht' } },
     { 'treesitter', 'get_parser', {} },
     { 'ui', 'select', {} },
+    { 'uv', 'hrtime', {} },
     { 'fs', 'normalize', { '/tmp/' } },
   },
   hooks = {

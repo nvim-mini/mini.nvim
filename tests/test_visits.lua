@@ -276,7 +276,7 @@ end
 
 T['register_visit()']['handles paths with "~" for home directory'] = function()
   register_visit('~/file', '~/dir')
-  local home_dir = child.loop.os_homedir():gsub('\\', '/')
+  local home_dir = child.uv.os_homedir():gsub('\\', '/')
   eq(
     get_index(),
     { [join_path(home_dir, 'dir')] = { [join_path(home_dir, 'file')] = { count = 1, latest = child_time() } } }
@@ -1189,7 +1189,7 @@ T['select_path()']['mimics empty buffer reuse'] = function()
 end
 
 T['select_path()']['properly shortens paths'] = function()
-  local home_dir = child.loop.os_homedir()
+  local home_dir = child.uv.os_homedir()
 
   local dir_path = make_testpath('dir_1')
   child.fn.chdir(dir_path)

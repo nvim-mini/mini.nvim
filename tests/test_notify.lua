@@ -31,8 +31,8 @@ local get_all = forward_lua('MiniNotify.get_all')
 local ref_seconds, ref_microseconds = 1703680496, 0.123456
 local mock_gettimeofday = function()
   -- Ensure reproducibility of `vim.fn.strftime`
-  child.loop.os_setenv('TZ', 'Etc/UTC')
-  child.loop.os_setenv('_TZ', 'Etc/UTC')
+  child.uv.os_setenv('TZ', 'Etc/UTC')
+  child.uv.os_setenv('_TZ', 'Etc/UTC')
   child.cmd('language time en_US.UTF-8')
 
   local lua_cmd = string.format(

@@ -769,12 +769,12 @@ T['add()']['Install']['installs dependencies in parallel'] = function()
     -- Mock non-trivial cloning duration
     _G.process_mock_data = { [2] = { duration = 50 }, [3] = { duration = 30 }, [4] = { duration = 40 } }
   ]])
-  local start_time = child.loop.hrtime()
+  local start_time = child.uv.hrtime()
   add({
     source = 'user/new_plugin',
     depends = { { source = 'user/dep_plugin_1', checkout = 'master', depends = { 'user/dep_plugin_2' } } },
   })
-  local duration = 0.000001 * (child.loop.hrtime() - start_time)
+  local duration = 0.000001 * (child.uv.hrtime() - start_time)
   eq(50 <= duration and duration < 120, true)
 
   -- Should result into a proper sequence of CLI runs
@@ -1138,9 +1138,9 @@ T['add()']['Install']['respects `config.job.n_threads`'] = function()
 
   child.lua('MiniDeps.config.job.n_threads = 1')
 
-  local start_time = child.loop.hrtime()
+  local start_time = child.uv.hrtime()
   add({ source = 'user/new_plugin', depends = { 'user/dep_plugin' } })
-  local duration = 0.000001 * (child.loop.hrtime() - start_time)
+  local duration = 0.000001 * (child.uv.hrtime() - start_time)
   eq(40 <= duration, true)
 end
 
@@ -1277,9 +1277,9 @@ T['update()']['works'] = function()
   ]])
 
   -- Update should be done in parallel
-  local start_time = child.loop.hrtime()
+  local start_time = child.uv.hrtime()
   update()
-  local duration = 0.000001 * (child.loop.hrtime() - start_time)
+  local duration = 0.000001 * (child.uv.hrtime() - start_time)
   eq(50 <= duration and duration < 90, true)
 
   -- Should result into a proper sequence of CLI runs
@@ -1909,9 +1909,9 @@ T['update()']['respects `config.job.n_threads`'] = function()
   add('user/plugin_2')
 
   child.lua('MiniDeps.config.job.n_threads = 1')
-  local start_time = child.loop.hrtime()
+  local start_time = child.uv.hrtime()
   update()
-  local duration = 0.000001 * (child.loop.hrtime() - start_time)
+  local duration = 0.000001 * (child.uv.hrtime() - start_time)
   eq(40 <= duration, true)
 end
 

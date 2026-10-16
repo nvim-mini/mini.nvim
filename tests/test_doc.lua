@@ -199,7 +199,7 @@ T['generate()']['respects arguments'] = function()
   expect_equal_file_contents('output.txt', 'output_reference.txt')
 
   -- Cleanup
-  child.loop.fs_unlink('output.txt')
+  child.uv.fs_unlink('output.txt')
 end
 
 T['generate()']['respects `vim.b.minidoc_config`'] = function()
@@ -234,7 +234,7 @@ T['generate()']['uses custom script'] = function()
   eq(child.lua_get('type(MiniDoc.config.aaa)'), 'nil')
 
   -- Cleanup
-  child.loop.fs_unlink('output.txt')
+  child.uv.fs_unlink('output.txt')
   remove_dir('doc')
 end
 

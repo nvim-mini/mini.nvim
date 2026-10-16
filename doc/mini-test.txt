@@ -835,10 +835,10 @@ Fields ~
 
 {diagnostic} `(table)` Redirection table for |vim.diagnostic|.
 {fn} `(table)` Redirection table for |vim.fn|.
+{fs} `(table)` Redirection table for |vim.fs|.
 {highlight} `(table)` Redirection table for |vim.highlight|.
 {hl} `(table)` Redirection table for |vim.hl|.
 {json} `(table)` Redirection table for `vim.json`.
-{loop} `(table)` Redirection table for |vim.loop|.
 {lsp} `(table)` Redirection table for `vim.lsp` (|lsp-core|).
 {mpack} `(table)` Redirection table for |vim.mpack|.
 {spell} `(table)` Redirection table for |vim.spell|.
@@ -846,7 +846,7 @@ Fields ~
 {ui} `(table)` Redirection table for |vim.ui|. Currently of no
   use because it requires sending function through RPC, which is impossible
   at the moment.
-{fs} `(table)` Redirection table for |vim.fs|.
+{uv} `(table)` Redirection table for |vim.uv|.
 
 {g} `(table)` Redirection table for |vim.g|.
 {b} `(table)` Redirection table for |vim.b|.

@@ -76,7 +76,7 @@ local mock_change_git_index = function()
   child.fn.writefile({}, index_path .. '.lock')
   sleep(micro_time)
   child.fn.delete(index_path)
-  child.loop.fs_rename(index_path .. '.lock', index_path)
+  child.uv.fs_rename(index_path .. '.lock', index_path)
 end
 
 local mock_exepath = function()
@@ -2635,7 +2635,7 @@ T[':Git']['can show process warnings'] = function()
 end
 
 T[':Git']['preserves environment variables'] = function()
-  child.loop.os_setenv('HELLO', 'WORLD')
+  child.uv.os_setenv('HELLO', 'WORLD')
 
   child.cmd('Git log')
   local environ = get_spawn_log()[4].options.env
