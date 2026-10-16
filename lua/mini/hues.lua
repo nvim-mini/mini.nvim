@@ -1986,11 +1986,11 @@ end
 
 H.attr_msgseparator = function(p, autoadjust)
   if not autoadjust then return { fg = p.accent, bg = p.bg_mid } end
-  return vim.o.fillchars:find('msgsep:%S') ~= nil and { fg = p.accent } or { bg = p.bg_mid }
+  return vim.go.fillchars:find('msgsep:%S') ~= nil and { fg = p.accent } or { bg = p.bg_mid }
 end
 
 H.attr_pmenu = function(p, autoadjust)
-  local is_pumborder = vim.fn.exists('+pumborder') == 1 and not (vim.o.pumborder == '' or vim.o.pumborder == 'none')
+  local is_pumborder = vim.fn.exists('+pumborder') == 1 and not (vim.go.pumborder == '' or vim.go.pumborder == 'none')
   return (autoadjust and is_pumborder) and { link = 'NormalFloat' } or { fg = p.fg, bg = p.bg_mid }
 end
 

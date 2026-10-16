@@ -230,6 +230,10 @@ T['setup()']['respects `config.autoadjust`'] = function()
   child.o.fillchars = 'msgsep:-'
   validate_hl_group('MsgSeparator', 'guifg=#dddddd')
 
+  -- Should use global value
+  child.cmd('wincmd v | setlocal fillchars=msgsep:\\ ')
+  validate_hl_group('MsgSeparator', 'guifg=#dddddd')
+
   -- Should not autoadjust if `autoadjust = false`
   child.cmd('highlight clear')
   child.api.nvim_del_augroup_by_name('MiniHuesAdjust')
