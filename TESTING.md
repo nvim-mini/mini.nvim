@@ -492,7 +492,7 @@ T['n_retry'] = new_set({ n_retry = 5 })
 -- With default `n_retry = 1` this case will fail 1 out of 2 runs.
 -- With `n_retry = 5` this case will fail 1 out of 32 runs.
 T['n_retry']['case'] = function()
-  math.randomseed(vim.loop.hrtime())
+  math.randomseed(vim.uv.hrtime())
   assert(math.random() < 0.5)
 end
 
@@ -658,8 +658,8 @@ T['fast']['first test'] = function() end
 T['fast']['second test'] = function() end
 
 T['slow'] = new_set({ data = { type = 'slow' } })
-T['slow']['first test'] = function() vim.loop.sleep(1000) end
-T['slow']['second test'] = function() vim.loop.sleep(1000) end
+T['slow']['first test'] = function() vim.uv.sleep(1000) end
+T['slow']['second test'] = function() vim.uv.sleep(1000) end
 
 return T
 ```

@@ -1280,7 +1280,7 @@ MiniExtra.pickers.manpages = function(local_opts, opts)
   local preview = function(buf_id, item) show_man(vim.fn.win_findbuf(buf_id)[1], item, true) end
   local choose = function(item) show_man(MiniPick.get_picker_state().windows.target, item) end
 
-  -- Set necessary environment variables for `vim.loop.spawn` (as it doesn't
+  -- Set necessary environment variables for `vim.uv.spawn` (as it doesn't
   -- inherit environment variables)
   local env = { 'MANWIDTH=999' }
   table.insert(env, vim.env.PATH ~= nil and ('PATH=' .. vim.env.PATH) or nil)
@@ -1702,7 +1702,7 @@ H.ns_id = {
 H.cache = {}
 
 -- File system information
-H.is_windows = vim.loop.os_uname().sysname == 'Windows_NT'
+H.is_windows = vim.uv.os_uname().sysname == 'Windows_NT'
 
 -- Helper functionality =======================================================
 -- Settings -------------------------------------------------------------------
@@ -2192,9 +2192,9 @@ end
 H.cli_run = function(command, stdout_hook)
   stdout_hook = stdout_hook or function() end
   local executable, args = command[1], vim.list_slice(command, 2, #command)
-  local process, stdout, stderr = nil, vim.loop.new_pipe(), vim.loop.new_pipe()
+  local process, stdout, stderr = nil, vim.uv.new_pipe(), vim.uv.new_pipe()
   local spawn_opts = { args = args, stdio = { nil, stdout, stderr } }
-  process = vim.loop.spawn(executable, spawn_opts, function() process:close() end)
+  process = vim.uv.spawn(executable, spawn_opts, function() process:close() end)
 
   H.cli_read_stream(stdout, stdout_hook)
   H.cli_read_stream(stderr, function(lines)

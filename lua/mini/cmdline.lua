@@ -441,7 +441,7 @@ H.default_config = vim.deepcopy(MiniCmdline.config)
 
 -- Timers
 H.timers = {
-  autocomplete = vim.loop.new_timer(),
+  autocomplete = vim.uv.new_timer(),
 }
 
 -- Autocomplete requires `noselect` flag of 'wildmode'. Present in Neovim>=0.11

@@ -1174,7 +1174,7 @@ H.default_config = MiniVisits.config
 
 -- Various timers
 H.timers = {
-  track = vim.loop.new_timer(),
+  track = vim.uv.new_timer(),
 }
 
 -- Current visit index
@@ -1194,7 +1194,7 @@ H.cache = {
 }
 
 -- File system information
-H.is_windows = vim.loop.os_uname().sysname == 'Windows_NT'
+H.is_windows = vim.uv.os_uname().sysname == 'Windows_NT'
 
 -- Helper functionality =======================================================
 -- Settings -------------------------------------------------------------------

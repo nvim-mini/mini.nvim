@@ -3193,7 +3193,7 @@ end
 T['pickers']['manpages()'] = new_set({
   hooks = {
     pre_case = function()
-      -- Mock `vim.loop.spawn` for `MiniPick.builtin.cli()`
+      -- Mock `vim.uv.spawn` for `MiniPick.builtin.cli()`
       mock_spawn()
 
       -- Mock `:Man` command for robust testing

@@ -857,7 +857,7 @@ end
 T['get()']['works with non-copyable `data`'] = function()
   child.lua([[
     MiniInput.config.handlers.key = function(state, key)
-      state.data.timer = state.data.timer or vim.loop.new_timer()
+      state.data.timer = state.data.timer or vim.uv.new_timer()
       if key == 'A' then state.status = 'accept' end
     end
   ]])
@@ -1047,7 +1047,7 @@ end
 T['get_state()']['works with non-copyable `data`'] = function()
   child.lua([[
     MiniInput.config.handlers.key = function(state)
-      state.data.timer = state.data.timer or vim.loop.new_timer()
+      state.data.timer = state.data.timer or vim.uv.new_timer()
     end
   ]])
   get()

@@ -89,7 +89,7 @@ T['bench_time()'] = new_set({
   hooks = {
     pre_case = function()
       child.lua('_G.small_time = ' .. small_time)
-      child.lua('_G.f = function(ms) ms = ms or _G.small_time; vim.loop.sleep(ms); return ms end')
+      child.lua('_G.f = function(ms) ms = ms or _G.small_time; vim.uv.sleep(ms); return ms end')
     end,
   },
 })
@@ -203,8 +203,8 @@ T['log_add()']['works'] = function()
   local fun_in_log = child.lua([[
     MiniMisc.log_add('func 1', function() return 1 end)
     MiniMisc.log_add('func 2', { f = function() return 2 end })
-    MiniMisc.log_add('timer 1', vim.loop.new_timer())
-    MiniMisc.log_add('timer 2', { t = vim.loop.new_timer() })
+    MiniMisc.log_add('timer 1', vim.uv.new_timer())
+    MiniMisc.log_add('timer 2', { t = vim.uv.new_timer() })
     MiniMisc.log_add('metatables 1', setmetatable({ 'a', setmetatable({ 'c' }, { 'd' }) }, { 'b' }))
     MiniMisc.log_add('metatables 2', { tbl = setmetatable({ 'e', setmetatable({ 'g' }, { 'h' }) }, { 'f' }) })
 
@@ -226,7 +226,7 @@ T['log_add()']['works'] = function()
   child.lua('_G.small_time = ' .. vim.inspect(small_time))
   local diff = child.lua([[
     MiniMisc.log_add('ts 1', 1)
-    vim.loop.sleep(10 * _G.small_time)
+    vim.uv.sleep(10 * _G.small_time)
     MiniMisc.log_add('ts 2', 2)
 
     local log = MiniMisc.log_get()
@@ -337,7 +337,7 @@ T['log_clear()']['works'] = function()
   child.lua('_G.small_time = ' .. vim.inspect(small_time))
   local log = child.lua([[
     MiniMisc.log_add('desc 1', 1)
-    vim.loop.sleep(10 * _G.small_time)
+    vim.uv.sleep(10 * _G.small_time)
     MiniMisc.log_add('desc 2', 2)
 
     MiniMisc.log_clear()

@@ -24,7 +24,7 @@ end
 -- Mock `stdout` by using global `_G.stdout_data_feed` array as source.
 -- Each feed's element should be either string (for usable data) or a table
 -- with `err` field (for error).
-vim.loop.new_pipe = function()
+vim.uv.new_pipe = function()
   n_stdout = n_stdout + 1
   local cur_stdout_id = 'Stdout_' .. n_stdout
 
@@ -64,7 +64,7 @@ vim.loop.new_pipe = function()
 end
 
 _G.spawn_log = {}
-vim.loop.spawn = function(path, options, on_exit)
+vim.uv.spawn = function(path, options, on_exit)
   local options_without_callables = vim.deepcopy(options)
   options_without_callables.stdio = nil
   table.insert(_G.spawn_log, { executable = path, options = options_without_callables })
