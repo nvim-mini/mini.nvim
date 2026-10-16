@@ -1311,16 +1311,13 @@ H.with_temp_context = function(context, f)
 end
 
 -- A hack to restore previous dot-repeat action
+-- TODO: remove after Neovim=0.12 support is dropped
 H.cancel_redo = function() end
-local has_ffi, ffi = pcall(require, 'ffi')
-if has_ffi then
-  local has_fun = function(fun)
-    if not pcall(ffi.cdef, 'void ' .. fun .. '(void)') then return end
-    return (pcall(getmetatable(ffi.C).__index, ffi.C, fun))
+if vim.fn.has('nvim-0.13') == 0 then
+  local has_ffi, ffi = pcall(require, 'ffi')
+  if has_ffi then
+    if pcall(ffi.cdef, 'void CancelRedo(void)') then H.cancel_redo = function() pcall(ffi.C.CancelRedo) end end
   end
-  -- TODO: simplify after Neovim=0.12 support is dropped
-  local fun_name = has_fun('redo_cancel') and 'redo_cancel' or (has_fun('CancelRedo') and 'CancelRedo' or nil)
-  if fun_name ~= nil then H.cancel_redo = function() pcall(ffi.C[fun_name]) end end
 end
 
 H.cmd_normal = function(command, opts)
