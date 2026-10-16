@@ -102,6 +102,35 @@ Helpers.new_child_neovim = function()
     return child.api.nvim_win_get_cursor(win_id or 0)
   end
 
+  child.get_multicursor = function(buf_id)
+    if buf_id == nil or buf_id == 0 then buf_id = child.api.nvim_get_current_buf() end
+    local ns_id = child.api.nvim_get_namespaces()['nvim.multicursor']
+    local mc_extmarks = child.api.nvim_buf_get_extmarks(buf_id, ns_id, 0, -1, {})
+    local res = {}
+    for _, data in ipairs(mc_extmarks) do
+      -- NOTE: use 1-based row and 0-based col, like `nvim_win_get_cursor()`
+      table.insert(res, { data[2] + 1, data[3] })
+    end
+    -- Ensure top-down order
+    table.sort(res, function(a, b) return a[1] < b[1] or (a[1] == b[1] and a[2] < b[2]) end)
+    return res
+  end
+
+  child.set_multicursor = function(buf_id, pos_array)
+    if buf_id == nil or buf_id == 0 then buf_id = child.api.nvim_get_current_buf() end
+    local ns_id = child.api.nvim_get_namespaces()['nvim.multicursor']
+    for _, pos in ipairs(pos_array) do
+      -- NOTE: use 1-based row and 0-based col, like `nvim_win_get_cursor()`
+      child.api.nvim_buf_set_extmark(buf_id, ns_id, pos[1] - 1, pos[2], {})
+    end
+  end
+
+  child.clear_multicursor = function(buf_id)
+    if buf_id == nil or buf_id == 0 then buf_id = child.api.nvim_get_current_buf() end
+    local ns_id = child.api.nvim_get_namespaces()['nvim.multicursor']
+    child.api.nvim_buf_clear_namespace(buf_id, ns_id, 0, -1)
+  end
+
   child.set_size = function(lines, columns)
     prevent_hanging('set_size')
 
@@ -148,6 +177,12 @@ Helpers.new_child_neovim = function()
 
   child.validate_edit1d = function(line_before, col_before, keys, line_after, col_after)
     child.validate_edit({ line_before }, { 1, col_before }, keys, { line_after }, { 1, col_after })
+  end
+
+  child.validate_mc_edit = function(lines_before, cursor_before, keys, lines_after, cursor_after, multicursor_after)
+    child.validate_edit(lines_before, cursor_before, keys, lines_after, cursor_after)
+    Helpers.expect.equality(child.get_multicursor(), multicursor_after)
+    child.clear_multicursor()
   end
 
   -- Work with 'mini.nvim':
