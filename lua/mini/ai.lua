@@ -1101,6 +1101,14 @@ end
 ---@return function Textobject specification as function.
 MiniAi.gen_spec.user_prompt = function()
   return function()
+    -- Should ask for user input if a result of initial user mapping AND during
+    -- its multicursor cascade (as it will replay all keys).
+    -- BUT should NOT ask for input later as a result of `.`, even during
+    -- multicursor cascade (as it will replay `.`).
+    H.cache.n_calls = H.cache.n_calls or 0
+    if not H.is_mc_cascade() then H.cache.n_calls = H.cache.n_calls + 1 end
+    if H.cache.n_calls <= 1 then H.cache.prompted_textobject = nil end
+
     -- Using cache allows for a dot-repeat without another user input
     if H.cache.prompted_textobject ~= nil then return H.cache.prompted_textobject end
 
@@ -1108,9 +1116,6 @@ MiniAi.gen_spec.user_prompt = function()
     if left == nil or left == '' then return end
     local right = H.user_input('Right edge')
     if right == nil or right == '' then return end
-
-    -- Clean command line from prompt messages (does not work in Visual mode)
-    vim.cmd([[echo '' | redraw]])
 
     local left_esc, right_esc = vim.pesc(left), vim.pesc(right)
     local res = { string.format('%s().-()%s', left_esc, right_esc) }
@@ -2062,8 +2067,13 @@ H.user_input = function(prompt, text)
   vim.cmd('echohl None | echo "" | redraw')
 
   vim.on_key(nil, H.ns_id.input)
+  vim.cmd('echo "" | redraw')
+
   return (ok and not was_cancelled) and res or nil
 end
+
+H.is_mc_cascade = function() return vim.v.cascading end
+if vim.fn.has('nvim-0.13') == 0 then H.is_mc_cascade = function() return false end end
 
 -- Work with Visual mode ------------------------------------------------------
 H.is_visual_mode = function(mode)

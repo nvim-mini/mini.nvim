@@ -1557,6 +1557,33 @@ T['Textobject']['works in Operator-pending mode'] = function()
   validate_edit(lines, cursor, 'd<C-v>a)', { 'aabb', 'ccc', 'ddee' }, { 1, 2 })
 end
 
+T['Textobject']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  child.lua('MiniAi.config.search_method = "cover"')
+
+  local validate_one = function(keys, lines_after, cursor_after, multicursor_after)
+    local lines = { '(aa) (bbb)', '(ccc) (dddd)' }
+    child.validate_mc_edit(lines, { 1, 1 }, keys, lines_after, cursor_after, multicursor_after)
+  end
+
+  local validate_mode = function(i_keys, a_keys)
+    validate_one({ 'Qj', unpack(i_keys) }, { '() (bbb)', '() ()' }, { 2, 4 }, { { 1, 1 } })
+    validate_one({ 'QjQ', unpack(i_keys) }, { '() (bbb)', '() ()' }, { 2, 4 }, { { 1, 1 }, { 2, 1 } })
+    validate_one({ 'Qjq=', unpack(i_keys) }, { '() ()', '() ()' }, { 2, 4 }, { { 1, 4 } })
+    validate_one({ 'QjQq=', unpack(i_keys) }, { '() ()', '() ()' }, { 2, 4 }, { { 1, 4 }, { 2, 4 } })
+
+    validate_one({ 'Qj', unpack(a_keys) }, { ' (bbb)', ' ' }, { 2, 0 }, { { 1, 0 } })
+    -- - The second multicursor was deduplicated
+    validate_one({ 'QjQ', unpack(a_keys) }, { ' (bbb)', ' ' }, { 2, 0 }, { { 1, 0 } })
+    validate_one({ 'Qjq=', unpack(a_keys) }, { ' ', ' ' }, { 2, 0 }, { { 1, 0 } })
+    validate_one({ 'QjQq=', unpack(a_keys) }, { ' ', ' ' }, { 2, 0 }, { { 1, 0 }, { 2, 0 } })
+  end
+
+  validate_mode({ 'v', 'i)', 'd', 'W', '.' }, { 'v', 'a)', 'd', 'W', '.' })
+  validate_mode({ 'd', 'i)', 'W', '.' }, { 'd', 'a)', 'W', '.' })
+end
+
 T['Textobject']['can be cancelled'] = function()
   local validate = function(cancel_key, keys, mode)
     set_lines({ '\3aaa\3' })
@@ -2081,6 +2108,36 @@ T['Textobject next/last']['works in Operator-pending mode'] = function()
   validate_edit(lines, cursor, 'd<C-v>al)', { 'aabbbb', 'cccc', 'dd(ee)' }, { 1, 2 })
 end
 
+T['Textobject next/last']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  child.lua('MiniAi.config.search_method = "cover"')
+
+  local validate_one = function(keys, lines_after, cursor_after, multicursor_after)
+    local lines = { '(aa) (bbb) (cccc)', '(ddd) (eeee) (fffff)' }
+    child.validate_mc_edit(lines, { 1, 1 }, keys, lines_after, cursor_after, multicursor_after)
+  end
+
+  local validate_keys = function(keys, lines_after, cursor_after, multicursor_after)
+    local mc_after_one, mc_after_two = { multicursor_after[1] }, multicursor_after
+    local init_key = keys[2]:sub(2, 2) == 'l' and '$' or ''
+    validate_one({ init_key .. 'Qj', unpack(keys) }, lines_after, cursor_after, mc_after_one)
+    validate_one({ init_key .. 'QjQ', unpack(keys) }, lines_after, cursor_after, mc_after_two)
+    validate_one({ init_key .. 'Qjq=', unpack(keys) }, lines_after, cursor_after, mc_after_one)
+    validate_one({ init_key .. 'QjQq=', unpack(keys) }, lines_after, cursor_after, mc_after_two)
+  end
+
+  validate_keys({ 'v', 'in)', 'd', '.' }, { '(aa) () ()', '(ddd) () ()' }, { 2, 10 }, { { 1, 9 }, { 2, 10 } })
+  validate_keys({ 'v', 'il)', 'd', '.' }, { '() () (cccc)', '() () (fffff)' }, { 2, 1 }, { { 1, 1 }, { 2, 1 } })
+  validate_keys({ 'v', 'an)', 'd', '.' }, { '(aa)  ', '(ddd)  ' }, { 2, 6 }, { { 1, 5 }, { 2, 6 } })
+  validate_keys({ 'v', 'al)', 'd', '.' }, { '  (cccc)', '  (fffff)' }, { 2, 0 }, { { 1, 0 }, { 2, 0 } })
+
+  validate_keys({ 'd', 'in)', '.' }, { '(aa) () ()', '(ddd) () ()' }, { 2, 10 }, { { 1, 9 }, { 2, 10 } })
+  validate_keys({ 'd', 'il)', '.' }, { '() () (cccc)', '() () (fffff)' }, { 2, 1 }, { { 1, 1 }, { 2, 1 } })
+  validate_keys({ 'd', 'an)', '.' }, { '(aa)  ', '(ddd)  ' }, { 2, 6 }, { { 1, 5 }, { 2, 6 } })
+  validate_keys({ 'd', 'al)', '.' }, { '  (cccc)', '  (fffff)' }, { 2, 0 }, { { 1, 0 }, { 2, 0 } })
+end
+
 T['Textobject next/last']['works with different mappings'] = function()
   reload_module({ mappings = { around_next = 'An', around_last = 'Al', inside_next = 'In', inside_last = 'Il' } })
 
@@ -2140,15 +2197,12 @@ T['Textobject next/last']['respects `v:count`'] = function()
   validate_no_tobj1d('(aa)(bb)(cc)(dd)', 14, '4al)')
 end
 
-local validate_motion = function(lines, cursor, keys, expected)
-  set_lines(lines)
-  set_cursor(cursor[1], cursor[2])
-  type_keys(keys)
-  eq(get_cursor(), { expected[1], expected[2] })
-end
+local validate_motion = function(lines, cursor, keys, expected) validate_edit(lines, cursor, keys, lines, expected) end
 
-local validate_motion1d = function(line, column, keys, expected)
-  validate_motion({ line }, { 1, column }, keys, { 1, expected })
+local validate_motion1d = function(line, column, keys, expected) validate_edit1d(line, column, keys, line, expected) end
+
+local validate_mc_motion = function(lines, cursor, keys, expected, mc_expected)
+  child.validate_mc_edit(lines, cursor, keys, lines, expected, mc_expected)
 end
 
 T['Motion'] = new_set()
@@ -2192,6 +2246,48 @@ T['Motion']['allows with dot-repeat'] = function()
   -- Allows not immediate dot-repeat
   type_keys('j0', '.')
   eq(get_lines(), { ')', ')' })
+end
+
+T['Motion']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  child.lua('MiniAi.config.search_method = "cover"')
+
+  -- Normal mode
+  local lines = { '(aa) (bbb)', '(ccc) (dddd)' }
+  validate_mc_motion(lines, { 1, 1 }, { 'Qjq=', 'g[)' }, { 2, 0 }, { { 1, 0 } })
+  validate_mc_motion(lines, { 1, 1 }, { 'QjQq=', 'g[)' }, { 2, 0 }, { { 1, 0 }, { 2, 0 } })
+  validate_mc_motion(lines, { 1, 1 }, { 'Qjq=', 'g])' }, { 2, 4 }, { { 1, 3 } })
+  validate_mc_motion(lines, { 1, 1 }, { 'QjQq=', 'g])' }, { 2, 4 }, { { 1, 3 }, { 2, 4 } })
+
+  -- Visual mode
+  local validate_one = function(keys, lines_after, cursor_after, multicursor_after)
+    child.validate_mc_edit(lines, { 1, 1 }, keys, lines_after, cursor_after, multicursor_after)
+  end
+
+  validate_one({ 'Qj', 'v', 'g[(', 'd', '$', '.' }, { ') (bbb)', 'cc) ' }, { 2, 3 }, { { 1, 0 } })
+  validate_one({ 'QjQ', 'v', 'g[(', 'd', '$', '.' }, { ') (bbb)', 'c) ' }, { 2, 2 }, { { 1, 0 }, { 2, 0 } })
+  validate_one({ 'Qjq=', 'v', 'g[(', 'd', '$', '.' }, { 'a) ', 'cc) ' }, { 2, 3 }, { { 1, 2 } })
+  validate_one({ 'QjQq=', 'v', 'g[(', 'd', '$', '.' }, { 'a) ', 'cc) ' }, { 2, 3 }, { { 1, 2 }, { 2, 3 } })
+
+  validate_one({ 'Qj', 'v', 'g](', 'd', 'W', '.' }, { '((bbb)', '( ' }, { 2, 1 }, { { 1, 1 } })
+  -- - The second multicursor was deduplicated
+  validate_one({ 'QjQ', 'v', 'g](', 'd', 'W', '.' }, { '((bbb)', '(' }, { 2, 0 }, { { 1, 1 } })
+  validate_one({ 'Qjq=', 'v', 'g](', 'd', 'W', '.' }, { '( ', '( ' }, { 2, 1 }, { { 1, 1 } })
+  validate_one({ 'QjQq=', 'v', 'g](', 'd', 'W', '.' }, { '( ', '( ' }, { 2, 1 }, { { 1, 1 }, { 2, 1 } })
+
+  -- Operator-pending
+  validate_one({ 'Qj', 'd', 'g[(', '$', '.' }, { 'aa) (bbb)', 'ccc) )' }, { 2, 5 }, { { 1, 0 } })
+  validate_one({ 'QjQ', 'd', 'g[(', '$', '.' }, { 'aa) (bbb)', 'ccc) )' }, { 2, 5 }, { { 1, 0 }, { 2, 0 } })
+  validate_one({ 'Qjq=', 'd', 'g[(', '$', '.' }, { 'aa) )', 'ccc) )' }, { 2, 5 }, { { 1, 4 } })
+  validate_one({ 'QjQq=', 'd', 'g[(', '$', '.' }, { 'aa) )', 'ccc) )' }, { 2, 5 }, { { 1, 4 }, { 2, 5 } })
+
+  validate_one({ 'Qj', 'd', 'g](', 'W', '.' }, { '() (bbb)', '() )' }, { 2, 3 }, { { 1, 1 } })
+  validate_one({ 'QjQ', 'd', 'g](', 'W', '.' }, { '() (bbb)', '() )' }, { 2, 3 }, { { 1, 1 }, { 2, 1 } })
+  validate_one({ 'Qjq=', 'd', 'g](', 'W', '.' }, { '() )', '() )' }, { 2, 3 }, { { 1, 3 } })
+  validate_one({ 'QjQq=', 'd', 'g](', 'W', '.' }, { '() )', '() )' }, { 2, 3 }, { { 1, 3 }, { 2, 3 } })
+
+  -- TODO: Test `zq` when it works with Lua RHS and/or `<Cmd>...<CR>`
 end
 
 T['Motion']['works with different mappings'] = function()
@@ -3098,6 +3194,28 @@ T['Builtin']['User prompt']["works with 'mini.input'"] = function()
 
   eq(get_lines(), { '!!??' })
 end
+
+T['Builtin']['User prompt']['works with multicursor'] = new_set({ parametrize = { { true }, { false } } }, {
+  test = function(use_miniinput)
+    if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+    if use_miniinput then child.lua('require("mini.input").setup()') end
+
+    child.lua('MiniAi.config.search_method = "cover"')
+    local lines_before, cursor_before = { '%*aa*% %*bbb*%', '%*ccc*% %*dddd*%' }, { 1, 0 }
+    local keys = { 'Qj', 'd', 'i?', '%*', '<CR>', '*%', '<CR>', 'W', '.' }
+    local lines_after, cursor_after = { '%**% %*bbb*%', '%**% %**%' }, { 2, 7 }
+    child.validate_mc_edit(lines_before, cursor_before, keys, lines_after, cursor_after, { { 1, 2 } })
+
+    keys[3], lines_after, cursor_after = 'a?', { ' %*bbb*%', ' ' }, { 2, 0 }
+    child.validate_mc_edit(lines_before, cursor_before, keys, lines_after, cursor_after, { { 1, 0 } })
+
+    keys[1], keys[3], lines_after, cursor_after = 'Qjq=', 'i?', { '%**% %**%', '%**% %**%' }, { 2, 7 }
+    child.validate_mc_edit(lines_before, cursor_before, keys, lines_after, cursor_after, { { 1, 7 } })
+
+    keys[3], lines_after, cursor_after = 'a?', { ' ', ' ' }, { 2, 0 }
+    child.validate_mc_edit(lines_before, cursor_before, keys, lines_after, cursor_after, { { 1, 0 } })
+  end,
+})
 
 T['Builtin']['Default'] = new_set()
 
