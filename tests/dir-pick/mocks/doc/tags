@@ -1,0 +1,8 @@
+mock-tag-a	mock-help.txt	/*mock-tag-a*
+mock-tag-b	mock-help.txt	/*mock-tag-b*
+mock-tag-c_CTRL-K	mock-help.txt	/*mock-tag-c_CTRL-K*
+mock-tag-c_CTRL-V	mock-help.txt	/*mock-tag-c_CTRL-V*
+mock-tag-d	mock-help.txt	/*mock-tag-d*
+mock-tag-e	mock-help.txt	/*mock-tag-e*
+mock-tag-f	mock-help.txt	/*mock-tag-f*
+mock-tag-g	mock-help.txt	/*mock-tag-g*

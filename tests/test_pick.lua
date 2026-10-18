@@ -3575,7 +3575,11 @@ T['builtin.grep_live()']['respects `opts.source.cwd` for cli spawn'] = function(
   eq(get_spawn_log()[1].options.cwd, test_dir_absolute)
 end
 
-T['builtin.help()'] = new_set()
+T['builtin.help()'] = new_set({
+  hooks = {
+    pre_case = function() child.o.runtimepath = join_path(test_dir_absolute, 'mocks') .. ',' .. child.o.runtimepath end,
+  },
+})
 
 local builtin_help = forward_lua_notify('MiniPick.builtin.help')
 
@@ -3592,18 +3596,19 @@ end
 T['builtin.help()']['works'] = function()
   child.lua_notify('_G.help_item = MiniPick.builtin.help()')
   -- Ignore footer as it contains non-reliable number of help tags
-  child.expect_screenshot({ ignore_text = { 14 } })
+  child.expect_screenshot({ ignore_text = { 14 }, ignore_attr = { 14 } })
 
   -- Should set correct name
   validate_picker_option('source.name', 'Help')
 
   -- Should return chosen value
+  type_keys('<Down>')
   local item = get_picker_matches().current
   type_keys('<CR>')
   eq(child.lua_get('_G.help_item'), item)
 
   -- Should open help page as choosing
-  child.expect_screenshot({ ignore_text = { 13 }, ignore_attr = child.fn.has('nvim-0.12') == 0 })
+  child.expect_screenshot({ ignore_attr = child.fn.has('nvim-0.12') == 0 })
 end
 
 T['builtin.help()']['has proper preview'] = function()
@@ -3617,7 +3622,7 @@ T['builtin.help()']['has proper preview'] = function()
   builtin_help()
   type_keys('<Tab>')
   -- Ignore footer as it contains non-reliable number of help tags
-  child.expect_screenshot({ ignore_text = { 14 } })
+  child.expect_screenshot({ ignore_text = { 14 }, ignore_attr = { 14 } })
   eq(child.bo.buftype, 'nofile')
   -- Changes buffer name to show explicitly help file.
   -- This is neither good nor bad. Can be changed in the future.
@@ -3671,11 +3676,10 @@ end
 T['builtin.help()']['works for help tags with special characters'] = function()
   child.set_size(15, 80)
   builtin_help()
-  set_picker_query({ 'c_CTRL-K' })
+  set_picker_query({ 'mock-tag-c_CTRL-V' })
   type_keys('<Tab>')
   -- Ignore footer as it contains non-reliable number of help tags
-  -- Ignore attr on Neovim<0.13 as the tree-sitter-vimdoc grammar changed
-  child.expect_screenshot({ ignore_text = { 14 }, ignore_attr = child.fn.has('nvim-0.13') == 0 })
+  child.expect_screenshot({ ignore_text = { 14 }, ignore_attr = { 14 } })
 end
 
 T['builtin.help()']['works when help window is already opened'] = function()
@@ -3687,7 +3691,7 @@ T['builtin.help()']['works when help window is already opened'] = function()
 
   -- Should open help in already opened help window (just like `:help`)
   type_keys('<CR>')
-  child.expect_screenshot({ ignore_text = { 13 }, ignore_attr = child.fn.has('nvim-0.12') == 0 })
+  child.expect_screenshot({ ignore_attr = child.fn.has('nvim-0.12') == 0 })
   eq(#child.api.nvim_list_wins(), 2)
 end
 
@@ -3706,23 +3710,23 @@ end
 
 T['builtin.help()']['handles consecutive applications'] = function()
   builtin_help()
-  set_picker_query({ ':help' })
+  set_picker_query({ 'mock-tag-a' })
   type_keys('<CR>')
 
   builtin_help()
-  set_picker_query({ ':helpg' })
+  set_picker_query({ 'mock-tag-b' })
   type_keys('<CR>')
 
-  child.expect_screenshot({ ignore_attr = child.fn.has('nvim-0.12') == 0, ignore_text = { 13 } })
+  child.expect_screenshot({ ignore_attr = child.fn.has('nvim-0.12') == 0 })
 end
 
 T['builtin.help()']['works with `builtin.resume()`'] = function()
   builtin_help()
-  set_picker_query({ ':help' })
+  set_picker_query({ 'mock-tag-b' })
   type_keys('<CR>')
   sleep(small_time)
   local ignore_attr = child.fn.has('nvim-0.12') == 0
-  child.expect_screenshot({ ignore_attr = ignore_attr, ignore_text = { 13 } })
+  child.expect_screenshot({ ignore_attr = ignore_attr })
 
   child.cmd('close')
   eq(#child.api.nvim_list_wins(), 1)
@@ -3730,7 +3734,7 @@ T['builtin.help()']['works with `builtin.resume()`'] = function()
   child.lua_notify('MiniPick.builtin.resume()')
   type_keys('<CR>')
   sleep(small_time)
-  child.expect_screenshot({ ignore_attr = ignore_attr, ignore_text = { 13 } })
+  child.expect_screenshot({ ignore_attr = ignore_attr })
 end
 
 T['builtin.help()']['respects `opts`'] = function()

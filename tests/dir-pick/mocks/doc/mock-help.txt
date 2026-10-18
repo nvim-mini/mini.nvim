@@ -1,0 +1,26 @@
+*mock-tag-a*
+
+A title ~
+
+A text with `code`, special key <C-k>,
+|mock-tag-b| link, and a codeblock: >lua
+
+  local a = { a = true }
+<
+
+*mock-tag-b*
+
+*mock-tag-c_CTRL-K*
+
+*mock-tag-c_CTRL-V*
+
+*mock-tag-d*
+
+*mock-tag-e*
+
+*mock-tag-f*
+
+*mock-tag-g*
+
+
+ vim:tw=78:ts=8:noet:ft=help:norl:
