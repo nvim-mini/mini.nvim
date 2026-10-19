@@ -1253,6 +1253,21 @@ T['Align']['works in Visual blockwise mode'] = function()
   validate_keys({ 'の', '_', 'a_' }, { '<C-v>2j', 'ga', '_' }, { 'の', ' _', 'a_' })
 end
 
+--stylua: ignore
+T['Align']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  -- Normal mode
+  local lines_before = { 'a_b',  'aa_b', 'aa_b',  'aaa_b', 'aaa_b',  'aaaa_b', 'aaaa_b',  'aaaaa_b' }
+  local lines_after  = { 'a _b', 'aa_b', 'aa _b', 'aaa_b', 'aaa _b', 'aaaa_b', 'aaaa _b', 'aaaaa_b' }
+  local keys = { 'Qjj', 'ga', 'j', '_', 'q=', '4j', '.' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 7, 0 }, { { 5, 0 } })
+
+  -- Visual mode
+  keys = { 'Qjj', 'Vj', 'ga', '_', 'q=', '3j', '.' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 7, 0 }, { { 5, 0 } })
+end
+
 T['Align']['works independently with :normal command'] = function()
   -- Works for each line individually when running under :normal command
   validate_keys({ 'a   _b', 'aa  _b', 'aaa _b' }, { ':%normal ga_t_<CR>' }, { 'a_b', 'aa_b', 'aaa_b' })

@@ -318,6 +318,16 @@ T['Mappings']['Basic']['j/k'] = function()
   type_keys('v')
   eq(child.fn.mode(), 'v')
   child.ensure_normal_mode()
+
+  -- Works with multicursor
+  if child.fn.has('nvim-0.13') == 1 then
+    local lines_before = { string.rep('a', 48), string.rep('b', 48) }
+    child.validate_mc_edit(lines_before, { 1, 0 }, { 'QG0q=', 'j' }, lines_before, { 2, 12 }, { { 1, 12 } })
+    local lines_after = { string.rep('A', 13) .. string.rep('a', 35), string.rep('B', 13) .. string.rep('b', 35) }
+    child.validate_mc_edit(lines_before, { 1, 0 }, { 'QG0', 'vj', 'gU' }, lines_after, { 2, 0 }, { { 1, 0 } })
+
+    -- TODO: Test `zq` when it works with Lua RHS and/or `<Cmd>...<CR>`
+  end
 end
 
 T['Mappings']['Basic']['go'] = function()
@@ -345,6 +355,15 @@ T['Mappings']['Basic']['go'] = function()
   type_keys({ '1', '.' })
   eq(get_lines(), { 'aaa', '', '', '', '', '', '' })
   eq(get_cursor(), { 1, 1 })
+
+  -- Works with multicursor
+  if child.fn.has('nvim-0.13') == 1 then
+    local before, after = { 'aaa', 'bbb' }, { 'aaa', '', '', 'bbb', '', '' }
+    child.validate_mc_edit(before, { 1, 0 }, { 'Qj', 'go', '.' }, after, { 4, 0 }, { { 1, 0 } })
+    child.validate_mc_edit(before, { 1, 0 }, { 'QjQ', 'go', '.' }, after, { 4, 0 }, { { 1, 0 }, { 4, 0 } })
+    child.validate_mc_edit(before, { 1, 0 }, { 'Qjq=', 'go', '.' }, after, { 4, 0 }, { { 1, 0 } })
+    child.validate_mc_edit(before, { 1, 0 }, { 'QjQq=', 'go', '.' }, after, { 4, 0 }, { { 1, 0 }, { 4, 0 } })
+  end
 end
 
 T['Mappings']['Basic']['gO'] = function()
@@ -372,6 +391,15 @@ T['Mappings']['Basic']['gO'] = function()
   type_keys({ '1', '.' })
   eq(get_lines(), { '', '', '', '', '', '', 'aaa' })
   eq(get_cursor(), { 7, 1 })
+
+  -- Works with multicursor
+  if child.fn.has('nvim-0.13') == 1 then
+    local before, after = { 'aaa', 'bbb' }, { '', '', 'aaa', '', '', 'bbb' }
+    child.validate_mc_edit(before, { 1, 0 }, { 'Qj', 'gO', '.' }, after, { 6, 0 }, { { 3, 0 } })
+    child.validate_mc_edit(before, { 1, 0 }, { 'QjQ', 'gO', '.' }, after, { 6, 0 }, { { 3, 0 }, { 6, 0 } })
+    child.validate_mc_edit(before, { 1, 0 }, { 'Qjq=', 'gO', '.' }, after, { 6, 0 }, { { 3, 0 } })
+    child.validate_mc_edit(before, { 1, 0 }, { 'QjQq=', 'gO', '.' }, after, { 6, 0 }, { { 3, 0 }, { 6, 0 } })
+  end
 end
 
 T['Mappings']['Basic']['gy'] = function()
@@ -547,10 +575,7 @@ T['Mappings']['Basic']['<C-c>'] = function()
   child.expect_screenshot()
   eq(child.cmd_capture('messages'), '')
   eq(child.v.hlsearch, 0)
-  if child.fn.has('nvim-0.13') == 1 then
-    local ns_id = vim.api.nvim_create_namespace('nvim.multicursor')
-    eq(child.api.nvim_buf_get_extmarks(0, ns_id, 0, -1, { limit = 1 }), {})
-  end
+  if child.fn.has('nvim-0.13') == 1 then eq(child.get_multicursor(), {}) end
 
   -- Should actually disable hlsearch and not toggle it
   type_keys('<C-c>')
@@ -780,6 +805,15 @@ T['Mappings']['Move with alt']['works in Insert mode'] = function()
   eq(get_cursor(), { 2, 2 })
   type_keys('<M-k>')
   eq(get_cursor(), { 1, 2 })
+
+  -- Works with multicursor
+  if child.fn.has('nvim-0.13') == 1 then
+    local lines = { 'aaa', 'bbb', 'ccc', 'ddd' }
+    child.validate_mc_edit(lines, { 2, 1 }, { 'Qjq=', 'i', '<M-h>' }, lines, { 3, 0 }, { { 2, 0 } })
+    child.validate_mc_edit(lines, { 2, 1 }, { 'Qjq=', 'i', '<M-l>' }, lines, { 3, 2 }, { { 2, 2 } })
+    child.validate_mc_edit(lines, { 2, 1 }, { 'Qjq=', 'i', '<M-j>' }, lines, { 4, 1 }, { { 3, 1 } })
+    child.validate_mc_edit(lines, { 2, 1 }, { 'Qjq=', 'i', '<M-k>' }, lines, { 2, 1 }, { { 1, 1 } })
+  end
 end
 
 T['Mappings']['Move with alt']['works in Terminal mode'] = function()
@@ -792,7 +826,7 @@ T['Mappings']['Move with alt']['works in Terminal mode'] = function()
   expect.match(child.cmd_capture('tmap <M-l>'), '<Right>')
 end
 
-T['Mappings']['Move with alt']['works in Insert mode'] = function()
+T['Mappings']['Move with alt']['works in Command-line mode'] = function()
   load_module({ mappings = { move_with_alt = true } })
 
   type_keys(':hello')

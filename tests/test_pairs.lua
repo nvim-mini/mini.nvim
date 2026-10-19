@@ -706,6 +706,13 @@ T['Open action']['works in special lines'] = function()
   eq(child.fn.getcmdline(), '\nnull byte()')
 end
 
+T['Open action']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local keys = { 'Qjq=', 'i', '(', '[', '{', '<C-v>(' }
+  child.validate_mc_edit({ '', '' }, { 1, 0 }, keys, { '([{(}])', '([{(}])' }, { 2, 4 }, { { 1, 4 } })
+end
+
 T['Open action']['does not break undo sequence in Insert mode'] = function()
   type_keys('i', '((', '<Esc>')
   eq(get_lines(), { '(())' })
@@ -819,6 +826,13 @@ T['Close action']['works in special lines'] = function()
   type_keys(':', '<C-v>000', 'null byte()<Left>', ')')
   eq(child.fn.getcmdline(), '\nnull byte()')
   eq(child.fn.getcmdpos(), 13)
+end
+
+T['Close action']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local keys = { 'Qjq=', 'i', ')', ']', '}', '<C-v>)' }
+  child.validate_mc_edit({ ')]})', ')]})' }, { 1, 0 }, keys, { ')]}))', ')]}))' }, { 2, 4 }, { { 1, 4 } })
 end
 
 T['Close action']['does not break undo sequence in Insert mode'] = function()
@@ -973,6 +987,20 @@ T['Closeopen action']['works in special lines'] = function()
   eq(child.fn.getcmdpos(), 13)
 end
 
+T['Closeopen action']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local validate = function(char)
+    local keys = { 'Qjq=', 'i', char, char, '<C-v>', char, '<Left>', '<C-v>', char }
+    local lines_after = { string.rep(char, 4), string.rep(char, 4) }
+    child.validate_mc_edit({ '', '' }, { 1, 0 }, keys, lines_after, { 2, 3 }, { { 1, 3 } })
+  end
+
+  validate('"')
+  validate("'")
+  validate('`')
+end
+
 T['Closeopen action']['does not break undo sequence in Insert mode'] = function()
   -- Open
   set_lines({})
@@ -1084,6 +1112,15 @@ T['<BS> action']['works in special lines'] = function()
   type_keys(':', '<C-v>000', 'null byte()<Left>', '<BS>')
   eq(child.fn.getcmdline(), '\nnull byte')
   eq(child.fn.getcmdpos(), 11)
+end
+
+T['<BS> action']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local lines_before = { '([{"\'``\'"}])', '([{"\'``\'"}])' }
+  -- NOTE: Exit from Insert mode to have up to date text at extra cursor
+  local keys = { 'Qjq=', 'i', '<BS>', '<BS>', '<BS>', '<BS>', '<BS>', '<BS>', '<Esc>' }
+  child.validate_mc_edit(lines_before, { 1, 6 }, keys, { '', '' }, { 2, 0 }, { { 1, 0 } })
 end
 
 T['<BS> action']['respects `key` argument'] = function()
@@ -1207,6 +1244,22 @@ T['<CR> action']['works in special lines'] = function()
   type_keys('i', '<CR>')
   eq(get_lines(), { '\0null byte(', '', ')' })
   eq(get_cursor(), { 2, 0 })
+end
+
+T['<CR> action']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local validate = function(left, right)
+    local lines_before = { left .. right, left .. right }
+    local lines_after = { left, '', right, left, '', right }
+    -- NOTE: Exit from Insert mode to have up to date text at extra cursor
+    local keys = { 'Qj', 'i', '<CR>', '<Esc>' }
+    child.validate_mc_edit(lines_before, { 1, 1 }, keys, lines_after, { 5, 0 }, { { 2, 0 } })
+  end
+
+  validate('(', ')')
+  validate('[', ']')
+  validate('{', '}')
 end
 
 T['<CR> action']['respects `key` argument'] = function()

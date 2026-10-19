@@ -642,7 +642,7 @@ T['Operator']["works with empty 'commentstring'"] = function()
   eq(child.cmd_capture('1messages'), [[(mini.comment) Option 'commentstring' is empty.]])
 end
 
-T['Operator']['respects tree-sitter injections'] = function()
+local setup_buf_with_treesitter = function()
   -- NOTE: This leverages bundled Vimscript and Lua tree-sitter parsers
   local lines = {
     'set background=dark',
@@ -656,6 +656,11 @@ T['Operator']['respects tree-sitter injections'] = function()
   set_lines(lines)
   child.bo.filetype = 'vim'
   child.lua('vim.treesitter.start()')
+end
+
+T['Operator']['respects tree-sitter injections'] = function()
+  setup_buf_with_treesitter()
+  local lines = get_lines()
 
   -- Single line comments
   local validate = function(line, ref_output)
@@ -694,6 +699,21 @@ T['Operator']['respects tree-sitter injections'] = function()
   eq(out_lines[1], '" set background=dark')
   eq(out_lines[2], '" lua << EOF')
   eq(out_lines[3], '" print(1)')
+end
+
+T['Operator']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  setup_buf_with_treesitter()
+  local lines = get_lines()
+  set_cursor(1, 0)
+  type_keys('Qjj', 'gc_')
+  lines[1], lines[3] = '" ' .. lines[1], '-- ' .. lines[3]
+  eq(get_lines(), lines)
+
+  type_keys('q=', 'jj', '.')
+  lines[3], lines[5] = lines[3]:sub(4), '    " ' .. lines[5]:gsub('^ *', '')
+  eq(get_lines(), lines)
 end
 
 T['Operator']['respects `options.custom_commentstring`'] = function()
@@ -1011,6 +1031,34 @@ T['Textobject']['respects tree-sitter injections'] = function()
   set_cursor(2, 0)
   type_keys('.')
   eq(get_lines(), { 'lua << EOF', 'EOF' })
+end
+
+T['Textobject']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  -- NOTE: This leverages bundled Vimscript and Lua tree-sitter parsers
+  local lines = {
+    '" set background=dark',
+    '" set termguicolors',
+    '',
+    '" set ignorecase',
+    'lua << EOF',
+    '-- print(1)',
+    '-- print(2)',
+    '',
+    '-- print(3)',
+    'EOF',
+  }
+  set_lines(lines)
+  child.bo.filetype = 'vim'
+  child.lua('vim.treesitter.start()')
+
+  set_cursor(1, 0)
+  type_keys('Q6G', 'dgc')
+  eq(get_lines(), { '', '" set ignorecase', 'lua << EOF', '', '-- print(3)', 'EOF' })
+
+  type_keys('q=', 'j', '.')
+  eq(get_lines(), { '', 'lua << EOF', '', 'EOF' })
 end
 
 T['Textobject']['allows dot-repeat'] = function()
