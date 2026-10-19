@@ -948,10 +948,11 @@ H.style_extmark_data = {
 }
 
 -- Suffix for overlay virtual lines to be highlighted as full line
-H.overlay_suffix = string.rep(' ', vim.o.columns)
+H.overlay_suffix = vim.fn.has('nvim-0.13') == 1 and '' or string.rep(' ', vim.o.columns)
 
 -- Flag for whether to handle virtual lines overflow
-H.extmark_virt_lines_overflow = vim.fn.has('nvim-0.11') == 1 and 'scroll' or nil
+H.extmark_virt_lines_overflow = vim.fn.has('nvim-0.13') == 1 and 'auto'
+  or (vim.fn.has('nvim-0.11') == 1 and 'scroll' or nil)
 
 -- Permanent `vim.diff()` options
 H.vimdiff_opts = { result_type = 'indices', ctxlen = 0, interhunkctxlen = 0 }
@@ -1106,7 +1107,7 @@ H.auto_enable = vim.schedule_wrap(function(data)
 end)
 
 H.on_resize = function()
-  H.overlay_suffix = string.rep(' ', vim.o.columns)
+  H.overlay_suffix = vim.fn.has('nvim-0.13') == 1 and '' or string.rep(' ', vim.o.columns)
   for buf_id, _ in pairs(H.cache) do
     if vim.api.nvim_buf_is_valid(buf_id) then
       H.clear_all_diff(buf_id)
@@ -1422,7 +1423,8 @@ H.append_overlay_change = function(overlay_lines, hunk, ref_lines, buf_lines, pr
   -- If not one-to-one change, show reference lines above first real one
   local changed_lines = {}
   for i = hunk.ref_start, hunk.ref_start + hunk.ref_count - 1 do
-    local l = { { ref_lines[i] .. H.overlay_suffix, 'MiniDiffOverChange' } }
+    -- End with `{'', '...'}` chunk to extend highlight past end of line
+    local l = { { ref_lines[i], 'MiniDiffOverChange' }, { H.overlay_suffix, 'MiniDiffOverChange' } }
     table.insert(changed_lines, l)
   end
   local data = { type = 'change', lines = changed_lines, show_above = true, priority = priority }

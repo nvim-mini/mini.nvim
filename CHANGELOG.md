@@ -55,6 +55,10 @@ There are following change types:
 
         Use `'\n'` or `{ '' }` to set a single empty line as a reference text.
 
+### Expand
+
+- Overlay virtual lines now wrap horizontally along with buffer lines. Requires Neovim>=0.13 and enabled 'wrap' option.
+
 ## mini.statuscolumn
 
 - Introduction of a new module.
