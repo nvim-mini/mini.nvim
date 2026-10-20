@@ -521,7 +521,7 @@ MiniKeymap.map_combo = function(mode, lhs, action, opts)
   local delay = opts.delay or 200
   if not (type(delay) == 'number' and delay > 0) then H.error('`opts.delay` should be a positive number') end
 
-  local hrtime, get_key = vim.loop.hrtime, H.combo_get_key
+  local hrtime, get_key = vim.uv.hrtime, H.combo_get_key
   local i, last_time, n_seq = 0, hrtime(), #seq
   local delay_ns = 1000000 * delay
   -- NOTE: It is possible to track mode in 'ModeChanged' event and use it for

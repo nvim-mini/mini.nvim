@@ -57,7 +57,7 @@ Here are code snippets for some common installation methods:
     -- Put this at the top of 'init.lua'
     local path_package = vim.fn.stdpath('data') .. '/site'
     local mini_path = path_package .. '/pack/deps/start/mini.nvim'
-    if not vim.loop.fs_stat(mini_path) then
+    if not vim.uv.fs_stat(mini_path) then
       vim.cmd('echo "Installing `mini.nvim`" | redraw')
       local clone_cmd = {
         'git', 'clone', '--filter=blob:none',

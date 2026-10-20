@@ -144,7 +144,7 @@ local T = new_set({
       cleanup()
 
       -- Make `stdpath('data')` point to test directory
-      local lua_cmd = string.format([[vim.loop.os_setenv('XDG_DATA_HOME', %s)]], vim.inspect(xdg_data_home))
+      local lua_cmd = string.format([[vim.uv.os_setenv('XDG_DATA_HOME', %s)]], vim.inspect(xdg_data_home))
       child.lua(lua_cmd)
 
       -- Load module

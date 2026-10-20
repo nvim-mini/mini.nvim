@@ -94,9 +94,9 @@ MiniMisc.bench_time = function(f, n, ...)
   n = n or 1
   local durations, output = {}, nil
   for _ = 1, n do
-    local start_time = vim.loop.hrtime()
+    local start_time = vim.uv.hrtime()
     output = f(...)
-    local end_time = vim.loop.hrtime()
+    local end_time = vim.uv.hrtime()
     table.insert(durations, 0.000000001 * (end_time - start_time))
   end
 
@@ -148,7 +148,7 @@ MiniMisc.log_add = function(desc, state, opts)
   local entry = {
     desc = desc,
     state = opts.deepcopy and H.copy_tables(state) or state,
-    timestamp = 0.000001 * (vim.loop.hrtime() - H.log_cache.start_htime),
+    timestamp = 0.000001 * (vim.uv.hrtime() - H.log_cache.start_htime),
   }
   table.insert(H.log_cache.log, entry)
 end
@@ -186,11 +186,11 @@ end
 ---@seealso - |MiniMisc.log_add()| to add to the log array
 MiniMisc.log_clear = function()
   H.log_cache.log = {}
-  H.log_cache.start_htime = vim.loop.hrtime()
+  H.log_cache.start_htime = vim.uv.hrtime()
   H.notify('Cleared log')
 end
 
-H.log_cache = { log = {}, start_htime = vim.loop.hrtime(), buf_id = nil }
+H.log_cache = { log = {}, start_htime = vim.uv.hrtime(), buf_id = nil }
 
 --- Print Lua objects in command line
 ---
@@ -368,7 +368,7 @@ end
 H.safely_cache = { later = {} }
 
 H.execute_later = function()
-  local timer = assert(vim.loop.new_timer())
+  local timer = assert(vim.uv.new_timer())
   local f
   f = vim.schedule_wrap(function()
     local cb = H.safely_cache.later[1]

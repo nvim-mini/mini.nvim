@@ -353,7 +353,7 @@ MiniSessions.restart = function()
   -- Compute session to write and restore
   local this_session, del_session = H.get_this_session(), nil
   if this_session == '' then
-    local _, filename = vim.loop.fs_mkstemp('restart_session_XXXXXX')
+    local _, filename = vim.uv.fs_mkstemp('restart_session_XXXXXX')
     this_session = vim.fs.abspath(filename)
     del_session = this_session
     vim.cmd('%argdelete')

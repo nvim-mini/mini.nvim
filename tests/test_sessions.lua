@@ -979,7 +979,7 @@ local restart = function(vimrc, restart_cmd)
     child.fn.delete('track-vim-cmd')
     error(msg)
   end
-  vim.loop.sleep(10 * small_time)
+  vim.uv.sleep(10 * small_time)
 
   local cmd_after_restart
   for _, l in ipairs(vim.fn.readfile('track-vim-cmd')) do
