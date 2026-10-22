@@ -2606,6 +2606,12 @@ T['Reproducing keys']['does not reproduce register in Insert mode'] = function()
   eq(get_lines()[2] ~= '"_', true)
 end
 
+T['Reproducing keys']['does not reproduce `[count]` in Insert mode'] = function()
+  child.api.nvim_buf_set_keymap(0, 'i', '<C-r>x', 'aaa', {})
+  load_module({ triggers = { { mode = 'i', keys = '<C-r>' } } })
+  validate_edit1d('', 0, { '2', 'i', '<C-r>', 'x', '<Esc>' }, 'aaaaaa', 5)
+end
+
 T['Reproducing keys']['works for builtin keymaps in Visual mode'] = function()
   load_module({ triggers = { { mode = 'x', keys = 'g' }, { mode = 'x', keys = 'a' } } })
   validate_trigger_keymap('x', 'g')
