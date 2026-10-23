@@ -725,6 +725,7 @@ H.directory_icons = {
   Network       = { glyph = '󰡰', hl = 'MiniIconsOrange' },
   Pictures      = { glyph = '󰉏', hl = 'MiniIconsOrange' },
   ProgramData   = { glyph = '󰉌', hl = 'MiniIconsOrange' },
+  Projects      = { glyph = '󰣞', hl = 'MiniIconsOrange' },
   Public        = { glyph = '󱧰', hl = 'MiniIconsOrange' },
   System        = { glyph = '󱧼', hl = 'MiniIconsOrange' },
   Templates     = { glyph = '󱋣', hl = 'MiniIconsOrange' },
