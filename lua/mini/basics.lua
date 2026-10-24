@@ -258,7 +258,7 @@ end
 ---
 --- ## mappings.windows ~
 ---
---- The `config.mappings.windows` creates mappings for easiere window manipulation.
+--- The `config.mappings.windows` creates mappings for easier window manipulation.
 ---
 --- It will only add a mapping if it wasn't manually created before.
 ---
