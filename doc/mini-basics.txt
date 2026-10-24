@@ -8,7 +8,7 @@ Install, create `init.lua`, add `require('mini.basics').setup()`, and you
 are good to go.
 
 Features:
-- Presets for common options. It will only change option if it wasn't
+- Presets for common options. It will only change an option if it wasn't
   manually set before. See more in |MiniBasics.config.options|.
 
 - Presets for common mappings. It will only add a mapping if it wasn't
@@ -20,13 +20,13 @@ Features:
   present behavior will be made with great care.
 
 Notes:
-- Main goal of this module is to provide a relatively easier way for
+- The main goal of this module is to provide a relatively easier way for
   new-ish Neovim users to have better "works out of the box" experience
-  while having documented relevant options/mappings/autocommands to study.
-  It is based partially on survey among Neovim users and partially is
-  coming from personal preferences.
+  while having documented and relevant options/mappings/autocommands to study.
+  It is based partially on survey among Neovim users and partially on
+  personal preferences.
 
-  However, more seasoned users almost surely will find something useful.
+  However, more seasoned users will almost surely find something useful.
 
   Still, it is recommended to read about used options/mappings/autocommands
   and decide if they are needed. The main way to do that is by reading
@@ -36,7 +36,7 @@ Notes:
 # Setup ~
 
 This module needs a setup with `require('mini.basics').setup({})` (replace
-`{}` with your `config` table). It will create global Lua table `MiniBasics`
+`{}` with your `config` table). It will create a global Lua table `MiniBasics`
 which you can use for scripting or manually (with `:lua MiniBasics.*`).
 
 See |MiniBasics.config| for available config settings.
@@ -131,16 +131,16 @@ Usage example: >lua
 <
 ## options.basic ~
 
-The `config.options.basic` sets certain options to values which are quite
+`config.options.basic` sets certain options to values which are quite
 commonly used (judging by study of available Neovim pre-configurations,
 public dotfiles, and surveys).
-Any option is changed only if it was not set manually beforehand.
-For exact changes, please see source code (`lua/mini/basics.lua`).
+An option is changed only if it was not set manually beforehand.
+For exact changes see the source code (`lua/mini/basics.lua`).
 
 Here is the list of affected options (put cursor on it and press |CTRL-]|):
 - General:
-    - Sets |<Leader>| key to |<Space>|. Be sure to make all Leader mappings
-      after this (otherwise they are made with default <Leader>).
+    - Sets |<Leader>| key to |<Space>|. Ensure that Leader mappings are
+      defined after this (otherwise the default <Leader> will be used).
     - Runs `:filetype plugin indent on` (see |:filetype-overview|)
     - |'backup'|
     - |'mouse'|
@@ -172,10 +172,10 @@ Here is the list of affected options (put cursor on it and press |CTRL-]|):
 
 ## options.extra_ui ~
 
-The `config.options.extra_ui` sets certain options for visual appearance
-which might not be aligned with common preferences, but still worth trying.
+`config.options.extra_ui` sets certain options for visual appearance
+which might not be aligned with common preferences but still worth trying.
 Any option is changed only if it was not set manually beforehand.
-For exact changes, please see source code (`lua/mini/basics.lua`).
+For exact changes see the source code (`lua/mini/basics.lua`).
 
 List of affected options:
 - |'list'|
@@ -187,7 +187,7 @@ List of affected options:
 
 ## options.win_borders ~
 
-The `config.options.win_borders` updates |'fillchars'| to have a consistent set
+`config.options.win_borders` updates |'fillchars'| to have a consistent set
 of characters for window border (`vert`, `horiz`, `msgsep`, etc.).
 
 Available values:
@@ -217,12 +217,12 @@ them after calling |MiniBasics.setup()|.
 
 ## mappings.basic ~
 
-The `config.mappings.basic` creates mappings for certain commonly mapped actions
-(judging by study of available Neovim pre-configurations and public dotfiles).
+`config.mappings.basic` creates mappings for commonly mapped actions
+(based on a study of available Neovim pre-configurations and public dotfiles).
 
-Some of the mappings override built-in ones to either improve their
-behavior or override its default not very useful action.
-It will only add a mapping if it wasn't manually created before.
+Some of the mappings override built-in ones to improve their behavior or
+replace default actions that are not very useful. It will only add a mapping
+if it wasn't manually created before.
 
 Here is a table with created mappings : >
 
@@ -245,8 +245,8 @@ Here is a table with created mappings : >
 Notes:
 - See |[count]| for its meaning.
 - The <C-c> mapping is basically a combination of |CTRL-C| and |CTRL-L-default|.
-  This combines related actions under one mapping. Particularly useful with
-  enabled `mappings.windows` as it overrides |CTRL-L-default|.
+  This combines related actions under one mapping which is particularly
+  useful with `mappings.windows` enabled as it overrides |CTRL-L-default|.
 - On Neovim>=0.11 there are |[<Space>| / |]<Space>| for adding empty lines.
   The `gO` and `go` mappings are still created as they are more aligned with
   similarly purposed |O| and |o| keys (although sometimes conflict with |gO|).
@@ -254,8 +254,9 @@ Notes:
 ## mappings.option_toggle_prefix ~
 
 The `config.mappings.option_toggle_prefix` defines a prefix used for
-creating mappings that toggle common options. The result mappings will be
-`<prefix> + <suffix>`. For example, with default value, `\w` will toggle |'wrap'|.
+creating mappings that toggle common options. Each mapping is formatted as
+`<prefix> + <suffix>`. For example, with the  default value, `\w` will
+toggle |'wrap'|.
 
 Other viable choices for prefix are
 - `,` (as a mnemonic for several values to toggle).
@@ -272,7 +273,7 @@ prior to `require('mini.basics').setup()` module wasn't silenced (see
 
 It will only add a mapping if it wasn't manually created before.
 
-Here is a list of suffixes for created toggling mappings (all in Normal mode):
+Here is a list of suffixes for created toggle mappings (all in Normal mode):
 
 - `b` - |'background'|.
 - `c` - |'cursorline'|.
@@ -288,11 +289,12 @@ Here is a list of suffixes for created toggling mappings (all in Normal mode):
 
 ## mappings.windows ~
 
-The `config.mappings.windows` creates mappings for easiere window manipulation.
+`config.mappings.windows` creates mappings for easier window manipulation.
 
 It will only add a mapping if it wasn't manually created before.
 
 Here is a list with created Normal mode mappings (all respect |[count]|):
+
 - Window navigation:
     - `<C-h>` - focus on left window (see |CTRL-W_H|).
     - `<C-j>` - focus on below window (see |CTRL-W_J|).
@@ -307,9 +309,9 @@ Here is a list with created Normal mode mappings (all respect |[count]|):
 
 ## mappings.move_with_alt ~
 
-The `config.mappings.move_with_alt` creates mappings for a more consistent
-cursor move in Insert, Command, and Terminal modes. For example, it proves
-useful in combination of autopair plugin (like |mini.pairs|) to move right
+`config.mappings.move_with_alt` creates mappings for more consistent
+cursor movement in Insert, Command, and Terminal modes. For example, it
+proves useful in combination of autopair plugins (like |mini.pairs|) to move
 outside of inserted pairs (no matter what the pair is).
 
 It will only add a mapping if it wasn't manually created before.
@@ -334,7 +336,7 @@ Usage example: >lua
 <
 ## autocommands.basic ~
 
-The `config.autocommands.basic` creates some common autocommands:
+`config.autocommands.basic` creates some common autocommands:
 
 - Starts insert mode when opening terminal (see |:startinsert| and |TermOpen|).
 - Highlights yanked text for a brief period of time. See |vim.hl.on_yank()|
@@ -343,7 +345,7 @@ The `config.autocommands.basic` creates some common autocommands:
 
 ## autocommands.relnum_in_visual_mode ~
 
-The `config.autocommands.relnum_in_visual_mode` creates autocommands that
+`config.autocommands.relnum_in_visual_mode` creates autocommands that
 enable |'relativenumber'| in linewise and blockwise Visual modes and disable
 otherwise. See |ModeChanged|.
 
