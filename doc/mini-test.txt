@@ -215,7 +215,7 @@ organization with |MiniTest-test-case|.
 
 All its elements are one of three categories:
 - A callable (object that can be called; function or table with `__call`
-  metatble entry) is considered to define a test action. It will be called
+  metatable entry) is considered to define a test action. It will be called
   with "current arguments" (result of all nested `parametrize` values, read
   further). If it throws error, test has failed.
 - A test set (output of this function) defines nested structure. Its
@@ -783,7 +783,7 @@ Notes:
 - An important type of field is a "redirection table". It acts as a
   convenience wrapper for corresponding `vim.*` table. Can be used both to
   return and set values. Examples:
-    - `child.api.nvim_buf_line_count(0)` will execute
+    - `child.api.nvim_buf_line_count(0)` will act as
       `vim.api.nvim_buf_line_count(0)` inside child process and return its
       output to current process.
     - `child.bo.filetype = 'lua'` will execute `vim.bo.filetype = 'lua'`
@@ -791,7 +791,7 @@ Notes:
   They still have same limitations listed above, so are not perfect. In
   case of a doubt, use `child.lua()`.
 - Almost all methods use |vim.rpcrequest()| (i.e. wait for call to finish and
-  then return value). See for `*_notify` variant to use |vim.rpcnotify()|.
+  then return value). In a `*_notify` variant |vim.rpcnotify()| is used.
 - All fields and methods should be called with `.`, not `:`.
 
 Class ~
@@ -826,7 +826,7 @@ Fields ~
 {ensure_normal_mode} `(function)` Ensure normal mode.
 {get_screenshot} `(function)` Returns table with two "2d arrays" of single
   characters representing what is displayed on screen and how it looks.
-  Has `opts` table argument for optional configuratnion.
+  Has `opts` table argument for optional configuration.
 
 {job} `(table|nil)` Information about current job. If `nil`, child is not running.
 
@@ -932,7 +932,7 @@ Notes:
   in case of more than 94 different ways text is displayed on screen.
 
 Parameters ~
-{opts} `(table|nil)` Options. Possieble fields:
+{opts} `(table|nil)` Options. Possible fields:
   - <redraw> `(boolean)` - whether to call |:redraw| prior to computing
     screenshot. Default: `true`.
 
