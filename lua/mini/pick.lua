@@ -2320,7 +2320,7 @@ H.picker_new_win = function(buf_id, win_config, cwd)
   vim.o.guicursor = 'a:MiniPickCursor'
 
   -- Create window and focus on it
-  local win_id = vim.api.nvim_open_win(buf_id, true, H.picker_compute_win_config(win_config, true))
+  local win_id = vim.api.nvim_open_win(buf_id, true, H.picker_compute_win_config(win_config))
 
   -- Set window-local data
   local opts_scope = { scope = 'local', win = win_id }
@@ -2340,7 +2340,7 @@ H.picker_new_win = function(buf_id, win_config, cwd)
   return win_id
 end
 
-H.picker_compute_win_config = function(win_config, is_for_open)
+H.picker_compute_win_config = function(win_config)
   local has_tabline = vim.o.showtabline == 2 or (vim.o.showtabline == 1 and #vim.api.nvim_list_tabpages() > 1)
   local has_statusline = vim.o.laststatus > 0
   local max_height = vim.o.lines - vim.o.cmdheight - (has_tabline and 1 or 0) - (has_statusline and 1 or 0)
@@ -2356,7 +2356,6 @@ H.picker_compute_win_config = function(win_config, is_for_open)
     row = max_height + (has_tabline and 1 or 0),
     border = winborder == '' and 'single' or nil,
     style = 'minimal',
-    noautocmd = is_for_open,
     -- Use high enough value to be on top of built-in windows (pmenu, etc.)
     zindex = 251,
   }
