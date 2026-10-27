@@ -868,6 +868,31 @@ T['Motion']['works in Operator-pending mode'] = new_set({
   end,
 })
 
+T['Motion']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local lines = { 'aa', ' bb', '  cc', '   dd', '  cc', ' bb', 'aa' }
+
+  -- Normal mode
+  child.validate_mc_edit(lines, { 2, 1 }, { 'Qjlq=', '[i' }, lines, { 2, 1 }, { { 1, 0 } })
+  child.validate_mc_edit(lines, { 2, 1 }, { 'Qjlq=', ']i' }, lines, { 6, 1 }, { { 7, 0 } })
+
+  -- Visual mode
+  local lines_after = { '  cc', ' bb', 'aa' }
+  -- - Extra cursor was deduplicated
+  child.validate_mc_edit(lines, { 2, 1 }, { 'Qjjll', 'v[i', 'd', '.' }, lines_after, { 1, 0 }, {})
+  lines_after = { 'aa', ' bb', '  cc', '  ' }
+  child.validate_mc_edit(lines, { 6, 1 }, { 'Qkkll', 'v]i', 'd', '.' }, lines_after, { 4, 1 }, {})
+
+  -- Operator-pending mode
+  lines_after = { 'dd', '  cc', ' bb', 'aa' }
+  child.validate_mc_edit(lines, { 2, 1 }, { 'Qjjll', 'd[i', '.' }, lines_after, { 1, 0 }, {})
+  lines_after = { 'aa', ' bb', '  cc', 'aa' }
+  child.validate_mc_edit(lines, { 6, 1 }, { 'Qkkll', 'd]i', '.' }, lines_after, { 4, 0 }, {})
+
+  -- TODO: Test `zq` when it works with Lua RHS and/or `<Cmd>...<CR>`
+end
+
 T['Motion']['works with different mappings'] = function()
   reload_module({ mappings = { goto_top = '[I', goto_bottom = ']I' } })
 
@@ -1036,6 +1061,28 @@ T['Textobject']['works in forced Operator-pending mode'] = function()
   validate('dVai', { 'ee' })
   validate('d<C-v>ii', { 'aa', '  ', '    ', 'dd', 'ee' })
   validate('d<C-v>ai', { '', 'bb', 'cc  ', '', 'ee' })
+end
+
+T['Textobject']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  -- Without border
+  local lines_before = { 'aa', ' bb', 'aa', 'cc', '  dd', '  dd', 'cc', 'ee', '  ff', '  ff', 'ee', 'gg', ' hh', 'gg' }
+  local lines_after = { 'aa', 'aa', 'cc', 'cc', 'ee', 'ee', 'gg', 'gg' }
+
+  local keys = { 'Q9G', 'v', 'ii', 'd', 'q=jj', '.' }
+  child.validate_mc_edit(lines_before, { 2, 0 }, keys, lines_after, { 8, 1 }, { { 4, 1 } })
+
+  keys = { 'Q9G', 'd', 'ii', 'q=jj', '.' }
+  child.validate_mc_edit(lines_before, { 2, 0 }, keys, lines_after, { 8, 0 }, { { 4, 0 } })
+
+  -- With border
+  keys = { 'Q9G', 'v', 'ai', 'd', 'q=j', '.' }
+  -- - Extra cursor was deduplicated
+  child.validate_mc_edit(lines_before, { 2, 0 }, keys, { '' }, { 1, 0 }, {})
+
+  keys = { 'Q9G', 'd', 'ai', 'q=j', '.' }
+  child.validate_mc_edit(lines_before, { 2, 0 }, keys, { '' }, { 1, 0 }, {})
 end
 
 T['Textobject']['works with different mappings'] = function()

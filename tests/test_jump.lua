@@ -466,6 +466,47 @@ T['Jumping with f/t/F/T']['allows dot-repeat'] = new_set({
   end,
 })
 
+T['Jumping with f/t/F/T']['works with multicursor'] = new_set({
+  parametrize = { { 'f' }, { 't' }, { 'F' }, { 'T' } },
+}, {
+  test = function(key)
+    if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+    -- Start with two equal lines (with enough targets) to check equal effect
+    local lines = { ' 1e2e3e4e_ ', ' 1e2e3e4e_ ' }
+    local start_col = key == key:lower() and 0 or lines[1]:len()
+
+    -- Normal mode
+    -- - Extra cursor should follow the main cursor
+    local keys = { 'Qjq=', key, 'e' }
+    local col = ({ f = 2, t = 1, F = 8, T = 9 })[key]
+    child.validate_mc_edit(lines, { 1, start_col }, keys, lines, { 2, col }, { { 1, col } })
+
+    -- Visual mode
+    -- TODO: Look into making "semantic Visual dot-repeat" fully work here
+    keys = { 'Qj', 'v', key, 'e', 'd' }
+    local data = ({
+      f = { l = { '2e3e4e_ ', '2e3e4e_ ' }, c = { 2, 0 }, m = { { 1, 0 } } },
+      t = { l = { 'e2e3e4e_ ', 'e2e3e4e_ ' }, c = { 2, 0 }, m = { { 1, 0 } } },
+      F = { l = { ' 1e2e3e4', ' 1e2e3e4' }, c = { 2, 7 }, m = { { 1, 7 } } },
+      T = { l = { ' 1e2e3e4e', ' 1e2e3e4e' }, c = { 2, 8 }, m = { { 1, 8 } } },
+    })[key]
+    child.validate_mc_edit(lines, { 1, start_col }, keys, data.l, data.c, data.m)
+
+    -- Operator-pending
+    keys = { 'Qj', 'd', key, 'e', '.' }
+    data = ({
+      f = { l = { '3e4e_ ', '3e4e_ ' }, c = { 2, 0 }, m = { { 1, 0 } } },
+      t = { l = { 'e3e4e_ ', 'e3e4e_ ' }, c = { 2, 0 }, m = { { 1, 0 } } },
+      F = { l = { ' 1e2e3', ' 1e2e3' }, c = { 2, 5 }, m = { { 1, 5 } } },
+      T = { l = { ' 1e2e3e', ' 1e2e3e' }, c = { 2, 6 }, m = { { 1, 6 } } },
+    })[key]
+    child.validate_mc_edit(lines, { 1, start_col }, keys, data.l, data.c, data.m)
+
+    -- TODO: Test `zq` when it works with Lua RHS and/or `<Cmd>...<CR>`
+  end,
+})
+
 T['Jumping with f/t/F/T']['stops jumping when non-jump movement is done'] = function()
   set_lines({ 'TF', ' 1e2e3e ', 'ft' })
 
@@ -1051,6 +1092,26 @@ T['Repeat jump with ;']['works in Operator-pending mode'] = function()
   type_keys('.')
   eq(get_lines(), { '' })
   eq(get_cursor(), { 1, 0 })
+end
+
+T['Repeat jump with ;']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  -- Start with two equal lines (with enough targets) to check equal effect
+  local lines = { ' 1e2e3e4e_ ', ' 1e2e3e4e_ ' }
+
+  -- Normal mode
+  child.validate_mc_edit(lines, { 1, 0 }, { 'Qjq=', 'f', 'e', ';' }, lines, { 2, 4 }, { { 1, 4 } })
+
+  -- Visual mode
+  local keys = { 'Qjq=', 'f', 'e', 'v', ';', 'd' }
+  child.validate_mc_edit(lines, { 1, 0 }, keys, { ' 13e4e_ ', ' 13e4e_ ' }, { 2, 2 }, { { 1, 2 } })
+
+  -- Operator-pending
+  keys = { 'Qjq=', 'f', 'e', 'd', ';' }
+  child.validate_mc_edit(lines, { 1, 0 }, keys, { ' 13e4e_ ', ' 13e4e_ ' }, { 2, 2 }, { { 1, 2 } })
+
+  -- TODO: Test `zq` when it works with Lua RHS and/or `<Cmd>...<CR>`
 end
 
 T['Repeat jump with ;']['works with different mapping'] = function()

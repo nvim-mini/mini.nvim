@@ -1123,6 +1123,21 @@ T['Mappings']['Toggle']['works in Visual mode'] = function()
   validate_edit({ '(aa)', 'bb' }, { 1, 0 }, 'VjgS', { '(aa)bb' }, { 1, 0 })
 end
 
+T['Mappings']['Toggle']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local lines_before = { '(aa, b)', '[c,d,e]', '{', '\tf', '}', '(', '\tg,', '\th', ')' }
+  local lines_after = { '(', '\taa,', '\tb', ')', '[', '\tc,', '\td,', '\te', ']', '{f}', '(g, h)' }
+  local keys = { 'Qj', 'gS', 'q=9j', '.' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 11, 1 }, { { 10, 0 } })
+
+  lines_before = { '(aa, ")", b)', '[c,"]"]' }
+  lines_after = { '(', '\taa,', '\t")",', '\tb', ')', '[', '\tc,', '\t"]"', ']' }
+  -- TODO: test with . after https://github.com/neovim/neovim/issues/42503 fix
+  keys = { 'Qj', 'V', 'gS' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 6, 0 }, { { 1, 0 } })
+end
+
 T['Mappings']['Toggle']['works with different mapping'] = function()
   child.api.nvim_del_keymap('n', 'gS')
   child.api.nvim_del_keymap('x', 'gS')
@@ -1164,6 +1179,24 @@ T['Mappings']['Split']['works in Visual mode'] = function()
   validate_edit({ '(aa, ")", b)' }, { 1, 0 }, 'VS', { '(', '\taa,', '\t")",', '\tb', ')' }, { 1, 0 })
 end
 
+T['Mappings']['Split']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  reload_module({ mappings = { split = 'S' } })
+
+  local lines_before = { '(aa, b)', '[c,d,e]', '{f}', '(g, h)' }
+  local lines_after =
+    { '(', '\taa,', '\tb', ')', '[', '\tc,', '\td,', '\te', ']', '{', '\tf', '}', '(', '\tg,', '\th', ')' }
+  local keys = { 'Qj', 'S', '3kq=9j', '.' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 13, 0 }, { { 10, 0 } })
+
+  lines_before = { '(aa, ")", b)', '[c,"]"]' }
+  lines_after = { '(', '\taa,', '\t")",', '\tb', ')', '[', '\tc,', '\t"]"', ']' }
+  -- TODO: test with . after https://github.com/neovim/neovim/issues/42503 fix
+  keys = { 'Qj', 'V', 'S' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 6, 0 }, { { 1, 0 } })
+end
+
 T['Mappings']['Split']['respects `vim.{g,b}.minisplitjoin_disable`'] = new_set({
   parametrize = { { 'g' }, { 'b' } },
 }, {
@@ -1195,6 +1228,24 @@ end
 T['Mappings']['Join']['works in Visual mode'] = function()
   reload_module({ mappings = { join = 'J' } })
   validate_edit({ '(aa)', 'bb' }, { 1, 0 }, 'VjJ', { '(aa)bb' }, { 1, 0 })
+end
+
+T['Mappings']['Join']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  reload_module({ mappings = { join = 'J' } })
+
+  local lines_before =
+    { '(', '\taa,', '\tb', ')', '[', '\tc,', '\td,', '\te', ']', '{', '\tf', '}', '(', '\tg,', '\th', ')' }
+  local lines_after = { '(aa, b)', '[c, d, e]', '{f}', '(g, h)' }
+  local keys = { 'Q4j', 'J', 'q=4j', '.' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 4, 0 }, { { 3, 2 } })
+
+  lines_before = { '(aa)', 'bb', '(cc)', 'dd' }
+  lines_after = { '(aa)bb', '(cc)dd' }
+  -- TODO: test with . after https://github.com/neovim/neovim/issues/42503 fix
+  keys = { 'Qjj', 'Vj', 'J' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 2, 0 }, { { 1, 0 } })
 end
 
 T['Mappings']['Join']['respects `vim.{g,b}.minisplitjoin_disable`'] = new_set({

@@ -190,6 +190,50 @@ T['map_multistep()']['works with empty steps'] = function()
   eq(get_lines(), { '\t' })
 end
 
+T['map_multistep()']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  mock_test_steps()
+  child.lua([[
+    _G.steps[3].action = function()
+      return '<Cmd>call  nvim_buf_set_text(0, line(".")-1, col(".")-1, line(".")-1, col(".")-1, [ "33" ])<CR>'
+    end
+    _G.steps[5].action = function()
+      local upvalue = '55'
+      return function()
+        local cur = vim.api.nvim_win_get_cursor(0)
+        vim.api.nvim_buf_set_text(0, cur[1] - 1, cur[2], cur[1] - 1, cur[2], { upvalue })
+      end
+    end
+  ]])
+  child.lua('require("mini.keymap").map_multistep("i", "<Tab>", _G.steps)')
+
+  -- Pass through. Resolved once, not per multicursor.
+  child.validate_mc_edit({ '', '' }, { 1, 0 }, { 'Qj', 'i', '<Tab>' }, { '\t', '\t' }, { 2, 1 }, { { 1, 1 } })
+  validate_log_and_clean({ 'cond 1', 'cond 2', 'cond 3', 'cond 4', 'cond 5' })
+  child.ensure_normal_mode()
+
+  -- Action returning nothing
+  child.lua('_G.step_1_cond = true')
+  child.validate_mc_edit({ '', '' }, { 1, 0 }, { 'Qj', 'i', '<Tab>' }, { '', '' }, { 2, 0 }, { { 1, 0 } })
+  child.lua('_G.step_1_cond = false')
+
+  -- Emulate returned keys
+  child.lua('_G.step_2_cond = true')
+  child.validate_mc_edit({ '', '' }, { 1, 0 }, { 'Qj', 'i', '<Tab>' }, { 'dd', 'dd' }, { 2, 2 }, { { 1, 2 } })
+  child.lua('_G.step_2_cond = false')
+
+  -- `<Cmd>...<CR>` mapping
+  child.lua('_G.step_3_cond = true')
+  child.validate_mc_edit({ '', '' }, { 1, 0 }, { 'Qj', 'i', '<Tab>' }, { '33', '33' }, { 2, 0 }, { { 1, 2 } })
+  child.lua('_G.step_3_cond = false')
+
+  -- Callable
+  child.lua('_G.step_5_cond = true')
+  child.validate_mc_edit({ '', '' }, { 1, 0 }, { 'Qj', 'i', '<Tab>' }, { '55', '55' }, { 2, 0 }, { { 1, 2 } })
+  child.lua('_G.step_5_cond = false')
+end
+
 T['map_multistep()']['respects `opts`'] = function()
   local validate_mapping = function(is_buffer_local, ref_desc)
     local info = child.lua([[
@@ -1477,6 +1521,17 @@ T['map_combo()']['works inside macros'] = function()
   eq(get_lines(), { 'j', 'jj', 'jj' })
   eq(get_cursor(), { child.fn.has('nvim-0.11') == 1 and 3 or 2, 0 })
   eq(child.fn.mode(), 'n')
+end
+
+T['map_combo()']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  map_combo('n', 'hl', '"ap', { delay = test_combo_delay })
+  child.fn.setreg('a', 'x')
+  child.validate_mc_edit({ 'aaa', 'bbb' }, { 1, 1 }, { 'Qjq=', 'h', 'l' }, { 'aaxa', 'bbxb' }, { 2, 2 }, { { 1, 2 } })
+
+  map_combo('i', 'jk', 'll', { delay = test_combo_delay })
+  child.validate_mc_edit({ '', '' }, { 1, 0 }, { 'Qj', 'i', 'j', 'k' }, { 'jkll', 'jkll' }, { 2, 4 }, { { 1, 4 } })
 end
 
 T['map_combo()']['respects `opts.delay`'] = function()

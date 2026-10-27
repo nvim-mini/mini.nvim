@@ -3169,6 +3169,61 @@ T['Reproducing keys']['works for user keymaps in Command-line mode'] = function(
   eq(get_test_map_count('c', ' g'), 1)
 end
 
+T['Reproducing keys']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  child.api.nvim_set_keymap('n', 'gx', 'gU', {})
+  child.api.nvim_set_keymap('i', '<C-r>x', 'aaa', {})
+  child.fn.setreg('a', 'aaa')
+  child.api.nvim_set_keymap('x', 'gx', 'gU', {})
+  child.api.nvim_set_keymap('o', 'if', 'iw', {})
+
+  load_module({
+    triggers = {
+      { mode = 'n', keys = 'g' },
+      { mode = 'i', keys = '<C-r>' },
+      { mode = 'x', keys = 'g' },
+      -- NOTE: has problems when reproducing together with Normal mode trigger.
+      -- Like `gUaw`. This seems to be a general problem with Operator-pending
+      -- mode triggers, although would be good to solve.
+      { mode = 'o', keys = 'i' },
+    },
+  })
+
+  -- Normal mode
+  local before, after = { 'aa bbb cccc', 'ddd eeee fffff' }, { 'AA BBB cccc', 'DDD EEEE fffff' }
+  local keys = { 'Qjq=', 'g', 'U', 'aw', 'w', '.' }
+  child.validate_mc_edit(before, { 1, 0 }, keys, after, { 2, 4 }, { { 1, 3 } })
+  keys = { 'Qjq=', 'g', 'x', 'aw', 'w', '.' }
+  child.validate_mc_edit(before, { 1, 0 }, keys, after, { 2, 4 }, { { 1, 3 } })
+
+  keys = { 'Qjq=', '2', 'g', 'x', 'aw', 'ww', '1', '.' }
+  after = { 'AA BBB CCCC', 'DDD EEEE FFFFF' }
+  child.validate_mc_edit(before, { 1, 0 }, keys, after, { 2, 8 }, { { 1, 6 } })
+
+  -- Insert mode
+  before, after = { '', '' }, { 'aaa', 'aaa' }
+  keys = { 'Qj', 'i', '<C-r>', 'a' }
+  child.validate_mc_edit(before, { 1, 0 }, keys, after, { 2, 3 }, { { 1, 3 } })
+
+  keys = { 'Qj', 'i', '<C-r>', 'x' }
+  child.validate_mc_edit(before, { 1, 0 }, keys, after, { 2, 3 }, { { 1, 3 } })
+
+  -- Visual mode
+  before, after = { 'aa bbb', 'ddd eeee' }, { 'AA BBB', 'DDD EEEE' }
+  keys = { 'Qjq=', 'v', 'aw', 'g', 'U', 'w', '.' }
+  child.validate_mc_edit(before, { 1, 0 }, keys, after, { 2, 3 }, { { 1, 2 } })
+  keys = { 'Qjq=', 'v', 'aw', 'g', 'x', 'w', '.' }
+  child.validate_mc_edit(before, { 1, 0 }, keys, after, { 2, 3 }, { { 1, 2 } })
+
+  -- Operator-pending mode
+  before, after = { 'aa bb cc', 'dd ee ff' }, { '  cc', '  ff' }
+  keys = { 'Qjq=', 'd', 'i', 'w', 'e', '.' }
+  child.validate_mc_edit(before, { 1, 0 }, keys, after, { 2, 1 }, { { 1, 1 } })
+  keys = { 'Qjq=', 'd', 'i', 'f', 'e', '.' }
+  child.validate_mc_edit(before, { 1, 0 }, keys, after, { 2, 1 }, { { 1, 1 } })
+end
+
 T['Reproducing keys']['works for registers'] = function()
   load_module({ triggers = { { mode = 'n', keys = '"' }, { mode = 'x', keys = '"' } } })
   validate_trigger_keymap('n', '"')

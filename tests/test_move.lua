@@ -1378,6 +1378,34 @@ T['Mappings']['left/right']['works linewise'] = function()
   validate_state({ 'aa', 'bb' }, { { 1, 1 }, { 2, 2 } })
 end
 
+T['Mappings']['left/right']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  -- Charwise
+  local lines_before = { 'XXab', 'XXcd' }
+  local lines_after = { 'aXXb', 'cXXd' }
+  local keys = { 'Qj', 'vl', '<M-l>', '<Esc>' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 2, 2 }, { { 1, 2 } })
+  keys = { 'Qj', 'vl', '<M-h>', '<Esc>' }
+  child.validate_mc_edit(lines_after, { 1, 1 }, keys, lines_before, { 2, 1 }, { { 1, 1 } })
+
+  -- Blockwise
+  lines_before = { 'XXab', 'XXcd', 'YYef', 'YYgh' }
+  lines_after = { 'aXXb', 'cXXd', 'eYYf', 'gYYh' }
+  keys = { 'Qjj', '<C-v>jl', '<M-l>', '<Esc>' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 4, 2 }, { { 2, 2 } })
+  keys = { 'Qjj', '<C-v>jl', '<M-h>', '<Esc>' }
+  child.validate_mc_edit(lines_after, { 1, 1 }, keys, lines_before, { 4, 1 }, { { 2, 1 } })
+
+  -- Linewise
+  lines_before = { 'aa', 'bb' }
+  lines_after = { '\taa', '\tbb' }
+  keys = { 'Qj', 'V', '<M-l>', '<Esc>' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 2, 1 }, { { 1, 1 } })
+  keys = { 'Qj', 'V', '<M-h>', '<Esc>' }
+  child.validate_mc_edit(lines_after, { 1, 1 }, keys, lines_before, { 2, 0 }, { { 1, 0 } })
+end
+
 T['Mappings']['down/up'] = new_set()
 
 T['Mappings']['down/up']['works charwise'] = function()
@@ -1455,6 +1483,34 @@ T['Mappings']['down/up']['works linewise'] = function()
   validate_state({ 'XX', 'YY', 'aa', 'bb', 'cc' }, { { 1, 1 }, { 2, 1 } })
 end
 
+T['Mappings']['down/up']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  -- Charwise
+  local lines_before = { 'XXab', 'cd', 'YYef', 'gh' }
+  local lines_after = { 'ab', 'XXcd', 'ef', 'YYgh' }
+  local keys = { 'Qjj', 'vl', '<M-j>', '<Esc>' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 4, 1 }, { { 2, 1 } })
+  keys = { 'Qjj', 'vl', '<M-k>', '<Esc>' }
+  child.validate_mc_edit(lines_after, { 2, 0 }, keys, lines_before, { 3, 1 }, { { 1, 1 } })
+
+  -- Blockwise
+  lines_before = { 'XXab', 'YYcd', '', 'UUef', 'VVgh', '' }
+  lines_after = { 'ab', 'XXcd', 'YY', 'ef', 'UUgh', 'VV' }
+  keys = { 'Qjjj', '<C-v>jl', '<M-j>', '<Esc>' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 6, 1 }, { { 3, 1 } })
+  keys = { 'Qjjj', '<C-v>kl', '<M-k>', '<Esc>' }
+  child.validate_mc_edit(lines_after, { 3, 0 }, keys, lines_before, { 5, 1 }, { { 2, 1 } })
+
+  -- Linewise
+  lines_before = { 'aa', 'bb', 'cc', 'dd' }
+  lines_after = { 'bb', 'aa', 'dd', 'cc' }
+  keys = { 'Qjj', 'V', '<M-j>', '<Esc>' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 4, 0 }, { { 2, 0 } })
+  keys = { 'Qjj', 'V', '<M-k>', '<Esc>' }
+  child.validate_mc_edit(lines_after, { 2, 0 }, keys, lines_before, { 3, 0 }, { { 1, 0 } })
+end
+
 T['Mappings']['line_left/line_right'] = new_set()
 
 T['Mappings']['line_left/line_right']['works'] = function()
@@ -1475,6 +1531,17 @@ T['Mappings']['line_left/line_right']['works'] = function()
   -- Should allow to try impossible dedent without error
   type_keys('2<M-h>')
   validate_line_state({ 'aa' }, { 1, 0 })
+end
+
+T['Mappings']['line_left/line_right']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local lines_before = { 'aa', 'bb', 'cc' }
+  local lines_after = { '\taa', 'bb', '\tcc' }
+  local keys = { 'Qjj', '<M-l>' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 3, 1 }, { { 1, 1 } })
+  keys = { 'Qjj', '<M-h>' }
+  child.validate_mc_edit(lines_after, { 1, 1 }, keys, lines_before, { 3, 0 }, { { 1, 0 } })
 end
 
 T['Mappings']['line_down/line_up'] = new_set()
@@ -1501,6 +1568,18 @@ T['Mappings']['line_down/line_up']['works'] = function()
   -- Should allow overshoot without error
   type_keys('2<M-k>')
   validate_line_state({ 'XX', 'aa', 'bb', 'cc' }, { 1, 1 })
+end
+
+T['Mappings']['line_down/line_up']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  -- Linewise
+  local lines_before = { 'aa', 'bb', 'cc', 'dd' }
+  local lines_after = { 'bb', 'aa', 'dd', 'cc' }
+  local keys = { 'Qjj', '<M-j>' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 4, 0 }, { { 2, 0 } })
+  keys = { 'Qjj', '<M-k>' }
+  child.validate_mc_edit(lines_after, { 2, 0 }, keys, lines_before, { 3, 0 }, { { 1, 0 } })
 end
 
 return T

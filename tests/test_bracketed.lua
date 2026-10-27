@@ -3849,6 +3849,43 @@ T['Mappings']['comment']['works'] = function()
   validate_edit({ '1', '2', '## 3', '4', '## 5' }, { 2, 0 }, 'd]c.', { '1' }, { 1, 0 })
 end
 
+T['Mappings']['comment']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  child.o.commentstring = '## %s'
+  local lines = { '1', '## 2', '3', '## 4', '5', '## 6', '7', '## 8', '9', '## 10', '11' }
+
+  local validate = function(keys, lines_after, cursor_after, multicursor_after)
+    child.validate_mc_edit(lines, { 5, 0 }, { 'Qjjq=', unpack(keys) }, lines_after, cursor_after, multicursor_after)
+  end
+
+  -- Normal mode
+  -- - Extra cursor was deduplicated
+  validate({ '[C' }, lines, { 2, 0 }, {})
+  validate({ '[c' }, lines, { 6, 0 }, { { 4, 0 } })
+  validate({ ']c' }, lines, { 8, 0 }, { { 6, 0 } })
+  validate({ ']C' }, lines, { 10, 0 }, {})
+
+  -- Visual mode
+  local l = lines
+  local lines_after = { l[1], l[8]:sub(2), l[9], l[10], l[11] }
+  validate({ 'v', '[C', 'd' }, lines_after, { 2, 0 }, {})
+  lines_after = { l[1], l[2], l[3], '', '', l[8], l[9], l[10], l[11] }
+  validate({ 'v', '[c', 'd' }, lines_after, { 5, 0 }, { { 4, 0 } })
+  lines_after = { l[1], l[2], l[3], l[4], l[6]:sub(2), l[8]:sub(2), l[9], l[10], l[11] }
+  validate({ 'v', ']c', 'd' }, lines_after, { 6, 0 }, { { 5, 0 } })
+  lines_after = { l[1], l[2], l[3], l[4], l[6]:sub(2), l[10]:sub(2), l[11] }
+  validate({ 'v', ']C', 'd' }, lines_after, { 6, 0 }, { { 5, 0 } })
+
+  -- Operator-pending mode
+  validate({ 'd', '[C', '.' }, { l[1], l[11] }, { 2, 0 }, {})
+  validate({ 'd', '[c', '.' }, { l[1], l[9], l[10], l[11] }, { 2, 0 }, {})
+  validate({ 'd', ']c', '.' }, { l[1], l[2], l[3], l[4], l[11] }, { 5, 0 }, {})
+  validate({ 'd', ']C', '.' }, { l[1], l[2], l[3] }, { 3, 0 }, {})
+
+  -- TODO: Test `zq` when it works with Lua RHS and/or `<Cmd>...<CR>`
+end
+
 T['Mappings']['comment']['allows non-letter suffix'] = function()
   reload_module({ comment = { suffix = ',' } })
 
@@ -3888,6 +3925,43 @@ T['Mappings']['conflict']['works'] = function()
 
   -- - Dot-repeat
   validate_edit({ m[1], '2', m[2], '4', m[3] }, { 1, 0 }, 'd]x.', { '' }, { 1, 0 })
+end
+
+T['Mappings']['conflict']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local m = conflict_marks
+  local lines = { '1', m[1], '3', m[2], '5', m[3], '7', m[3], '9', m[2], '11' }
+
+  local validate = function(keys, lines_after, cursor_after, multicursor_after)
+    child.validate_mc_edit(lines, { 5, 0 }, { 'Qjjq=', unpack(keys) }, lines_after, cursor_after, multicursor_after)
+  end
+
+  -- Normal mode
+  -- - Extra cursor was deduplicated
+  validate({ '[X' }, lines, { 2, 0 }, {})
+  validate({ '[x' }, lines, { 6, 0 }, { { 4, 0 } })
+  validate({ ']x' }, lines, { 8, 0 }, { { 6, 0 } })
+  validate({ ']X' }, lines, { 10, 0 }, {})
+
+  -- Visual mode
+  local l = lines
+  local lines_after = { l[1], l[8]:sub(2), l[9], l[10], l[11] }
+  validate({ 'v', '[X', 'd' }, lines_after, { 2, 0 }, {})
+  lines_after = { l[1], l[2], l[3], '', '', l[8], l[9], l[10], l[11] }
+  validate({ 'v', '[x', 'd' }, lines_after, { 5, 0 }, { { 4, 0 } })
+  lines_after = { l[1], l[2], l[3], l[4], l[6]:sub(2), l[8]:sub(2), l[9], l[10], l[11] }
+  validate({ 'v', ']x', 'd' }, lines_after, { 6, 0 }, { { 5, 0 } })
+  lines_after = { l[1], l[2], l[3], l[4], l[6]:sub(2), l[10]:sub(2), l[11] }
+  validate({ 'v', ']X', 'd' }, lines_after, { 6, 0 }, { { 5, 0 } })
+
+  -- Operator-pending mode
+  validate({ 'd', '[X', '.' }, { l[1], l[11] }, { 2, 0 }, {})
+  validate({ 'd', '[x', '.' }, { l[1], l[9], l[10], l[11] }, { 2, 0 }, {})
+  validate({ 'd', ']x', '.' }, { l[1], l[2], l[3], l[4], l[11] }, { 5, 0 }, {})
+  validate({ 'd', ']X', '.' }, { l[1], l[2], l[3] }, { 3, 0 }, {})
+
+  -- TODO: Test `zq` when it works with Lua RHS and/or `<Cmd>...<CR>`
 end
 
 T['Mappings']['conflict']['allows non-letter suffix'] = function()
@@ -3960,6 +4034,74 @@ T['Mappings']['diagnostic']['works'] = function()
   validate_edit_with_diagnostic(lines, { 1, 2 }, 'd]d.', ref_lines, { 1, 2 })
 end
 
+T['Mappings']['diagnostic']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  child.lua('MiniBracketed.config.diagnostic.options = { severity = { min = vim.diagnostic.severity.HINT } }')
+  local lines = { '1', 'Error 2', '3', 'Error 4', '5', 'Error 6', '7', 'Error 8', '9', 'Error 10', '11' }
+
+  local severity_err = child.lua_get('vim.diagnostic.severity.ERROR')
+
+  --stylua: ignore
+  local diagnostic_arr = {
+    { lnum = 1, end_lnum = 1, col = 0, end_col = 0, message = 'E2',  severity = severity_err },
+    { lnum = 3, end_lnum = 3, col = 0, end_col = 0, message = 'E4',  severity = severity_err },
+    { lnum = 5, end_lnum = 5, col = 0, end_col = 0, message = 'E6',  severity = severity_err },
+    { lnum = 7, end_lnum = 7, col = 0, end_col = 0, message = 'E8',  severity = severity_err },
+    { lnum = 9, end_lnum = 9, col = 0, end_col = 0, message = 'E10', severity = severity_err },
+  }
+  local ns = child.api.nvim_create_namespace('mock-diagnostics')
+
+  local validate = function(keys, lines_after, cursor_after, multicursor_after)
+    child.api.nvim_buf_clear_namespace(0, ns, 0, -1)
+    child.ensure_normal_mode()
+
+    set_lines(lines)
+    child.diagnostic.set(ns, 0, diagnostic_arr, {})
+    set_cursor(5, 0)
+    type_keys('Qjjq=', keys)
+
+    eq(get_lines(), lines_after)
+    eq(get_cursor(), cursor_after)
+    eq(child.get_multicursor(), multicursor_after)
+
+    child.clear_multicursor()
+  end
+
+  -- Normal mode
+  -- - Extra cursor was deduplicated
+  validate({ '[D' }, lines, { 2, 0 }, {})
+  validate({ '[d' }, lines, { 6, 0 }, { { 4, 0 } })
+  validate({ ']d' }, lines, { 8, 0 }, { { 6, 0 } })
+  validate({ ']D' }, lines, { 10, 0 }, {})
+
+  -- Visual mode
+  local l = lines
+  local lines_after = { l[1], l[8]:sub(2), l[9], l[10], l[11] }
+  validate({ 'v', '[D', 'd' }, lines_after, { 2, 0 }, {})
+  lines_after = { l[1], l[2], l[3], '', '', l[8], l[9], l[10], l[11] }
+  validate({ 'v', '[d', 'd' }, lines_after, { 5, 0 }, { { 4, 0 } })
+  lines_after = { l[1], l[2], l[3], l[4], l[6]:sub(2), l[8]:sub(2), l[9], l[10], l[11] }
+  validate({ 'v', ']d', 'd' }, lines_after, { 6, 0 }, { { 5, 0 } })
+  -- NOTE: Edits during cascade affect subsequent jumps
+  -- TODO: Some issues with jump order are manifesting. Deviating from common
+  -- behavior is not a multicursor related issue here.
+  --typos: ignore
+  lines_after = { '1', '', 'Error 6', 'rror 10', '11' }
+  validate({ 'v', ']D', 'd' }, lines_after, { 4, 0 }, { { 2, 0 } })
+
+  -- Operator-pending mode
+  --typos: ignore
+  validate({ 'd', '[D', '.' }, { '1', 'rror 10', '11' }, { 2, 0 }, {})
+  --typos: ignore
+  validate({ 'd', '[d', '.' }, { '1', '', 'rror 8', '9', 'Error 10', '11' }, { 3, 0 }, { { 2, 0 } })
+  --typos: ignore
+  validate({ 'd', ']d', '.' }, { '1', 'ror 6', 'rror 10', '11' }, { 3, 0 }, { { 2, 0 } })
+  validate({ 'd', ']D', '.' }, { '1', '', 'ror 10', '11' }, { 3, 0 }, { { 2, 0 } })
+
+  -- TODO: Test `zq` when it works with Lua RHS and/or `<Cmd>...<CR>`
+end
+
 T['Mappings']['diagnostic']['allows non-letter suffix'] = function()
   reload_module({ diagnostic = { suffix = ',', options = { severity = { min = vim.diagnostic.severity.HINT } } } })
 
@@ -4028,6 +4170,42 @@ T['Mappings']['indent']['works'] = function()
   -- - Final position is {3, 1} and not {3, 1} because it inherited column from
   --   previous state when cursor was on ' 6' line
   validate_edit(lines, { 4, 3 }, 'd]i.', { '1', ' 2', '  3' }, { 3, 1 })
+end
+
+T['Mappings']['indent']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+  local lines = { '1', '2', ' 3', ' 4', '  5', ' 6', '  7', ' 8', ' 9', '10', '11' }
+
+  local validate = function(keys, lines_after, cursor_after, multicursor_after)
+    child.validate_mc_edit(lines, { 5, 0 }, { 'Qjjq=', unpack(keys) }, lines_after, cursor_after, multicursor_after)
+  end
+
+  -- Normal mode
+  -- - Extra cursor was deduplicated
+  validate({ '[I' }, lines, { 2, 0 }, {})
+  validate({ '[i' }, lines, { 6, 1 }, { { 4, 1 } })
+  validate({ ']i' }, lines, { 8, 1 }, { { 6, 1 } })
+  validate({ ']I' }, lines, { 10, 0 }, {})
+
+  -- Visual mode
+  local l = lines
+  -- NOTE: Edits during cascade affect subsequent jumps
+  local lines_after = { '7', ' 8', ' 9', '10', '11' }
+  validate({ 'v', '[I', 'd' }, lines_after, { 1, 0 }, {})
+  lines_after = { '1', '2', ' 3', '  5', '  7', ' 8', ' 9', '10', '11' }
+  validate({ 'v', '[i', 'd' }, lines_after, { 5, 1 }, { { 4, 1 } })
+  lines_after = { '1', '2', ' 3', ' 4', '', '', ' 9', '10', '11' }
+  validate({ 'v', ']i', 'd' }, lines_after, { 6, 0 }, { { 5, 0 } })
+  lines_after = { '1', '2', ' 3', ' 4', '', '11' }
+  validate({ 'v', ']I', 'd' }, lines_after, { 5, 0 }, {})
+
+  -- Operator-pending mode
+  validate({ 'd', '[I', '.' }, { '10', '11' }, { 1, 0 }, {})
+  validate({ 'd', '[i', '.' }, { l[1], l[9], l[10], l[11] }, { 2, 0 }, {})
+  validate({ 'd', ']i', '.' }, { l[1], l[2], l[3], l[4], l[11] }, { 5, 0 }, {})
+  validate({ 'd', ']I', '.' }, { l[1], l[2], l[3] }, { 3, 0 }, {})
+
+  -- TODO: Test `zq` when it works with Lua RHS and/or `<Cmd>...<CR>`
 end
 
 T['Mappings']['indent']['allows non-letter suffix'] = function()
@@ -4228,6 +4406,47 @@ T['Mappings']['treesitter']['works'] = function()
 
   -- - Dot-repeat
   validate_edit(lines, pos, 'd]t.', { '{ r { 1 { 2 {  1 } r }' }, { 1, 14 })
+end
+
+T['Mappings']['treesitter']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  -- Make `vim.treesitter.get_node_at_pos()` return mock of tree-sitter node
+  -- based on balanced `{}`
+  child.cmd('source ' .. make_testpath('mock/treesitter.lua'))
+  local lines = { '{1', '{2', '3', '{4', '5', '}6{', '7', '}8', '9', '}10', '}11' }
+
+  local validate = function(keys, lines_after, cursor_after, multicursor_after)
+    child.validate_mc_edit(lines, { 5, 0 }, { 'Qjjq=', unpack(keys) }, lines_after, cursor_after, multicursor_after)
+  end
+
+  -- Normal mode
+  -- - Extra cursor was deduplicated
+  validate({ '[T' }, lines, { 2, 0 }, {})
+  validate({ '[t' }, lines, { 6, 2 }, { { 4, 0 } })
+  validate({ ']t' }, lines, { 8, 0 }, { { 6, 0 } })
+  validate({ ']T' }, lines, { 10, 0 }, {})
+
+  -- Visual mode
+  -- NOTE: Edits during cascade affect subsequent jumps
+  local l = lines
+  local lines_after = { '{1', '}8', '9', '}10', '}11' }
+  validate({ 'v', '[T', 'd' }, lines_after, { 2, 0 }, {})
+  lines_after = { '{1', '{2', '3', '', '}6', '}8', '9', '}10', '}11' }
+  validate({ 'v', '[t', 'd' }, lines_after, { 5, 1 }, { { 4, 0 } })
+  lines_after = { '{1', '{2', '3', '{4', '6{', '8', '9', '}10', '}11' }
+  validate({ 'v', ']t', 'd' }, lines_after, { 6, 0 }, { { 5, 0 } })
+  lines_after = { '{1', '{2', '3', '{4', '', '}6{', '10', '}11' }
+  validate({ 'v', ']T', 'd' }, lines_after, { 7, 0 }, { { 5, 0 } })
+
+  -- Operator-pending mode
+  -- NOTE: In some cases `.` acts as `dl` if could not find the target.
+  validate({ 'd', '[T', '.' }, { '{1', '', '}8', '9', '}10', '}11' }, { 2, 0 }, {})
+  validate({ 'd', '[t', '.' }, { '{1', '', '}', '}8', '9', '}10', '}11' }, { 3, 0 }, { { 2, 0 } })
+  validate({ 'd', ']t', '.' }, { '{1', '{2', '3', '{4', '{', '10', '}11' }, { 6, 0 }, { { 5, 0 } })
+  validate({ 'd', ']T', '.' }, { '{1', '{2', '3', '{4', '', '}6{', '0', '}11' }, { 7, 0 }, { { 5, 0 } })
+
+  -- TODO: Test `zq` when it works with Lua RHS and/or `<Cmd>...<CR>`
 end
 
 T['Mappings']['treesitter']['allows non-letter suffix'] = function()

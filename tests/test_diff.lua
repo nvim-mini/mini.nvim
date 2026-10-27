@@ -2926,6 +2926,13 @@ T['Operator']['apply']['works in Visual mode'] = function()
   eq(child.fn.mode(), 'n')
 end
 
+T['Operator']['apply']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  -- TODO: this currently doesn't cascade since `apply_hunks` is not a text
+  -- edit or motion to follow. Test later when it is possible to force cascade.
+end
+
 T['Operator']['apply']['works on not proper textobject'] = function()
   set_lines({ 'aaa', 'bbb', 'ccc' })
   set_ref_text(0, { 'aaa', 'ccc' })
@@ -3024,6 +3031,46 @@ T['Operator']['reset']['works in Visual mode'] = function()
   type_keys('vj', 'gH')
   eq(get_lines(), { 'AAA', 'BBB', 'CCC', 'uuu', 'vvv' })
   eq(get_cursor(), { 1, 2 })
+end
+
+T['Operator']['reset']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local lines = { 'uuu', 'aaa', 'vvv', 'bbb', 'xxx', 'yyy' }
+
+  -- Normal mode
+  set_lines(lines)
+  set_ref_text(0, { 'aaa', 'bbb' })
+  set_cursor(1, 0)
+  type_keys('Qjj', 'gH', '_')
+  eq(get_lines(), { 'aaa', 'bbb', 'xxx', 'yyy' })
+  eq(get_cursor(), { 2, 0 })
+  eq(child.get_multicursor(), { { 1, 0 } })
+
+  set_ref_text(0, { 'aaa', 'bbb' })
+  type_keys('q=', 'jj', '.')
+  eq(get_lines(), { 'aaa', 'bbb' })
+  eq(get_cursor(), { 2, 0 })
+  -- - Extra cursor was deduplicated
+  eq(child.get_multicursor(), {})
+
+  child.clear_multicursor()
+
+  -- Visual mode
+  set_lines(lines)
+  set_ref_text(0, { 'aaa', 'bbb' })
+  set_cursor(1, 0)
+  type_keys('QG', 'V', 'gH')
+  eq(get_lines(), { 'aaa', 'vvv', 'bbb', 'xxx' })
+  eq(get_cursor(), { 4, 0 })
+  eq(child.get_multicursor(), { { 1, 0 } })
+
+  set_ref_text(0, { 'aaa', 'bbb' })
+  type_keys('q=', 'kj', '.')
+  eq(get_lines(), { 'aaa', 'bbb' })
+  eq(get_cursor(), { 2, 0 })
+  -- - Extra cursor was deduplicated
+  eq(child.get_multicursor(), {})
 end
 
 T['Operator']['reset']['works on not proper textobject'] = function()
@@ -3131,6 +3178,34 @@ T['Textobject']['allows dot-repeat across buffers'] = function()
   set_cursor(3, 0)
   type_keys('.')
   eq(get_lines(), { 'bbb', 'ccc', 'ddd' })
+end
+
+T['Textobject']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  load_module({ mappings = { textobject = 'GH' } })
+
+  local validate_mode = function(keys)
+    set_lines({ 'uuu', 'aaa', 'vvv', 'www', 'bbb', 'xxx', 'ccc', 'yyy' })
+    set_ref_text(0, { 'aaa', 'bbb', 'ccc' })
+
+    set_cursor(1, 0)
+    type_keys('Q6G', keys)
+    eq(get_lines(), { 'aaa', 'vvv', 'www', 'bbb', 'ccc', 'yyy' })
+    eq(get_cursor(), { 5, 0 })
+    eq(child.get_multicursor(), { { 1, 0 } })
+
+    set_ref_text(0, { 'aaa', 'bbb', 'ccc' })
+    type_keys('q=', 'j', '.')
+    eq(get_lines(), { 'aaa', 'bbb', 'ccc' })
+    eq(get_cursor(), { 3, 0 })
+    eq(child.get_multicursor(), { { 2, 0 } })
+
+    child.clear_multicursor()
+  end
+
+  validate_mode({ 'v', 'GH', 'd' })
+  validate_mode({ 'd', 'GH' })
 end
 
 T['Textobject']['correctly computes contiguous ranges'] = function()
@@ -3282,6 +3357,44 @@ T['Goto']['allows dot-repeat across buffers'] = function()
   set_cursor(2, 0)
   type_keys('.')
   eq(get_lines(), { 'ccc', 'www', 'eee' })
+end
+
+T['Goto']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local lines = { 'uuu', 'aaa', 'vvv', 'bbb', 'www', 'ccc', 'xxx' }
+  local ref_text = { 'aaa', 'bbb', 'ccc' }
+
+  local validate = function(keys, lines_after, cursor_after, multicursor_after)
+    set_lines(lines)
+    set_ref_text(0, ref_text)
+    set_cursor(2, 0)
+    type_keys(keys)
+    eq(get_lines(), lines_after)
+    eq(get_cursor(), cursor_after)
+    eq(child.get_multicursor(), multicursor_after)
+
+    child.clear_multicursor()
+  end
+
+  -- Normal mode
+  -- - When jumping to the same line, extra cursor is deduplicated
+  validate({ 'Qjjq=', '[H' }, lines, { 1, 0 }, {})
+  validate({ 'Qjjq=', '[h' }, lines, { 3, 0 }, { { 1, 0 } })
+  validate({ 'Qjjq=', ']h' }, lines, { 5, 0 }, { { 3, 0 } })
+  validate({ 'Qjjq=', ']H' }, lines, { 7, 0 }, {})
+
+  -- Visual mode
+  -- No `[H` because overlapping selections are not really intended
+  validate({ 'Qjj', 'v', '[h', 'd' }, { 'aa', 'bb', 'www', 'ccc', 'xxx' }, { 2, 0 }, { { 1, 0 } })
+  validate({ 'Qjj', 'v', ']h', 'd' }, { 'uuu', 'vv', 'ww', 'ccc', 'xxx' }, { 3, 0 }, { { 2, 0 } })
+  -- No `]H` because overlapping selections are not really intended
+
+  -- Operator-pending
+  -- No `[H` because overlapping regions are not really intended
+  validate({ 'Qjj', 'd', '[h' }, { 'www', 'ccc', 'xxx' }, { 1, 0 }, {})
+  validate({ 'Qjj', 'd', ']h' }, { 'uuu', 'ccc', 'xxx' }, { 2, 0 }, {})
+  -- No `]H` because overlapping regions are not really intended
 end
 
 T['Goto']['respects [count]'] = function()

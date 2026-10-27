@@ -471,6 +471,21 @@ T['Evaluate']['works in Visual mode'] = function()
   validate_edit({ '1 + 1', '1 + 2' }, { 1, 0 }, { '<C-v>j$', 'g=' }, { '2', '3' }, { 1, 0 })
 end
 
+T['Evaluate']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local lines_before, lines_after = { '1+1 1+2', '2+1 2+2' }, { '2 3', '3 4' }
+  local keys = { 'Qjq=', 'g=', 'iW', 'W', '.' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 2, 2 }, { { 1, 2 } })
+
+  -- TODO: test with . after https://github.com/neovim/neovim/issues/42503 fix
+  -- keys = { 'Qjq=', 'viW', 'g=', 'W', '.' }
+  -- child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 2, 2 }, { { 1, 2 } })
+  lines_after = { '2 1+2', '3 2+2' }
+  keys = { 'Qjq=', 'viW', 'g=' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 2, 0 }, { { 1, 0 } })
+end
+
 T['Evaluate']['works with different `virtualedit`'] = function()
   local validate = function()
     -- Charwise
@@ -1523,6 +1538,26 @@ T['Multiply']['works with `[count]` in Visual mode'] = function()
   validate_edit(lines, { 2, 1 }, { '<C-v>kh', '2gm' }, ref_lines, ref_cursor)
 end
 
+T['Multiply']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local lines_before = { 'aa bbb', 'ccc dddd' }
+  local lines_after = { 'aaaa bbbbbb', 'cccccc dddddddd' }
+  local keys = { 'Qjq=', 'gm', 'iw', 'w', '.' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 2, 11 }, { { 1, 8 } })
+
+  -- TODO: test with . after https://github.com/neovim/neovim/issues/42503 fix
+  -- keys = { 'Qjq=', 'viw', 'gm', 'w', '.' }
+  -- child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 2, 8 }, { { 1, 6 } })
+  keys = { 'Qjq=', 'viw', 'gm' }
+  lines_after = { 'aaaa bbb', 'cccccc dddd' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 2, 3 }, { { 1, 2 } })
+
+  lines_after = { 'aa bbbaa bbbaa bbbaa bbb', 'ccc ddddccc ddddccc ddddccc dddd' }
+  keys = { 'Qjq=', '3gm2aw' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 2, 8 }, { { 1, 6 } })
+end
+
 T['Multiply']['works with newline in region'] = function()
   validate_edit({ 'a(', '  b', ')' }, { 2, 2 }, { 'vk', 'gm' }, { 'a(', '  b', '  b', ')' }, { 2, 2 })
 
@@ -1949,6 +1984,27 @@ T['Replace']['works in Visual mode'] = function()
   validate_edit({ 'a b', 'a b' }, { 1, 0 }, { 'y<C-v>j', 'w', '<C-v>j', 'gr' }, { 'a a', 'a a' }, { 1, 2 })
 end
 
+T['Replace']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local lines_before = { 'aa bbb cccc', 'ddd eeee fffff' }
+  local lines_after = { 'aa aa aa', 'ddd ddd ddd' }
+  local keys = { 'Qjq=', 'yiw', 'w', 'griw', 'w', '.' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 2, 8 }, { { 1, 6 } })
+
+  -- TODO: test with . after https://github.com/neovim/neovim/issues/42503 fix
+  -- keys = { 'Qjq=', 'yiw', 'w', 'viw', 'gr', 'w', '.' }
+  -- child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 2, 8 }, { { 1, 6 } })
+  keys = { 'Qjq=', 'yiw', 'w', 'viw', 'gr' }
+  lines_after = { 'aa aa cccc', 'ddd ddd fffff' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 2, 4 }, { { 1, 3 } })
+
+  lines_before = { 'aa bbb cccc ', 'ddd eeee fffff ' }
+  lines_after = { 'aa aaaaaa', 'ddd ddddddddd' }
+  keys = { 'Qjq=', 'yiw', 'w', '3gr2aw' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 2, 4 }, { { 1, 3 } })
+end
+
 T['Replace']['works with newline in region'] = function()
   validate_edit({ 'a(', '  b', ')' }, { 2, 2 }, { 'vky', 'gvgr' }, { 'a(', '  b', ')' }, { 1, 1 })
 
@@ -2357,6 +2413,22 @@ T['Sort']['works in Visual mode'] = function()
   -- Blockwise region
   validate_edit({ 'cbx', 'bax', 'acx' }, { 1, 1 }, { '<C-v>2j', 'gs' }, { 'cax', 'bbx', 'acx' }, { 1, 1 })
   validate_edit({ 'cxb', 'bxa', 'axc' }, { 1, 1 }, { '<C-v>jl', 'gs' }, { 'cxa', 'bxb', 'axc' }, { 1, 1 })
+end
+
+T['Sort']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local lines_before = { '(b,c,a) (e,d)', '(g,f) (j,h,i)' }
+  local lines_after = { '(a,b,c) (d,e)', '(f,g) (h,i,j)' }
+  local keys = { 'Qjq=', 'gs', 'i)', 'W', '.' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 2, 7 }, { { 1, 9 } })
+
+  -- TODO: test with . after https://github.com/neovim/neovim/issues/42503 fix
+  -- keys = { 'Qjq=', 'vi)', 'gs', 'W', '.' }
+  -- child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 2, 8 }, { { 1, 6 } })
+  lines_after = { '(a,b,c) (e,d)', '(f,g) (j,h,i)' }
+  keys = { 'Qjq=', 'vi)', 'gs' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 2, 1 }, { { 1, 1 } })
 end
 
 T['Sort']['works with different `virtualedit`'] = function()
