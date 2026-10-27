@@ -4679,6 +4679,22 @@ T['File manipulation']['ignores identical user-copied entries'] = function()
   child.expect_screenshot()
 end
 
+T['File manipulation']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local temp_dir = make_temp_dir('temp', { 'dir/', 'file' })
+  open(temp_dir)
+
+  type_keys('<C-v>G', 'Q', 'gU$', 'A', '-2', '<Esc>', 'I', 'new-', '<Esc>')
+  eq(#child.get_multicursor() > 0, true)
+  mock_confirm(1)
+  synchronize()
+
+  validate_tree(temp_dir, { 'new-DIR-2/', 'new-FILE-2' })
+  -- Should clear multicursor as they collapse after setting buffer lines
+  eq(child.get_multicursor(), {})
+end
+
 T['File manipulation']['special cases'] = new_set()
 
 T['File manipulation']['special cases']['freed path'] = new_set()
@@ -5365,9 +5381,40 @@ T['Cursors']['not allowed to the left of the entry name'] = function()
   eq(get_cursor(), cursor)
 
   -- Insert mode
-  type_keys('i')
-  type_keys('<Left>')
+  type_keys('i', '<Left>', '<Esc>')
   eq(get_cursor(), cursor)
+
+  type_keys('<Right>', 'I')
+  eq(get_cursor(), cursor)
+end
+
+T['Cursors']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  open(test_dir_path)
+  type_keys('<C-v>jj', 'Q')
+  eq(child.o.follow, true)
+
+  local validate = function()
+    local cursor = get_cursor()
+    for _, pos in ipairs(child.get_multicursor()) do
+      eq(pos[2], cursor[2])
+    end
+  end
+
+  -- Normal mode
+  type_keys('0')
+  validate()
+
+  set_cursor(get_cursor()[1], 0)
+  validate()
+
+  -- Insert mode
+  type_keys('i', '<Left>', '<Esc>')
+  validate()
+
+  type_keys('<Right>', 'I', 'new', '<Esc>')
+  validate()
 end
 
 T['Cursors']['handle `content.prefix` returning different lengths'] = function()
