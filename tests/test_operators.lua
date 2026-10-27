@@ -637,6 +637,11 @@ end
 
 T['Exchange'] = new_set()
 
+local get_n_exchange_extmarks = function()
+  local ns_id = child.api.nvim_get_namespaces().MiniOperatorsExchange
+  return #child.api.nvim_buf_get_extmarks(0, ns_id, 0, -1, {})
+end
+
 T['Exchange']['works charwise in Normal mode'] = function()
   local keys = { 'gxiw', 'w', 'gxiw' }
   validate_edit1d('a bb', 0, keys, 'bb a', 3)
@@ -861,6 +866,89 @@ T['Exchange']['works in Visual mode'] = function()
   -- Blockwise from - Blockwise to
   validate_edit({ 'ab', 'cd' }, { 1, 0 }, { '<C-v>jgx', 'l', '<C-v>jgx' }, { 'ba', 'dc' }, { 1, 1 })
   validate_edit({ 'ab', 'cd' }, { 1, 1 }, { '<C-v>jgx', 'h', '<C-v>jgx' }, { 'ba', 'dc' }, { 1, 0 })
+end
+
+T['Exchange']['works with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local lines_before = { 'aa bbb', 'ccc dddd', 'eeee fffff' }
+  local lines_after = { 'bbb aa', 'dddd ccc', 'fffff eeee' }
+  local keys = { 'QjQjq=', 'gxiw', 'w', '.' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 3, 6 }, { { 1, 4 }, { 2, 5 } })
+
+  keys = { 'QjQjq=', 'viw', 'gx', 'w', 'viw', 'gx' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 3, 6 }, { { 1, 4 }, { 2, 5 } })
+
+  -- Should work if extra cursors are placed not top-down
+  keys = { 'QkkQjq=', 'gxiw', 'w', '.' }
+  child.validate_mc_edit(lines_before, { 3, 0 }, keys, lines_after, { 2, 5 }, { { 1, 4 }, { 3, 6 } })
+end
+
+T['Exchange']['works with multicursor as part of a mapping'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  local lines_before = { 'aa bbb', 'ccc dddd' }
+  local lines_after = { 'bbb aa', 'dddd ccc' }
+
+  -- Single use in a mapping
+  child.cmd('nmap gl <Cmd>normal gxiw<CR>')
+  local keys = { 'Qjq=', 'gl', 'w', 'gl' }
+  child.validate_mc_edit(lines_before, { 1, 0 }, keys, lines_after, { 2, 5 }, { { 1, 4 } })
+
+  -- Multiple use in a mapping
+  lines_before = { 'aa bbb ccc dddd', 'eee ffff ggggg hhhhhh' }
+  lines_after = { 'bbb aa dddd ccc', 'ffff eee hhhhhh ggggg' }
+  -- - `gxiw` - `w` - `.` - `viwgx` -  `w` - viwgx
+  child.cmd('nmap gh <Cmd>normal gxiww.wviwgxwviwgx<CR>')
+  child.validate_mc_edit(lines_before, { 1, 0 }, { 'Qjq=', 'gh' }, lines_after, { 2, 16 }, { { 1, 12 } })
+end
+
+T['Exchange']['works with multicursor in edge cases'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  child.api.nvim_set_keymap('n', '<C-c>', ':echo 1<CR>', {})
+
+  -- Should handle gracefully different number of extra cursors
+  set_lines({ 'aa bbb', 'ccc dddd', 'eeee fffff' })
+  set_cursor(1, 0)
+  type_keys('QjQj', 'gxiw')
+  eq(#child.get_multicursor(), 2)
+  type_keys('k', '2Q')
+  eq(#child.get_multicursor(), 1)
+  type_keys('q=', 'w', 'gxiw')
+  -- - Main and extra-1 cursors are exchanged
+  eq(get_lines(), { 'bbb aa', 'ccc eeee', 'dddd fffff' })
+  -- - While region for extra-2 is still there
+  eq(get_n_exchange_extmarks(), 1)
+  type_keys('<C-c>')
+  eq(get_n_exchange_extmarks(), 0)
+
+  eq(child.fn.maparg('<C-c>'), ':echo 1<CR>')
+end
+
+T['Exchange']['has no side effects with multicursor'] = function()
+  if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+
+  child.api.nvim_set_keymap('n', '<C-c>', ':echo 1<CR>', {})
+  set_lines({ 'aa bbb', 'ccc dddd' })
+  set_cursor(1, 0)
+
+  child.bo.modified = false
+  type_keys('Qj', 'gxiw')
+  eq(child.bo.modified, false)
+
+  type_keys('w', 'gxiw')
+  eq(child.fn.maparg('<C-c>'), ':echo 1<CR>')
+  child.clear_multicursor()
+
+  -- Force stop should remove everything exchange related
+  child.api.nvim_set_keymap('n', '<C-c>', ':echo 1<CR>', {})
+  set_lines({ 'aa bbb', 'ccc dddd' })
+  set_cursor(1, 0)
+  type_keys('Qj', 'gxiw')
+  eq(get_n_exchange_extmarks(), 2)
+  type_keys('<C-c>')
+  eq(get_n_exchange_extmarks(), 0)
 end
 
 T['Exchange']['works with newline in region'] = function()

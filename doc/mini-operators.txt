@@ -313,7 +313,14 @@ Has two-step logic:
   "yank both regions" and replace each one with another.
 
 Notes:
-- Use `<C-c>` to stop exchanging after the first step.
+- Use <C-c> to stop exchanging.
+
+- Works with |multicursor| for each cursor in parallel: extra cursors perform
+  the same step (first or second) as the main cursor.
+  There are limitations: requires the same number and "order" of extra cursors
+  for first and second steps. Behavior if this is not the case is undefined.
+  Usually works for common situations like `gxiw` - `w` - `.` (exchange two
+  nearby words), both as manual separate steps and as part of a mapping.
 
 - Exchanged regions can have different (char,line,block)-wise submodes.
 
