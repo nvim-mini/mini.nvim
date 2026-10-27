@@ -364,16 +364,16 @@ MiniOperators.exchange = function(mode)
   end
 
   -- Depending on present cache data, perform exchange step
-  if not H.exchange_has_step_one() then
+  if H.exchange_is_step_one() then
     -- Store data about first region
-    H.cache.exchange.step_one = H.exchange_set_region_extmark(mode, true)
+    H.exchange_set_region_extmark('step_one', mode, true)
     if H.cache.exchange.step_one == nil then return end
 
     -- Temporarily remap `<C-c>` to stop the exchange
     H.exchange_set_stop_mapping()
   else
     -- Store data about second region
-    H.cache.exchange.step_two = H.exchange_set_region_extmark(mode, false)
+    H.exchange_set_region_extmark('step_two', mode, false)
     if H.cache.exchange.step_two == nil then return end
 
     -- Do exchange
@@ -845,18 +845,12 @@ H.exchange_do = function()
   vim.fn.setreg('b', reg_two)
 end
 
-H.exchange_has_step_one = function()
-  local step_one = H.cache.exchange.step_one
-  if type(step_one) ~= 'table' then return false end
-
-  if not vim.api.nvim_buf_is_valid(step_one.buf_id) then
-    H.exchange_stop()
-    return false
-  end
-  return true
+H.exchange_is_step_one = function()
+  if not H.is_valid_buf((H.cache.exchange.step_one or {}).buf_id) then H.exchange_stop() end
+  return H.cache.exchange.step_one == nil
 end
 
-H.exchange_set_region_extmark = function(mode, add_highlight)
+H.exchange_set_region_extmark = function(cache_name, mode, add_highlight)
   local ns_id = H.ns_id.exchange
 
   -- Compute regular marks for target region
@@ -901,8 +895,11 @@ H.exchange_set_region_extmark = function(mode, add_highlight)
     H.highlight_range(buf_id, ns_id, 'MiniOperatorsExchangeFrom', extmark_from, extmark_to, opts)
   end
 
-  -- Return data to cache
-  return { buf_id = buf_id, mode = mode, submode = submode, extmark_id = region_extmark_id }
+  -- Cache data to reuse later
+  local cache = H.cache.exchange[cache_name]
+  cache = type(cache) == 'table' and cache or { buf_id = buf_id, mode = mode, submode = submode }
+  cache.extmark_id = region_extmark_id
+  H.cache.exchange[cache_name] = cache
 end
 
 H.exchange_get_region_extmark = function(step)
@@ -1275,6 +1272,8 @@ H.get_submode = function(mode)
   if mode == 'visual' then return H.is_visual_mode() and vim.fn.mode() or vim.fn.visualmode() end
   return H.submode_keys[mode]
 end
+
+H.is_valid_buf = function(buf_id) return type(buf_id) == 'number' and vim.api.nvim_buf_is_valid(buf_id) end
 
 H.is_visual_mode = function()
   local cur_mode = vim.fn.mode()
