@@ -17,8 +17,7 @@
 --- - Provides both mappings and Lua functions for motions. See
 ---   |MiniMove.move_selection()| and |MiniMove.move_line()|.
 ---
---- - Respects |v:count|. Movement mappings can be preceded by a number which
----   multiplies command effect.
+--- - Supports |multicursor| and |[count]|.
 ---
 --- - All consecutive moves (regardless of direction) can be undone by a single |u|.
 ---

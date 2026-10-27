@@ -37,7 +37,7 @@ https://github.com/nvim-mini/mini.nvim/assets/24854248/8a3656c4-c92a-4d9f-9711-8
 
 - Automated configurable mappings to operate on textobject, line, selection. Can be disabled in favor of more control with `MiniOperators.make_mappings()`.
 
-- All operators support `[count]` and dot-repeat.
+- All operators support dot-repeat, multicursor, and `[count]`.
 
 For more information see theses parts of help:
 - `:h MiniOperators-overview`

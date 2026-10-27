@@ -33,7 +33,7 @@ https://github.com/user-attachments/assets/e91b6e16-7a9c-44aa-afb4-7e07efc3e811
 
 ## Features
 
-- Actions (text editing actions are dot-repeatable out of the box and respect `[count]`) with configurable mappings:
+- Actions (out of the box support for dot-repeat, multicursor, and `[count]`) with configurable mappings:
     - Add surrounding with `sa` (in visual mode or on motion).
     - Delete surrounding with `sd`.
     - Replace surrounding with `sr`.

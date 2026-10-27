@@ -15,7 +15,7 @@ Features:
 - Automated configurable mappings to operate on textobject, line, selection.
   Can be disabled in favor of more control with |MiniOperators.make_mappings()|.
 
-- All operators support |[count]| and dot-repeat.
+- All operators support dot-repeat, |multicursor|, and |[count]|.
 
 See |MiniOperators-overview| and |MiniOperators.config| for more details.
 

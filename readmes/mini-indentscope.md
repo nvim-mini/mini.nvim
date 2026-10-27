@@ -35,7 +35,7 @@ https://user-images.githubusercontent.com/24854248/173044654-f5f0b928-6bd9-4064-
 - Customization of scope computation options can be done on global level (in `MiniIndentscope.config`), for a certain buffer (using `vim.b.miniindentscope_config` buffer variable), or within a call (using `opts` variable in `MiniIndentscope.get_scope()`).
 - Customizable notion of a border: which adjacent lines with strictly lower indent are recognized as such. This is useful for a certain filetypes (for example, Python or plain text).
 - Customizable way of line to be considered "border first". This is useful if you want to place cursor on function header and get scope of its body.
-- There are textobjects and motions to operate on scope. Support `v:count` and dot-repeat (in operator pending mode).
+- There are textobjects and motions to operate on scope. Support dot-repeat (in Operator-pending mode), multicursor, and `[count]`.
 
 ## Installation
 

@@ -24,8 +24,8 @@
 --- - Customizable way of line to be considered "border first". This is useful
 ---   if you want to place cursor on function header and get scope of its body.
 ---
---- - There are textobjects and motions to operate on scope. Support |count|
----   and dot-repeat (in operator pending mode).
+--- - There are textobjects and motions to operate on scope. Support dot-repeat
+---   (in Operator-pending mode), |multicursor|, and |[count]|.
 ---
 --- # Setup ~
 ---

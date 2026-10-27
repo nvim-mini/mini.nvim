@@ -3,7 +3,7 @@
 --- MIT License Copyright (c) 2021 Evgeni Chasnovski
 
 --- Features:
---- - Commenting in Normal mode respects |count| and is dot-repeatable.
+--- - Commenting in Normal mode supports dot-repeat, |multicursor|, and |[count]|.
 ---
 --- - Comment structure by default is inferred from |'commentstring'|: either
 ---   from current buffer or from locally active tree-sitter language.

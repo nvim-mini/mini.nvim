@@ -16,7 +16,7 @@ Features:
     - Join - make all arguments be on single line.
       See |MiniSplitjoin.join()|.
 
-- Mappings are dot-repeatable in Normal mode and work in Visual mode.
+- Mappings support dot-repeat and |multicursor|. Also work in Visual mode.
 
 - Customizable argument detection (see |MiniSplitjoin.config.detect|):
     - Which brackets can contain arguments.

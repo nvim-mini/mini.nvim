@@ -7,9 +7,10 @@
 --- user to create their own.
 ---
 --- Features:
---- - Customizable creation of `a`/`i` textobjects using Lua patterns and functions.
+--- - Customizable creation of `a` / `i` textobjects using Lua patterns and functions.
 ---   Supports:
 ---     - Dot-repeat.
+---     - |multicursor|.
 ---     - |v:count|.
 ---     - Different search methods (see |MiniAi.config|).
 ---     - Consecutive application (update selection without leaving Visual mode).

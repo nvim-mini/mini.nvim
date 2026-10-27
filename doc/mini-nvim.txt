@@ -158,7 +158,7 @@ This includes |dot-repeat|, |macro|, and |multicursor| (on Neovim>=0.13).
   `va"`). It enhances some builtin |text-objects| (like |a(|, |a)|, |a'|,
   and more), creates new ones (like `a*`, `a<Space>`, `af`, `a?`, and
   more), and allows user to create their own (like based on treesitter, and
-  more). Supports dot-repeat, `v:count`, different search methods,
+  more). Supports dot-repeat, |multicursor|, |[count]|, different search methods,
   consecutive application, and customization via Lua patterns or functions.
   Has builtins for brackets, quotes, function call, argument, tag, user
   prompt, and any punctuation/digit/whitespace character.
@@ -166,7 +166,8 @@ This includes |dot-repeat|, |macro|, and |multicursor| (on Neovim>=0.13).
 - |mini.align| - align text interactively (with or without instant preview).
   Allows rich and flexible customization of both alignment rules and user
   interaction. Works with charwise, linewise, and blockwise selections in
-  both Normal mode (on textobject/motion; with dot-repeat) and Visual mode.
+  both Normal mode (on textobject/motion; with dot-repeat and |multicursor|)
+  and Visual mode.
 
 - |mini.animate| - animate common Neovim actions. Has "works out of the box"
   builtin animations for cursor movement, scroll, resize, window open and
@@ -293,7 +294,7 @@ This includes |dot-repeat|, |macro|, and |multicursor| (on Neovim>=0.13).
 
 - |mini.operators| - various text edit operators: replace, exchange,
   multiply, sort, evaluate. Creates mappings to operate on textobject,
-  line, and visual selection. Supports |[count]| and dot-repeat.
+  line, and visual selection. Supports dot-repeat, |multicursor|, and |[count]|.
 
 - |mini.pairs| - autopairs plugin which has minimal defaults and
   functionality to do per-key expression mappings.
@@ -333,7 +334,7 @@ This includes |dot-repeat|, |macro|, and |multicursor| (on Neovim>=0.13).
 
 - |mini.surround| - fast and feature-rich surround plugin. Add, delete,
   replace, find, highlight surrounding (like pair of parenthesis, quotes,
-  etc.). Supports dot-repeat, `v:count`, different search methods,
+  etc.). Supports dot-repeat, |multicursor|, |[count]|, different search methods,
   "last"/"next" extended mappings, customization via Lua patterns or
   functions, and more. Has builtins for brackets, function call, tag, user
   prompt, and any alphanumeric/punctuation/whitespace character.

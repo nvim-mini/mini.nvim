@@ -4,7 +4,7 @@
 
 --- Rich and flexible customization of both alignment rules and user interaction.
 --- Works with charwise, linewise, and blockwise selections in both Normal mode
---- (on textobject/motion; with dot-repeat) and Visual mode.
+--- (on textobject/motion; with dot-repeat and |multicursor|) and Visual mode.
 ---
 --- Features:
 --- - Alignment is done in three main steps:
