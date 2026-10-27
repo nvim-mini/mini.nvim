@@ -228,6 +228,10 @@ Each module upon release is considered to be relatively stable: both in terms of
 
 Including functionality which needs several filetype/language specific implementations is an explicit no-goal of this project. This is mostly due to the potential increase in maintenance to keep implementation up to date. However, any part which might need filetype/language specific tuning should be designed to allow it by letting user set proper buffer options and/or local configuration.
 
+### Text edit repeat
+
+All text edit mappings (like for operators, textobjects, motions) created by modules support built-in repeat functionality if technically possible. This includes dot-repeat, macros, and Neovim>=0.13 multicursor.
+
 ## Plugin color schemes
 
 This plugin comes with several color schemes (all have both dark and light variants). Activate any of them as a regular `colorscheme` (like `:colorscheme minischeme` or `vim.cmd.colorscheme('minischeme')`).

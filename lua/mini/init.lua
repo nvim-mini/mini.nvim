@@ -143,6 +143,11 @@
 --- However, any part which might need filetype/language specific tuning should
 --- be designed to allow it by letting user set proper buffer options and/or
 --- local configuration.
+---
+--- Text edit repeat ~
+--- All text edit mappings (like for operators, textobjects, motions) created
+--- by modules support built-in repeat functionality if technically possible.
+--- This includes |dot-repeat|, |macro|, and |multicursor| (on Neovim>=0.13).
 ---@tag mini.nvim-general-principles
 
 --- - |mini.ai| - extend and create `a`/`i` textobjects (like in `di(` or
