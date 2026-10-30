@@ -18,7 +18,7 @@ Features:
 
   Each mapping supports |[count]|. Mappings are created in Normal mode; for
   targets which move cursor in current buffer also Visual and Operator-pending
-  (with dot-repeat and |multicursor|) modes are supported.
+  (with dot-repeat and |multicursor|) modes are usually supported.
 
   Using `lower-suffix` and `upper-suffix` (lower and upper case suffix) for
   a single target the following mappings are created:
@@ -31,20 +31,21 @@ Features:
   function):
 
   `Target`                           `Mappings`         `Lua function`
-  Buffer ......................... `[B` `[b` `]b` `]B` .... |MiniBracketed.buffer()|
-  Comment block .................. `[C` `[c` `]c` `]C` .... |MiniBracketed.comment()|
-  Conflict marker ................ `[X` `[x` `]x` `]X` .... |MiniBracketed.conflict()|
-  Diagnostic ..................... `[D` `[d` `]d` `]D` .... |MiniBracketed.diagnostic()|
-  File on disk ................... `[F` `[f` `]f` `]F` .... |MiniBracketed.file()|
-  Indent change .................. `[I` `[i` `]i` `]I` .... |MiniBracketed.indent()|
-  Jump inside current buffer ..... `[J` `[j` `]j` `]J` .... |MiniBracketed.jump()|
-  Location from |location-list| .... `[L` `[l` `]l` `]L` .... |MiniBracketed.location()|
-  Old files ...................... `[O` `[o` `]o` `]O` .... |MiniBracketed.oldfile()|
-  Quickfix entry from |Quickfix| ... `[Q` `[q` `]q` `]Q` .... |MiniBracketed.quickfix()|
-  Tree-sitter node and parents ... `[T` `[t` `]t` `]T` .... |MiniBracketed.treesitter()|
-  Undo from linear history ....... `[U` `[u` `]u` `]U` .... |MiniBracketed.undo()|
-  Window in current tab .......... `[W` `[w` `]w` `]W` .... |MiniBracketed.window()|
-  Yank entry over put region ..... `[Y` `[y` `]y` `]Y` .... |MiniBracketed.yank()|
+  Buffer ......................... `[B` `[b` `]b` `]B` ... |MiniBracketed.buffer()|
+  Comment block .................. `[C` `[c` `]c` `]C` ... |MiniBracketed.comment()|
+  Conflict marker ................ `[X` `[x` `]x` `]X` ... |MiniBracketed.conflict()|
+  Diagnostic ..................... `[D` `[d` `]d` `]D` ... |MiniBracketed.diagnostic()|
+  File on disk ................... `[F` `[f` `]f` `]F` ... |MiniBracketed.file()|
+  Indent change .................. `[I` `[i` `]i` `]I` ... |MiniBracketed.indent()|
+  Jump inside current buffer ..... `[J` `[j` `]j` `]J` ... |MiniBracketed.jump()|
+  Location from |location-list| .... `[L` `[l` `]l` `]L` ... |MiniBracketed.location()|
+  Multicursor .................... `[M` `[m` `]m` `]M` ... |MiniBracketed.multicursor()|
+  Old files ...................... `[O` `[o` `]o` `]O` ... |MiniBracketed.oldfile()|
+  Quickfix entry from |Quickfix| ... `[Q` `[q` `]q` `]Q` ... |MiniBracketed.quickfix()|
+  Tree-sitter node and parents ... `[T` `[t` `]t` `]T` ... |MiniBracketed.treesitter()|
+  Undo from linear history ....... `[U` `[u` `]u` `]U` ... |MiniBracketed.undo()|
+  Window in current tab .......... `[W` `[w` `]w` `]W` ... |MiniBracketed.window()|
+  Yank entry over put region ..... `[Y` `[y` `]y` `]Y` ... |MiniBracketed.yank()|
 
 Notes:
 - The `undo` target remaps |u| and |CTRL-R| keys to register undo state
@@ -118,20 +119,21 @@ Defaults ~
     --
     -- See `:h MiniBracketed.config` for more info.
 
-    buffer     = { suffix = 'b', options = {} },
-    comment    = { suffix = 'c', options = {} },
-    conflict   = { suffix = 'x', options = {} },
-    diagnostic = { suffix = 'd', options = {} },
-    file       = { suffix = 'f', options = {} },
-    indent     = { suffix = 'i', options = {} },
-    jump       = { suffix = 'j', options = {} },
-    location   = { suffix = 'l', options = {} },
-    oldfile    = { suffix = 'o', options = {} },
-    quickfix   = { suffix = 'q', options = {} },
-    treesitter = { suffix = 't', options = {} },
-    undo       = { suffix = 'u', options = {} },
-    window     = { suffix = 'w', options = {} },
-    yank       = { suffix = 'y', options = {} },
+    buffer      = { suffix = 'b', options = {} },
+    comment     = { suffix = 'c', options = {} },
+    conflict    = { suffix = 'x', options = {} },
+    diagnostic  = { suffix = 'd', options = {} },
+    file        = { suffix = 'f', options = {} },
+    indent      = { suffix = 'i', options = {} },
+    jump        = { suffix = 'j', options = {} },
+    location    = { suffix = 'l', options = {} },
+    multicursor = { suffix = 'm', options = {} },
+    oldfile     = { suffix = 'o', options = {} },
+    quickfix    = { suffix = 'q', options = {} },
+    treesitter  = { suffix = 't', options = {} },
+    undo        = { suffix = 'u', options = {} },
+    window      = { suffix = 'w', options = {} },
+    yank        = { suffix = 'y', options = {} },
   }
 <
 Options ~
@@ -355,6 +357,31 @@ Parameters ~
 {opts} `(table|nil)` Options. A table with fields:
   - <n_times> `(number)` - Number of times to advance. Default: |v:count1|.
   - <wrap> `(boolean)` - Whether to wrap around edges. Default: `true`.
+
+------------------------------------------------------------------------------
+                                                   *MiniBracketed.multicursor()*
+                `MiniBracketed.multicursor`({direction}, {opts})
+Multicursor
+
+Go to next/previous extra cursor of |multicursor|.
+
+Direction "forward" increases line number, "backward" - decreases.
+
+Notes:
+- In follow mode (|'follow'| enabled, like after |q=|) extra cursors rotate while
+  preserving their total number:
+  - If initial position is not extra cursor: add extra cursor at it and remove
+    one from target.
+  - If initial position is extra cursor: only move main cursor.
+- |'follow'| is temporarily disabled during jump.
+
+Parameters ~
+{direction} `(string)` One of "first", "backward", "forward", "last".
+{opts} `(table|nil)` Options. A table with fields:
+  - <n_times> `(number)` - Number of times to advance. Default: |v:count1|.
+  - <wrap> `(boolean)` - Whether to wrap around edges. Default: `true`.
+  - <add_to_jumplist> (`boolean`) - Whether to add current position to jumplist.
+    Default: `false`.
 
 ------------------------------------------------------------------------------
                                                        *MiniBracketed.oldfile()*

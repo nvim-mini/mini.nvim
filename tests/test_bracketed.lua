@@ -1947,6 +1947,246 @@ T['location()']['respects `vim.b.minibracketed_config`'] = function()
   eq(get_cursor(), cur_pos)
 end
 
+T['multicursor()'] = new_set({
+  hooks = {
+    pre_case = function()
+      if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+    end,
+  },
+})
+
+local setup_multicursor = function(positions, lines)
+  set_lines(lines or { 'aaaaa', 'bbbbb', 'ccccc' })
+  child.clear_multicursor()
+
+  for _, pos in ipairs(positions) do
+    set_cursor(unpack(pos))
+    type_keys('1Q')
+  end
+end
+
+local validate_multicursor = function(pos_start, direction, pos_ref, multicursor_ref, opts)
+  local ref_follow = child.bo.follow
+  child.bo.follow = false
+  set_cursor(unpack(pos_start))
+  child.bo.follow = ref_follow
+
+  child.lua('MiniBracketed.multicursor(...)', { direction, opts })
+  eq(get_cursor(), pos_ref)
+  eq(child.get_multicursor(), multicursor_ref)
+
+  -- Should preserve follow mode
+  eq(child.bo.follow, ref_follow)
+end
+
+T['multicursor()']['works'] = function()
+  local all = { { 1, 1 }, { 1, 3 }, { 2, 0 } }
+  setup_multicursor(all)
+  local n = #all
+
+  -- Jumping from extra cursor
+  for i = 1, n do
+    validate_multicursor(all[i], 'forward', all[i % n + 1], all)
+    validate_multicursor(all[i], 'backward', all[(i - 2) % n + 1], all)
+    validate_multicursor(all[i], 'first', all[1], all)
+    validate_multicursor(all[i], 'last', all[n], all)
+  end
+
+  -- Jumping between extra cursor
+  local validate_between = function(pos, forward_id, backward_id)
+    validate_multicursor(pos, 'forward', all[forward_id], all)
+    validate_multicursor(pos, 'backward', all[backward_id], all)
+  end
+  validate_between({ 1, 0 }, 1, 3)
+  validate_between({ 1, 2 }, 2, 1)
+  validate_between({ 1, 4 }, 3, 2)
+  validate_between({ 2, 1 }, 1, 3)
+
+  -- One extra cursor
+  all = { { 2, 0 } }
+  setup_multicursor(all)
+  local validate_single = function(pos_start)
+    validate_multicursor(pos_start, 'forward', all[1], all)
+    validate_multicursor(pos_start, 'backward', all[1], all)
+    validate_multicursor(pos_start, 'first', all[1], all)
+    validate_multicursor(pos_start, 'last', all[1], all)
+  end
+  validate_single({ 1, 2 })
+  validate_single({ 2, 0 })
+  validate_single({ 2, 1 })
+
+  -- No extra cursors
+  child.clear_multicursor()
+  validate_multicursor({ 1, 1 }, 'forward', { 1, 1 }, {})
+  validate_multicursor({ 1, 1 }, 'backward', { 1, 1 }, {})
+  validate_multicursor({ 1, 1 }, 'first', { 1, 1 }, {})
+  validate_multicursor({ 1, 1 }, 'last', { 1, 1 }, {})
+end
+
+T['multicursor()']['rotates extra cursors in follow mode'] = function()
+  local all = { { 1, 1 }, { 1, 3 }, { 2, 0 } }
+  local n = #all
+
+  local validate = function(pos_start, direction, pos_ref, multicursor_ref)
+    setup_multicursor(all)
+    child.bo.follow = true
+    validate_multicursor(pos_start, direction, pos_ref, multicursor_ref)
+  end
+
+  -- Jumping from extra cursor is the same as without follow mode
+  for i = 1, 3 do
+    validate(all[i], 'forward', all[i % n + 1], all)
+    validate(all[i], 'backward', all[(i - 2) % n + 1], all)
+    validate(all[i], 'first', all[1], all)
+    validate(all[i], 'last', all[n], all)
+  end
+
+  -- Jumping from between cursors should rotate
+  validate({ 1, 0 }, 'forward', all[1], { { 1, 0 }, { 1, 3 }, { 2, 0 } })
+  validate({ 1, 2 }, 'forward', all[2], { { 1, 1 }, { 1, 2 }, { 2, 0 } })
+  validate({ 1, 4 }, 'forward', all[3], { { 1, 1 }, { 1, 3 }, { 1, 4 } })
+  validate({ 2, 1 }, 'forward', all[1], { { 1, 3 }, { 2, 0 }, { 2, 1 } })
+
+  validate({ 1, 0 }, 'backward', all[3], { { 1, 0 }, { 1, 1 }, { 1, 3 } })
+  validate({ 1, 2 }, 'backward', all[1], { { 1, 2 }, { 1, 3 }, { 2, 0 } })
+  validate({ 1, 4 }, 'backward', all[2], { { 1, 1 }, { 1, 4 }, { 2, 0 } })
+  validate({ 2, 1 }, 'backward', all[3], { { 1, 1 }, { 1, 3 }, { 2, 1 } })
+
+  validate({ 1, 0 }, 'first', all[1], { { 1, 0 }, { 1, 3 }, { 2, 0 } })
+  validate({ 1, 2 }, 'first', all[1], { { 1, 2 }, { 1, 3 }, { 2, 0 } })
+  validate({ 1, 4 }, 'first', all[1], { { 1, 3 }, { 1, 4 }, { 2, 0 } })
+  validate({ 2, 1 }, 'first', all[1], { { 1, 3 }, { 2, 0 }, { 2, 1 } })
+
+  validate({ 1, 0 }, 'last', all[n], { { 1, 0 }, { 1, 1 }, { 1, 3 } })
+  validate({ 1, 2 }, 'last', all[n], { { 1, 1 }, { 1, 2 }, { 1, 3 } })
+  validate({ 1, 4 }, 'last', all[n], { { 1, 1 }, { 1, 3 }, { 1, 4 } })
+  validate({ 2, 1 }, 'last', all[n], { { 1, 1 }, { 1, 3 }, { 2, 1 } })
+
+  -- One extra cursor
+  all = { { 2, 0 } }
+  local validate_single = function(pos_start)
+    validate(pos_start, 'forward', all[1], { pos_start })
+    validate(pos_start, 'backward', all[1], { pos_start })
+    validate(pos_start, 'first', all[1], { pos_start })
+    validate(pos_start, 'last', all[1], { pos_start })
+  end
+  validate_single({ 1, 2 })
+  validate_single({ 2, 0 })
+  validate_single({ 2, 1 })
+end
+
+T['multicursor()']['opens just enough folds'] = function()
+  setup_multicursor({ { 2, 1 }, { 5, 1 } }, { 'aa', 'bb', 'cc', 'dd', 'ee', 'ff' })
+
+  child.cmd('2,3 fold')
+  eq({ child.fn.foldclosed(2), child.fn.foldclosed(3) }, { 2, 2 })
+  child.cmd('5,6 fold')
+  eq({ child.fn.foldclosed(5), child.fn.foldclosed(6) }, { 5, 5 })
+
+  set_cursor(1, 0)
+  forward('multicursor')
+  eq(get_cursor(), { 2, 1 })
+
+  eq({ child.fn.foldclosed(2), child.fn.foldclosed(3) }, { -1, -1 })
+  eq({ child.fn.foldclosed(5), child.fn.foldclosed(6) }, { 5, 5 })
+end
+
+T['multicursor()']['validates `direction`'] = function()
+  expect.error(function() child.lua('MiniBracketed.multicursor(1)') end, 'multicursor%(%).*direction.*one of')
+  expect.error(function() child.lua('MiniBracketed.multicursor("next")') end, 'multicursor%(%).*direction.*one of')
+end
+
+T['multicursor()']['respects `opts.add_to_jumplist`'] = function()
+  setup_multicursor({ { 1, 1 }, { 2, 0 } })
+
+  set_cursor(1, 2)
+  child.lua('MiniBracketed.multicursor("forward", { add_to_jumplist = true })')
+  eq(get_cursor(), { 2, 0 })
+  type_keys('<C-o>')
+  eq(get_cursor(), { 1, 2 })
+
+  set_cursor(1, 2)
+  child.lua('MiniBracketed.multicursor("backward", { add_to_jumplist = true })')
+  eq(get_cursor(), { 1, 1 })
+  type_keys('``')
+  eq(get_cursor(), { 1, 2 })
+end
+
+T['multicursor()']['respects `opts.n_times`'] = function()
+  local all = { { 1, 1 }, { 1, 3 }, { 2, 0 }, { 2, 1 } }
+  setup_multicursor(all)
+  local n = #all
+
+  -- Jumping from extra cursor
+  for i = 1, n do
+    validate_multicursor(all[i], 'forward', all[(i + 1) % n + 1], all, { n_times = 2 })
+    validate_multicursor(all[i], 'backward', all[(i - 3) % n + 1], all, { n_times = 2 })
+    validate_multicursor(all[i], 'first', all[2], all, { n_times = 2 })
+    validate_multicursor(all[i], 'last', all[n - 1], all, { n_times = 2 })
+  end
+
+  -- Jumping between extra cursor
+  local validate_between = function(pos, forward_id, backward_id, first_id, last_id)
+    validate_multicursor(pos, 'forward', all[forward_id], all, { n_times = 2 })
+    validate_multicursor(pos, 'backward', all[backward_id], all, { n_times = 2 })
+    validate_multicursor(pos, 'first', all[first_id], all, { n_times = 2 })
+    validate_multicursor(pos, 'last', all[last_id], all, { n_times = 2 })
+  end
+  validate_between({ 1, 0 }, 2, 3, 2, 3)
+  validate_between({ 1, 2 }, 3, 4, 2, 3)
+  validate_between({ 1, 4 }, 4, 1, 2, 3)
+  validate_between({ 2, 2 }, 2, 3, 2, 3)
+end
+
+T['multicursor()']['respects `opts.wrap`'] = function()
+  local all = { { 1, 1 }, { 2, 0 } }
+  setup_multicursor(all)
+
+  -- Forward
+  validate_multicursor({ 2, 1 }, 'forward', { 2, 1 }, all, { wrap = false })
+  validate_multicursor({ 2, 0 }, 'forward', { 2, 0 }, all, { wrap = false })
+  validate_multicursor({ 1, 3 }, 'forward', { 2, 0 }, all, { n_times = 1000, wrap = false })
+
+  -- Backward
+  validate_multicursor({ 1, 0 }, 'backward', { 1, 0 }, all, { wrap = false })
+  validate_multicursor({ 1, 1 }, 'backward', { 1, 1 }, all, { wrap = false })
+  validate_multicursor({ 1, 3 }, 'backward', { 1, 1 }, all, { n_times = 1000, wrap = false })
+
+  -- First
+  validate_multicursor({ 1, 0 }, 'first', { 2, 0 }, all, { n_times = 1000, wrap = false })
+  validate_multicursor({ 1, 1 }, 'first', { 2, 0 }, all, { n_times = 1000, wrap = false })
+  validate_multicursor({ 1, 3 }, 'first', { 2, 0 }, all, { n_times = 1000, wrap = false })
+  validate_multicursor({ 2, 0 }, 'first', { 2, 0 }, all, { n_times = 1000, wrap = false })
+  validate_multicursor({ 2, 1 }, 'first', { 2, 0 }, all, { n_times = 1000, wrap = false })
+
+  -- Backward
+  validate_multicursor({ 1, 0 }, 'last', { 1, 1 }, all, { n_times = 1000, wrap = false })
+  validate_multicursor({ 1, 1 }, 'last', { 1, 1 }, all, { n_times = 1000, wrap = false })
+  validate_multicursor({ 1, 3 }, 'last', { 1, 1 }, all, { n_times = 1000, wrap = false })
+  validate_multicursor({ 2, 0 }, 'last', { 1, 1 }, all, { n_times = 1000, wrap = false })
+  validate_multicursor({ 2, 1 }, 'last', { 1, 1 }, all, { n_times = 1000, wrap = false })
+end
+
+T['multicursor()']['respects `vim.{g,b}.minibracketed_disable`'] = new_set({
+  parametrize = { { 'g' }, { 'b' } },
+}, {
+  test = function(var_type)
+    setup_multicursor({ { 1, 1 }, { 2, 0 } })
+    set_cursor(1, 0)
+
+    child[var_type].minibracketed_disable = true
+    forward('multicursor')
+    eq(get_cursor(), { 1, 0 })
+  end,
+})
+
+T['multicursor()']['respects `vim.b.minibracketed_config`'] = function()
+  local all = { { 1, 1 }, { 2, 0 } }
+  setup_multicursor(all)
+  child.b.minibracketed_config = { multicursor = { options = { wrap = false } } }
+  validate_multicursor({ 2, 0 }, 'forward', { 2, 0 }, all)
+end
+
 T['oldfile()'] = new_set()
 
 local setup_oldfile = function()
@@ -4312,6 +4552,40 @@ T['Mappings']['location']['allows non-letter suffix'] = function()
   -- Only backward/forward should be mapped
   validate_map_location(1, '[,', n)
   validate_map_location(1, '],', 2)
+end
+
+T['Mappings']['multicursor'] = new_set({
+  hooks = {
+    pre_case = function()
+      if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
+    end,
+  },
+})
+
+T['Mappings']['multicursor']['works'] = function()
+  set_lines({ 'aaa', 'bbb' })
+  local all = { { 1, 1 }, { 1, 3 }, { 2, 0 } }
+  setup_multicursor(all)
+
+  -- Normal mode
+  validate_move({ 1, 0 }, '[M', { 1, 1 })
+  validate_move({ 1, 2 }, '2[m', { 2, 0 })
+  validate_move({ 1, 3 }, ']m', { 2, 0 })
+  validate_move({ 2, 1 }, '2]M', { 1, 3 })
+end
+
+T['Mappings']['multicursor']['allows non-letter suffix'] = function()
+  reload_module({ multicursor = { suffix = ',' } })
+
+  set_lines({ 'aaa', 'bbb' })
+  local all = { { 1, 1 }, { 1, 3 }, { 2, 0 } }
+  setup_multicursor(all)
+
+  -- Only backward/forward should be mapped
+  validate_move({ 1, 1 }, '[,', { 2, 0 })
+  eq(child.get_multicursor(), all)
+  validate_move({ 1, 1 }, '],', { 1, 3 })
+  eq(child.get_multicursor(), all)
 end
 
 T['Mappings']['oldfile'] = new_set()
