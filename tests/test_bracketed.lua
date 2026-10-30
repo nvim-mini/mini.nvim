@@ -1110,17 +1110,23 @@ T['diagnostic()']['opens floating window'] = function()
 end
 
 T['diagnostic()']['respects `diagnostic.config().jump.on_jump`'] = function()
-  if child.fn.has('nvim-0.12') == 0 then MiniTest.skip('Diagnostic `on_jump` is present on Neovim>=0.12') end
+  if child.fn.has('nvim-0.12') == 0 then MiniTest.skip('Diagnostic `on_jump` is present in Neovim>=0.12') end
 
   child.lua([[
     _G.count = 0
-    local on_jump = function() _G.count = _G.count + 1 end
+    local on_jump = function(...) _G.args = { ... }; _G.count = _G.count + 1 end
     vim.diagnostic.config({ jump = { on_jump = on_jump }})
   ]])
   setup_diagnostic()
   set_cursor(1, 2)
   diagnostic('forward')
   eq(child.lua_get('_G.count'), 1)
+  eq(get_cursor(), { 1, 6 })
+
+  local args = child.lua_get('_G.args')
+  eq(#args, 2)
+  eq({ args[1].lnum, args[1].col }, { 0, 6 })
+  eq(args[2], child.api.nvim_get_current_buf())
 end
 
 T['diagnostic()']['validates `direction`'] = function()
@@ -4323,21 +4329,18 @@ T['Mappings']['diagnostic']['works with multicursor'] = function()
   validate({ 'v', '[d', 'd' }, lines_after, { 5, 0 }, { { 4, 0 } })
   lines_after = { l[1], l[2], l[3], l[4], l[6]:sub(2), l[8]:sub(2), l[9], l[10], l[11] }
   validate({ 'v', ']d', 'd' }, lines_after, { 6, 0 }, { { 5, 0 } })
-  -- NOTE: Edits during cascade affect subsequent jumps
-  -- TODO: Some issues with jump order are manifesting. Deviating from common
-  -- behavior is not a multicursor related issue here.
   --typos: ignore
-  lines_after = { '1', '', 'Error 6', 'rror 10', '11' }
-  validate({ 'v', ']D', 'd' }, lines_after, { 4, 0 }, { { 2, 0 } })
+  lines_after = { l[1], l[2], l[3], l[4], l[6]:sub(2), l[10]:sub(2), l[11] }
+  validate({ 'v', ']D', 'd' }, lines_after, { 6, 0 }, { { 5, 0 } })
 
   -- Operator-pending mode
   --typos: ignore
   validate({ 'd', '[D', '.' }, { '1', 'rror 10', '11' }, { 2, 0 }, {})
   --typos: ignore
-  validate({ 'd', '[d', '.' }, { '1', '', 'rror 8', '9', 'Error 10', '11' }, { 3, 0 }, { { 2, 0 } })
+  validate({ 'd', '[d', '.' }, { '1', 'rror 10', '11' }, { 2, 0 }, {})
   --typos: ignore
   validate({ 'd', ']d', '.' }, { '1', 'ror 6', 'rror 10', '11' }, { 3, 0 }, { { 2, 0 } })
-  validate({ 'd', ']D', '.' }, { '1', '', 'ror 10', '11' }, { 3, 0 }, { { 2, 0 } })
+  validate({ 'd', ']D', '.' }, { '1', 'or 10', '11' }, { 2, 0 }, {})
 
   -- TODO: Test `zq` when it works with Lua RHS and/or `<Cmd>...<CR>`
 end

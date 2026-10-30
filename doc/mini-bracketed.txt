@@ -260,6 +260,7 @@ consistent with other methods of the module.
 Direction "forward" increases line number, "backward" - decreases.
 
 Notes:
+- Respects `on_jump` from |vim.diagnostic.JumpOpts|.
 - Using `severity` option, this target can be used in mappings like "go to
   next/previous error" (), etc. Using code similar to this: >lua
 
