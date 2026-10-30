@@ -399,6 +399,7 @@ end
 --- Direction "forward" increases line number, "backward" - decreases.
 ---
 --- Notes:
+--- - Respects `on_jump` from |vim.diagnostic.JumpOpts|.
 --- - Using `severity` option, this target can be used in mappings like "go to
 ---   next/previous error" (), etc. Using code similar to this: >lua
 ---
@@ -422,43 +423,26 @@ MiniBracketed.diagnostic = function(direction, opts)
   if vim.is_callable(default_opts.float) then default_opts.float = default_opts.float(nil, buf_id) end
   opts = vim.tbl_extend('force', default_opts, H.get_config().diagnostic.options, opts or {})
 
-  -- Define iterator that traverses all diagnostic entries in current buffer
-  local to_cursor_pos = function(pos) return { pos[1] + 1, pos[2] } end
-  local pos_field = vim.fn.has('nvim-0.11') == 1 and 'pos' or 'cursor_position'
-  local iterator = {}
-
-  iterator.next = function(position)
-    local next_opts = { [pos_field] = to_cursor_pos(position), severity = opts.severity, wrap = false }
-    local next = vim.diagnostic.get_next(next_opts)
-    if next == nil then return end
-    return { next.lnum, next.col }
+  local pos_arr = {}
+  for _, d in ipairs(vim.diagnostic.get(0, { severity = opts.severity })) do
+    local pos = H.diagnostic_get_pos(d)
+    if pos ~= nil and not H.is_pos_same(pos_arr[#pos_arr] or {}, pos) then table.insert(pos_arr, pos) end
   end
 
-  iterator.prev = function(position)
-    local prev_opts = { [pos_field] = to_cursor_pos(position), severity = opts.severity, wrap = false }
-    local prev = vim.diagnostic.get_prev(prev_opts)
-    if prev == nil then return end
-    return { prev.lnum, prev.col }
-  end
-
-  -- - Define states with zero-based indexing as used in `vim.diagnostic`.
-  -- - Go outside of proper buffer position for `start_edge` and `end_edge` to
-  --   correctly spot diagnostic entry right and start and end of buffer.
-  local cursor_pos = vim.api.nvim_win_get_cursor(0)
-  iterator.state = { cursor_pos[1] - 1, cursor_pos[2] }
-
-  iterator.start_edge = { 0, -1 }
-
-  local last_line = vim.api.nvim_buf_line_count(0)
-  iterator.end_edge = { last_line - 1, vim.fn.col({ last_line, '$' }) - 1 }
+  local pos_init = vim.api.nvim_win_get_cursor(0)
+  local iterator = H.make_bufpos_iterator(pos_arr, pos_init, direction, opts)
+  if iterator == nil then return end
 
   -- Iterate
-  local res_pos = MiniBracketed.advance(iterator, direction, opts)
-  if res_pos == nil or res_pos == iterator.state then return end
+  local res_pos_id = MiniBracketed.advance(iterator, direction, opts)
+  local target = pos_arr[res_pos_id]
+  if target == nil or H.is_pos_same(pos_init, target) then return end
 
-  -- Apply. Use built-in jump with offsetted cursor position to make it respect
-  -- `vim.diagnostic.config()`.
-  H.diagnostic_jump({ res_pos[1] + 1, res_pos[2] - 1 }, opts.float, opts.severity)
+  -- Apply similarly to `vim.diagnostic.jump()`
+  H.add_to_jumplist()
+  H.set_cursor(target[1], target[2])
+  vim.cmd('normal! zv')
+  H.diagnostic_on_jump(target[3], opts.float)
 end
 
 --- File on disk
@@ -1707,25 +1691,28 @@ H.is_conflict_mark = function(line_num)
 end
 
 -- Diagnostic -----------------------------------------------------------------
-H.diagnostic_jump = function(pos, float, severity)
-  local on_jump = nil
-  if vim.diagnostic.config().jump.on_jump == nil and float ~= false then
+H.diagnostic_get_pos = function(d)
+  -- Try using "logical position" from tracking extmark. Useful after text edit
+  -- before diagnostic provider update. This is like `vim.diagnostic.jump()`.
+  local ok_ns, ns_data = pcall(vim.diagnostic.get_namespace, d.namespace)
+  if not ok_ns then return { d.lnum + 1, d.col } end
+  local ns_id = ns_data.user_data.location_ns
+  local ok_extmark, extmark = pcall(vim.api.nvim_buf_get_extmark_by_id, 0, ns_id, d._extmark_id, { details = true })
+  if ok_extmark then return (not extmark[3].invalid) and { extmark[1] + 1, extmark[2], d } or nil end
+  return { d.lnum + 1, d.col, d }
+end
+
+H.diagnostic_on_jump = function(diag, float)
+  local on_jump = (vim.diagnostic.config().jump or {}).on_jump
+  if on_jump == nil then
+    if float == false then return end
     float = type(float) == 'table' and float or {}
     on_jump = function(_, bufnr)
-      local default_opts = { bufnr = bufnr, scope = 'cursor', focus = false }
-      vim.diagnostic.open_float(vim.tbl_extend('force', default_opts, float))
+      local default_float_opts = { bufnr = bufnr, scope = 'cursor', focus = false }
+      vim.diagnostic.open_float(vim.tbl_extend('force', default_float_opts, float))
     end
   end
-  vim.diagnostic.jump({ count = 1, pos = pos, on_jump = on_jump, severity = severity })
-end
-if vim.fn.has('nvim-0.12') == 0 and vim.fn.has('nvim-0.11') == 1 then
-  H.diagnostic_jump = function(pos, float, severity)
-    vim.diagnostic.jump({ count = 1, pos = pos, float = float, severity = severity })
-  end
-elseif vim.fn.has('nvim-0.11') == 0 then
-  H.diagnostic_jump = function(pos, float, severity)
-    vim.diagnostic.goto_next({ cursor_position = pos, float = float, severity = severity })
-  end
+  vim.schedule(function() on_jump(diag, vim.api.nvim_get_current_buf()) end)
 end
 
 -- Files ----------------------------------------------------------------------
