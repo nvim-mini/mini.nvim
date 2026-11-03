@@ -155,7 +155,7 @@ end
 
 T['log_add()'] = new_set()
 
-local validate_log = function(ref_log)
+local validate_misc_log = function(ref_log)
   local log = child.lua_get('MiniMisc.log_get()')
   eq(#log, #ref_log)
 
@@ -188,7 +188,7 @@ T['log_add()']['works'] = function()
     MiniMisc.log_add(nil, 'no desc')
   ]])
 
-  validate_log({
+  validate_misc_log({
     { desc = 'before', state = { a = 1 } },
     { desc = 'before nodeepcopy', state = { a = 2 } },
     { desc = 'after', state = { a = 2 } },
@@ -346,7 +346,7 @@ T['log_clear()']['works'] = function()
     return MiniMisc.log_get()
   ]])
 
-  validate_log({ { desc = 'after clear', state = 3 } })
+  validate_misc_log({ { desc = 'after clear', state = 3 } })
   -- Should restart start value for timestamps
   eq(log[1].timestamp < small_time, true)
 
@@ -1200,7 +1200,7 @@ T['setup_termbg_sync()']['handles different color formats'] = function()
     child.lua('require("mini.misc").setup_termbg_sync()')
     child.api.nvim_exec_autocmds('TermResponse', { data = '\027]11;' .. term_response_color })
 
-    -- Should properly parse initial background and use it to reset on exit
+    -- Should reset on exit
     child.lua('_G.log = {}')
     child.api.nvim_exec_autocmds('VimLeavePre', {})
     eq(child.lua_get('_G.log'), { { '\027]111\027\\' } })
@@ -1210,17 +1210,17 @@ T['setup_termbg_sync()']['handles different color formats'] = function()
     child.api.nvim_create_augroup('MiniMiscTermbgSync', { clear = true })
   end
 
-  validate('rgb:1234/5678/9abc', '#12569a')
-  validate('rgb:213/546/879', '#215487')
-  validate('rgb:31/75/b9', '#3175b9')
-  validate('rgb:4/8/c', '#4488cc')
-  validate('rgb:1/23/456', '#112345')
+  validate('rgb:1234/5678/9abc')
+  validate('rgb:213/546/879')
+  validate('rgb:31/75/b9')
+  validate('rgb:4/8/c')
+  validate('rgb:1/23/456')
 
-  validate('rgba:1234/5678/9abc/1234', '#12569a')
-  validate('rgba:213/546/879/1234', '#215487')
-  validate('rgba:31/75/b9/1234', '#3175b9')
-  validate('rgba:4/8/c/1234', '#4488cc')
-  validate('rgba:1/23/456/1234', '#112345')
+  validate('rgba:1234/5678/9abc/1234')
+  validate('rgba:213/546/879/1234')
+  validate('rgba:31/75/b9/1234')
+  validate('rgba:4/8/c/1234')
+  validate('rgba:1/23/456/1234')
 end
 
 T['setup_termbg_sync()']['handles transparent `Normal` background'] = function()

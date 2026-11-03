@@ -4704,7 +4704,6 @@ T['Mappings']['treesitter']['works with multicursor'] = function()
 
   -- Visual mode
   -- NOTE: Edits during cascade affect subsequent jumps
-  local l = lines
   local lines_after = { '{1', '}8', '9', '}10', '}11' }
   validate({ 'v', '[T', 'd' }, lines_after, { 2, 0 }, {})
   lines_after = { '{1', '{2', '3', '', '}6', '}8', '9', '}10', '}11' }

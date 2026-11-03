@@ -9,7 +9,6 @@ local load_module = function(config) child.mini_load('splitjoin', config) end
 local unload_module = function() child.mini_unload('splitjoin') end
 local reload_module = function(config) child.mini_reload('splitjoin', config) end
 local set_cursor = function(...) return child.set_cursor(...) end
-local get_cursor = function(...) return child.get_cursor(...) end
 local set_lines = function(...) return child.set_lines(...) end
 local get_lines = function(...) return child.get_lines(...) end
 local type_keys = function(...) return child.type_keys(...) end

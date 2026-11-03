@@ -1857,7 +1857,9 @@ T['Clues']['are properly sorted'] = function()
     '<Space>0',     '<Space>9',     '<Space>a', '<Space>A', '<Space>x', '<Space>X',
     '<Space><C-a>', '<Space><C-x>', '<Space>:', '<Space>/'
   }
-  vim.tbl_map(function(lhs) make_test_map('n', lhs) end, lhs_arr)
+  for _, lhs in ipairs(lhs_arr) do
+    make_test_map('n', lhs)
+  end
 
   load_module({ triggers = { { mode = 'n', keys = '<Space>' } }, window = { delay = 0 } })
 

@@ -4434,8 +4434,6 @@ end
 
 T['set_picker_items()'] = new_set()
 
-local set_picker_items = forward_lua('MiniPick.set_picker_items')
-
 T['set_picker_items()']['works'] = function()
   start_with_items()
   set_picker_items({ 'a', 'b' })
@@ -5045,8 +5043,6 @@ T['set_picker_query()']['validates arguments'] = function()
 end
 
 T['get_querytick()'] = new_set()
-
-local get_querytick = forward_lua('MiniPick.get_querytick')
 
 T['get_querytick()']['works'] = function()
   local init_querytick = get_querytick()
@@ -5839,7 +5835,7 @@ T['Preview']['uses dedicated highlight groups'] = function()
   start_with_items(items, 'My name')
 
   type_keys('<Tab>')
-  validate_preview_extmark(3, nil, nil)
+  validate_preview_extmark(3, nil)
 
   type_keys('<C-n>')
   validate_preview_extmark(4, 4)

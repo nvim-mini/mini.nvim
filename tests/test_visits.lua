@@ -523,7 +523,7 @@ local remove_path = forward_lua('MiniVisits.remove_path')
 T['remove_path()']['works'] = function()
   -- Should not check if arguments represent present paths on disk
   local dir_full = full_path('dir')
-  local file_full, file_2_full = full_path('file'), full_path('file-2')
+  local file_full = full_path('file')
 
   add_path('file', 'dir')
   eq(get_index(), { [dir_full] = { [file_full] = { count = 0, latest = 0 } } })
@@ -2100,7 +2100,7 @@ T['gen_normalize']['default()']['respects `opts.prune_threshold`'] = function()
 end
 
 T['gen_normalize']['default()']['respects `opts.prune_paths`'] = function()
-  local path, path_2 = make_testpath('file'), make_testpath('dir_1', 'file_1-1')
+  local path = make_testpath('file')
   local cwd, cwd_2 = getcwd(), test_dir_absolute
 
   local index = {

@@ -31,6 +31,7 @@ local get_current_all_cases = function()
   res = vim.tbl_map(function(case)
     case.hooks.pre = vim.tbl_map(loadstring, case.hooks.pre)
     case.hooks.post = vim.tbl_map(loadstring, case.hooks.post)
+    ---@diagnostic disable-next-line: param-type-mismatch
     case.test = loadstring(case.test)
     return case
   end, res)
@@ -193,31 +194,29 @@ T['case helpers'] = new_set()
 T['case helpers']['work'] = function()
   local res = testrun_ref_file('testref_case-helpers.lua')
 
+  local validate = function(name, state, notes)
+    ---@diagnostic disable-next-line: undefined-field
+    eq(res[name].exec.state, state)
+    ---@diagnostic disable-next-line: undefined-field
+    eq(res[name].exec.notes, notes)
+  end
+
   -- `finally()`
-  eq(res['finally() with error; check'].exec.state, 'Pass')
-  eq(res['finally() no error; check'].exec.state, 'Pass')
+  validate('finally() with error; check', 'Pass', {})
+  validate('finally() no error; check', 'Pass', {})
   eq(child.lua_get('_G.finally_log'), { 'one', 'two' })
 
   -- `skip()`
-  eq(res['skip(); no message'].exec.state, 'Pass with notes')
-  eq(res['skip(); no message'].exec.notes, { 'Skip test' })
+  validate('skip(); no message', 'Pass with notes', { 'Skip test' })
+  validate('skip(); with message', 'Pass with notes', { 'This is a custom skip message' })
+  validate('skip() can be called from helper', 'Pass with notes', { 'Skip from helper' })
+  validate('skip one', 'Pass with notes', { 'Should skip case' })
+  validate('skip two', 'Pass with notes', { 'Should skip case' })
 
-  eq(res['skip(); with message'].exec.state, 'Pass with notes')
-  eq(res['skip(); with message'].exec.notes, { 'This is a custom skip message' })
-
-  eq(res['skip() can be called from helper'].exec.notes, { 'Skip from helper' })
-
-  eq(res['skip one'].exec.state, 'Pass with notes')
-  eq(res['skip one'].exec.notes, { 'Should skip case' })
-  eq(res['skip two'].exec.state, 'Pass with notes')
-  eq(res['skip two'].exec.notes, { 'Should skip case' })
-
-  eq(res['skip() in other hooks'].exec.state, 'Fail')
-  eq(res['skip() in other hooks'].exec.notes, {})
+  validate('skip() in other hooks', 'Fail', {})
 
   -- `add_note()`
-  eq(res['add_note() case'].exec.state, 'Pass with notes')
-  eq(res['add_note() case'].exec.notes, { 'pre_once', 'pre_case', 'test case', 'post_case', 'post_once' })
+  validate('add_note() case', 'Pass with notes', { 'pre_once', 'pre_case', 'test case', 'post_case', 'post_once' })
 end
 
 T['run()'] = new_set()
@@ -454,6 +453,7 @@ T['run_at_location()']['works with non-default input'] = new_set({ parametrize =
 
     local all_cases = get_current_all_cases()
     eq(#all_cases, 1)
+    ---@diagnostic disable-next-line: undefined-field
     eq(all_cases[1].desc, { path, 'run_at_location()' })
   end,
 })
@@ -466,6 +466,7 @@ T['run_at_location()']['uses cursor position by default'] = function()
 
   local all_cases = get_current_all_cases()
   eq(#all_cases, 1)
+  ---@diagnostic disable-next-line: undefined-field
   local desc = all_cases[1].desc
   eq(desc[1]:gsub('\\', '/'), path)
   eq(desc[2], 'run_at_location()')

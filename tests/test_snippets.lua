@@ -85,7 +85,6 @@ local get_au_log = function() return child.lua_get('_G.au_log') end
 local clean_au_log = function() return child.lua('_G.au_log = {}') end
 
 local get_snippet_body = function(session) return (session or get()).insert_args.snippet.body end
-local make_snippet_body = function(body) return { insert_args = { snippet = body } } end
 
 local make_get_extmark = function(session)
   local buf_id, ns_id = session.buf_id, session.ns_id

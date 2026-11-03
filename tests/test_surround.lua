@@ -64,7 +64,6 @@ local validate_miniinput = function(prompt, scope, input)
 end
 
 -- Time constants
-local default_highlight_duraion = 500
 local reminder_delay = 1000
 local small_time = helpers.get_time_const(10)
 
@@ -2691,7 +2690,7 @@ T['Builtin']['User prompt']['does not work in some cases'] = function()
 
   -- It does not work sometimes in presence of many identical valid parts
   -- (basically because it is a `%(.-%)` and not `%(.*%)`).
-  local keys = { 'sr', '?', '(<CR>', ')<CR>', '>' }
+  keys = { 'sr', '?', '(<CR>', ')<CR>', '>' }
   validate_edit({ '((()))' }, { 1, 3 }, keys, { '((<>))' }, { 1, 3 })
   validate_edit({ '((()))' }, { 1, 4 }, keys, { '((()))' }, { 1, 4 })
   validate_edit({ '((()))' }, { 1, 5 }, keys, { '((()))' }, { 1, 5 })

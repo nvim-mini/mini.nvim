@@ -6,7 +6,6 @@ local new_set = MiniTest.new_set
 
 -- Helpers with child processes
 local load_module = function(config) child.mini_load('hues', config) end
-local unload_module = function() child.mini_unload('hues') end
 local reload_module = function(config) child.mini_reload('hues', config) end
 
 local validate_hl_group = function(group_name, target)

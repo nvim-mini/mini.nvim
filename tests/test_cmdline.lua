@@ -30,6 +30,7 @@ local slice_keys = function(keys)
 end
 
 local type_every_key = function(...)
+  ---@diagnostic disable-next-line: undefined-field
   local wait, keys = nil, vim.iter({ ... }):flatten(math.huge):totable()
   if type(keys[1]) == 'number' then
     wait, keys = keys[1], vim.list_slice(keys, 2)

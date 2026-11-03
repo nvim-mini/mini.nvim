@@ -50,7 +50,6 @@ local example_lines_nested = { 'aa', ' aa', '  aa', '   aa', '   aa', '   aa', '
 local default_draw_delay = 100
 local default_animation_step = 20
 local small_time = helpers.get_time_const(10)
-local micro_time = 1
 
 -- Output test set ============================================================
 local T = new_set({

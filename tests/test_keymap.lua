@@ -1,12 +1,11 @@
 local helpers = dofile('tests/helpers.lua')
 
 local child = helpers.new_child_neovim()
-local expect, eq, no_eq = helpers.expect, helpers.expect.equality, helpers.expect.no_equality
+local expect, eq = helpers.expect, helpers.expect.equality
 local new_set = MiniTest.new_set
 
 -- Helpers with child processes
 local load_module = function(config) child.mini_load('keymap', config) end
-local unload_module = function() child.mini_unload('keymap') end
 local set_cursor = function(...) return child.set_cursor(...) end
 local get_cursor = function(...) return child.get_cursor(...) end
 local set_lines = function(...) return child.set_lines(...) end
@@ -22,7 +21,7 @@ local test_dir = 'tests/dir-keymap'
 -- Common test wrappers
 local mock_plugin = function(name) child.cmd('noautocmd set rtp+=tests/dir-keymap/mock-plugins/' .. name) end
 
-local mock_test_steps = function(method_name)
+local mock_test_steps = function()
   child.lua([[
     -- Action returns nothing
     _G.step_1 = {

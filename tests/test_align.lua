@@ -1317,7 +1317,7 @@ T['Align']['works with wide characters'] = function()
   validate_keys(before, { '<C-v>$j', 'ga', 'ф' }, after)
 end
 
-T['Align']['works with combining characters'] = function(mode)
+T['Align']['works with combining characters'] = function()
   -- 0xCC 0x81 is the UTF-8 representation of U+0301 COMBINING ACUTE ACCENT. It
   -- is zero-width when combined with the preceding character.
   local before, after = { 'aá_e\xcc\x81e_', 'aa_e_' }, { 'aá_e\xcc\x81e_', 'aa_e _' }

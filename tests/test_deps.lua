@@ -133,6 +133,7 @@ local validate_git_spawn_log = function(ref_log)
     -- Validate environment variables separately because it is a string array
     -- without order guarantee
     local real_env_map = {}
+    real = real or { options = { env = {} } }
     for _, v in ipairs(real.options.env) do
       real_env_map[v] = true
     end
@@ -833,40 +834,38 @@ T['add()']['Install']['can handle both present and not present plugins'] = new_s
     { { source = 'user/new_plugin', depends = { 'user/plugin_1' } } },
   },
 }, {
-  test = function()
-    local validate = function(spec, clone_name)
-      -- Make clean mock
-      mock_spawn()
+  test = function(spec)
+    -- Make clean mock
+    mock_spawn()
 
-      child.lua([[
-        _G.stdio_queue = {
-          { out = 'git version 2.43.0'}, -- Check Git executable
-          {},                            -- Clone
-          { out = 'sha0head' },          -- Get `HEAD`
-          { out = 'origin/main' },       -- Get default branch
-          { out = 'origin/main' },       -- Check if `main` is origin branch
-          { out = 'sha0head' },          -- Get commit of `origin/main`
-          {},                            -- Stash changes
-          {},                            -- Checkout changes
-        }
-      ]])
-      add(spec)
-
-      -- Should result into a proper sequence of CLI runs
-      --stylua: ignore
-      local ref_git_spawn_log = {
-        { args = { 'version' }, cwd = child.fn.getcwd() },
-        clone_args('https://github.com/user/new_plugin', test_opt_dir .. '/new_plugin'),
-        {
-          args = { 'rev-list', '-1', 'HEAD' },
-          cwd = test_opt_dir .. '/new_plugin',
-        },
-        { 'rev-parse', '--abbrev-ref', 'origin/HEAD' },
-        { 'branch', '--list', '--all', '--format=%(refname:short)', 'origin/main' },
-        { 'rev-list', '-1', 'origin/main' },
+    child.lua([[
+      _G.stdio_queue = {
+        { out = 'git version 2.43.0'}, -- Check Git executable
+        {},                            -- Clone
+        { out = 'sha0head' },          -- Get `HEAD`
+        { out = 'origin/main' },       -- Get default branch
+        { out = 'origin/main' },       -- Check if `main` is origin branch
+        { out = 'sha0head' },          -- Get commit of `origin/main`
+        {},                            -- Stash changes
+        {},                            -- Checkout changes
       }
-      validate_git_spawn_log(ref_git_spawn_log)
-    end
+    ]])
+    add(spec)
+
+    -- Should result into a proper sequence of CLI runs
+    --stylua: ignore
+    local ref_git_spawn_log = {
+      { args = { 'version' }, cwd = child.fn.getcwd() },
+      clone_args('https://github.com/user/new_plugin', test_opt_dir .. '/new_plugin'),
+      {
+        args = { 'rev-list', '-1', 'HEAD' },
+        cwd = test_opt_dir .. '/new_plugin',
+      },
+      { 'rev-parse', '--abbrev-ref', 'origin/HEAD' },
+      { 'branch', '--list', '--all', '--format=%(refname:short)', 'origin/main' },
+      { 'rev-list', '-1', 'origin/main' },
+    }
+    validate_git_spawn_log(ref_git_spawn_log)
   end,
 })
 
