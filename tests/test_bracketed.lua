@@ -4566,7 +4566,6 @@ T['Mappings']['multicursor'] = new_set({
 })
 
 T['Mappings']['multicursor']['works'] = function()
-  set_lines({ 'aaa', 'bbb' })
   local all = { { 1, 1 }, { 1, 3 }, { 2, 0 } }
   setup_multicursor(all)
 
@@ -4580,7 +4579,6 @@ end
 T['Mappings']['multicursor']['allows non-letter suffix'] = function()
   reload_module({ multicursor = { suffix = ',' } })
 
-  set_lines({ 'aaa', 'bbb' })
   local all = { { 1, 1 }, { 1, 3 }, { 2, 0 } }
   setup_multicursor(all)
 
