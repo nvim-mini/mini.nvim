@@ -772,7 +772,10 @@ MiniDiff.do_hunks = function(buf_id, action, opts)
 
   local hunks = H.get_hunks_in_range(buf_cache.hunks, line_start, line_end)
   if #hunks == 0 then return H.notify('No hunks to ' .. action, 'INFO') end
-  if action == 'apply' then H.get_active_source(buf_cache).apply_hunks(buf_id, hunks) end
+  if action == 'apply' then
+    if H.has_extra_cursors() and not vim.v.cascading then H.force_mc_cascade() end
+    H.get_active_source(buf_cache).apply_hunks(buf_id, hunks)
+  end
   if action == 'reset' then H.reset_hunks(buf_id, hunks) end
   if action == 'yank' then H.yank_hunks_ref(buf_cache.ref_text, hunks, opts.register) end
 end
@@ -1934,6 +1937,22 @@ H.redraw_buffer = function(buf_id)
 end
 if vim.api.nvim__redraw ~= nil then
   H.redraw_buffer = function(buf_id) vim.api.nvim__redraw({ buf = buf_id, valid = true, statusline = true }) end
+end
+
+H.has_extra_cursors = function()
+  local ns_id = vim.api.nvim_get_namespaces()['nvim.multicursor']
+  if ns_id == nil then return end
+  return #vim.api.nvim_buf_get_extmarks(0, ns_id, 0, -1, { limit = 1 }) > 0
+end
+
+H.force_mc_cascade = function()
+  -- A hack to force multicursor cascade, as it needs text edit or cursor move
+  -- There might be a dedicated way to do that in the future
+  -- See https://github.com/neovim/neovim/issues/42279
+  local cur = vim.api.nvim_win_get_cursor(0)
+  local modified = vim.bo.modified
+  vim.api.nvim_buf_set_text(0, cur[1] - 1, cur[2], cur[1] - 1, cur[2], { '' })
+  vim.bo.modified = modified
 end
 
 return MiniDiff

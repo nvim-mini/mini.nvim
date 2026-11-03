@@ -2929,8 +2929,48 @@ end
 T['Operator']['apply']['works with multicursor'] = function()
   if child.fn.has('nvim-0.13') == 0 then MiniTest.skip('Multicursor is available in Neovim>=0.13') end
 
-  -- TODO: this currently doesn't cascade since `apply_hunks` is not a text
-  -- edit or motion to follow. Test later when it is possible to force cascade.
+  local buf_id = get_buf()
+  local ref_apply, lines = {}, { 'aaa', 'AAA', 'bbb', 'uuu', 'BBB', 'ccc', 'vvv', 'CCC', 'www' }
+  set_lines(lines)
+  child.bo.modified = false
+
+  set_ref_text(buf_id, { 'AAA', 'BBB', 'CCC' })
+
+  local validate = function(ref_cursor, ref_multicursor)
+    validate_dummy_log({ { 'apply_hunks', ref_apply[1] }, { 'apply_hunks', ref_apply[2] } })
+    clean_dummy_log()
+
+    eq(get_lines(), lines)
+    eq(get_cursor(), ref_cursor)
+    eq(child.get_multicursor(), ref_multicursor)
+
+    -- - Should not have side effects
+    eq(child.bo.modified, false)
+  end
+
+  -- Normal mode
+  set_cursor(1, 0)
+  type_keys('Qjj', 'gh', '_')
+  ref_apply = {
+    { buf_id, { { buf_start = 3, buf_count = 1, ref_start = 1, ref_count = 0, type = 'add' } } },
+    { buf_id, { { buf_start = 1, buf_count = 1, ref_start = 0, ref_count = 0, type = 'add' } } },
+  }
+  validate({ 3, 0 }, { { 1, 0 } })
+
+  type_keys('q=', '3j', '.')
+  ref_apply = {
+    { buf_id, { { buf_start = 6, buf_count = 1, ref_start = 2, ref_count = 0, type = 'add' } } },
+    { buf_id, { { buf_start = 4, buf_count = 1, ref_start = 1, ref_count = 0, type = 'add' } } },
+  }
+  validate({ 6, 0 }, { { 4, 0 } })
+
+  -- Visual mode
+  type_keys('3j', 'V', 'gh')
+  ref_apply = {
+    { buf_id, { { buf_start = 9, buf_count = 1, ref_start = 3, ref_count = 0, type = 'add' } } },
+    { buf_id, { { buf_start = 7, buf_count = 1, ref_start = 2, ref_count = 0, type = 'add' } } },
+  }
+  validate({ 9, 0 }, { { 7, 0 } })
 end
 
 T['Operator']['apply']['works on not proper textobject'] = function()
