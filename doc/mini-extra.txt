@@ -625,7 +625,7 @@ Notes:
       feedback treating picker's prompt as LSP server query. Similar to
       how |MiniPick.builtin.grep_live()| and |MiniPick.builtin.grep()| are
       related. To use regular matching, activate |MiniPick-actions-refine|.
-- Relies on `vim.lsp.buf` methods supporting |vim.lsp.LocationOpts.OnList|.
+- Relies on `vim.lsp.buf` methods supporting `on_list` option.
   In particular, it means that picker is started only if LSP server returns
   list of locations and not a single location.
 - Doesn't return anything due to async nature of `vim.lsp.buf` methods.
