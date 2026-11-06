@@ -512,7 +512,7 @@ MiniExtra.pickers.diagnostic = function(local_opts, opts)
   for _, item in ipairs(items) do
     item.path = H.buf_get_name(item.bufnr) or ''
     item.severity = item.severity or 0
-    path_width = math.max(path_width, vim.fn.strchars(item.path))
+    path_width = math.max(path_width, H.strwidth(item.path))
   end
 
   -- Sort
@@ -890,17 +890,13 @@ MiniExtra.pickers.hipatterns = function(local_opts, opts)
       match.highlighter = tostring(match.highlighter)
       match.buf_name, match.line = buf_name, lines[match.lnum]
       table.insert(items, match)
-      highlighter_width = math.max(highlighter_width, vim.fn.strchars(match.highlighter))
+      highlighter_width = math.max(highlighter_width, H.strwidth(match.highlighter))
     end
   end
 
   for _, item in ipairs(items) do
-    --stylua: ignore
-    item.text = string.format(
-      '%s │ %s│%d│%d│%s',
-      H.ensure_text_width(item.highlighter, highlighter_width),
-      item.buf_name, item.lnum, item.col, item.line
-    )
+    local hl_text = H.ensure_text_width(item.highlighter, highlighter_width)
+    item.text = string.format('%s │ %s│%d│%d│%s', hl_text, item.buf_name, item.lnum, item.col, item.line)
     item.buf_name, item.line = nil, nil
   end
 
@@ -1078,7 +1074,7 @@ MiniExtra.pickers.keymaps = function(local_opts, opts)
       for _, maparg in ipairs(source(m)) do
         local desc = maparg.desc ~= nil and vim.inspect(maparg.desc) or maparg.rhs
         local lhs = vim.fn.keytrans(maparg.lhsraw or maparg.lhs)
-        max_lhs_width = math.max(vim.fn.strchars(lhs), max_lhs_width)
+        max_lhs_width = math.max(H.strwidth(lhs), max_lhs_width)
         table.insert(items, { lhs = lhs, desc = desc, maparg = maparg })
       end
     end
@@ -1989,8 +1985,8 @@ H.git_difflines_to_hunkitems = function(lines, n_context)
     local coords, title = item.hunk[1]:match('@@ (.-) @@ ?(.*)$')
     coords, title = coords or '', title or ''
     text_parts[i] = { item.path, coords, title }
-    path_width = math.max(path_width, vim.fn.strchars(item.path))
-    coords_width = math.max(coords_width, vim.fn.strchars(coords))
+    path_width = math.max(path_width, H.strwidth(item.path))
+    coords_width = math.max(coords_width, H.strwidth(coords))
   end
 
   for i, item in ipairs(items) do
@@ -2259,10 +2255,20 @@ H.set_buf_name = function(buf_id, name) vim.api.nvim_buf_set_name(buf_id, 'minie
 H.is_valid_win = function(win_id) return type(win_id) == 'number' and vim.api.nvim_win_is_valid(win_id) end
 
 H.ensure_text_width = function(text, width)
-  local text_width = vim.fn.strchars(text)
-  if text_width <= width then return text .. string.rep(' ', width - text_width) end
-  return '…' .. vim.fn.strcharpart(text, text_width - width + 1, width - 1)
+  local res = H.fit_to_width(text, width)
+  return res .. string.rep(' ', width - H.strwidth(res))
 end
+
+H.fit_to_width = function(text, width, dir)
+  if H.strwidth(text) <= width then return text end
+  for w = vim.fn.strchars(text) - 1, 1, -1 do
+    text = vim.fn.strcharpart(text, dir == 'right' and 0 or 1, w)
+    if H.strwidth(text) < width then return dir == 'right' and (text .. '…') or ('…' .. text) end
+  end
+  return width < 1 and '' or '…'
+end
+
+H.strwidth = function(text) return vim.api.nvim_strwidth(text) end
 
 H.full_path = function(path) return (vim.fn.fnamemodify(path, ':p'):gsub('(.)/$', '%1')) end
 H.normalize_path = function(path) return path end

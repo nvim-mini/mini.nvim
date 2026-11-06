@@ -3116,9 +3116,13 @@ H.is_valid_buf = function(buf_id) return type(buf_id) == 'number' and vim.api.nv
 
 H.is_valid_win = function(win_id) return type(win_id) == 'number' and vim.api.nvim_win_is_valid(win_id) end
 
-H.fit_to_width = function(text, width)
-  local t_width = vim.fn.strchars(text)
-  return t_width <= width and text or ('…' .. vim.fn.strcharpart(text, t_width - width + 1, width - 1))
+H.fit_to_width = function(text, width, dir)
+  if vim.api.nvim_strwidth(text) <= width then return text end
+  for w = vim.fn.strchars(text) - 1, 1, -1 do
+    text = vim.fn.strcharpart(text, dir == 'right' and 0 or 1, w)
+    if vim.api.nvim_strwidth(text) < width then return dir == 'right' and (text .. '…') or ('…' .. text) end
+  end
+  return width < 1 and '' or '…'
 end
 
 H.get_bufline = function(buf_id, line) return vim.api.nvim_buf_get_lines(buf_id, line - 1, line, false)[1] end

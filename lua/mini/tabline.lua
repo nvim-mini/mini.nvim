@@ -417,7 +417,7 @@ H.fit_width = function()
   local tot_width = 0
   for _, tab in pairs(H.tabs) do
     tab.label_width = H.strwidth(tab.label)
-    tab.chars_on_left = tot_width
+    tab.width_on_left = tot_width
 
     tot_width = tot_width + tab.label_width
 
@@ -459,22 +459,31 @@ end
 H.truncate_tabs_display = function(display_interval)
   local display_left, display_right = display_interval[1], display_interval[2]
 
-  local tabs, first, last = {}, nil, nil
+  -- Gather visible tabs
+  local tabs, n, first, last = {}, 0, nil, nil
   for i, tab in ipairs(H.tabs) do
-    local tab_left = tab.chars_on_left + 1
-    local tab_right = tab.chars_on_left + tab.label_width
-    if (display_left <= tab_right) and (tab_left <= display_right) then
-      -- Process tab that should be displayed (even partially)
-      local n_trunc_left = math.max(0, display_left - tab_left)
-      local n_trunc_right = math.max(0, tab_right - display_right)
-
-      -- Take desired amount of characters starting from `n_trunc_left`
-      tab.label = vim.fn.strcharpart(tab.label, n_trunc_left, tab.label_width - n_trunc_right)
-
+    if display_left <= (tab.width_on_left + tab.label_width) and (tab.width_on_left + 1) <= display_right then
       table.insert(tabs, tab)
+      n, first, last = n + 1, first or i, i
+    end
+  end
 
-      -- Keep track of the shown tab range for truncation characters
-      first, last = first or i, i
+  -- Remove extra width from first and last tabs if needed
+  local extra_on_left = display_left - (tabs[1].width_on_left + 1)
+  if extra_on_left > 0 then
+    for w = vim.fn.strchars(tabs[1].label) - 1, 1, -1 do
+      tabs[1].label = vim.fn.strcharpart(tabs[1].label, 1, w)
+      if extra_on_left <= (tabs[1].label_width - H.strwidth(tabs[1].label)) then break end
+    end
+    -- Compensate for possible overtruncation in case of multicell characters
+    display_right = display_right + (tabs[1].label_width - H.strwidth(tabs[1].label) - extra_on_left)
+  end
+
+  local extra_on_right = (tabs[n].width_on_left + H.strwidth(tabs[n].label)) - display_right
+  if extra_on_right > 0 then
+    for w = vim.fn.strchars(tabs[n].label) - 1, 1, -1 do
+      tabs[n].label = vim.fn.strcharpart(tabs[n].label, 0, w)
+      if extra_on_right <= (tabs[n].label_width - H.strwidth(tabs[n].label)) then break end
     end
   end
 
@@ -482,7 +491,6 @@ H.truncate_tabs_display = function(display_interval)
   H.trunc.needs_left = H.trunc.left ~= '' and (first > 1 or H.strwidth(tabs[1].label) < tabs[1].label_width)
   if H.trunc.needs_left then tabs[1].label = vim.fn.strcharpart(tabs[1].label, 1) end
 
-  local n = #tabs
   H.trunc.needs_right = H.trunc.right ~= '' and (last < #H.tabs or H.strwidth(tabs[n].label) < tabs[n].label_width)
   if H.trunc.needs_right then tabs[n].label = vim.fn.strcharpart(tabs[n].label, 0, H.strwidth(tabs[n].label) - 1) end
 

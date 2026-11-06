@@ -1338,7 +1338,7 @@ T['Showing keys']['respects `config.window.config`'] = function()
 
   -- Should properly truncate title
   child.lua([[
-    local title = string.sub('abcdefgijklmnopqrstuvwxyzabcdefgijklmnopqrstuvwxyz', -vim.o.columns)
+    local title = 'abcdefgijklmnopqrstuvwxyzabcdefgijklmnopqrstuvwxyz😈ツ'
     MiniClue.config.window.config = { width = vim.o.columns, title = title }
   ]])
   type_keys(' ')

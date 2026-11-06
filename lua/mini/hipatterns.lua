@@ -155,7 +155,7 @@
 --- - Censor certain sensitive information: >lua
 ---
 ---   local censor_extmark_opts = function(_, match, _)
----     local mask = string.rep('x', vim.fn.strchars(match))
+---     local mask = string.rep('x', vim.fn.strdisplaywidth(match))
 ---     return {
 ---       virt_text = { { mask, 'Comment' } }, virt_text_pos = 'overlay',
 ---       priority = 200, right_gravity = false,

@@ -1474,7 +1474,7 @@ T['gen_view']['floatwin()']['works with multibyte characters'] = function()
   expect_screenshot()
   type_keys('<C-c>')
 
-  -- Double-width characters
+  -- Multicell characters
   get({ prompt = '「」' })
   expect_screenshot()
   type_keys('「」「」')
@@ -2923,6 +2923,9 @@ T['default_highlight()']['works'] = function()
   validate('фячш', 'чш', 'ячш', { { 2, 2 } })
   validate('фячш', 'яш', 'ячш', { { 3, 3 } })
   validate('фячш', 'яч', 'ячш', { { 4, 4 } })
+
+  -- Should work with multicell characters
+  validate('фя😈ツ', '😈', 'я😈ツ', { { 2, 2 }, { 4, 4 } })
 end
 
 T['default_highlight()']['does nothing when expected'] = function()
@@ -3394,7 +3397,7 @@ T['state_to_chunks()']['works'] = function()
   validate('ф🬗', 2, { { 'ф', 'MiniInputNormal' }, caret_ch, { '🬗', 'MiniInputNormal' } })
   validate('ф🬗', 1, { caret_ch, { 'ф🬗', 'MiniInputNormal' } })
 
-  -- Double-width characters
+  -- Multicell characters
   validate('「」', 3, { { '「」', 'MiniInputNormal' }, caret_ch })
   validate('「」', 2, { { '「', 'MiniInputNormal' }, caret_ch, { '」', 'MiniInputNormal' } })
   validate('「」', 1, { caret_ch, { '「」', 'MiniInputNormal' } })
@@ -3539,7 +3542,7 @@ T['state_to_chunks()']['works with `state.highlight` and multibyte input'] = fun
   -- Multibyte characters
   validate('ф', '🬗')
 
-  -- Double-width characters
+  -- Multicell characters
   validate('「', '」')
 end
 
@@ -3864,7 +3867,7 @@ T['state_to_chunks()']['respects `opts.symbol_caret`'] = function()
   validate('_')
   validate('│')
 
-  -- Double-width
+  -- Multicell
   validate('「')
 
   -- Multicharacter
@@ -3884,7 +3887,6 @@ T['state_to_chunks()']['respects `opts.symbol_hide`'] = function()
   local validate = function(symbol_hide)
     local prompt, pad = { 'Input', 'MiniInputHide' }, { ' ', 'MiniInputNormal' }
     validate_one(3, symbol_hide, { prompt, pad, { symbol_hide .. symbol_hide, 'MiniInputNormal' }, caret_ch })
-    --stylua: ignore
     local ref = { prompt, pad, { symbol_hide, 'MiniInputNormal' }, caret_ch, { symbol_hide, 'MiniInputNormal' } }
     validate_one(2, symbol_hide, ref)
     validate_one(1, symbol_hide, { prompt, pad, caret_ch, { symbol_hide .. symbol_hide, 'MiniInputNormal' } })
@@ -3893,7 +3895,7 @@ T['state_to_chunks()']['respects `opts.symbol_hide`'] = function()
   -- Regular
   validate('_')
 
-  -- Double-width
+  -- Multicell
   validate('「')
 
   -- Multicharacter

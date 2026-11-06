@@ -864,7 +864,7 @@ T['Window']['respects `window.config`'] = function()
 
   -- Should properly truncate title
   child.lua([[
-    local title = string.sub('abcdefgijklmnopqrstuvwxyzabcdefgijklmnopqrstuvwxyz', -vim.o.columns)
+    local title = 'abcdefgijklmnopqrstuvwxyzabcdefgijklmnopqrstuvwxyz😈ツ'
     MiniNotify.config.window.config = { width = vim.o.columns, title = title }
   ]])
   refresh()

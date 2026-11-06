@@ -223,7 +223,7 @@
 
 ---@alias __input_to_chunks - <to_chunks> `(function)` - a function that takes |MiniInput-state| and
 ---     `max_width` arguments and returns an array of `{ text, hl }` chunks that fit
----     into `max_width` display width. See |MiniInput.state_to_chunks()|.
+---     into `max_width` cells. See |MiniInput.state_to_chunks()|.
 
 ---@diagnostic disable:undefined-field
 ---@diagnostic disable:discard-returns
@@ -335,8 +335,8 @@ end
 ---       state.caret = math.max(state.caret - 1, 1)
 ---     end,
 ---     [vim.keycode('<Right>')] = function(state)
----       local input_width = vim.fn.strchars(state.input)
----       state.caret = math.min(state.caret + 1, input_width + 1)
+---       local input_nchars = vim.fn.strchars(state.input)
+---       state.caret = math.min(state.caret + 1, input_nchars + 1)
 ---     end,
 ---     [vim.keycode('<CR>')] = function(state) state.status = 'accept' end,
 ---     [vim.keycode('<Esc>')] = function(state) state.status = 'cancel' end,
@@ -676,7 +676,7 @@ end
 ---
 --- Each element also accepts <to_chunks> option. It is a function that takes
 --- a |MiniInput-state| and `max_width` arguments and returns an array of `{ text, hl }`
---- chunks that fit into `max_width` display width (as in |strdisplaywidth()|).
+--- chunks that fit into `max_width` cells (as in |nvim_strwidth()|).
 ---
 --- This is a way to adjust how input is shown. Like caret/hide symbols, etc.
 --- By default uses |MiniInput.state_to_chunks()|, which also means:
@@ -798,7 +798,7 @@ MiniInput.gen_view.floatwin = function(opts)
     local winborder = vim.fn.exists('+winborder') == 0 and '' or vim.o.winborder
     default_to_chunks_opts = { include_prompt = winborder == 'none', include_hint = winborder == 'none' }
     local chunks = H.get_chunks(opts, state)
-    local default_config = H.default_floatwin_config(state, style, H.get_chunks_displaywidth(chunks))
+    local default_config = H.default_floatwin_config(state, style, H.get_chunks_strwidth(chunks))
     local config = opts.adjust_config(state, default_config)
     chunks = H.get_chunks(opts, state, config.width)
 
@@ -899,7 +899,7 @@ MiniInput.gen_view.virtual = function(opts)
     local win_info = H.get_curwin_info()
     local max_width = win_info.width - win_info.textoff
     local chunks = H.get_chunks(opts, state, max_width)
-    local chunks_width = H.get_chunks_displaywidth(chunks)
+    local chunks_width = H.get_chunks_strwidth(chunks)
     if is_virtline and chunks_width < max_width then
       chunks = vim.deepcopy(chunks)
       table.insert(chunks, { string.rep(' ', max_width - chunks_width), 'MiniInputNormal' })
@@ -1023,10 +1023,10 @@ MiniInput.default_highlight = function(state)
 
   -- Matches are increasing character zero-based indexes. Highlight ranges
   -- between them, including start and end edges.
-  local cur_item_width = vim.fn.strchars(cur_item)
+  local cur_item_nchars = vim.fn.strchars(cur_item)
   table.insert(pos, 1, -1)
-  table.insert(pos, cur_item_width)
-  local offset, ranges = state.caret - cur_item_width - 1, {}
+  table.insert(pos, cur_item_nchars)
+  local offset, ranges = state.caret - cur_item_nchars - 1, {}
   for i = 2, #pos do
     if pos[i] - pos[i - 1] > 1 then
       local from = offset + pos[i - 1] + 1
@@ -1111,11 +1111,10 @@ end
 ---   are placed "on top" of the previous ones if they overlap.
 --- - Uses |MiniInput-hl-groups|.
 --- - Multiline input (i.e. with newline characters `\n`) is shown as a single line.
---- - Treats `max_width` as display width (|strdisplaywidth()|).
 --- - Truncates output chunks trying to center the caret.
 ---
 ---@param state table A |MiniInput-state|.
----@param max_width number|nil Maximum allowed display width. Can be |math.huge|.
+---@param max_width number|nil Maximum allowed cells. Can be |math.huge|.
 ---@param opts table|nil Options. Possible fields:
 ---   - <keytrans> `(boolean)` - whether to translate control characters (escaped
 ---     version of `<C-...>`). Default: `true`.
@@ -1127,7 +1126,7 @@ end
 ---   - <symbol_hide> `(string)` - string to use for each input character when
 ---     input is hidden. Default: `"•"`.
 ---
----@return table An array of text-hl chunks that fit `max_width` display width.
+---@return table An array of text-hl chunks that fit `max_width` cells.
 MiniInput.state_to_chunks = function(state, max_width, opts)
   H.check_type('max_width', max_width, 'number', true)
   local default_opts = { keytrans = true, include_prompt = true, include_hint = true }
@@ -1171,7 +1170,7 @@ MiniInput.state_to_chunks = function(state, max_width, opts)
   H.append_chunks(chunks, input_chunks_left, keytrans)
 
   if opts.symbol_caret ~= '' then H.append_chunks(chunks, { { opts.symbol_caret, 'MiniInputCaret' } }, keytrans) end
-  local caret_offset = H.get_chunks_displaywidth(chunks)
+  local caret_offset = H.get_chunks_strwidth(chunks)
 
   if opts.include_hint and state.complete ~= nil then
     local hint = string.format('(%d/%d)', state.complete.id, #state.complete.items)
@@ -1180,7 +1179,7 @@ MiniInput.state_to_chunks = function(state, max_width, opts)
 
   H.append_chunks(chunks, input_chunks_right, keytrans)
 
-  return H.fit_chunks_to_displaywidth(chunks, max_width, caret_offset)
+  return H.fit_chunks_to_width(chunks, max_width, caret_offset)
 end
 
 --- Apply state's handler
@@ -1620,9 +1619,9 @@ H.advance_state_complete = function(state, increment)
 
   -- Replace currently shown candidate with the new one
   local caret, input = state.caret, state.input
-  local old_len = vim.fn.strchars(old)
-  state.input = vim.fn.strcharpart(input, 0, caret - old_len - 1) .. new .. vim.fn.strcharpart(input, caret - 1)
-  state.caret = caret + (vim.fn.strchars(new) - old_len)
+  local old_nchars = vim.fn.strchars(old)
+  state.input = vim.fn.strcharpart(input, 0, caret - old_nchars - 1) .. new .. vim.fn.strcharpart(input, caret - 1)
+  state.caret = caret + (vim.fn.strchars(new) - old_nchars)
 
   return state
 end
@@ -1769,7 +1768,7 @@ H.default_floatwin_config = function(state, style, target_width)
     local method_prefix = complete.method == '' and '' or (' ' .. vim.trim(complete.method))
     footer_text = string.format('%s %d/%d ', (method_prefix:gsub('[\t\n%z]', ' ')), complete.id, #complete.items)
   end
-  local title_width, footer_width = vim.fn.strdisplaywidth(title_text), vim.fn.strdisplaywidth(footer_text)
+  local title_width, footer_width = H.strwidth(title_text), H.strwidth(footer_text)
 
   local width = H.clamp(target_width, math.max(title_width, footer_width), max_width)
   local height = 1
@@ -1822,9 +1821,9 @@ H.default_floatwin_config = function(state, style, target_width)
   -- Set title and footer (even if empty string, to remove previous one)
   if has_border then
     local title_hl = state.opts.hide and 'MiniInputHide' or 'MiniInputPrompt'
-    config.title = { { H.fit_to_displaywidth(title_text, config.width), title_hl } }
+    config.title = { { H.fit_to_width(title_text, config.width), title_hl } }
     config.title_pos = 'left'
-    config.footer = { { H.fit_to_displaywidth(footer_text, config.width), 'MiniInputHint' } }
+    config.footer = { { H.fit_to_width(footer_text, config.width), 'MiniInputHint' } }
     config.footer_pos = 'right'
   end
 
@@ -1946,11 +1945,11 @@ end
 -- The rest - to right. Split chunk if `at` is in between.
 ---@private
 H.split_chunks_at = function(chunks, at)
-  local left, right, cur_width = {}, {}, 0
+  local left, right, cur_nchars = {}, {}, 0
   for _, ch in ipairs(chunks) do
-    local w = vim.fn.strchars(ch[1])
-    local to_left, to_right = at - cur_width, cur_width + w - at
-    cur_width = cur_width + w
+    local n = vim.fn.strchars(ch[1])
+    local to_left, to_right = at - cur_nchars, cur_nchars + n - at
+    cur_nchars = cur_nchars + n
 
     if to_right <= 0 then table.insert(left, ch) end
     if to_left <= 0 then table.insert(right, ch) end
@@ -1963,9 +1962,9 @@ H.split_chunks_at = function(chunks, at)
   return left, right
 end
 
-H.fit_chunks_to_displaywidth = function(chunks, width, center_offset)
+H.fit_chunks_to_width = function(chunks, width, center_offset)
   local chunks_text = H.get_chunks_text(chunks)
-  local chunks_width = vim.fn.strdisplaywidth(chunks_text)
+  local chunks_width = H.strwidth(chunks_text)
   if width == nil or chunks_width < width then return chunks end
 
   -- Show center with as much and as equally as possible to left and right
@@ -1973,10 +1972,10 @@ H.fit_chunks_to_displaywidth = function(chunks, width, center_offset)
   local left = math.max(1, right - width + 1)
   right = left + math.min(width, chunks_width) - 1
 
-  -- Convert display cols into char cols (matters with double width characters)
+  -- Convert cells into char cols (matters with multicell characters)
   local left_char, right_char, cur_w = nil, nil, 0
   for i = 1, vim.fn.strchars(chunks_text) do
-    local w = vim.fn.strdisplaywidth(vim.fn.strcharpart(chunks_text, i - 1, 1))
+    local w = H.strwidth(vim.fn.strcharpart(chunks_text, i - 1, 1))
 
     -- `left_char` = first char id with end at `left` or more, but only if the
     -- start is within `width` from center offset (otherwise - next char).
@@ -2002,7 +2001,7 @@ H.get_chunks_text = function(chunks)
   return table.concat(vim.tbl_map(function(ch) return ch[1] end, chunks))
 end
 
-H.get_chunks_displaywidth = function(chunks) return vim.fn.strdisplaywidth(H.get_chunks_text(chunks)) end
+H.get_chunks_strwidth = function(chunks) return H.strwidth(H.get_chunks_text(chunks)) end
 
 -- Highlight ranges -----------------------------------------------------------
 --- Add new proper highlight range on top of an array of ranges that don't
@@ -2144,14 +2143,16 @@ H.get_curwin_info = function()
   return res
 end
 
-H.fit_to_displaywidth = function(text, width)
-  if vim.fn.strdisplaywidth(text) <= width then return text end
-  for i = 1, vim.fn.strchars(text) do
-    local truncated = '…' .. vim.fn.strcharpart(text, i)
-    if vim.fn.strdisplaywidth(truncated) <= width then return truncated end
+H.fit_to_width = function(text, width, dir)
+  if H.strwidth(text) <= width then return text end
+  for w = vim.fn.strchars(text) - 1, 1, -1 do
+    text = vim.fn.strcharpart(text, dir == 'right' and 0 or 1, w)
+    if H.strwidth(text) < width then return dir == 'right' and (text .. '…') or ('…' .. text) end
   end
-  return ''
+  return width < 1 and '' or '…'
 end
+
+H.strwidth = function(text) return vim.api.nvim_strwidth(text) end
 
 H.get_lmap = function()
   local lmap = {}

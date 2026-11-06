@@ -1620,7 +1620,7 @@ T['Autopeek']['respects `config.autopeek.window.config`'] = function()
 
   -- Should properly truncate title
   child.lua([[
-    local title = string.sub('abcdefgijklmnopqrstuvwxyz', -vim.o.columns)
+    local title = 'abcdefgijklmnopqrstuvwxyz😈ツ'
     MiniCmdline.config.autopeek.window.config = { width = vim.o.columns, title = title }
   ]])
   expect_screenshot_after_keys({ ':', '2' })

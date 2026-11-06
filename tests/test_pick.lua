@@ -5330,6 +5330,31 @@ T['Overall view']['truncates footer'] = function()
   validate(10, 39)
 end
 
+T['Overall view']['works with multicell characters'] = function()
+  child.set_size(10, 17)
+
+  -- Should correctly truncate prompt and source name
+  child.lua('MiniPick.config.window.prompt_prefix = "👉"')
+  child.lua('MiniPick.config.window.prompt_caret = "👇"')
+
+  start_with_items({ 'a' }, '👏Very 👏 wide 👏 source 👏 name 👏')
+  local query_arr = { '😈', 'a', '😱', 'b', '🤔', 'ツ' }
+  set_picker_query(query_arr)
+  child.expect_screenshot()
+
+  for _ = 1, #query_arr do
+    type_keys('<Left>')
+    child.expect_screenshot()
+  end
+  stop()
+
+  -- Should correctly compute full footer
+  child.set_size(10, 25)
+  child.lua('MiniPick.config.window.config = { width = 23 }')
+  start_with_items({ 'a' }, '👏Emoji👏')
+  child.expect_screenshot()
+end
+
 T['Overall view']['allows "none" as border'] = function()
   child.lua([[MiniPick.config.window.config = { border = 'none' }]])
   start_with_items({ 'a' }, 'My name')
@@ -5717,12 +5742,12 @@ end
 
 T['Info view']['respects custom mappings'] = function()
   child.set_size(43, 60)
-  child.lua([[MiniPick.config.mappings.custom_action = { char = '<C-d>', func = function() print('Hello') end }]])
-  child.lua([[MiniPick.config.mappings.another_action = { char = '<C-e>', func = function() print('World') end }]])
+  child.lua([[MiniPick.config.mappings.custom_action = { char = '<C-d>', func = function()  end }]])
+  child.lua([[MiniPick.config.mappings['another 😈ツ action'] = { char = '<C-e>', func = function()  end }]])
   -- Should prefer custom action key over built-in
-  child.lua([[MiniPick.config.mappings.dup_key_action = { char = '<Left>', func = function() print('!!!') end }]])
+  child.lua([[MiniPick.config.mappings.dup_key_action = { char = '<Left>', func = function() end }]])
   child.lua([[MiniPick.config.mappings.choose = 'a']])
-  child.lua([[MiniPick.config.mappings.custom_home = { char = '<Home>', func = function() print('Home') end }]])
+  child.lua([[MiniPick.config.mappings.custom_home = { char = '<Home>', func = function() end }]])
   -- Should omit the rest of "Choose" as they are disabled
   child.lua([[MiniPick.config.mappings.choose_in_split = '']])
   child.lua([[MiniPick.config.mappings.choose_in_vsplit = '']])

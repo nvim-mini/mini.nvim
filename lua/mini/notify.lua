@@ -916,9 +916,13 @@ H.is_textlock = function()
   return not ok
 end
 
-H.fit_to_width = function(text, width)
-  local t_width = vim.fn.strchars(text)
-  return t_width <= width and text or ('…' .. vim.fn.strcharpart(text, t_width - width + 1, width - 1))
+H.fit_to_width = function(text, width, dir)
+  if vim.api.nvim_strwidth(text) <= width then return text end
+  for w = vim.fn.strchars(text) - 1, 1, -1 do
+    text = vim.fn.strcharpart(text, dir == 'right' and 0 or 1, w)
+    if vim.api.nvim_strwidth(text) < width then return dir == 'right' and (text .. '…') or ('…' .. text) end
+  end
+  return width < 1 and '' or '…'
 end
 
 H.get_timestamp = function()

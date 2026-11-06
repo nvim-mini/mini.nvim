@@ -659,17 +659,17 @@ local validate_columns = function(columns, string)
 end
 
 T['make_tabline_string()']['handles multibyte characters in labels'] = function()
-  for _, name in ipairs({ 'ббб', 'ввв', 'ггг', 'ддд', 'жжж', 'ззз' }) do
+  for _, name in ipairs({ 'ツб', '😱в', 'ггг', '😈д', 'жツ', '🤔з' }) do
     edit(name)
   end
   edit('ггг')
 
-  validate_columns(20, ' ввв  ггг  ддд  жжж ')
-  validate_columns(19, ' ввв  ггг  ддд  жжж')
-  validate_columns(18, 'ввв  ггг  ддд  жжж')
-  validate_columns(17, 'ввв  ггг  ддд  жж')
-  validate_columns(16, 'вв  ггг  ддд  жж')
-  validate_columns(15, 'вв  ггг  ддд  ж')
+  validate_columns(20, ' 😱в  ггг  😈д  жツ ')
+  validate_columns(19, ' 😱в  ггг  😈д  жツ')
+  validate_columns(18, '😱в  ггг  😈д  жツ')
+  validate_columns(17, '😱в  ггг  😈д  ж')
+  validate_columns(16, 'в  ггг  😈д  жツ')
+  validate_columns(15, 'в  ггг  😈д  ж')
 end
 
 T['make_tabline_string()']['handles multibyte icons'] = function()

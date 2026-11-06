@@ -1831,9 +1831,8 @@ H.clues_to_buffer_content = function(clues, keys)
       next_key_data[next_key] = data
 
       -- Update width data
-      local next_key_width = vim.fn.strchars(next_key)
-      data.next_key_width = next_key_width
-      next_key_max_width = math.max(next_key_max_width, next_key_width)
+      data.next_key_width = H.strwidth(next_key)
+      next_key_max_width = math.max(next_key_max_width, data.next_key_width)
     end
   end
 
@@ -1979,10 +1978,16 @@ H.is_loaded_buf = function(buf_id) return type(buf_id) == 'number' and vim.api.n
 
 H.is_valid_win = function(win_id) return type(win_id) == 'number' and vim.api.nvim_win_is_valid(win_id) end
 
-H.fit_to_width = function(text, width)
-  local t_width = vim.fn.strchars(text)
-  return t_width <= width and text or ('…' .. vim.fn.strcharpart(text, t_width - width + 1, width - 1))
+H.fit_to_width = function(text, width, dir)
+  if H.strwidth(text) <= width then return text end
+  for w = vim.fn.strchars(text) - 1, 1, -1 do
+    text = vim.fn.strcharpart(text, dir == 'right' and 0 or 1, w)
+    if H.strwidth(text) < width then return dir == 'right' and (text .. '…') or ('…' .. text) end
+  end
+  return width < 1 and '' or '…'
 end
+
+H.strwidth = function(text) return vim.api.nvim_strwidth(text) end
 
 H.expand_callable = function(x, ...)
   if vim.is_callable(x) then return x(...) end

@@ -331,8 +331,8 @@ Here is an example of a basic custom key handler: >lua
       state.caret = math.max(state.caret - 1, 1)
     end,
     [vim.keycode('<Right>')] = function(state)
-      local input_width = vim.fn.strchars(state.input)
-      state.caret = math.min(state.caret + 1, input_width + 1)
+      local input_nchars = vim.fn.strchars(state.input)
+      state.caret = math.min(state.caret + 1, input_nchars + 1)
     end,
     [vim.keycode('<CR>')] = function(state) state.status = 'accept' end,
     [vim.keycode('<Esc>')] = function(state) state.status = 'cancel' end,
@@ -588,7 +588,7 @@ interactively by pressing <C-s>.
 
 Each element also accepts <to_chunks> option. It is a function that takes
 a |MiniInput-state| and `max_width` arguments and returns an array of `{ text, hl }`
-chunks that fit into `max_width` display width (as in |strdisplaywidth()|).
+chunks that fit into `max_width` cells (as in |nvim_strwidth()|).
 
 This is a way to adjust how input is shown. Like caret/hide symbols, etc.
 By default uses |MiniInput.state_to_chunks()|, which also means:
@@ -664,7 +664,7 @@ Parameters ~
 
   - <to_chunks> `(function)` - a function that takes |MiniInput-state| and
     `max_width` arguments and returns an array of `{ text, hl }` chunks that fit
-    into `max_width` display width. See |MiniInput.state_to_chunks()|.
+    into `max_width` cells. See |MiniInput.state_to_chunks()|.
 
 Usage ~
 >lua
@@ -700,7 +700,7 @@ Parameters ~
 
   - <to_chunks> `(function)` - a function that takes |MiniInput-state| and
     `max_width` arguments and returns an array of `{ text, hl }` chunks that fit
-    into `max_width` display width. See |MiniInput.state_to_chunks()|.
+    into `max_width` cells. See |MiniInput.state_to_chunks()|.
 
 Usage ~
 >lua
@@ -731,7 +731,7 @@ Parameters ~
 
   - <to_chunks> `(function)` - a function that takes |MiniInput-state| and
     `max_width` arguments and returns an array of `{ text, hl }` chunks that fit
-    into `max_width` display width. See |MiniInput.state_to_chunks()|.
+    into `max_width` cells. See |MiniInput.state_to_chunks()|.
 
 Usage ~
 >lua
@@ -880,12 +880,11 @@ Convert state into text-hl chunks
   are placed "on top" of the previous ones if they overlap.
 - Uses |MiniInput-hl-groups|.
 - Multiline input (i.e. with newline characters `\n`) is shown as a single line.
-- Treats `max_width` as display width (|strdisplaywidth()|).
 - Truncates output chunks trying to center the caret.
 
 Parameters ~
 {state} `(table)` A |MiniInput-state|.
-{max_width} `(number|nil)` Maximum allowed display width. Can be |math.huge|.
+{max_width} `(number|nil)` Maximum allowed cells. Can be |math.huge|.
 {opts} `(table|nil)` Options. Possible fields:
   - <keytrans> `(boolean)` - whether to translate control characters (escaped
     version of `<C-...>`). Default: `true`.
@@ -898,7 +897,7 @@ Parameters ~
     input is hidden. Default: `"•"`.
 
 Return ~
-`(table)` An array of text-hl chunks that fit `max_width` display width.
+`(table)` An array of text-hl chunks that fit `max_width` cells.
 
 ------------------------------------------------------------------------------
                                                      *MiniInput.apply_handler()*

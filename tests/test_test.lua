@@ -1674,7 +1674,7 @@ T['gen_reporter']['buffer'] = new_set({
     { '' },
     { 'group_depth=2' },
     { 'window={width=0.9*vim.o.columns,col=0.05*vim.o.columns}' },
-    { 'window={border="double",title=("a"):rep(200)}' },
+    { 'window={border="double",title=""}' },
   },
 }, {
   test = function(opts_element)
@@ -1697,6 +1697,9 @@ T['gen_reporter']['buffer'] = new_set({
     if vim.startswith(opts_element, 'window') then
       if child.fn.has('nvim-0.11') == 0 then MiniTest.skip("'winborder' option is present on Neovim>=0.11") end
       child.o.winborder = 'rounded'
+      -- Should properly truncate title. Do not set in parameter to avoid emoji
+      -- in reference screenshot file name.
+      opts_element = opts_element:gsub('title=""', 'title=("a😈ツ"):rep(40)')
     end
 
     -- Testing "in dynamic" is left for manual approach

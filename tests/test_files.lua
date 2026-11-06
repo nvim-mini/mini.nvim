@@ -387,9 +387,14 @@ T['open()']['works after setting target window in another tabpage'] = function()
 end
 
 T['open()']['handles problematic entry names'] = function()
-  local temp_dir = make_temp_dir('temp', { '%a bad-file-name', 'a bad-dir.name/' })
+  local temp_dir = make_temp_dir('temp', { '%a bad-file-name', 'a bad-dir.name😈ツ/', 'a bad-dir.name😈ツ/sub/' })
 
   open(temp_dir)
+  child.expect_screenshot()
+
+  -- Should properly truncate title in presence of multicell characters
+  go_in()
+  go_in()
   child.expect_screenshot()
 end
 

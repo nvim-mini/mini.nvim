@@ -2618,29 +2618,24 @@ H.picker_set_bordertext = function(picker)
   if view_state == 'main' then
     local caret, query = picker.caret, picker.query
     local prompt_prefix, prompt_caret = opts.window.prompt_prefix, opts.window.prompt_caret
-    local max_width = math.max(1, win_width - vim.fn.strchars(prompt_prefix) - vim.fn.strchars(prompt_caret))
+    local max_width = math.max(1, win_width - H.strwidth(prompt_prefix) - H.strwidth(prompt_caret))
 
     -- Try to put caret in the center if there is not enough room to show the
     -- whole query (as in 'mini.tabline'). Do that after concatenating query
     -- parts as (after `set_picker_query()`) they can have multiple characters.
-    local before_caret = table.concat(vim.list_slice(query, 1, caret - 1))
-    local after_caret = table.concat(vim.list_slice(query, caret, #query))
-    local w_before, w_after = vim.fn.strchars(before_caret), vim.fn.strchars(after_caret)
+    local before = table.concat(vim.list_slice(query, 1, caret - 1))
+    local after = table.concat(vim.list_slice(query, caret, #query))
+    local w_before, w_after = H.strwidth(before), H.strwidth(after)
 
-    local w_right = math.min(math.floor(0.5 * max_width), w_after)
-    local w_left = math.min(math.max(max_width - w_right, 0), w_before)
-    w_right = math.min(math.max(max_width - w_left, 0), w_after)
-
-    -- Show standard "there is more" padding symbols if needed
-    local pad_left, pad_right = w_left == w_before and '' or '…', w_right == w_after and '' or '…'
-    w_left, w_right = w_left - (pad_left == '' and 0 or 1), w_right - (pad_right == '' and 0 or 1)
-
-    before_caret = vim.fn.strcharpart(before_caret, w_before - w_left, w_left)
-    after_caret = vim.fn.strcharpart(after_caret, 0, w_right)
+    local w_right = H.clamp(math.floor(0.5 * max_width), 0, w_after)
+    local left = H.fit_to_width(before, H.clamp(max_width - w_right, 0, w_before))
+    local right = H.fit_to_width(after, H.clamp(max_width - H.strwidth(left), 0, w_after), 'right')
+    -- - NOTE: redo as `right` might be less than target with multicell chars
+    left = H.fit_to_width(before, H.clamp(max_width - H.strwidth(right), 0, w_before))
 
     local prompt = { { prompt_prefix, 'MiniPickPromptPrefix' }, { prompt_caret, 'MiniPickPromptCaret' } }
-    if after_caret ~= '' then table.insert(prompt, 3, { after_caret .. pad_right, 'MiniPickPrompt' }) end
-    if before_caret ~= '' then table.insert(prompt, 2, { pad_left .. before_caret, 'MiniPickPrompt' }) end
+    if right ~= '' then table.insert(prompt, 3, { right, 'MiniPickPrompt' }) end
+    if left ~= '' then table.insert(prompt, 2, { left, 'MiniPickPrompt' }) end
     config = { title = prompt }
   end
 
@@ -2678,7 +2673,7 @@ H.picker_compute_footer = function(picker, win_id)
   local n_marked_text = info.n_marked == 0 and '' or (info.n_marked .. '/')
   local inds = string.format(' %s|%s|%s%s ', info.relative_current_ind, info.n_matched, n_marked_text, info.n_total)
   local win_width, source_width, inds_width =
-    vim.api.nvim_win_get_width(win_id), vim.fn.strchars(source_name), vim.fn.strchars(inds)
+    vim.api.nvim_win_get_width(win_id), H.strwidth(source_name), H.strwidth(inds)
 
   local footer = { { H.fit_to_width(source_name, win_width), 'MiniPickBorderText' } }
   local n_spaces_between = win_width - (source_width + inds_width)
@@ -2871,7 +2866,7 @@ H.picker_mark_indexes = function(picker, range_type)
   if picker.view_state == 'info' then H.picker_show_info(picker) end
 end
 
-H.picker_move_caret = function(picker, n) picker.caret = math.min(math.max(picker.caret + n, 1), #picker.query + 1) end
+H.picker_move_caret = function(picker, n) picker.caret = H.clamp(picker.caret + n, 1, #picker.query + 1) end
 
 H.picker_move_current = function(picker, by, to)
   if picker.items == nil then return end
@@ -2891,7 +2886,7 @@ H.picker_move_current = function(picker, by, to)
     else
       to = to + by
     end
-    to = math.min(math.max(to, 1), n_matches)
+    to = H.clamp(to, 1, n_matches)
   end
 
   H.picker_set_current_ind(picker, to)
@@ -2975,7 +2970,7 @@ H.picker_show_info = function(picker)
     for _, t in ipairs(data) do
       local desc = t.name:gsub('[%s%p]', ' ')
       t.desc = vim.fn.toupper(desc:sub(1, 1)) .. desc:sub(2)
-      t.width = vim.fn.strchars(t.desc)
+      t.width = H.strwidth(t.desc)
       width_max = math.max(width_max, t.width)
     end
     table.sort(data, function(a, b) return a.desc < b.desc or (a.desc == b.desc and a.char < b.char) end)
@@ -3742,10 +3737,18 @@ H.win_update_hl = function(win_id, new_from, new_to)
   vim.wo[win_id].winhighlight = new_winhighlight
 end
 
-H.fit_to_width = function(text, width)
-  local t_width = vim.fn.strchars(text)
-  return t_width <= width and text or ('…' .. vim.fn.strcharpart(text, t_width - width + 1, width - 1))
+H.fit_to_width = function(text, width, dir)
+  if H.strwidth(text) <= width then return text end
+  for w = vim.fn.strchars(text) - 1, 1, -1 do
+    text = vim.fn.strcharpart(text, dir == 'right' and 0 or 1, w)
+    if H.strwidth(text) < width then return dir == 'right' and (text .. '…') or ('…' .. text) end
+  end
+  return width < 1 and '' or '…'
 end
+
+H.strwidth = function(text) return vim.api.nvim_strwidth(text) end
+
+H.clamp = function(x, from, to) return math.min(math.max(x, from), to) end
 
 H.win_get_bottom_border = function(win_id, border_part_id)
   local border = vim.api.nvim_win_get_config(win_id).border or {}
