@@ -2462,6 +2462,27 @@ T['quickfix()']['works'] = function()
   validate_works(validate, #qf_list)
 end
 
+T['quickfix()']['skips invalid entries'] = function()
+  set_lines({ 'aaaaa', 'bbbbb' })
+  local buf_id = child.api.nvim_get_current_buf()
+  child.fn.setqflist({ { text = 'x' }, { bufnr = buf_id, lnum = 1 }, { text = 'x' }, { bufnr = buf_id, lnum = 2 } })
+
+  local validate = function(id_start, direction, id_ref)
+    set_quickfix(id_start)
+    child.lua('MiniBracketed.quickfix(...)', { direction })
+    eq(get_quickfix(), id_ref)
+  end
+
+  validate(2, 'forward', 4)
+  validate(4, 'forward', 2)
+  validate(2, 'backward', 4)
+  validate(4, 'first', 2)
+  validate(2, 'last', 4)
+
+  child.fn.setqflist({ { text = 'x' }, { text = 'y' } })
+  validate(1, 'forward', 2)
+end
+
 T['quickfix()']['validates `direction`'] = function()
   expect.error(function() child.lua('MiniBracketed.quickfix(1)') end, 'quickfix%(%).*direction.*one of')
   expect.error(function() child.lua([[MiniBracketed.quickfix('next')]]) end, 'quickfix%(%).*direction.*one of')

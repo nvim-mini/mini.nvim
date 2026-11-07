@@ -1815,16 +1815,24 @@ H.qf_loc_implementation = function(list_type, direction, opts)
   local n_list = #list
   if n_list == 0 then return end
 
+  local has_valid = false
+  for _, entry in ipairs(list) do
+    if entry.valid == 1 then has_valid = true end
+  end
+  local is_target = function(ind) return not has_valid or list[ind].valid == 1 end
+
   local iterator = {}
 
   iterator.next = function(ind)
-    if ind == nil or n_list <= ind then return end
-    return ind + 1
+    for i = ind + 1, n_list do
+      if is_target(i) then return i end
+    end
   end
 
   iterator.prev = function(ind)
-    if ind == nil or ind <= 1 then return end
-    return ind - 1
+    for i = ind - 1, 1, -1 do
+      if is_target(i) then return i end
+    end
   end
 
   iterator.state = get_list({ idx = 0 }).idx
