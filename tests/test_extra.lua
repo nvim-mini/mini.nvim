@@ -1827,7 +1827,8 @@ T['pickers']['git_files()']['works'] = function()
   child.lua_notify('_G.return_item = MiniExtra.pickers.git_files()')
   validate_picker_name('Git files (tracked)')
   child.expect_screenshot()
-  local ref_args = { '-C', repo_dir, '-c', 'core.quotepath=false', 'ls-files', '--cached', '--exclude-standard' }
+  --stylua: ignore
+  local ref_args = { '-C', repo_dir, '-c', 'core.quotepath=false', 'ls-files', '--deduplicate', '--cached', '--exclude-standard' }
   eq(get_spawn_log(), { { executable = 'git', options = { args = ref_args, cwd = repo_dir } } })
 
   -- Should have proper preview
@@ -1856,7 +1857,8 @@ T['pickers']['git_files()']['respects `local_opts.path`'] = function()
 
   local validate = function(path, ref_cwd)
     pick_git_files({ path = path })
-    local ref_args = { '-C', ref_cwd, '-c', 'core.quotepath=false', 'ls-files', '--cached', '--exclude-standard' }
+    --stylua: ignore
+    local ref_args = { '-C', ref_cwd, '-c', 'core.quotepath=false', 'ls-files', '--deduplicate', '--cached', '--exclude-standard' }
     eq(get_spawn_log()[1].options, { args = ref_args, cwd = ref_cwd })
     validate_picker_cwd(ref_cwd)
     validate_git_repo_check(dir_path_full)
@@ -1884,7 +1886,7 @@ T['pickers']['git_files()']['respects `local_opts.scope`'] = function()
 
   local validate = function(scope, flags, ref_picker_name)
     pick_git_files({ scope = scope })
-    local ref_args = { '-C', test_dir_absolute, '-c', 'core.quotepath=false', 'ls-files' }
+    local ref_args = { '-C', test_dir_absolute, '-c', 'core.quotepath=false', 'ls-files', '--deduplicate' }
     vim.list_extend(ref_args, flags)
     eq(get_spawn_log()[1].options.args, ref_args)
     validate_picker_name(ref_picker_name)
