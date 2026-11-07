@@ -2912,7 +2912,7 @@ T['builtin.files()']['respects `local_opts.tool`'] = function()
 
   validate('rg', { '--files' })
   validate('fd', { '--type=f' })
-  validate('git', { '-c', 'core.quotepath=false', 'ls-files', '--cached', '--others', '--exclude-standard' })
+  validate('git', { '-c', 'core.quotepath=false', 'ls-files', '--cached', '--others', '--exclude-standard', '--deduplicate' })
 end
 
 T['builtin.files()']['has fallback tool'] = function()
