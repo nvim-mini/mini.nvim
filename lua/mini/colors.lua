@@ -392,8 +392,8 @@
 --- ## add_cterm_attributes() ~
 --- *MiniColors-colorscheme:add_cterm_attributes()*
 ---
---- Infer |cterm-colors| based on present |gui-colors|. It updates `ctermbg`/`ctermfg`
---- based on `fg`/`bg` by approximating in perceptually uniform distance in Oklab
+--- Infer |cterm-colors| based on present |gui-colors|. It updates `ctermbg` / `ctermfg`
+--- based on `fg` / `bg` by approximating in perceptually uniform distance in Oklab
 --- space (|MiniColors-color-spaces|).
 ---
 --- ### Parameters ~

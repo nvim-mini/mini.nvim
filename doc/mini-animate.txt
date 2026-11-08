@@ -192,7 +192,7 @@ Defaults ~
   See |MiniAnimate.animate()| for more details about animation process.
 
 - Every animation can be enabled/disabled independently by setting `enable`
-  option to `true`/`false`.
+  option to `true` / `false`.
 
 - *MiniAnimate-done-event* Every animation triggers custom |User| event when it
   is finished. It is named `MiniAnimateDoneXxx` with `Xxx` replaced by capitalized

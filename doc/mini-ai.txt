@@ -117,19 +117,19 @@ recipes.
 This table describes all builtin textobjects along with what they
 represent. Explanation:
 - `Key` represents the textobject identifier: single character which should
-  be typed after `a`/`i`.
+  be typed after `a` / `i`.
 - `Name` is a description of textobject.
 - `Example line` contains a string for which examples are constructed. The
   `*` denotes the cursor position.
-- `a`/`i` describe inclusive region representing `a` and `i` textobjects.
+- `a` / `i` describe inclusive region representing `a` and `i` textobjects.
   Use numbers in separators for easier navigation.
-- `2a`/`2i` describe either `2a`/`2i` (support for |v:count|) textobjects
-  or `a`/`i` textobject followed by another `a`/`i` textobject (consecutive
+- `2a` / `2i` describe either `2a` / `2i` (support for |v:count|) textobjects
+  or `a` / `i` textobject followed by another `a` / `i` textobject (consecutive
   application leads to incremental selection).
 
 Example: typing `va)` with cursor on `*` leads to selection from column 2
 to column 12. Another typing `a)` changes selection to [1; 13]. Also, besides
-visual selection, any |operator| can be used or `g[`/`g]` motions to move
+visual selection, any |operator| can be used or `g[` / `g]` motions to move
 to left/right edge of `a` textobject.
 >
  ┌───┬───────────────┬──────────────────┬────────┬────────┬────────┬────────┐

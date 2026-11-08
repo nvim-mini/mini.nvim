@@ -154,7 +154,7 @@ This includes |dot-repeat|, |macro|, and |multicursor| (on Neovim>=0.13).
 
 ------------------------------------------------------------------------------
                                                          *mini.nvim-module-list*
-- |mini.ai| - extend and create `a`/`i` textobjects (like in `di(` or
+- |mini.ai| - extend and create `a` / `i` textobjects (like in `di(` or
   `va"`). It enhances some builtin |text-objects| (like |a(|, |a)|, |a'|,
   and more), creates new ones (like `a*`, `a<Space>`, `af`, `a?`, and
   more), and allows user to create their own (like based on treesitter, and
@@ -191,7 +191,7 @@ This includes |dot-repeat|, |macro|, and |multicursor| (on Neovim>=0.13).
 - |mini.clue| - show next key clues. Implements custom key query process with
   customizable opt-in triggers, next key descriptions (clues), hydra-like
   submodes, window delay/config. Provides clue sets for some built-in
-  concepts: `g`/`z` keys, window commands, etc.
+  concepts: `g` / `z` keys, window commands, etc.
 
 - |mini.cmdline| - command line tweaks. Adds autocompletion with customizable
   delay, autocorrection for words with fixed candidates, and autopeek command

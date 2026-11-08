@@ -467,7 +467,7 @@ MiniMap.current = {
 ---   e e
 --- <
 --- Steps:
---- - Convert to boolean mask (each row is a boolean array, "t"/"f" ~ `true`/`false`,
+--- - Convert to boolean mask (each row is a boolean array, `t=true`, `f=false`,
 ---   empty spots are equivalent to being `false`): >
 ---   ttttt
 ---   ftft

@@ -188,7 +188,7 @@ affect output color scheme.
 
 `config.plugins` defines for which supported plugins highlight groups will
 be created. Limiting number of integrations slightly decreases startup time.
-It is a table with boolean (`true`/`false`) values which are applied as follows:
+It is a table with boolean (`true` / `false`) values which are applied as follows:
 - If plugin name (as listed in |mini.hues|) has entry, it is used.
 - Otherwise `config.plugins.default` is used.
 
@@ -326,8 +326,8 @@ Return ~
 `(table)` Palette with the following fields:
   - <bg> and <fg> with supplied `background` and `foreground` colors.
   - Fields like <bg_xxx> and <fg_xxx> are essentially <bg> and <fg> but with
-    different lightness values: `_edge`/`_edge2` - closer to edge lightness,
-    `_mid`/`_mid2` - closer to middle lightness.
+    different lightness values: `_edge` / `_edge2` - closer to edge lightness,
+    `_mid` / `_mid2` - closer to middle lightness.
   - Fields for non-base colors (<red>, <orange>, <yellow>, <green>, <cyan>,
     <azure>, <blue>, <purple>) have the same lightness as foreground.
   - Fields for non-base colors with <_bg> suffix have the same lightness as

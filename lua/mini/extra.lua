@@ -555,7 +555,7 @@ end
 --- Notes:
 --- - Choosing a directory navigates inside it, changing picker's items and
 ---   current working directory.
---- - Query and preview work as usual (not only `move_next`/`move_prev` can be used).
+--- - Query and preview work as usual (not only with `move_next` / `move_prev`).
 --- - Preview works for any item.
 ---
 --- Examples:

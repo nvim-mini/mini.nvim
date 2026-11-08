@@ -284,7 +284,7 @@ end
 ---
 --- It will only add a mapping if it wasn't manually created before.
 ---
---- Here is a list of created mappings (`<M-x>` means `Alt`/`Meta` plus `x`):
+--- Here is a list of created mappings (`<M-x>` means <Alt> / <Meta> plus `x`):
 --- - `<M-h>` - move cursor left.  Modes: Insert, Terminal, Command.
 --- - `<M-j>` - move cursor down.  Modes: Insert, Terminal.
 --- - `<M-k>` - move cursor up.    Modes: Insert, Terminal.

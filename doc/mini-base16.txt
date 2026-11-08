@@ -194,7 +194,7 @@ Defaults ~
 
 `config.plugins` defines for which supported plugins highlight groups will
 be created. Limiting number of integrations slightly decreases startup time.
-It is a table with boolean (`true`/`false`) values which are applied as follows:
+It is a table with boolean (`true` / `false`) values which are applied as follows:
 - If plugin name (as listed in |mini.base16|) has entry, it is used.
 - Otherwise `config.plugins.default` is used.
 

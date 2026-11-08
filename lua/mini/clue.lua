@@ -77,7 +77,7 @@
 ---   mapping, use |MiniClue.set_mapping_desc()|.
 ---
 --- - Due to technical difficulties, there is no foolproof support for
----   Operator-pending mode triggers (like `a`/`i` from |mini.ai|):
+---   Operator-pending mode triggers (like `a` / `i` from |mini.ai|):
 ---     - Doesn't work as part of a command in "temporary Normal mode" (like
 ---       after |i_CTRL-O|) due to implementation difficulties.
 ---     - Can have unexpected behavior with custom operators.
@@ -361,7 +361,7 @@
 ---
 --- - Submode for moving with |mini.move|:
 ---     - Press `<Leader>m` to start submode.
----     - Press any of `h`/`j`/`k`/`l` to move selection/line.
+---     - Press any of `h` / `j` / `k` / `l` to move selection/line.
 ---     - Press `<Esc>` to stop submode.
 ---
 ---   The code: >lua

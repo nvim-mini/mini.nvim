@@ -643,7 +643,7 @@ end
 ---     go_in_plus = 'l',
 ---   }
 ---
----   -- Don't use `h`/`l` for easier cursor navigation during text edit
+---   -- Don't use `h` / `l` for easier cursor navigation during text edit
 ---   mappings = {
 ---     go_in = 'L',
 ---     go_in_plus = '',
