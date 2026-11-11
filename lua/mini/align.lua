@@ -782,7 +782,10 @@ MiniAlign.align_user = function(mode)
     end
 
     -- Stop preview after `<CR>` (confirmation)
-    if with_preview and id == '\r' then break end
+    if with_preview and id == '\r' then
+      if vim.fn.has('nvim-0.13') == 1 then H.unecho() end
+      break
+    end
 
     -- Apply modifier
     local mod = modifiers[id]
