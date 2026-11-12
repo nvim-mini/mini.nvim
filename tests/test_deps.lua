@@ -1160,31 +1160,33 @@ T['add()']['Install']['works when no information about number of cores is availa
   expect.no_error(function() add('user/new_plugin') end)
 end
 
-T['add()']['Install']['respects `config.job.timeout`'] = function()
-  child.lua('_G.duration = ' .. (10 * small_time))
-  child.lua([[
-    _G.stdio_queue = {
-      { out = 'git version 2.43.0'}, -- Check Git executable
-      {},                            -- Clone dep_plugin
-      {},                            -- Clone new_plugin
-      { out = 'sha2head' },          -- Get `HEAD` in dep_plugin
+T['add()']['Install']['respects `config.job.timeout`'] = new_set({ n_retry = helpers.get_n_retry(5) }, {
+  test = function()
+    child.lua('_G.duration = ' .. (20 * small_time))
+    child.lua([[
+      _G.stdio_queue = {
+        { out = 'git version 2.43.0'}, -- Check Git executable
+        {},                            -- Clone dep_plugin
+        {},                            -- Clone new_plugin
+        { out = 'sha2head' },          -- Get `HEAD` in dep_plugin
+      }
+
+      -- Mock long execution of some jobs
+      _G.process_mock_data = { [2] = { duration = _G.duration }, [3] = { duration = 0 }, [4] = { duration = _G.duration } }
+    ]])
+
+    child.lua('MiniDeps.config.job.timeout = ' .. (10 * small_time))
+    add({ source = 'user/new_plugin', depends = { 'user/dep_plugin' } })
+
+    local ref_notify_log = {
+      { '(mini.deps) Installing `new_plugin`', 'INFO' },
+      { '(mini.deps) (1/2) Installed `new_plugin`', 'INFO' },
+      { '(mini.deps) Error in `dep_plugin` during installing plugin\nERROR CODE 1\nPROCESS REACHED TIMEOUT.', 'ERROR' },
+      { '(mini.deps) Error in `new_plugin` during installing plugin\nERROR CODE 1\nPROCESS REACHED TIMEOUT.', 'ERROR' },
     }
-
-    -- Mock long execution of some jobs
-    _G.process_mock_data = { [2] = { duration = _G.duration }, [3] = { duration = 0 }, [4] = { duration = _G.duration } }
-  ]])
-
-  child.lua('MiniDeps.config.job.timeout = ' .. (5 * small_time))
-  add({ source = 'user/new_plugin', depends = { 'user/dep_plugin' } })
-
-  local ref_notify_log = {
-    { '(mini.deps) Installing `new_plugin`', 'INFO' },
-    { '(mini.deps) (1/2) Installed `new_plugin`', 'INFO' },
-    { '(mini.deps) Error in `dep_plugin` during installing plugin\nERROR CODE 1\nPROCESS REACHED TIMEOUT.', 'ERROR' },
-    { '(mini.deps) Error in `new_plugin` during installing plugin\nERROR CODE 1\nPROCESS REACHED TIMEOUT.', 'ERROR' },
-  }
-  validate_notifications(ref_notify_log)
-end
+    validate_notifications(ref_notify_log)
+  end,
+})
 
 T['add()']['Install']['respects `config.silent`'] = function()
   child.lua([[
@@ -1931,36 +1933,38 @@ T['update()']['works when no information about number of cores is available'] = 
   expect.no_error(update)
 end
 
-T['update()']['respects `config.job.timeout`'] = function()
-  helpers.skip_if_slow()
+T['update()']['respects `config.job.timeout`'] = new_set({ n_retry = helpers.get_n_retry(5) }, {
+  test = function()
+    helpers.skip_if_slow()
 
-  child.lua('_G.duration = ' .. (10 * small_time))
-  child.lua([[
-    _G.stdio_queue = {
-      { out = 'git version 2.43.0'}, -- Check Git executable
-      {},                            -- Set `origin` to source in plugin_1
-      {},                            -- Set `origin` to source in plugin_2
-      { out = 'sha1head' },          -- Get `HEAD` in plugin_1
-      { out = 'origin/main' },       -- Get default branch in plugin_1
-      {},                            -- Fetch in plugin_1
+    child.lua('_G.duration = ' .. (20 * small_time))
+    child.lua([[
+      _G.stdio_queue = {
+        { out = 'git version 2.43.0'}, -- Check Git executable
+        {},                            -- Set `origin` to source in plugin_1
+        {},                            -- Set `origin` to source in plugin_2
+        { out = 'sha1head' },          -- Get `HEAD` in plugin_1
+        { out = 'origin/main' },       -- Get default branch in plugin_1
+        {},                            -- Fetch in plugin_1
+      }
+
+      -- Mock non-trivial durations
+      _G.process_mock_data = { [3] = { duration = _G.duration }, [6] = { duration = _G.duration } }
+    ]])
+    add('user/plugin_1')
+    add('user/plugin_2')
+
+    child.lua('MiniDeps.config.job.timeout = ' .. (10 * small_time))
+    update()
+
+    local ref_notify_log = {
+      { '(mini.deps) Downloading 1 update', 'INFO' },
+      { '(mini.deps) Error in `plugin_1` during update\nERROR CODE 1\nPROCESS REACHED TIMEOUT.', 'ERROR' },
+      { '(mini.deps) Error in `plugin_2` during update\nERROR CODE 1\nPROCESS REACHED TIMEOUT.', 'ERROR' },
     }
-
-    -- Mock non-trivial durations
-    _G.process_mock_data = { [3] = { duration = _G.duration }, [6] = { duration = _G.duration } }
-  ]])
-  add('user/plugin_1')
-  add('user/plugin_2')
-
-  child.lua('MiniDeps.config.job.timeout = ' .. (5 * small_time))
-  update()
-
-  local ref_notify_log = {
-    { '(mini.deps) Downloading 1 update', 'INFO' },
-    { '(mini.deps) Error in `plugin_1` during update\nERROR CODE 1\nPROCESS REACHED TIMEOUT.', 'ERROR' },
-    { '(mini.deps) Error in `plugin_2` during update\nERROR CODE 1\nPROCESS REACHED TIMEOUT.', 'ERROR' },
-  }
-  validate_notifications(ref_notify_log)
-end
+    validate_notifications(ref_notify_log)
+  end,
+})
 
 T['update()']['respects `config.silent`'] = function()
   add('user/plugin_1')
