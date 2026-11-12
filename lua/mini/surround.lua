@@ -1991,7 +1991,7 @@ H.user_surround_id = function(surr_type)
   end, 1000)
   local ok, char = pcall(vim.fn.getcharstr)
   needs_reminder = false
-  H.unecho()
+  if H.cache.msg_shown then vim.cmd('mode') end
 
   -- Terminate if couldn't get input (like with <C-c>) or on `<Esc>`
   if not ok or char == '' or char == '\3' or char == '\27' then return nil end
@@ -2253,10 +2253,6 @@ H.echo = function(msg, is_important)
   -- Echo. Force redraw to ensure that it is effective (`:h echo-redraw`)
   vim.cmd([[echo '' | redraw]])
   vim.api.nvim_echo(chunks, is_important, {})
-end
-
-H.unecho = function()
-  if H.cache.msg_shown then vim.cmd([[echo '' | redraw]]) end
 end
 
 H.message = function(msg) H.echo(msg, true) end

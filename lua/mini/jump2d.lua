@@ -1093,10 +1093,6 @@ H.echo = function(msg, is_important)
   vim.api.nvim_echo(chunks, is_important, {})
 end
 
-H.unecho = function()
-  if H.cache.msg_shown then vim.cmd([[echo '' | redraw]]) end
-end
-
 H.message = function(msg) H.echo(msg, true) end
 
 H.is_operator_pending = function()
@@ -1117,7 +1113,7 @@ H.getcharstr = function(msg)
   local ok, char = pcall(vim.fn.getcharstr)
   H.cache.is_in_getcharstr = false
   needs_reminder = false
-  H.unecho()
+  if H.cache.msg_shown then vim.cmd('mode') end
 
   -- Terminate if couldn't get input (like with <C-c>) or on `<Esc>`
   if not ok or char == '' or char == '\3' or char == '\27' then return nil end

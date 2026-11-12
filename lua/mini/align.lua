@@ -815,7 +815,7 @@ MiniAlign.align_user = function(mode)
   end
 
   -- Remove helper status message (if shown)
-  H.unecho()
+  if H.cache.msg_shown then vim.cmd('mode') end
 end
 
 --- Convert 2d array of strings to parts
@@ -1938,10 +1938,6 @@ H.echo = function(msg, add_to_history)
   -- Echo. Force redraw to ensure that it is effective (`:h echo-redraw`)
   vim.cmd([[echo '' | redraw]])
   vim.api.nvim_echo(chunks, add_to_history, {})
-end
-
-H.unecho = function()
-  if H.cache.msg_shown then vim.cmd([[echo '' | redraw]]) end
 end
 
 H.map = function(mode, lhs, rhs, opts)
