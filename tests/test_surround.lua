@@ -562,6 +562,8 @@ T['Add surrounding']['works in Normal mode with dot-repeat'] = function()
 end
 
 T['Add surrounding']['works in Visual mode without dot-repeat'] = function()
+  -- TODO: Adjust this for "semantic Visual dot-repeat" on Neovim>=0.13
+
   -- Reset dot-repeat
   set_lines({ ' aaa ' })
   type_keys('dd')
@@ -597,8 +599,13 @@ T['Add surrounding']['works with multicursor'] = function()
   end
 
   validate_mode({ 'sa', 'iw', ')', 'W', '.' })
-  -- TODO: Look into making "semantic Visual dot-repeat" not re-ask for id
-  validate_mode({ 'viw', 'sa', ')', 'W', '.', ')' })
+
+  -- TODO: Adjust this for "semantic Visual dot-repeat" on Neovim>=0.13
+  -- -- Reset dot-repeat
+  -- set_lines({ ' aaa ' })
+  -- type_keys('dd')
+  -- validate_mode({ 'viw', 'sa', ')', 'W', '.' })
+  validate_mode({ 'viw', 'sa', ')', 'W', 'viw', 'sa', ')' })
 end
 
 --stylua: ignore

@@ -727,6 +727,7 @@ MiniSurround.add = function(mode)
   local marks = H.get_marks_pos(mode)
 
   -- Always ask for user input for Visual mode action
+  -- TODO: Adjust this for "semantic Visual dot-repeat" on Neovim>=0.13
   if mode == 'visual' then H.cache = {} end
 
   -- Get surround info
