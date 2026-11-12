@@ -549,6 +549,56 @@ MiniExtra.pickers.diagnostic = function(local_opts, opts)
   return H.pick_start(items, { source = { name = name, choose = H.choose_with_buflisted, show = show } }, opts)
 end
 
+--- Emoji picker
+---
+--- Pick emoji and insert at cursor. Works both in Normal and Insert mode.
+--- Notes:
+--- - Requires Neovim>=0.12.
+--- - List of available (fully qualified) emoji and their names is stored locally
+---   after downloading (if none is found locally) from the source URL.
+---   The local file is parsed and cached once per session (for performance).
+--- - To not insert picked emoji at cursor, override `choose` and `choose_marked`
+---   source methods.
+---
+---@param local_opts __extra_pickers_local_opts
+---   Possible fields:
+---   - <source_url> `(string)` - URL from where to download emoji data. Should
+---     provide the data in the same format as the default URL.
+---     Default: `https://www.unicode.org/Public/emoji/latest/emoji-test.txt`,
+---     an official Unicode website.
+---   - <store_path> `(string)` - path where downloaded emoji list is stored.
+---     If custom, should provide the JSON array of `[ emoji, name ]` tuples.
+---     Default: "mini-extra-emoji.json" file inside |$XDG_DATA_HOME|.
+---@param opts __extra_pickers_opts
+---
+---@return __extra_pickers_return
+MiniExtra.pickers.emoji = function(local_opts, opts)
+  if vim.fn.has('nvim-0.12') == 0 then error('Picking emoji requires Neovim>=0.12') end
+  local pick = H.validate_pick('emoji')
+  local default_local_opts = { store_path = vim.fn.stdpath('data') .. '/mini-extra-emoji.json' }
+  default_local_opts.source_url = 'https://www.unicode.org/Public/emoji/latest/emoji-test.txt'
+  local_opts = vim.tbl_deep_extend('force', default_local_opts, local_opts or {})
+
+  -- Get items
+  if vim.uv.fs_stat(local_opts.store_path) == nil then return H.emoji_download(local_opts) end
+  local items = H.emoji_get_items(local_opts.store_path)
+
+  -- Define source
+  local place_at_cursor = function(text)
+    local win_target = (pick.get_picker_state().windows or {}).target
+    if win_target == nil or not H.is_valid_win(win_target) then return end
+    local cur = vim.api.nvim_win_get_cursor(win_target)
+    vim.api.nvim_buf_set_text(vim.api.nvim_win_get_buf(win_target), cur[1] - 1, cur[2], cur[1] - 1, cur[2], { text })
+  end
+  local choose = function(item) place_at_cursor(item.emoji) end
+  local choose_marked = function(items_marked)
+    local emoji_marked = vim.tbl_map(function(em) return em.emoji end, items_marked)
+    place_at_cursor(table.concat(emoji_marked, ''))
+  end
+
+  return H.pick_start(items, { source = { name = 'Emoji', choose = choose, choose_marked = choose_marked } }, opts)
+end
+
 --- File explorer picker
 ---
 --- Explore file system and open file.
@@ -1906,6 +1956,43 @@ H.diagnostic_make_compare = function(sort_by)
   return nil
 end
 
+-- Emoji picker ---------------------------------------------------------------
+H.emoji_download = function(local_opts)
+  local url, path = local_opts.source_url, local_opts.store_path
+  local msg = 'There is no local data at ' .. path .. '\nDownload emoji data from this URL?\n' .. url
+  if vim.fn.confirm(msg, '&Yes\n&No', 1, 'Question') ~= 1 then return end
+  H.notify('Downloading emoji data. Wait until finished and retry.', 'INFO')
+
+  local on_response = vim.schedule_wrap(function(err, res)
+    if err then return H.notify('Error downloading emoji data: ' .. tostring(err), 'ERROR') end
+    local parsed = {}
+    local pattern = ';%s+fully%-qualified%s+#%s+(%S+)%s+E[0-9.]+%s+(.-)\n'
+    res.body:gsub(pattern, function(em, name) table.insert(parsed, { em, name }) end)
+
+    vim.fn.mkdir(vim.fn.fnamemodify(path, ':h'), 'p')
+    vim.fn.writefile(vim.json.encode(parsed, { indent = '  ' }), path)
+    H.notify('Downloaded emoji data at ' .. path, 'INFO')
+  end)
+  vim.net.request(url, {}, on_response)
+end
+
+H.emoji_get_items = function(store_path)
+  local items = vim.deepcopy(H.cache.emoji_items)
+  if items ~= nil then return items end
+  items = {}
+  local emoji_json = vim.json.decode(vim.fn.readblob(store_path))
+  local em_max_width = 0
+  for i, em in ipairs(emoji_json) do
+    items[i] = { emoji = em[1], name = em[2] }
+    em_max_width = math.max(H.strwidth(em[1]), em_max_width)
+  end
+  for _, item in ipairs(items) do
+    item.text = H.ensure_text_width(item.emoji, em_max_width) .. ' │ ' .. item.name
+  end
+  H.cache.emoji_items = items
+  return items
+end
+
 -- Git pickers ----------------------------------------------------------------
 H.validate_git = function(picker_name)
   if vim.fn.executable('git') == 1 then return true end
@@ -2252,6 +2339,8 @@ H.check_type = function(name, val, ref, allow_nil)
 end
 
 H.set_buf_name = function(buf_id, name) vim.api.nvim_buf_set_name(buf_id, 'miniextra://' .. buf_id .. '/' .. name) end
+
+H.notify = function(msg, level) vim.notify('(mini.extra) ' .. msg, vim.log.levels[level]) end
 
 H.is_valid_win = function(win_id) return type(win_id) == 'number' and vim.api.nvim_win_is_valid(win_id) end
 

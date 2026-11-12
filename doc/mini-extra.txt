@@ -310,6 +310,35 @@ Return ~
 `(any)` Output of the called picker.
 
 ------------------------------------------------------------------------------
+                                                     *MiniExtra.pickers.emoji()*
+                `MiniExtra.pickers.emoji`({local_opts}, {opts})
+Emoji picker
+
+Pick emoji and insert at cursor. Works both in Normal and Insert mode.
+Notes:
+- Requires Neovim>=0.12.
+- List of available (fully qualified) emoji and their names is stored locally
+  after downloading (if none is found locally) from the source URL.
+  The local file is parsed and cached once per session (for performance).
+- To not insert picked emoji at cursor, override `choose` and `choose_marked`
+  source methods.
+
+Parameters ~
+{local_opts} `(table|nil)` Options defining behavior of this particular picker.
+  Possible fields:
+  - <source_url> `(string)` - URL from where to download emoji data. Should
+    provide the data in the same format as the default URL.
+    Default: `https://www.unicode.org/Public/emoji/latest/emoji-test.txt`,
+    an official Unicode website.
+  - <store_path> `(string)` - path where downloaded emoji list is stored.
+    If custom, should provide the JSON array of `[ emoji, name ]` tuples.
+    Default: "mini-extra-emoji.json" file inside |$XDG_DATA_HOME|.
+{opts} `(table|nil)` Options forwarded to |MiniPick.start()|.
+
+Return ~
+`(any)` Output of the called picker.
+
+------------------------------------------------------------------------------
                                                   *MiniExtra.pickers.explorer()*
                `MiniExtra.pickers.explorer`({local_opts}, {opts})
 File explorer picker

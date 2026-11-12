@@ -719,6 +719,7 @@ T['pickers'] = new_set({
 })
 
 local validate_active_picker = function() eq(child.lua_get('require("mini.pick").get_picker_state() ~= nil'), true) end
+local validate_no_active_picker = function() eq(child.lua_get('require("mini.pick").get_picker_state() == nil'), true) end
 
 local validate_global_source_options = function(picker_start, check_preview, check_choose)
   child.lua([[
@@ -744,6 +745,9 @@ T['pickers']["validate no 'mini.pick'"] = function()
   child.lua([[require = function(module) error() end]])
 
   local extra_pickers = child.lua_get('vim.tbl_keys(MiniExtra.pickers)')
+  if child.fn.has('nvim-0.12') == 0 then
+    extra_pickers = vim.tbl_filter(function(p) return p ~= 'emoji' end, extra_pickers)
+  end
   for _, picker_name in ipairs(extra_pickers) do
     local err_pattern = '%(mini%.extra%) `pickers%.' .. picker_name .. "%(%)` requires 'mini%.pick'"
 
@@ -1313,6 +1317,171 @@ T['pickers']['diagnostic()']['validates arguments'] = function()
   end
   validate({ scope = '1' }, '`pickers%.diagnostic`.*"scope".*"1".*one of')
   validate({ sort_by = '1' }, '`pickers%.diagnostic`.*"sort_by".*"1".*one of')
+end
+
+T['pickers']['emoji()'] = new_set({
+  hooks = {
+    pre_case = function()
+      if child.fn.has('nvim-0.12') == 0 then MiniTest.skip('Emoji picker requires Neovim>=0.12') end
+
+      -- Make `stdpath('data')` point to test directory
+      child.uv.os_setenv('XDG_DATA_HOME', test_dir_absolute)
+
+      child.lua('_G.response_mock_path = ' .. vim.inspect(join_path(test_dir, 'mocks', 'emoji-response')))
+      child.lua([[
+        -- Mock and track notifications
+        _G.notify_log = {}
+        vim.notify = function(...) table.insert(_G.notify_log, { ... }) end
+
+        -- Mock network requests with substitute mock response
+        local body = vim.fn.readblob(_G.response_mock_path)
+        _G.request_log = {}
+        vim.net.request = function(url, opts, on_response)
+          table.insert(_G.request_log, { url = url, opts = opts })
+          on_response(_G.request_err, { body = body })
+        end
+      ]])
+
+      -- Mock user confirmation
+      child.lua([[
+        vim.fn.confirm = function(...)
+          _G.confirm_args = { ... }
+          return _G.confirm_choice or 1
+        end
+      ]])
+    end,
+    post_case = function()
+      -- Remove possibly mocked data standard directory
+      local data_std_path = test_dir_absolute .. (helpers.is_windows() and '/nvim-data' or '/nvim')
+      vim.fn.delete(data_std_path, 'rf')
+    end,
+  },
+})
+
+local pick_emoji = forward_lua_notify('MiniExtra.pickers.emoji')
+
+local emoji_url = 'https://www.unicode.org/Public/emoji/latest/emoji-test.txt'
+
+T['pickers']['emoji()']['works'] = function()
+  child.set_size(20, 70)
+  local info_level = child.lua_get('vim.log.levels.INFO')
+
+  set_lines({ 'abc' })
+  set_cursor(1, 1)
+
+  -- On first call should download data into specified location if confirmed
+  child.lua_notify('_G.return_item = MiniExtra.pickers.emoji()')
+  validate_no_active_picker()
+  eq(child.lua_get('_G.return_item'), vim.NIL)
+  eq(get_lines(), { 'abc' })
+  eq(get_cursor(), { 1, 1 })
+
+  local path = child.fn.stdpath('data') .. '/mini-extra-emoji.json'
+  local ref_confirm_msg = 'There is no local data at ' .. path .. '\nDownload emoji data from this URL?\n' .. emoji_url
+  eq(child.lua_get('_G.confirm_args'), { ref_confirm_msg, '&Yes\n&No', 1, 'Question' })
+
+  sleep(small_time)
+  eq(child.fn.filereadable(path), 1)
+  eq(child.lua_get('_G.request_log'), { { url = emoji_url, opts = {} } })
+  child.lua('_G.request_log = {}')
+  local ref_notify_log = {
+    { '(mini.extra) Downloading emoji data. Wait until finished and retry.', 2 },
+    { '(mini.extra) Downloaded emoji data at ' .. path, info_level },
+  }
+  eq(child.lua_get('_G.notify_log'), ref_notify_log)
+  child.lua('_G.notify_log = {}')
+
+  -- On second and later calls should use a cached computed items
+  child.lua_notify('_G.return_item = MiniExtra.pickers.emoji()')
+  validate_picker_name('Emoji')
+  child.expect_screenshot()
+
+  eq(child.lua_get('_G.request_log'), {})
+  eq(child.lua_get('_G.notify_log'), {})
+
+  -- Should have informative preview
+  type_keys('<Tab>')
+  child.expect_screenshot()
+
+  -- Should choose by inserting at cursor, while still returning chosen value
+  type_keys('<CR>')
+  eq(child.lua_get('_G.return_item'), { emoji = '😀', name = 'grinning face', text = '😀 │ grinning face' })
+  eq(get_lines(), { 'a😀bc' })
+  eq(get_cursor(), { 1, 1 + string.len('😀') })
+
+  -- Should work in Insert mode
+  child.cmd('inoremap <M-e> <Cmd>lua MiniExtra.pickers.emoji()<CR>')
+  set_lines({ 'abc' })
+  set_cursor(1, 2)
+
+  type_keys('i', '<M-e>', '<Down>', '<CR>')
+  validate_no_active_picker()
+  eq(get_lines(), { 'ab🥰c' })
+  eq(get_cursor(), { 1, 2 + string.len('🥰') })
+  eq(child.fn.mode(), 'i')
+
+  type_keys('<End>', '<M-e>', '<CR>')
+  validate_no_active_picker()
+  eq(get_lines(), { 'ab🥰c😀' })
+  eq(get_cursor(), { 1, 3 + string.len('🥰') + string.len('😀') })
+  eq(child.fn.mode(), 'i')
+  child.ensure_normal_mode()
+
+  -- Should work without set up 'mini.pick'
+  child.mini_unload('pick')
+  pick_emoji()
+  validate_active_picker()
+end
+
+T['pickers']['emoji()']['can not confirm download'] = function()
+  child.lua('_G.confirm_choice = 2')
+  pick_emoji()
+  validate_no_active_picker()
+  sleep(small_time)
+  eq(child.lua_get('_G.request_log'), {})
+  eq(child.lua_get('_G.notify_log'), {})
+end
+
+T['pickers']['emoji()']['handles error during net request'] = function()
+  child.lua('_G.request_err = "404: Not found"')
+  pick_emoji()
+  validate_no_active_picker()
+  sleep(small_time)
+  eq(child.lua_get('_G.request_log'), { { opts = {}, url = emoji_url } })
+
+  local ref_notify_log = {
+    { '(mini.extra) Downloading emoji data. Wait until finished and retry.', child.lua_get('vim.log.levels.INFO') },
+    { '(mini.extra) Error downloading emoji data: 404: Not found', child.lua_get('vim.log.levels.ERROR') },
+  }
+  eq(child.lua_get('_G.notify_log'), ref_notify_log)
+end
+
+T['pickers']['emoji()']['respects `local_opts.source_url`'] = function()
+  local url = 'https://custom-unicode.org'
+  pick_emoji({ source_url = url })
+  eq(child.lua_get('_G.confirm_args')[1]:find('\n' .. vim.pesc(url) .. '$') ~= nil, true)
+  eq(child.lua_get('_G.request_log'), { { opts = {}, url = url } })
+end
+
+T['pickers']['emoji()']['respects `local_opts.store_path`'] = function()
+  local path = join_path(test_dir_absolute, 'mocks', 'emoji-list.json')
+  pick_emoji({ store_path = path })
+  child.expect_screenshot()
+
+  eq(child.lua_get('_G.confirm_args'), vim.NIL)
+  eq(child.lua_get('_G.request_log'), {})
+  eq(child.lua_get('_G.notify_log'), {})
+end
+
+T['pickers']['emoji()']['respects `opts`'] = function()
+  pick_emoji()
+  sleep(small_time)
+  pick_emoji({}, { source = { name = 'My name' } })
+  validate_picker_name('My name')
+end
+
+T['pickers']['emoji()']['respects global source options'] = function()
+  validate_global_source_options(pick_emoji, false, false)
 end
 
 T['pickers']['explorer()'] = new_set()

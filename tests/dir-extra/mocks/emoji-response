@@ -1,0 +1,70 @@
+# emoji-test.txt
+# Date: 2026-04-30, 22:40:18 GMT
+# © 2026 Unicode®, Inc.
+# Unicode and the Unicode Logo are registered trademarks of Unicode, Inc. in the U.S. and other countries.
+# For terms of use and license, see https://www.unicode.org/terms_of_use.html
+#
+# Emoji Keyboard/Display Test Data for UTS #51
+# Version: 18.0
+#
+# For documentation and usage, see https://www.unicode.org/reports/tr51
+#
+# This file provides data for testing which emoji forms should be in keyboards and which should also be displayed/processed.
+# Format: code points; status # emoji name
+#     Code points — list of one or more hex code points, separated by spaces
+#     Status
+#       component           — an Emoji_Component,
+#                             excluding Regional_Indicator, ASCII, and non-Emoji
+#       fully-qualified     — a fully-qualified emoji (see ED-18 in UTS #51),
+#                             excluding Emoji_Component
+#       minimally-qualified — a minimally-qualified emoji (see ED-18a in UTS #51)
+#       unqualified         — an unqualified emoji (see ED-19 in UTS #51)
+# Notes:
+#   • A mapping of these status values to RGI_Emoji_Qualification property values
+#     is given by ED-28 in UTS #51.
+#   • This includes the emoji components that need emoji presentation (skin tone and hair)
+#     when isolated, but omits the components that need not have an emoji
+#     presentation when isolated. See ED-20 in UTS #51 for further information.
+#   • The RGI emoji set corresponds to the RGI_Emoji property and contains the same sequences
+#     as the union of the sets of component and fully-qualified sequences in this file.
+#     See ED-27 in UTS #51 for further information.
+#   • The listed minimally-qualified and unqualified cover all cases where an
+#     element of the RGI set is missing one or more emoji presentation selectors.
+#   • The file is in CLDR order, not codepoint order. This is recommended (but not required!) for keyboard palettes.
+#   • The groups and subgroups are illustrative. See the Emoji Order chart for more information.
+
+
+# group: Smileys & Emotion
+
+# subgroup: face-smiling
+1F600                                                  ; fully-qualified     # 😀 E1.0 grinning face
+
+# subgroup: face-affection
+1F970                                                  ; fully-qualified     # 🥰 E11.0 smiling face with hearts
+263A                                                   ; unqualified         # ☺ E0.6 smiling face
+
+# subgroup: face-neutral-skeptical
+1F636 200D 1F32B FE0F                                  ; fully-qualified     # 😶‍🌫️ E13.1 face in clouds
+1F636 200D 1F32B                                       ; minimally-qualified # 😶‍🌫 E13.1 face in clouds
+1F642 200D 2194 FE0F                                   ; fully-qualified     # 🙂‍↔️ E15.1 head shaking horizontally
+1F642 200D 2194                                        ; minimally-qualified # 🙂‍↔ E15.1 head shaking horizontally
+
+# Smileys & Emotion subtotal:		9
+# Smileys & Emotion subtotal:		9	w/o modifiers
+
+# group: People & Body
+
+# subgroup: hand-fingers-open
+1F44B                                                  ; fully-qualified     # 👋 E0.6 waving hand
+1F44B 1F3FB                                            ; fully-qualified     # 👋🏻 E1.0 waving hand: light skin tone
+1F44B 1F3FC                                            ; fully-qualified     # 👋🏼 E1.0 waving hand: medium-light skin tone
+1F44B 1F3FD                                            ; fully-qualified     # 👋🏽 E1.0 waving hand: medium skin tone
+1F44B 1F3FE                                            ; fully-qualified     # 👋🏾 E1.0 waving hand: medium-dark skin tone
+
+# Status Counts
+# fully-qualified : 3963
+# minimally-qualified : 1029
+# unqualified : 243
+# component : 9
+
+#EOF
