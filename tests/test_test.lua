@@ -982,13 +982,15 @@ T['expect']['reference_screenshot()']['works'] = function()
 end
 
 T['expect']['reference_screenshot()']['works with double width characters'] = function()
+  if child.fn.has('nvim-0.11') == 0 then MiniTest.skip('Neovim<0.11 has problems working with composing characters') end
+
   local path = get_ref_path('reference-screenshot-double-width')
   child.set_size(5, 20)
-  set_lines({ '「」' })
+  set_lines({ '「🙂‍↔️」' })
   eq(MiniTest.expect.reference_screenshot(child.get_screenshot(), path), true)
 
   set_lines({ '「「' })
-  local pattern = 'different `text` cell at line 1 column 3, reference = "」", observed = "「"'
+  local pattern = 'different `text` cell at line 1 column 3, reference = "🙂‍↔️", observed = "「"'
   expect.error(function() MiniTest.expect.reference_screenshot(child.get_screenshot(), path) end, pattern)
 end
 

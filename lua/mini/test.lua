@@ -2447,10 +2447,12 @@ H.fit_to_width = function(text, width, dir)
 end
 
 H.string_to_screenchars = function(s)
-  -- Can't use `vim.split(s, '')` because of multibyte characters
+  -- Can't use `vim.split(s, '')` because of multibyte and multicell characters.
+  -- The `skipcc=1` in `strchars` and `strcharpart` is needed to work with
+  -- composing characters.
   local res = {}
-  for i = 1, vim.fn.strchars(s) do
-    local ch = vim.fn.strcharpart(s, i - 1, 1)
+  for i = 1, vim.fn.strchars(s, 1) do
+    local ch = vim.fn.strcharpart(s, i - 1, 1, 1)
     table.insert(res, ch)
     -- Not single-width characters are read as a single char, but result into
     -- `{ ch, '', ... }` when computing observed screenshot (as this is how
