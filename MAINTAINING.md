@@ -269,7 +269,7 @@ Here is a rough outline of how to act (with some Git commit hashes for illustrat
 
 - Make standalone plugin:
     - Create a new empty GitHub repository. Disable Issues, limit PRs, add branch protection rules (copy from the recent standalone repo; can export `json` and then import in the new one).
-    - Clone the repo manually. Copy 'LICENSE' file to it, add 'pkg.json' (adapt from the recent standalone repo), stage, and commit ("docs: add license and `pkg.json`"). Push.
+    - Clone the repo manually. Copy 'LICENSE' file to it, add '.gitignore' and 'pkg.json' (adapt from the recent standalone repo), stage, and commit ("docs: add basic files"). Push.
     - Add the following GitHub tags: "lua", "neovim", "neovim-plugin", "mini-nvim".
 - Merge release branch into `main`. Push `main` and sync dual distribution.
 - Check that standalone repo doesn't have some known issues:
