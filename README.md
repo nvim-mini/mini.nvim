@@ -8,7 +8,7 @@ Think about this project as "Swiss Army knife" among Neovim plugins: it has many
 
 If you want to help this project grow but don't know where to start:
 
-- Leave a Github star for 'mini.nvim' and/or any other [MINI projects](https://nvim-mini.org).
+- Leave a star for 'mini.nvim' (on any [supported code forge](#installation)) and/or any other [MINI projects](https://nvim-mini.org).
 - Check out [contributing guides](CONTRIBUTING.md).
 
 See [change log](CHANGELOG.md) for a history of changes, including current development version.
@@ -27,6 +27,12 @@ See [MiniMax](https://nvim-mini.org/MiniMax) for a full config example based on 
 - [Planned modules](#planned-modules)
 
 ## Installation
+
+This project is hosted on several code forges (use preferred link in the installation code snippet):
+
+- https://github.com/nvim-mini/mini.nvim (main)
+- https://tangled.org/nvim-mini.org/mini.nvim (mirror)
+- https://codeberg.org/nvim-mini/mini.nvim (mirror)
 
 There are two branches to install from:
 

@@ -24,6 +24,13 @@ There are following change types:
     - 'mini.map'
     - 'mini.test' (`gen_reporter.buffer`)
 
+### Expand
+
+- Add two mirrors for wider access:
+
+    - https://tangled.org/nvim-mini.org/mini.nvim
+    - https://codeberg.org/nvim-mini/mini.nvim
+
 ## mini.ai
 
 ### Evolve

@@ -5,12 +5,12 @@ Thank you for your willingness to contribute to 'mini.nvim'. It means a lot!
 You can make contributions in the following ways:
 
 - **Mention it** somehow to help reach broader audience. This helps a lot.
-- **Create a GitHub issue**. It can be one of the following types:
+- **Create an issue on https://github.com/nvim-mini/mini.nvim**. It can be one of the following types:
     - **Bug report**. Describe your actions in a reproducible way along with their effect and what you expected should happen. Before making one, please make your best efforts to:
         - Make sure that it is not an intended behavior, i.e. not described in documentation as such.
         - Make sure that it was not reported before, i.e. there is no bug report already created (no matter open or closed).
     - **Feature request**. A concise and justified description of what one or several modules should be able to do. Before making one, please make your best efforts to make sure that it is not a feature that won't get implemented (these should be described in documentation; for example: block comments in 'mini.comment').
-- **Create a pull request (PR)**. It can be one of the following types:
+- **Create a pull request (PR) on https://github.com/nvim-mini/mini.nvim**. It can be one of the following types:
     - **Code related**. For example, fix a bug or implement a feature. **Before even starting one, please make sure that it is aligned with project vision and goals**. The best way to do so is to receive positive feedback from maintainer on your initiative in one of the GitHub issues (existing or created by you). Please, make sure to regenerate latest help file and that all tests pass (see later sections).
     - **Documentation related**. For example, fix typo/wording in 'README.md', code comments or annotations (which are used to generate Neovim documentation; see later section). Feel free to make these without creating a GitHub issue.
     - **Add plugin integration to 'mini.base16' and 'mini.hues' modules**.

@@ -99,6 +99,18 @@ Usual workflow involves performing these steps after every commit in 'mini.nvim'
     - Clean up 'dual/patches'.
     - Update `sync` branch to point to latest commit and push it to `origin`.
 
+## Mirrors
+
+The project's main code forge is currently GitHub: https://github.com/nvim-mini/mini.nvim . There are also mirrors on other code forges to reach wider audience:
+
+- Tangled: https://tangled.org/nvim-mini.org/mini.nvim
+- Codeberg: https://codeberg.org/nvim-mini/mini.nvim
+
+There is currently no automated mirroring from GitHub to other forges. So when developing:
+
+- Set up `tangled` and `codeberg` remotes pointing to corresponding repos in a way that can be pushed to (probably via SSH).
+- Push to them whenever there are changes in the `main` branch, `stable` branch, or there is a new tag release.
+
 ## Typical workflow for adding change
 
 - Solve the problem.
@@ -114,6 +126,7 @@ Usual workflow involves performing these steps after every commit in 'mini.nvim'
     - `make dual_sync` to sync.
     - `make dual_log` and look at changes which are about to be applied to standalone repositories. Make sure that they are what you'd expect.
     - `make dual_push` to push changes to standalone repositories.
+- Push `main` branch to `tangled` and `codeberg` remotes.
 
 ## Typical workflow for processing a GitHub issue
 
@@ -319,6 +332,7 @@ There is no clear guidelines for when a stable (minor) release should be made. M
     TAG_NAME="v0.xx.0" TAG_MESSAGE="Version 0.xx.0" make dual_release
     ```
 - Check that standalone repositories actually got updates (tag + `stable`): manually visit some of them (at least new modules) on GitHub.
+- Push `main` branch, `stable` branch, and the new tag to `tangled` and `codeberg` remotes.
 
 ### After release
 
