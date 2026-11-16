@@ -1166,6 +1166,9 @@ end
 -- Integration tests ==========================================================
 local validate_keys = function(input_lines, keys, output_lines)
   set_lines(input_lines)
+  -- To test if buffer is considered modified, ensure 'nomodified' after writing input
+  child.bo.modified = false
+
   set_cursor(1, 0)
   type_keys(keys)
   eq(get_lines(), output_lines)
@@ -1344,6 +1347,8 @@ T['Align']['stops on `<Esc>` and `<C-c>`'] = function()
   for _, stop_key in ipairs({ '<Esc>', '<C-c>' }) do
     validate_keys({ 'a\3b', 'aa\3b' }, { 'ga', 'ip', stop_key }, { 'a\3b', 'aa\3b' })
     eq(get_mode(), 'n')
+    -- Verify clean stop
+    eq(child.bo.modified, false)
   end
 end
 
@@ -1608,8 +1613,14 @@ T['Align with preview']['stops preview after `<Esc>` and `<C-c>`'] = function()
 
     local lines = { 'a_b', 'aa_b' }
     set_lines(lines)
+    -- To test if buffer is considered modified, ensure 'nomodified' after writing input
+    child.bo.modified = false
     set_cursor(1, 0)
-    type_keys(init_keys, '_')
+    type_keys(init_keys)
+    -- Unchanged text should not be written to buffer
+    eq(child.bo.modified, false)
+    -- Split by underscore
+    type_keys('_')
     -- Justify to right side
     type_keys('jr')
     eq(get_lines(), { ' a_b', 'aa_b' })
@@ -1618,6 +1629,9 @@ T['Align with preview']['stops preview after `<Esc>` and `<C-c>`'] = function()
     type_keys(stop_key)
     eq(get_mode(), 'n')
     eq(get_lines(), lines)
+    -- Verify clean stop
+    eq(child.bo.modified, false)
+
     -- This should start Insert mode and not right justify by 'a'
     type_keys('a')
     eq(get_mode(), 'i')

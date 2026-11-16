@@ -806,9 +806,8 @@ MiniAlign.align_user = function(mode)
     opts = H.normalize_opts(opts)
     steps = H.normalize_steps(steps, opts)
 
-    -- Process region while tracking if lines were set at least once
-    local lines_now_changed = H.process_current_region(lines_were_changed, mode, opts, steps)
-    lines_were_changed = lines_were_changed or lines_now_changed
+    -- Process region while tracking if lines were changed
+    lines_were_changed = H.process_current_region(lines_were_changed, mode, opts, steps)
 
     -- Stop in "no preview" mode right after `split` is defined
     if not with_preview and opts.split_pattern ~= '' then break end
@@ -1680,13 +1679,17 @@ H.process_current_region = function(lines_were_changed, mode, opts, steps)
   -- Actually process region
   local strings = H.region_get_text(region, mode)
   local strings_aligned = MiniAlign.align_strings(strings, opts, steps)
-  H.region_set_text(region, mode, strings_aligned)
 
-  -- Make sure that latest changes are shown
-  vim.cmd('redraw')
+  -- Set text if lines changed
+  local lines_changed = table.concat(strings, '\n') ~= table.concat(strings_aligned, '\n')
+  if lines_changed then
+    H.region_set_text(region, mode, strings_aligned)
 
-  -- Confirm that lines were actually set
-  return table.concat(strings) ~= table.concat(strings_aligned)
+    -- Make sure that latest changes are shown
+    vim.cmd('redraw')
+  end
+
+  return lines_changed
 end
 
 H.get_current_region = function()
