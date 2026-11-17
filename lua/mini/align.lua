@@ -755,11 +755,8 @@ MiniAlign.align_user = function(mode)
   local steps_are_from_cache = H.cache.steps ~= nil
   H.cache.region = nil
 
-  -- Track if lines were actually changed to properly undo during preview
-  local lines_were_changed = false
-
-  -- Make initial process
-  lines_were_changed = H.process_current_region(lines_were_changed, mode, opts, steps)
+  -- Start and track if undo is needed (for preview and selective 'modified' setting)
+  local needs_undo = H.process_current_region(mode, opts, steps)
 
   -- Make early return:
   -- - If cache is present (enables dot-repeat).
@@ -776,7 +773,7 @@ MiniAlign.align_user = function(mode)
     -- Stop in case user supplied inappropriate modifier id (abort)
     -- Also stop in case of too many iterations (guard from infinite cycle)
     if id == nil or n_iter > 1000 then
-      if lines_were_changed then H.undo() end
+      if needs_undo then H.undo() end
       if n_iter > 1000 then H.echo({ { 'Too many modifiers typed.', 'WarningMsg' } }, true) end
       break
     end
@@ -806,9 +803,9 @@ MiniAlign.align_user = function(mode)
     opts = H.normalize_opts(opts)
     steps = H.normalize_steps(steps, opts)
 
-    -- Process region while tracking if lines were set at least once
-    local lines_now_changed = H.process_current_region(lines_were_changed, mode, opts, steps)
-    lines_were_changed = lines_were_changed or lines_now_changed
+    -- Process region while tracking if undo is needed
+    if needs_undo then H.undo() end
+    needs_undo = H.process_current_region(mode, opts, steps)
 
     -- Stop in "no preview" mode right after `split` is defined
     if not with_preview and opts.split_pattern ~= '' then break end
@@ -1651,14 +1648,11 @@ H.make_filter_action = function(expr)
 end
 
 -- Work with regions ----------------------------------------------------------
----@return boolean Whether some lines were actually set.
+---@return boolean Whether undo is needed to undo side effects of this function
 ---@private
-H.process_current_region = function(lines_were_changed, mode, opts, steps)
+H.process_current_region = function(mode, opts, steps)
   -- Cache current options and steps for dot-repeat
   H.cache.opts, H.cache.steps = opts, steps
-
-  -- Undo previously set lines
-  if lines_were_changed then H.undo() end
 
   -- Get current region. NOTE: use cached value to ensure that the same region
   -- is processed during preview. Otherwise there might be problems with
@@ -1680,13 +1674,14 @@ H.process_current_region = function(lines_were_changed, mode, opts, steps)
   -- Actually process region
   local strings = H.region_get_text(region, mode)
   local strings_aligned = MiniAlign.align_strings(strings, opts, steps)
+
+  -- Set text only if it has changed
+  if table.concat(strings, '\n') == table.concat(strings_aligned, '\n') then return false end
+
   H.region_set_text(region, mode, strings_aligned)
-
-  -- Make sure that latest changes are shown
+  -- - Make sure that latest changes are shown
   vim.cmd('redraw')
-
-  -- Confirm that lines were actually set
-  return table.concat(strings) ~= table.concat(strings_aligned)
+  return true
 end
 
 H.get_current_region = function()

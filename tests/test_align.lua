@@ -1166,6 +1166,8 @@ end
 -- Integration tests ==========================================================
 local validate_keys = function(input_lines, keys, output_lines)
   set_lines(input_lines)
+  -- Ensure 'nomodified' to test that 'modified' is set only if text changes
+  child.bo.modified = false
   set_cursor(1, 0)
   type_keys(keys)
   eq(get_lines(), output_lines)
@@ -1339,12 +1341,18 @@ T['Align']['treats non-config modifier as explicit split pattern'] = function()
 end
 
 T['Align']['stops on `<Esc>` and `<C-c>`'] = function()
-  -- <C-c> should stop even if it doesn't make `getcharstr` error
-  child.cmd('nnoremap <C-c> <C-\\><C-n>')
-  for _, stop_key in ipairs({ '<Esc>', '<C-c>' }) do
+  local validate = function(stop_key)
     validate_keys({ 'a\3b', 'aa\3b' }, { 'ga', 'ip', stop_key }, { 'a\3b', 'aa\3b' })
     eq(get_mode(), 'n')
+    eq(child.bo.modified, false)
   end
+
+  validate('<Esc>')
+  validate('<C-c>')
+
+  -- <C-c> should stop even if it doesn't make `getcharstr` error
+  child.cmd('nnoremap <C-c> <C-\\><C-n>')
+  validate('<C-c>')
 end
 
 T['Align']['has guard against infinite loop'] = function()
@@ -1372,6 +1380,29 @@ T['Align']['does not stop on error during modifier execution'] = function()
   local duration = 0.000001 * (vim.uv.hrtime() - before_time)
   eq(error_message_force_delay <= duration and duration <= error_message_force_delay + 2 * small_time, true)
   expect.match(get_latest_message(), '^%(mini.align%) Modifier "e" should be properly callable%. Reason:')
+end
+
+T['Align']["makes buffer 'modified' only when needed"] = function()
+  child.lua([[MiniAlign.config.modifiers.e = function() error('Bad modifier') end]])
+
+  local validate = function(init_keys, key, ref_lines, ref_modified)
+    set_lines({ 'a_b', 'aa_b' })
+    child.bo.modified = false
+
+    type_keys(init_keys)
+    eq(child.bo.modified, false)
+
+    type_keys(key)
+    eq(get_lines(), ref_lines)
+    eq(child.bo.modified, ref_modified)
+
+    type_keys('<C-c>')
+  end
+
+  validate({ 'ga', 'ip' }, '_', { 'a _b', 'aa_b' }, true)
+  validate({ 'ga', 'ip' }, 'e', { 'a_b', 'aa_b' }, false)
+  validate({ 'vip', 'ga' }, '_', { 'a _b', 'aa_b' }, true)
+  validate({ 'vip', 'ga' }, 'e', { 'a_b', 'aa_b' }, false)
 end
 
 T['Align']['validates steps after each modifier'] = function()
@@ -1608,8 +1639,12 @@ T['Align with preview']['stops preview after `<Esc>` and `<C-c>`'] = function()
 
     local lines = { 'a_b', 'aa_b' }
     set_lines(lines)
+    child.bo.modified = false
     set_cursor(1, 0)
-    type_keys(init_keys, '_')
+    type_keys(init_keys)
+
+    -- Split by underscore
+    type_keys('_')
     -- Justify to right side
     type_keys('jr')
     eq(get_lines(), { ' a_b', 'aa_b' })
@@ -1618,6 +1653,9 @@ T['Align with preview']['stops preview after `<Esc>` and `<C-c>`'] = function()
     type_keys(stop_key)
     eq(get_mode(), 'n')
     eq(get_lines(), lines)
+    -- Verify clean stop
+    eq(child.bo.modified, false)
+
     -- This should start Insert mode and not right justify by 'a'
     type_keys('a')
     eq(get_mode(), 'i')
@@ -1630,6 +1668,33 @@ T['Align with preview']['stops preview after `<Esc>` and `<C-c>`'] = function()
   -- Visual mode
   validate({ 'Vj', 'gA' }, '<Esc>')
   validate({ 'Vj', 'gA' }, '<C-c>')
+end
+
+T['Align with preview']['results in modified buffer only when needed'] = function()
+  child.lua([[MiniAlign.config.modifiers.e = function() error('Bad modifier') end]])
+
+  set_lines({ 'a_b', 'aa_b' })
+  child.bo.modified = false
+  type_keys('gA', 'ip')
+  eq(child.bo.modified, false)
+
+  type_keys('_')
+  eq(get_lines(), { 'a _b', 'aa_b' })
+  eq(child.bo.modified, true)
+
+  -- Going back to original lines should not modify buffer
+  type_keys('s', '<CR>')
+  eq(get_lines(), { 'a_b', 'aa_b' })
+  eq(child.bo.modified, false)
+
+  -- Typing modifier that results in an error should not modify buffer while
+  -- not stopping the align preview
+  type_keys('e')
+  eq(get_lines(), { 'a_b', 'aa_b' })
+  eq(child.bo.modified, false)
+  type_keys('_')
+  eq(get_lines(), { 'a _b', 'aa_b' })
+  eq(child.bo.modified, true)
 end
 
 T['Align with preview']['correctly restores visual selection'] = new_set(
@@ -1802,6 +1867,7 @@ T['Modifiers']['j']['stops on `<Esc>` and `<C-c>`'] = function()
   end
 
   validate('<Esc>')
+  validate('<C-c>')
 
   -- <C-c> should stop even if it doesn't make `getcharstr` error
   child.cmd('nnoremap <C-c> <C-\\><C-n>')
