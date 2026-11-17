@@ -1603,7 +1603,7 @@ T['Textobject']['can be cancelled'] = function()
 
   -- Visual mode should be cancelled without leaving Visual mode
   validate('<Esc>', { 'v', 'i' }, 'v')
-  validate('<C-c>', { 'v', 'i' }, 'n')
+  validate('<C-c>', { 'v', 'i' }, child.fn.has('nvim-0.13') == 1 and 'v' or 'n')
 
   -- Operator-pending mode should be cancelled into Normal mode
   validate('<Esc>', { 'd', 'i' }, 'n')
