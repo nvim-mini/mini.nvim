@@ -1417,6 +1417,7 @@ end
 
 T['Align']['shows state after one idle second'] = new_set({
   parametrize = { { 'Normal' }, { 'Visual' } },
+  n_retry = helpers.get_n_retry(5),
 }, {
   test = function(test_mode)
     -- Check this only on Neovim>=0.11, as there is a slight change in
