@@ -149,8 +149,8 @@ T['get()']['works with "default" category'] = function()
 
   validate('default', '󰟢', 'MiniIconsGrey', false)
   validate('directory', '󰉋', 'MiniIconsAzure', false)
-  validate('extension', '󰈔', 'MiniIconsGrey', false)
-  validate('file', '󰈔', 'MiniIconsGrey', false)
+  validate('extension', '󰓹', 'MiniIconsGrey', false)
+  validate('file', '󰈙', 'MiniIconsGrey', false)
   validate('filetype', '󰈔', 'MiniIconsGrey', false)
   validate('lsp', '󰞋', 'MiniIconsRed', false)
   validate('os', '󰟀', 'MiniIconsPurple', false)
@@ -599,7 +599,7 @@ T['get()']['respects customizations in config'] = function()
   eq(get('default', 'directory'), { '󱁂', 'Directory', false })
   eq(get('directory', 'mydir'), { 'A', 'Comment', false })
   eq(get('extension', 'myext'), { 'B', 'MiniIconsGrey', false })
-  eq(get('file', 'myfile'), { '󰈔', 'String', false })
+  eq(get('file', 'myfile'), { '󰈙', 'String', false })
   eq(get('filetype', 'myfiletype'), { 'D', 'MiniIconsGrey', false })
   eq(get('lsp', 'mylsp'), { 'E', 'MiniIconsRed', false })
   eq(get('os', 'myos'), { 'F', 'MiniIconsPurple', false })
@@ -644,7 +644,7 @@ end
 
 T['get()']['can be used without `setup()`'] = function()
   unload_module()
-  eq(child.lua_get('{ require("mini.icons").get("default", "file") }'), { '󰈔', 'MiniIconsGrey', false })
+  eq(child.lua_get('{ require("mini.icons").get("default", "file") }'), { '󰈙', 'MiniIconsGrey', false })
 end
 
 T['get()']['works with deleted cwd'] = function()
@@ -658,10 +658,10 @@ T['get()']['works with deleted cwd'] = function()
 
   -- Should use `vim.filetype.match` without errors due to missing cwd
   eq(get('extension', 'xpm'), { '󰍹', 'MiniIconsYellow', false })
-  eq(get('extension', 'unknown'), { '󰈔', 'MiniIconsGrey', true })
+  eq(get('extension', 'unknown'), { '󰓹', 'MiniIconsGrey', true })
   eq(get('file', 'hello.tcsh'), { '', 'MiniIconsAzure', false })
   eq(get('file', file_path), { '󰦪', 'MiniIconsYellow', false })
-  eq(get('file', 'does-not-exist'), { '󰈔', 'MiniIconsGrey', true })
+  eq(get('file', 'does-not-exist'), { '󰈙', 'MiniIconsGrey', true })
 end
 
 T['get()']['handles deleting all buffers'] = function()

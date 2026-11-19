@@ -6,6 +6,14 @@ There are following change types:
 - `Refine` - change in previously intended functionality *without* adding new one. This is usually described as a "breaking change", but used here in a sense that it might break user's expectations about existing functionality.
 - `Expand` - adding new functionality without affecting existing ones. This is essentially new features.
 
+# Version 0.20.0-dev
+
+## mini.icons
+
+### Refine
+
+- Change default icons for `extension` and `file` categories to make default icons not repeat.
+
 # Version 0.19.0-dev
 
 ## All

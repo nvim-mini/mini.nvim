@@ -5,12 +5,12 @@
 04|󰦪 tests/dir-pick/real-files/b.txt            
 05|󰵸 tests/dir-pick/real-files/c.gif            
 06|󰉋 tests/dir-pick                             
-07|󰈔 tests/dir-pick/file                        
+07|󰈙 tests/dir-pick/file                        
 08|  non-existing                               
 09|  non-string                                 
-10|󰈔 prefer-path-field                          
+10|󰈙 prefer-path-field                          
 11|󰉋 buffer-prefer-path-field                   
-12|󰈔 buffer-use-buf-name                        
+12|󰈙 buffer-use-buf-name                        
 13|                                             
 
 --|---------|---------|---------|---------|-----
