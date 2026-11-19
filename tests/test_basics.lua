@@ -402,13 +402,16 @@ T['Mappings']['Basic']['gO'] = function()
   end
 end
 
-T['Mappings']['Basic']['gy'] = function()
+T['Mappings']['Basic']['gy/gY'] = function()
   load_module()
   eq(child.fn.maparg('gy', 'n'), '"+y')
   eq(child.fn.maparg('gy', 'x'), '"+y')
+  eq(child.fn.maparg('gY', 'n'), '"+y$')
+  -- There should be no Visual mode mapping to align with `:h Y-default`
+  eq(child.fn.maparg('gY', 'x'), '')
 end
 
-T['Mappings']['Basic']['gp'] = function()
+T['Mappings']['Basic']['gp/gP'] = function()
   load_module()
 
   -- Has problems with CI testing, so test mapping themselves. Should be enough
@@ -417,9 +420,9 @@ T['Mappings']['Basic']['gp'] = function()
 
   local normal_keymaps = child.api.nvim_get_keymap('n')
   for _, keymap in ipairs(normal_keymaps) do
-    if keymap.lhs == 'gy' then
-      table.insert(created_mappings, 'n_gy')
-      eq(keymap.rhs, '"+y')
+    if keymap.lhs == 'gP' then
+      table.insert(created_mappings, 'n_gP')
+      eq(keymap.rhs, '"+P')
     end
     if keymap.lhs == 'gp' then
       table.insert(created_mappings, 'n_gp')
@@ -429,9 +432,9 @@ T['Mappings']['Basic']['gp'] = function()
 
   local visual_keymaps = child.api.nvim_get_keymap('x')
   for _, keymap in ipairs(visual_keymaps) do
-    if keymap.lhs == 'gy' then
-      table.insert(created_mappings, 'x_gy')
-      eq(keymap.rhs, '"+y')
+    if keymap.lhs == 'gP' then
+      table.insert(created_mappings, 'x_gP')
+      eq(keymap.rhs, '"+P')
     end
     if keymap.lhs == 'gp' then
       table.insert(created_mappings, 'x_gp')
@@ -441,7 +444,7 @@ T['Mappings']['Basic']['gp'] = function()
   end
 
   table.sort(created_mappings)
-  eq(created_mappings, { 'n_gp', 'n_gy', 'x_gp', 'x_gy' })
+  eq(created_mappings, { 'n_gP', 'n_gp', 'x_gP', 'x_gp' })
 end
 
 T['Mappings']['Basic']['gV'] = function()

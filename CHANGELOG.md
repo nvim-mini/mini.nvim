@@ -44,6 +44,8 @@ There are following change types:
 
 - Add `<C-c>` basic mapping that acts as "Stop, clear, redraw" (a combination of `:h CTRL-C` and `:h CTRL-L-default`).
 
+- Add `gY` and `gP` basic mappings to complement `gy` and `gp`, that copy and paste with system clipboard with `"+Y` and `"+P` respectively.
+
 ## mini.bracketed
 
 ### Expand

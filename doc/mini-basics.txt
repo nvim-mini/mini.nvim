@@ -233,7 +233,9 @@ Here is a table with created mappings : >
  | go    | Normal          | Add [count] empty lines after cursor          |
  | gO    | Normal          | Add [count] empty lines before cursor         |
  | gy    | Normal, Visual  | Copy to system clipboard                      |
+ | gY    | Normal          | Copy till end-of-line to system clipboard     |
  | gp    | Normal, Visual  | Paste from system clipboard                   |
+ | gP    | Normal, Visual  | Paste from system clipboard                   |
  | gV    | Normal          | Visually select latest changed or yanked text |
  | g/    | Visual          | Search inside current visual selection        |
  | *     | Visual          | Search forward for current visual selection   |
@@ -250,6 +252,8 @@ Notes:
 - On Neovim>=0.11 there are |[<Space>| / |]<Space>| for adding empty lines.
   The `gO` and `go` mappings are still created as they are more aligned with
   similarly purposed |O| and |o| keys (although sometimes conflict with |gO|).
+- The difference between `gp` and `gP` is that in Normal mode they paste
+  with |p| and |P| respectively.
 
 ## mappings.option_toggle_prefix ~
 

@@ -203,7 +203,9 @@ end
 ---  | go    | Normal          | Add [count] empty lines after cursor          |
 ---  | gO    | Normal          | Add [count] empty lines before cursor         |
 ---  | gy    | Normal, Visual  | Copy to system clipboard                      |
+---  | gY    | Normal          | Copy till end-of-line to system clipboard     |
 ---  | gp    | Normal, Visual  | Paste from system clipboard                   |
+---  | gP    | Normal, Visual  | Paste from system clipboard                   |
 ---  | gV    | Normal          | Visually select latest changed or yanked text |
 ---  | g/    | Visual          | Search inside current visual selection        |
 ---  | *     | Visual          | Search forward for current visual selection   |
@@ -220,6 +222,8 @@ end
 --- - On Neovim>=0.11 there are |[<Space>| / |]<Space>| for adding empty lines.
 ---   The `gO` and `go` mappings are still created as they are more aligned with
 ---   similarly purposed |O| and |o| keys (although sometimes conflict with |gO|).
+--- - The difference between `gp` and `gP` is that in Normal mode they paste
+---   with |p| and |P| respectively.
 ---
 --- ## mappings.option_toggle_prefix ~
 ---
@@ -558,11 +562,17 @@ H.apply_mappings = function(config)
     map('n', 'gO', 'v:lua.MiniBasics.put_empty_line(v:true)',  { expr = true, desc = 'Put empty line above' })
     map('n', 'go', 'v:lua.MiniBasics.put_empty_line(v:false)', { expr = true, desc = 'Put empty line below' })
 
-    -- Copy/paste with system clipboard
-    map({ 'n', 'x' }, 'gy', '"+y', { desc = 'Copy to system clipboard' })
-    map(  'n',        'gp', '"+p', { desc = 'Paste from system clipboard' })
+    -- Copy with system clipboard
+    map('n', 'gy', '"+y',  { desc = 'Copy to system clipboard' })
+    map('x', 'gy', '"+y',  { desc = 'Copy to system clipboard' })
+    map('n', 'gY', '"+y$', { desc = 'Copy till EOL to system clipboard' })
+
+    -- Paste with system clipboard
+    map('n', 'gp', '"+p', { desc = 'Paste before cursor from system clipboard' })
+    map('n', 'gP', '"+P', { desc = 'Paste after cursor from system clipboard' })
     -- - Paste in Visual with `P` to not copy selected text (`:h v_P`)
-    map(  'x',        'gp', '"+P', { desc = 'Paste from system clipboard' })
+    map('x', 'gp', '"+P', { desc = 'Paste from system clipboard' })
+    map('x', 'gP', '"+P', { desc = 'Paste from system clipboard' })
 
     -- Reselect latest changed, put, or yanked text
     map('n', 'gV', '"g`[" . strpart(getregtype(), 0, 1) . "g`]"', { expr = true, replace_keycodes = false, desc = 'Visually select changed text' })
