@@ -93,9 +93,11 @@ more details.
 - `MiniFilesCursorLine` - cursor line in explorer windows.
 - `MiniFilesDirectory` - text and icon representing directory.
 - `MiniFilesFile` - text representing file.
+- `MiniFilesFooter` - footer of regular windows.
+- `MiniFilesFooterFocused` - footer of the focused window.
 - `MiniFilesNormal` - basic foreground/background highlighting.
 - `MiniFilesTitle` - title of regular windows.
-- `MiniFilesTitleFocused` - title of focused window.
+- `MiniFilesTitleFocused` - title of the focused window.
 
 To change any highlight group, set it directly with |nvim_set_hl()|.
 
@@ -120,6 +122,10 @@ principles:
 
     - Windows are organized left to right: for any particular window the left
       neighbor is its parent directory and right neighbor - its child.
+
+    - Window titles show path (the left one) or basename. Window footers show
+      entry size info: number of child directories and files for directories,
+      disk size for file previews.
 
 - Explorer windows are the viewport to some part of current branch, meaning
   that their opening/closing does not affect the branch. This matters, for
@@ -411,8 +417,8 @@ autocommand is the suggested approach: >lua
     end,
   })
 <
-However, some parts (like window title and height) of window config are later
-updated internally. Use `MiniFilesWindowUpdate` event for them: >lua
+However, some parts (like window title, footer, and height) of window config
+are later updated internally. Use `MiniFilesWindowUpdate` event for them: >lua
 
   vim.api.nvim_create_autocmd('User', {
     pattern = 'MiniFilesWindowUpdate',
@@ -426,6 +432,9 @@ updated internally. Use `MiniFilesWindowUpdate` event for them: >lua
       local n = #config.title
       config.title[1][1] = config.title[1][1]:gsub('^ ', '')
       config.title[n][1] = config.title[n][1]:gsub(' $', '')
+
+      -- Ensure to footer
+      config.footer = ''
 
       vim.api.nvim_win_set_config(args.data.win_id, config)
     end,
