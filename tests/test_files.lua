@@ -197,6 +197,10 @@ local T = new_set({
       -- Make more robust screenshots
       child.o.laststatus = 0
       child.o.showtabline = 0
+      -- - Make sure title and footer are highlighted differently to check that
+      --   different groups are used.
+      child.api.nvim_set_hl(0, 'MiniFilesFooter', { fg = '#000002' })
+      child.api.nvim_set_hl(0, 'MiniFilesFooterFocused', { fg = '#000003' })
 
       -- - Hide intro
       child.cmd('vsplit')
@@ -228,6 +232,8 @@ T['setup()']['creates side effects'] = function()
   validate_hl_group('MiniFilesCursorLine', 'links to CursorLine')
   validate_hl_group('MiniFilesDirectory', 'links to Directory')
   eq(child.fn.hlexists('MiniFilesFile'), 1)
+  validate_hl_group('MiniFilesFooter', 'links to FloatFooter')
+  validate_hl_group('MiniFilesFooterFocused', 'links to FloatFooter')
   validate_hl_group('MiniFilesNormal', 'links to NormalFloat')
   validate_hl_group('MiniFilesTitle', 'links to FloatTitle')
   validate_hl_group('MiniFilesTitleFocused', 'links to FloatTitle')
@@ -2749,10 +2755,12 @@ T['Windows']['uses correct UI highlight groups'] = function()
   validate_winhl_match(win_id_1, 'NormalFloat', 'MiniFilesNormal')
   validate_winhl_match(win_id_1, 'FloatBorder', 'MiniFilesBorder')
   validate_winhl_match(win_id_1, 'FloatTitle', 'MiniFilesTitle')
+  validate_winhl_match(win_id_1, 'FloatFooter', 'MiniFilesFooter')
   validate_winhl_match(win_id_1, 'CursorLine', 'MiniFilesCursorLine')
   validate_winhl_match(win_id_2, 'NormalFloat', 'MiniFilesNormal')
   validate_winhl_match(win_id_2, 'FloatBorder', 'MiniFilesBorder')
   validate_winhl_match(win_id_2, 'FloatTitle', 'MiniFilesTitleFocused')
+  validate_winhl_match(win_id_2, 'FloatFooter', 'MiniFilesFooterFocused')
   validate_winhl_match(win_id_2, 'CursorLine', 'MiniFilesCursorLine')
 
   -- Simply going in Insert mode should not add "modified"
@@ -2800,7 +2808,9 @@ T['Windows']['always show cursor line in directories'] = function()
 
   -- File preview should not show cursor line
   type_keys('G')
-  child.expect_screenshot()
+  -- - File size are a bit different on Windows
+  local ignore_lines = helpers.is_windows() and { 4 } or {}
+  child.expect_screenshot({ ignore_text = ignore_lines, ignore_attr = ignore_lines })
   close()
 
   -- Should preserve flags of 'cursorlineopt' as much as possible
@@ -2951,12 +2961,15 @@ T['Preview']['works for files'] = function()
   open(make_test_path('real'))
 
   -- Should preview Lua file with highlighting
-  child.expect_screenshot()
+  -- - File sizes are a bit different on Windows
+  local ignore_lines = helpers.is_windows() and { 7 } or {}
+  child.expect_screenshot({ ignore_text = ignore_lines, ignore_attr = ignore_lines })
 
   -- Should preview text file (also with enabled highlighting but as there is
   -- none defined, non should be visible)
   type_keys('j')
-  child.expect_screenshot()
+  ignore_lines = helpers.is_windows() and { 14 } or {}
+  child.expect_screenshot({ ignore_text = ignore_lines, ignore_attr = ignore_lines })
 
   -- Should read only maximum necessary amount of lines
   local buffers = child.api.nvim_list_bufs()
@@ -2976,11 +2989,13 @@ T['Preview']['works for files'] = function()
 
   -- Should fall back to built-in syntax highlighting in case of no tree-sitter
   type_keys('j')
-  child.expect_screenshot()
+  ignore_lines = helpers.is_windows() and { 5 } or {}
+  child.expect_screenshot({ ignore_text = ignore_lines, ignore_attr = ignore_lines })
 
   -- Should not error on files which failed to read (looks like on Windows it
   -- can be different from "non-readable" files)
   child.lua('vim.uv.fs_open = function() return nil end')
+  child.lua('vim.uv.fs_stat = function() return { size = nil } end')
   type_keys('j')
   child.expect_screenshot()
 end
@@ -5692,7 +5707,7 @@ T['Events']['`MiniFilesWindowOpen` can be used to tweak window config'] = functi
       callback = function(args)
         local win_id = args.data.win_id
         local config = vim.api.nvim_win_get_config(win_id)
-        config.border, config.title_pos = 'double', 'right'
+        config.border, config.title_pos, config.footer_pos = 'double', 'right', 'center'
         vim.api.nvim_win_set_config(win_id, config)
       end,
     })
@@ -5795,6 +5810,7 @@ T['Events']['`MiniFilesWindowUpdate` can customize internally set window config 
         local n = #config.title
         config.title[1][1] = config.title[1][1]:gsub('^ ', '')
         config.title[n][1] = config.title[n][1]:gsub(' $', '')
+        config.footer = ''
         vim.api.nvim_win_set_config(args.data.win_id, config)
       end
     })

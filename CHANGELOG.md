@@ -14,6 +14,10 @@ There are following change types:
 
 - Change default directory and file icons to be aligned with default values of 'mini.icons' `directory` and `file` categories.
 
+### Expand
+
+- Show current path size info in window footers: number of child directories and files for directories, disk size for file previews.
+
 ## mini.icons
 
 ### Refine

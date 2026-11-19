@@ -91,9 +91,11 @@
 --- - `MiniFilesCursorLine` - cursor line in explorer windows.
 --- - `MiniFilesDirectory` - text and icon representing directory.
 --- - `MiniFilesFile` - text representing file.
+--- - `MiniFilesFooter` - footer of regular windows.
+--- - `MiniFilesFooterFocused` - footer of the focused window.
 --- - `MiniFilesNormal` - basic foreground/background highlighting.
 --- - `MiniFilesTitle` - title of regular windows.
---- - `MiniFilesTitleFocused` - title of focused window.
+--- - `MiniFilesTitleFocused` - title of the focused window.
 ---
 --- To change any highlight group, set it directly with |nvim_set_hl()|.
 ---
@@ -117,6 +119,10 @@
 ---
 ---     - Windows are organized left to right: for any particular window the left
 ---       neighbor is its parent directory and right neighbor - its child.
+---
+---     - Window titles show path (the left one) or basename. Window footers show
+---       entry size info: number of child directories and files for directories,
+---       disk size for file previews.
 ---
 --- - Explorer windows are the viewport to some part of current branch, meaning
 ---   that their opening/closing does not affect the branch. This matters, for
@@ -405,8 +411,8 @@
 ---     end,
 ---   })
 --- <
---- However, some parts (like window title and height) of window config are later
---- updated internally. Use `MiniFilesWindowUpdate` event for them: >lua
+--- However, some parts (like window title, footer, and height) of window config
+--- are later updated internally. Use `MiniFilesWindowUpdate` event for them: >lua
 ---
 ---   vim.api.nvim_create_autocmd('User', {
 ---     pattern = 'MiniFilesWindowUpdate',
@@ -420,6 +426,9 @@
 ---       local n = #config.title
 ---       config.title[1][1] = config.title[1][1]:gsub('^ ', '')
 ---       config.title[n][1] = config.title[n][1]:gsub(' $', '')
+---
+---       -- Ensure to footer
+---       config.footer = ''
 ---
 ---       vim.api.nvim_win_set_config(args.data.win_id, config)
 ---     end,
@@ -1302,6 +1311,7 @@ H.latest_paths = {}
 -- Register of opened buffer data for quick access. Tables per buffer id:
 -- - <path> - path which contents this buffer displays.
 -- - <children_path_ids> - array of shown children path ids.
+-- - <fs_info> - table with `size`, `n_files`+`n_dirs` for directory.
 -- - <win_id> - id of window this buffer is shown. Can be `nil`.
 -- - <n_modified> - number of modifications since last update from this module.
 --   Values bigger than 0 can be treated as if buffer was modified by user.
@@ -1397,11 +1407,13 @@ H.create_default_hl = function()
   hi('MiniFilesBorder',         { link = 'FloatBorder' })
   hi('MiniFilesBorderModified', { link = 'DiagnosticFloatingWarn' })
   hi('MiniFilesCursorLine',     { link = 'CursorLine' })
-  hi('MiniFilesDirectory',      { link = 'Directory'   })
+  hi('MiniFilesDirectory',      { link = 'Directory' })
   hi('MiniFilesFile',           {})
   hi('MiniFilesNormal',         { link = 'NormalFloat' })
-  hi('MiniFilesTitle',          { link = 'FloatTitle'  })
+  hi('MiniFilesTitle',          { link = 'FloatTitle' })
   hi('MiniFilesTitleFocused',   { link = 'FloatTitle' })
+  hi('MiniFilesFooter',         { link = 'FloatFooter' })
+  hi('MiniFilesFooterFocused',  { link = 'FloatFooter' })
 end
 
 H.get_config = function(config)
@@ -1851,6 +1863,7 @@ H.explorer_refresh_depth_window = function(explorer, depth, win_count, win_col)
   local view = views[path] or {}
   view = H.view_ensure_proper(view, path, opts, win_is_focused, win_is_preview)
   views[path] = view
+  local fs_info = (H.opened_buffers[view.buf_id] or {}).fs_info
 
   -- Create relevant window config
   local config = {
@@ -1859,6 +1872,8 @@ H.explorer_refresh_depth_window = function(explorer, depth, win_count, win_col)
     width = cur_width,
     -- Use shortened full path in left most window
     title = win_count == 1 and H.fs_shorten_path(H.fs_full_path(path)) or H.fs_get_basename(path),
+    footer = H.format_fs_info(fs_info),
+    footer_pos = 'right',
   }
   config.title = ' ' .. H.sanitize_string(config.title) .. ' '
 
@@ -2015,6 +2030,7 @@ H.explorer_show_help = function(explorer, explorer_buf_id, explorer_win_id)
   config.width = max_line_width
   config.height = #lines
   config.title = " 'mini.files' help "
+  config.footer = ''
   config.zindex = config.zindex + 1
   local default_border = (vim.fn.exists('+winborder') == 0 or vim.o.winborder == '') and 'single' or nil
   config.border = config.border or default_border
@@ -2320,6 +2336,8 @@ H.buffer_update = function(buf_id, path, opts, is_preview)
 
   -- Perform entry type specific updates
   local fs_type = H.fs_get_type(path)
+  H.opened_buffers[buf_id].fs_info = H.opened_buffers[buf_id].fs_info
+    or { size = (vim.uv.fs_stat(path) or {}).size, type = fs_type }
   if fs_type == 'directory' then H.buffer_update_directory(buf_id, path, opts, is_preview) end
   if fs_type == 'file' then H.buffer_update_file(buf_id, path, opts, is_preview) end
   if fs_type == nil then H.set_buflines(buf_id, { '-No-fs-entry-' .. string.rep('-', opts.windows.width_preview) }) end
@@ -2333,12 +2351,19 @@ H.buffer_update = function(buf_id, path, opts, is_preview)
 end
 
 H.buffer_update_directory = function(buf_id, path, opts, is_preview)
-  -- Compute and cache (to use during sync) shown file system entries
+  -- Compute and cache (to use in sync and footer) file system entries info
   local children_path_ids = H.opened_buffers[buf_id].children_path_ids
   local fs_entries = children_path_ids == nil and H.fs_read_dir(path, opts.content)
     or vim.tbl_map(H.get_fs_entry_from_path_index, children_path_ids)
-  H.opened_buffers[buf_id].children_path_ids = children_path_ids
-    or vim.tbl_map(function(x) return x.path_id end, fs_entries)
+  if children_path_ids == nil then
+    H.opened_buffers[buf_id].children_path_ids = vim.tbl_map(function(x) return x.path_id end, fs_entries)
+    local fs_info = H.opened_buffers[buf_id].fs_info
+    fs_info.n_dirs, fs_info.n_files = 0, 0
+    for _, fs_entry in ipairs(fs_entries) do
+      fs_info.n_dirs = fs_info.n_dirs + (fs_entry.fs_type == 'directory' and 1 or 0)
+      fs_info.n_files = fs_info.n_files + (fs_entry.fs_type == 'file' and 1 or 0)
+    end
+  end
 
   -- Compute format expression resulting into same width path ids
   local path_width = math.floor(math.log10(#H.path_index)) + 1
@@ -2490,6 +2515,14 @@ H.match_line_path_id = function(l)
   return res
 end
 
+H.format_fs_info = function(fs_info)
+  if fs_info.type == 'directory' then return string.format(' 󰉋 %d 󰈙 %d ', fs_info.n_dirs, fs_info.n_files) end
+  if fs_info.type == nil or fs_info.size == nil then return '' end
+  if fs_info.size < 1024 then return string.format(' 󰧮 %dB ', fs_info.size) end
+  if fs_info.size < 1048576 then return string.format(' 󰧮 %.2fKiB ', fs_info.size / 1024) end
+  return string.format(' 󰧮 %.2fMiB ', fs_info.size / 1048576)
+end
+
 -- Windows --------------------------------------------------------------------
 H.window_open = function(buf_id, config)
   -- Add always the same extra data
@@ -2522,6 +2555,7 @@ H.window_open = function(buf_id, config)
   -- Set permanent window highlights
   H.window_update_highlight(win_id, 'NormalFloat', 'MiniFilesNormal')
   H.window_update_highlight(win_id, 'FloatTitle', 'MiniFilesTitle')
+  H.window_update_highlight(win_id, 'FloatFooter', 'MiniFilesFooter')
   H.window_update_highlight(win_id, 'CursorLine', 'MiniFilesCursorLine')
 
   return win_id
@@ -2530,7 +2564,7 @@ end
 H.window_update = function(win_id, config)
   -- Preserve some config values
   local win_config = vim.api.nvim_win_get_config(win_id)
-  config.border, config.title_pos = win_config.border, win_config.title_pos
+  config.border, config.title_pos, config.footer_pos = win_config.border, win_config.title_pos, win_config.footer_pos
 
   -- Compute helper data
   local has_tabline = vim.o.showtabline == 2 or (vim.o.showtabline == 1 and #vim.api.nvim_list_tabpages() > 1)
@@ -2542,8 +2576,9 @@ H.window_update = function(win_id, config)
   config.height = config.height ~= nil and math.min(config.height, max_height) or nil
   config.width = config.width ~= nil and math.min(config.width, max_width) or nil
 
-  -- Ensure proper title
+  -- Ensure proper border text
   if type(config.title) == 'string' then config.title = H.fit_to_width(config.title, config.width) end
+  if type(config.footer) == 'string' then config.footer = H.fit_to_width(config.footer, config.width) end
 
   -- Update config
   config.relative = 'editor'
@@ -2551,6 +2586,7 @@ H.window_update = function(win_id, config)
 
   -- Reset basic highlighting (removes possible "focused" highlight group)
   H.window_update_highlight(win_id, 'FloatTitle', 'MiniFilesTitle')
+  H.window_update_highlight(win_id, 'FloatFooter', 'MiniFilesFooter')
 
   --typos: ignore
   -- Make sure proper `conceallevel` (can be not the case with 'noice.nvim')
@@ -2569,6 +2605,7 @@ end
 H.window_focus = function(win_id)
   vim.api.nvim_set_current_win(win_id)
   H.window_update_highlight(win_id, 'FloatTitle', 'MiniFilesTitleFocused')
+  H.window_update_highlight(win_id, 'FloatFooter', 'MiniFilesFooterFocused')
 end
 
 H.window_close = function(win_id)
