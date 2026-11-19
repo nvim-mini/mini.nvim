@@ -1729,6 +1729,35 @@ H.git_start_watching_index = function(buf_id, path)
 
     -- Set up index watching
     local git_dir_path = table.concat(stdout_feed, ''):gsub('\n+$', '')
+    -- NOTE: One index file watcher per buffer is ok, but scales with a number
+    -- of attached buffers. Visible when stage hunk: after 50ms debounce delay,
+    -- file watcher for every attached buffer gets its index content via
+    -- `git show :0:./name` command. WHETHER OR NOT THE FILE CONTENT INDEX WAS
+    -- ACTUALLY CHANGED. With 50 opened buffers for paths from the same Git
+    -- repo, staging one hunk in one file leads to 50+ `git show :0:./name`
+    -- only to determine that diff for only one file has changed.
+    --
+    -- The solution here is to have a SINGLE file watcher PER `.git/index` and
+    -- compute which files have changed in index compared to the previous time:
+    -- - Compute and save the output of `git write-tree`, which is a hash of
+    --   a current work tree in the index.
+    -- - Executing `git diff-tree -r --name-only {old_hash} {new_hash}` will
+    --   print a list of files that are different between `{old_hash}` and
+    --   `{new_hash}` index versions. Save `new_hash` as `old_hash`.
+    -- - Compute `git show :0:./path/to/file` only for previous step files.
+    --
+    -- This approach seems to scale much better that the current one:
+    -- - Only a single file watcher per repo, not per attached file.
+    -- - Less IO of file's reference text.
+    -- - All at the cost of two constant CLI calls for hash and comparison,
+    --   while also having to do manual bookkeeping about which buffers belong
+    --   to the same repo. I.e. it might be worse for a single attached file,
+    --   but probably better for 2+ attached files.
+    --
+    -- Note, that there could be issues with the suggested approach if the repo
+    -- is in the middle of the merge and there are merge conflicts. I think
+    -- falling back to querying reference text for all attached buffers (while
+    -- recording `nil` index work-tree hash) is a reasonable trade-off here.
     H.git_setup_index_watch(buf_id, git_dir_path)
 
     -- Set reference text immediately
