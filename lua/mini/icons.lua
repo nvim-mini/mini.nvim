@@ -210,7 +210,7 @@ end
 ---@text # Style ~
 ---
 --- `config.style` is a string defining which icon style to use. It can be:
---- - `'glyph'` (default) - use glyph icons (like 󰈔 and 󰉋 ).
+--- - `'glyph'` (default) - use glyph icons (like 󰈙 and 󰉋 ).
 --- - `'ascii'` - use fallback ASCII-compatible icons. Those are computed as
 ---   an upper first character of the icon's resolved name inside its category.
 ---   Examples: >lua
@@ -459,7 +459,7 @@ MiniIcons.config = {
 ---   -- Results into `icon='󰢱'`, `hl='MiniIconsAzure'`, `is_default=false`
 ---   local icon, hl, is_default = MiniIcons.get('file', 'file.lua')
 ---
----   -- Results into `icon='󰈔'`, `hl='MiniIconsGrey'`, `is_default=true`
+---   -- Results into `icon='󰈙'`, `hl='MiniIconsGrey'`, `is_default=true`
 ---   local icon, hl, is_default = MiniIcons.get('file', 'not-supported')
 --- <
 MiniIcons.get = function(category, name)
@@ -692,8 +692,8 @@ H.cache_index_lookup = {}
 H.default_icons = {
   default   = { glyph = '󰟢', hl = 'MiniIconsGrey'   },
   directory = { glyph = '󰉋', hl = 'MiniIconsAzure'  },
-  extension = { glyph = '󰈔', hl = 'MiniIconsGrey'   },
-  file      = { glyph = '󰈔', hl = 'MiniIconsGrey'   },
+  extension = { glyph = '󰓹', hl = 'MiniIconsGrey'   },
+  file      = { glyph = '󰈙', hl = 'MiniIconsGrey'   },
   filetype  = { glyph = '󰈔', hl = 'MiniIconsGrey'   },
   lsp       = { glyph = '󰞋', hl = 'MiniIconsRed'    },
   os        = { glyph = '󰟀', hl = 'MiniIconsPurple' },
