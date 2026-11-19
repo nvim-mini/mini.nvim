@@ -635,8 +635,9 @@ Integration count reflects number of actual matches.
 
 It prompts integration highlighting update on every change of |'hlsearch'|
 (see |OptionSet|) or |v:hlsearch|. Note that it is not happening for some keys:
-- After starting search with |n|, |N|, |star|, or |#|.
-  To enable highlight update on this keys, make custom mappings. Like this: >lua
+- After starting search with |n|, |N|, |star|, or |#|. To enable highlight
+  update on these keys, make custom mappings. The recommended way is to use
+  `config.mappings.search=true` in |mini.basics|. Or create manually like this: >lua
 
   for _, key in ipairs({ 'n', 'N', '*', '#' }) do
     local rhs = key ..
