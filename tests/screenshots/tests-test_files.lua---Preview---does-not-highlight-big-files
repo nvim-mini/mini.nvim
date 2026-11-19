@@ -1,13 +1,13 @@
 --|---------|---------|---------|---------|---------|---------|---------|---------|
 01|┌OCK_ROOT/tests/dir-files ┐┌ big.lua ────────────────┐                          
-02|│ common                 ││local a = "aaaaaaaaaaaaaa│                          
-03|│ lsp-files              │└─────────────────────────┘                          
-04|│ lua                    │                                                     
-05|│ nested                 │                                                     
-06|│ real                   │                                                     
-07|│ big.lua                │                                                     
-08|│ init-default-explorer.l│                                                     
-09|│ mock-win-functions.lua │                                                     
+02|│󰉋 common                 ││local a = "aaaaaaaaaaaaaa│                          
+03|│󰉋 lsp-files              │└─────────────────────────┘                          
+04|│󰉋 lua                    │                                                     
+05|│󰉋 nested                 │                                                     
+06|│󰉋 real                   │                                                     
+07|│󰈙 big.lua                │                                                     
+08|│󰈙 init-default-explorer.l│                                                     
+09|│󰈙 mock-win-functions.lua │                                                     
 10|└─────────────────────────┘                                                     
 11|~                                                                               
 12|~                                                                               

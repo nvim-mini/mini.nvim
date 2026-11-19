@@ -8,6 +8,12 @@ There are following change types:
 
 # Version 0.20.0-dev
 
+## mini.files
+
+### Refine
+
+- Change default directory and file icons to be aligned with default values of 'mini.icons' `directory` and `file` categories.
+
 ## mini.icons
 
 ### Refine

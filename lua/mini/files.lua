@@ -432,7 +432,7 @@
 ---   local my_prefix = function(fs_entry)
 ---     if fs_entry.fs_type == 'directory' then
 ---       -- NOTE: it is usually a good idea to use icon followed by space
----       return ' ', 'MiniFilesDirectory'
+---       return '󰝰 ', 'MiniFilesDirectory'
 ---     end
 ---     return MiniFiles.default_prefix(fs_entry)
 ---   end
@@ -1222,12 +1222,12 @@ MiniFiles.default_prefix = function(fs_entry)
   end
 
   -- Try falling back to 'nvim-web-devicons'
-  if fs_entry.fs_type == 'directory' then return ' ', 'MiniFilesDirectory' end
+  if fs_entry.fs_type == 'directory' then return '󰉋 ', 'MiniFilesDirectory' end
   local has_devicons, devicons = pcall(require, 'nvim-web-devicons')
-  if not has_devicons then return ' ', 'MiniFilesFile' end
+  if not has_devicons then return '󰈙 ', 'MiniFilesFile' end
 
   local icon, hl = devicons.get_icon(fs_entry.name, nil, { default = false })
-  return (icon or '') .. ' ', hl or 'MiniFilesFile'
+  return (icon or '󰈙') .. ' ', hl or 'MiniFilesFile'
 end
 
 --- Default sort of file system entries
