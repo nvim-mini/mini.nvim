@@ -46,6 +46,8 @@ There are following change types:
 
 - Add `gY` and `gP` basic mappings to complement `gy` and `gp`, that copy and paste with system clipboard with `"+Y` and `"+P` respectively.
 
+- Add `config.mappings.search` to create improved versions of search keys: `*`, `#`, `n`, `N`.
+
 ## mini.bracketed
 
 ### Expand

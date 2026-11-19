@@ -162,6 +162,9 @@ Stable branch:
 
     -- Move cursor in Insert, Command, and Terminal mode with <M-hjkl>
     move_with_alt = false,
+
+    -- Do not move cursor after */#, improved n/N
+    search = false,
   },
 
   -- Autocommands. Set field to `false` to disable

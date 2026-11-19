@@ -47,6 +47,7 @@ T['setup()']['creates `config` field'] = function()
   expect_config('mappings.option_toggle_prefix', [[\]])
   expect_config('mappings.windows', false)
   expect_config('mappings.move_with_alt', false)
+  expect_config('mappings.search', false)
   expect_config('autocommands.basic', true)
   expect_config('autocommands.relnum_in_visual_mode', false)
   expect_config('silent', false)
@@ -72,6 +73,7 @@ T['setup()']['validates `config` argument'] = function()
   expect_config_error({ mappings = { option_toggle_prefix = 1 } }, 'mappings.option_toggle_prefix', 'string')
   expect_config_error({ mappings = { windows = 1 } }, 'mappings.windows', 'boolean')
   expect_config_error({ mappings = { move_with_alt = 1 } }, 'mappings.move_with_alt', 'boolean')
+  expect_config_error({ mappings = { search = 1 } }, 'mappings.search', 'boolean')
   expect_config_error({ autocommands = 'a' }, 'autocommands', 'table')
   expect_config_error({ autocommands = { basic = 1 } }, 'autocommands.basic', 'boolean')
   expect_config_error({ autocommands = { relnum_in_visual_mode = 1 } }, 'autocommands.relnum_in_visual_mode', 'boolean')
@@ -246,13 +248,16 @@ T['Mappings']['do not override manually created mappings'] = function()
   child.api.nvim_set_keymap('n', ',s', 'bbbbb', { noremap = true })
   child.lua([[vim.keymap.set('n', '<C-l>', function() end, { desc = 'Test' })]])
   child.api.nvim_set_keymap('i', '<M-h>', 'ddddd', { noremap = true })
+  child.cmd('nnoremap n nzvzz')
 
-  load_module({ mappings = { basic = true, option_toggle_prefix = ',', windows = true, move_with_alt = true } })
+  local mappings = { basic = true, option_toggle_prefix = ',', windows = true, move_with_alt = true, search = true }
+  load_module({ mappings = mappings })
 
   expect.match(child.cmd_capture('nmap j'), 'aaaaa')
   expect.match(child.cmd_capture('nmap ,s'), 'bbbbb')
   expect.match(child.cmd_capture('nmap <C-l>'), 'Test')
   expect.match(child.cmd_capture('imap <M-h>'), 'ddddd')
+  expect.match(child.cmd_capture('nmap n'), 'nzvzz')
 end
 
 T['Mappings']['ignores buffer-local mappings when deciding whether to create one'] = function()
@@ -260,18 +265,22 @@ T['Mappings']['ignores buffer-local mappings when deciding whether to create one
   child.api.nvim_buf_set_keymap(0, 'n', ',s', 'bbbbb', { noremap = true })
   child.api.nvim_buf_set_keymap(0, 'n', '<C-h>', 'ccccc', { noremap = true })
   child.api.nvim_buf_set_keymap(0, 'i', '<M-h>', 'ddddd', { noremap = true })
+  child.api.nvim_buf_set_keymap(0, 'n', 'n', 'nzvzz', { noremap = true })
 
-  load_module({ mappings = { basic = true, option_toggle_prefix = ',', windows = true, move_with_alt = true } })
+  local mappings = { basic = true, option_toggle_prefix = ',', windows = true, move_with_alt = true, search = true }
+  load_module({ mappings = mappings })
 
   child.api.nvim_buf_del_keymap(0, 'n', 'j')
   child.api.nvim_buf_del_keymap(0, 'n', ',s')
   child.api.nvim_buf_del_keymap(0, 'n', '<C-h>')
   child.api.nvim_buf_del_keymap(0, 'i', '<M-h>')
+  child.api.nvim_buf_del_keymap(0, 'n', 'n')
 
   expect.match(child.cmd_capture('nmap j'), 'gj')
   expect.match(child.cmd_capture('nmap ,s'), 'spell')
   expect.match(child.cmd_capture('nmap <C-h>'), '<C%-W>')
   expect.match(child.cmd_capture('imap <M-h>'), '<Left>')
+  expect.match(child.cmd_capture('nmap n'), 'Search forward')
 end
 
 T['Mappings']['Basic'] = new_set()
@@ -523,42 +532,6 @@ T['Mappings']['Basic']['g/'] = function()
   -- Should not recognize match outside visual selection
   type_keys('n')
   eq(get_cursor(), { 1, 0 })
-end
-
-T['Mappings']['Basic']['*/#'] = function()
-  load_module()
-
-  -- Should work just like in Normal mode but for visual selection and even
-  -- with bad characters present
-
-  -- *
-  set_lines({ [[aa?/\bb]], 'aa', [[aa?/\bb]], 'aa', [[aa?/\bb]] })
-  set_cursor(1, 0)
-  type_keys('v$ho', '*')
-
-  eq(get_cursor(), { 3, 0 })
-  type_keys('n')
-  eq(get_cursor(), { 5, 0 })
-  type_keys('n')
-  eq(get_cursor(), { 1, 0 })
-  type_keys('n')
-  eq(get_cursor(), { 3, 0 })
-
-  child.cmd('nohlsearch')
-  child.ensure_normal_mode()
-
-  -- #
-  set_lines({ [[aa?/\bb]], 'aa', [[aa?/\bb]], 'aa', [[aa?/\bb]] })
-  set_cursor(1, 0)
-  type_keys('v$ho', '#')
-
-  eq(get_cursor(), { 5, 0 })
-  type_keys('n')
-  eq(get_cursor(), { 3, 0 })
-  type_keys('n')
-  eq(get_cursor(), { 1, 0 })
-  type_keys('n')
-  eq(get_cursor(), { 5, 0 })
 end
 
 T['Mappings']['Basic']['<C-c>'] = function()
@@ -839,6 +812,206 @@ T['Mappings']['Move with alt']['works in Command-line mode'] = function()
   eq(child.fn.getcmdpos(), 5)
   type_keys('<M-l>')
   eq(child.fn.getcmdpos(), 6)
+end
+
+T['Mappings']['Search'] = new_set({
+  hooks = {
+    pre_case = function()
+      -- Watch specific search `v:` variables to test that this is possible
+      child.cmd([[
+        lua _G.n_hlsearch = 0
+        function! WatchHlsearch(d,k,z)
+          lua _G.n_hlsearch = _G.n_hlsearch + 1
+        endfunction
+        call dictwatcheradd(v:, 'hlsearch', 'WatchHlsearch')
+
+        lua _G.n_searchforward = 0
+        function! WatchSearchforward(d,k,z)
+          lua _G.n_searchforward = _G.n_searchforward + 1
+        endfunction
+        call dictwatcheradd(v:, 'searchforward', 'WatchSearchforward')
+      ]])
+
+      -- Mock constant clipboard for better reproducibility of system registers
+      -- (mostly on CI).
+      child.lua([[
+        local empty = function() return {} end
+        vim.g.clipboard = {
+          name  = 'myClipboard',
+          copy  = { ['+'] = empty, ['*'] = empty },
+          paste = { ['+'] = empty, ['*'] = empty },
+        }
+      ]])
+    end,
+  },
+})
+
+T['Mappings']['Search']['n/N'] = function()
+  load_module({ mappings = { search = true } })
+
+  set_lines({ 'aa', 'bb', 'aa', 'cc', 'aa' })
+  type_keys('/aa', '<CR>')
+  child.cmd('nohlsearch')
+
+  local validate = function(init_keys, key, lnum_arr)
+    set_cursor(1, 0)
+    if init_keys ~= '' then type_keys(init_keys) end
+    local mode = child.fn.mode()
+
+    local n_hlsearch = child.lua_get('_G.n_hlsearch')
+    eq(child.v.hlsearch, 0)
+    for _, lnum in ipairs(lnum_arr) do
+      type_keys(key)
+      eq(get_cursor(), { lnum, 0 })
+      eq(child.fn.mode(), mode)
+    end
+
+    -- Should set correct variables
+    eq(child.v.hlsearch, 1)
+
+    -- Should be possible to watch necessary `v:` variables and
+    -- they should be set only if was different initially
+    eq(child.lua_get('_G.n_hlsearch'), n_hlsearch + 1)
+
+    -- Clean up
+    child.cmd('nohlsearch')
+    child.ensure_normal_mode()
+  end
+
+  -- Normal mode
+  validate('', 'n', { 3, 5, 1 })
+  validate('', 'N', { 5, 3, 1 })
+
+  -- Visual mode
+  validate('v', 'n', { 3, 5, 1 })
+  validate('v', 'N', { 5, 3, 1 })
+
+  -- Operator-pending mode
+  local validate_op = function(key)
+    set_lines({ 'aa 1', 'bb', 'aa 2', 'cc', 'aa 3' })
+    set_cursor(3, 0)
+    local n_hlsearch = child.lua_get('_G.n_hlsearch')
+    type_keys('d', key, key == 'n' and 'gg' or 'G', 'd', key)
+    eq(get_lines(), { 'aa 3' })
+    eq(child.v.hlsearch, 1)
+    eq(child.lua_get('_G.n_hlsearch'), n_hlsearch + 1)
+    child.cmd('nohlsearch')
+  end
+
+  validate_op('n')
+  validate_op('N')
+
+  -- Should open just enough folds
+  set_lines({ 'aa', '  aa', '  bb', '    aa', '    bb', '  aa', '  bb', 'aa' })
+  child.wo.foldmethod = 'indent'
+  child.bo.expandtab = true
+  child.bo.shiftwidth = 2
+  local validate_fold_open = function(key, ref_lnum)
+    type_keys('zM')
+    for lnum, lnum_end in ipairs({ -1, 7, 7, 7, 7, 7, 7, -1 }) do
+      eq(child.fn.foldclosedend(lnum), lnum_end)
+    end
+    set_cursor(key == 'n' and 1 or 8, 0)
+    type_keys(key)
+    eq(get_cursor(), { ref_lnum, 2 })
+    for lnum, lnum_end in ipairs({ -1, -1, -1, 5, 5, -1, -1, -1 }) do
+      eq(child.fn.foldclosedend(lnum), lnum_end)
+    end
+  end
+
+  validate_fold_open('n', 2)
+  validate_fold_open('N', 6)
+
+  set_cursor(1, 0)
+  type_keys('n')
+
+  -- Should work with multicursor
+  if child.fn.has('nvim-0.13') == 1 then
+    set_lines({ 'aa', 'aa' })
+    set_cursor(1, 0)
+    type_keys('zq', 'n')
+    eq(child.get_multicursor(), { { 1, 0 }, { 2, 0 } })
+    child.clear_multicursor()
+  end
+end
+
+T['Mappings']['Search']['*/#'] = function()
+  load_module({ mappings = { search = true } })
+
+  set_lines({ [[aa?/\bb]], 'aa', [[aa?/\bb]], 'aa', [[aa?/\bb]], 'aa', [[aa?/\bb XX]] })
+  child.fn.setreg('"', 'xxx')
+
+  local get_nonsearch_registers = function() return child.cmd_capture('registers'):gsub('\n%s+c%s+"/.+$', '') end
+
+  local validate_line_traversal = function(key, lnum_arr)
+    for _, lnum in ipairs(lnum_arr) do
+      type_keys(key)
+      eq(get_cursor(), { lnum, 0 })
+    end
+  end
+
+  local validate = function(select_keys, search_key, lines_n, lines_N)
+    local registers = get_nonsearch_registers()
+    local n_hlsearch = child.lua_get('_G.n_hlsearch')
+    local n_searchforward = child.lua_get('_G.n_searchforward')
+    set_cursor(1, 0)
+    if select_keys ~= '' then type_keys(select_keys) end
+    local cursor = get_cursor()
+
+    type_keys(search_key)
+
+    -- Should initially not move cursor
+    eq(get_cursor(), cursor)
+
+    -- Should not modify any unwanted registers except `/` (for search)
+    eq(get_nonsearch_registers(), registers)
+
+    -- Should set correct variable values
+    eq(child.v.hlsearch, 1)
+    eq(child.v.searchforward, search_key == '*' and 1 or 0)
+
+    -- Should be possible to watch necessary `v:` variables
+    eq(child.lua_get('_G.n_hlsearch'), n_hlsearch + 1)
+    eq(child.lua_get('_G.n_searchforward'), n_searchforward + 1)
+
+    -- Should traverse in correct direction with `n` and `N`
+    set_cursor(1, 0)
+    validate_line_traversal('n', lines_n)
+    set_cursor(1, 0)
+    validate_line_traversal('N', lines_N)
+
+    -- Should not have known side effects
+    eq(child.g._minibasics, vim.NIL)
+    eq(child.b._minibasics, vim.NIL)
+
+    -- Clean up
+    child.cmd('nohlsearch')
+    child.ensure_normal_mode()
+  end
+
+  -- Normal mode
+  validate('', '*', { 2, 3, 4, 5, 6, 7, 1 }, { 7, 6, 5, 4, 3, 2, 1 })
+  validate('', '#', { 7, 6, 5, 4, 3, 2, 1 }, { 2, 3, 4, 5, 6, 7, 1 })
+  -- - Should respect `'iskeyword'` and escape bad characters
+  child.bo.iskeyword = child.bo.iskeyword .. ',?,/,\\'
+  validate('', '*', { 3, 5, 7, 1 }, { 7, 5, 3, 1 })
+  validate('', '#', { 7, 5, 3, 1 }, { 3, 5, 7, 1 })
+
+  -- Visual mode
+  validate('v$ho', '*', { 3, 5, 7, 1 }, { 7, 5, 3, 1 })
+  -- - Order of region selection should not matter
+  validate('$v0', '*', { 3, 5, 7, 1 }, { 7, 5, 3, 1 })
+  -- - Should work with linewise selection
+  validate('V', '*', { 3, 5, 1 }, { 5, 3, 1 })
+  -- - Should work with multiline selection
+  validate('vj', '*', { 3, 5, 1 }, { 5, 3, 1 })
+  validate('Vj', '*', { 3, 5, 1 }, { 5, 3, 1 })
+
+  validate('v$ho', '#', { 7, 5, 3, 1 }, { 3, 5, 7, 1 })
+  validate('$v0', '#', { 7, 5, 3, 1 }, { 3, 5, 7, 1 })
+  validate('V', '#', { 5, 3, 1 }, { 3, 5, 1 })
+  validate('vj', '#', { 5, 3, 1 }, { 3, 5, 1 })
+  validate('Vj', '#', { 5, 3, 1 }, { 3, 5, 1 })
 end
 
 T['Autocommands'] = new_set()

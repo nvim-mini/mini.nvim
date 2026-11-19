@@ -101,6 +101,9 @@ Defaults ~
 
       -- Move cursor in Insert, Command, and Terminal mode with <M-hjkl>
       move_with_alt = false,
+
+      -- Do not move cursor after */#, improved n/N
+      search = false,
     },
 
     -- Autocommands. Set field to `false` to disable
@@ -209,6 +212,7 @@ Usage example: >lua
       option_toggle_prefix = [[\]],
       windows = true,
       move_with_alt = true,
+      search = true,
     }
   })
 <
@@ -323,6 +327,15 @@ Here is a list of created mappings (`<M-x>` means <Alt> / <Meta> plus `x`):
 - `<M-j>` - move cursor down.  Modes: Insert, Terminal.
 - `<M-k>` - move cursor up.    Modes: Insert, Terminal.
 - `<M-l>` - move cursor right. Modes: Insert, Terminal, Command.
+
+## mappings.search ~
+
+The `config.mappings.search` improves mappings for |pattern-searches|:
+- `n` and `N` will act like |n| and |N|, plus open just enough folds (|zv|) and
+  explicitly set |v:hlsearch| for better plugin integrations (like |mini.map|).
+- `*` and `#` will act like |star| and |#| in Normal and Visual mode, but not move
+  cursor and explicitly set |v:hlsearch| and |v:searchforward| for better plugin
+  integrations (like |mini.map|).
 
 # Autocommands ~
 *MiniBasics.config.autocommands*

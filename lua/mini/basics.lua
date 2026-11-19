@@ -179,6 +179,7 @@ end
 ---       option_toggle_prefix = [[\]],
 ---       windows = true,
 ---       move_with_alt = true,
+---       search = true,
 ---     }
 ---   })
 --- <
@@ -294,6 +295,15 @@ end
 --- - `<M-k>` - move cursor up.    Modes: Insert, Terminal.
 --- - `<M-l>` - move cursor right. Modes: Insert, Terminal, Command.
 ---
+--- ## mappings.search ~
+---
+--- The `config.mappings.search` improves mappings for |pattern-searches|:
+--- - `n` and `N` will act like |n| and |N|, plus open just enough folds (|zv|) and
+---   explicitly set |v:hlsearch| for better plugin integrations (like |mini.map|).
+--- - `*` and `#` will act like |star| and |#| in Normal and Visual mode, but not move
+---   cursor and explicitly set |v:hlsearch| and |v:searchforward| for better plugin
+---   integrations (like |mini.map|).
+---
 --- # Autocommands ~
 --- *MiniBasics.config.autocommands*
 ---
@@ -348,6 +358,9 @@ MiniBasics.config = {
 
     -- Move cursor in Insert, Command, and Terminal mode with <M-hjkl>
     move_with_alt = false,
+
+    -- Do not move cursor after */#, improved n/N
+    search = false,
   },
 
   -- Autocommands. Set field to `false` to disable
@@ -396,6 +409,7 @@ H.setup_config = function(config)
   H.check_type('mappings.option_toggle_prefix', config.mappings.option_toggle_prefix, 'string')
   H.check_type('mappings.windows', config.mappings.windows, 'boolean')
   H.check_type('mappings.move_with_alt', config.mappings.move_with_alt, 'boolean')
+  H.check_type('mappings.search', config.mappings.search, 'boolean')
 
   H.check_type('autocommands', config.autocommands, 'table')
   H.check_type('autocommands.basic', config.autocommands.basic, 'boolean')
@@ -657,6 +671,39 @@ H.apply_mappings = function(config)
     map('t', '<M-k>', '<Up>',    { desc = 'Up' })
     map('t', '<M-l>', '<Right>', { desc = 'Right' })
   end
+
+  if config.mappings.search then
+    -- Make search highlight explicit. Helps with plugin integrations.
+    -- Done as expression mapping to set `v:hlsearch` only if needed (although
+    -- it is set by built-in `n`/`N`, it does not affect dictwatchers) while
+    -- working in Operator-pendingis and with multicursor (requires mapping to
+    -- start with plain `n`/`N`).
+    map({ 'n', 'x', 'o' }, 'n', function()
+      if vim.v.hlsearch == 0 then vim.v.hlsearch = 1 end
+      return 'nzv'
+    end, { expr = true, desc = 'Search forward' })
+    map({ 'n', 'x', 'o' }, 'N', function()
+      if vim.v.hlsearch == 0 then vim.v.hlsearch = 1 end
+      return 'Nzv'
+    end, { expr = true, desc = 'Search backward' })
+
+    -- Make search highlight explicit. Helps with plugin integrations.
+    local activate_forward = '<Cmd>let v:hlsearch=1 | let v:searchforward=1 | redraw!<CR>'
+    local activate_backward = '<Cmd>let v:hlsearch=1 | let v:searchforward=0 | redraw!<CR>'
+
+    local norm_search = [[<Cmd>let @/="\\<".escape(expand("<cword>"), '/\')."\\>"<CR>]]
+    map('n', '*', norm_search .. activate_forward, { desc = 'Highlight forward' })
+    map('n', '#', norm_search .. activate_backward, { desc = 'Highlight backward' })
+
+    -- NOTE: this sets search register to the selected text (working around bad
+    -- chars) while preserving `"` register and not moving to selection start.
+    -- If okay with the latter two, use only the second line as mapping LHS.
+    local vis_search = [[<Cmd>let g:_minibasics=[getreg('"'), getpos('.')]<CR>]]
+      .. [[y<Cmd>let @/='\V'.substitute(escape(@", '/\'), "\n", '\\n', 'g')<CR>]]
+      .. [[<Cmd>call setreg('"', g:_minibasics[0]) | call setpos('.', g:_minibasics[1]) | unlet g:_minibasics<CR>]]
+    map('x', '*', vis_search .. activate_forward, { desc = 'Highlight selection forward' })
+    map('x', '#', vis_search .. activate_backward, { desc = 'Highlight selection backward' })
+  end
 end
 
 H.keymap_set = function(modes, lhs, rhs, opts)
@@ -683,8 +730,8 @@ H.is_default_keymap = function(mode, lhs, map_info)
   if mode == 'n' and lhs == '<C-L>' then return rhs:find('nohl') ~= nil end
   if mode == 'n' and lhs == 'gO' and vim.fn.has('nvim-0.11') == 1 then return desc:find('vim%.lsp') ~= nil end
   if mode == 'i' and lhs == '<C-S>' then return desc:find('signature') ~= nil end
-  if mode == 'x' and lhs == '*' then return rhs == [[y/\V<C-R>"<CR>]] end
-  if mode == 'x' and lhs == '#' then return rhs == [[y?\V<C-R>"<CR>]] end
+  if mode == 'x' and lhs == '*' then return desc:find(':help v_star%-default') ~= nil end
+  if mode == 'x' and lhs == '#' then return desc:find(':help v_#%-default') ~= nil end
 end
 
 H.get_map_info = function(mode, lhs)
