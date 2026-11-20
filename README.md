@@ -15,9 +15,6 @@ See [change log](CHANGELOG.md) for a history of changes, including current devel
 
 See [MiniMax](https://nvim-mini.org/MiniMax) for a full config example based on 'mini.nvim'.
 
-> [!NOTE]
-> This was previously hosted at `echasnovski/mini.nvim`. It was transferred to a dedicated organization to improve long term project stability. See more details [here](https://github.com/nvim-mini/mini.nvim/discussions/1970).
-
 ## Table of contents
 
 - [Installation](#installation)
