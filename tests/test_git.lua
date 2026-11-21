@@ -2653,7 +2653,9 @@ T[':Git']['opens Git editor in current instance'] = new_set(
       child.lua('_G.target_env_var = ' .. vim.inspect(env_var))
 
       -- Should ignore timeout
-      child.lua('MiniGit.config.job.timeout = 5')
+      local timeout = 4 * small_time
+      child.lua('MiniGit.config.job.timeout = ' .. vim.inspect(timeout))
+      child.lua('_G.small_time = ' .. vim.inspect(small_time))
 
       -- Set up content of edit message file
       local editmsg_path = git_repo_dir .. path_sep .. 'COMMIT_EDITMSG'
@@ -2684,7 +2686,7 @@ T[':Git']['opens Git editor in current instance'] = new_set(
           _G.channel = vim.fn.jobstart(command, { on_exit = on_exit })
         end
         _G.process_mock_data = {
-          [4] = { action = mock_git_editor },
+          [4] = { action = mock_git_editor, duration = MiniGit.config.job.timeout + 2 * _G.small_time },
           [5] = { exit_code = 1 }, -- tracking for editor buffer
         }
       ]])
@@ -2700,6 +2702,10 @@ T[':Git']['opens Git editor in current instance'] = new_set(
       eq(child.fn.mode(), 'n')
       eq(child.wo.foldlevel, 0)
 
+      -- Should not show timeout notification
+      sleep(3 * small_time)
+      validate_notifications({})
+
       -- Should not stop due to timeout
       local is_job_active = function() return child.lua_get('pcall(vim.fn.jobpid, _G.channel)') end
       eq(is_job_active(), true)
@@ -2714,13 +2720,22 @@ T[':Git']['opens Git editor in current instance'] = new_set(
 
       sleep(small_time)
       eq(is_job_active(), false)
-      eq(
-        child.lua_get('_G.editmsg_lines'),
-        { 'My important text', '# This is a mock of Git template for its `GIT_EDITOR`' }
-      )
+      local ref_editmsg_lines = { 'My important text', '# This is a mock of Git template for its `GIT_EDITOR`' }
+      eq(child.lua_get('_G.editmsg_lines'), ref_editmsg_lines)
 
-      -- Should produce no notifications
       validate_notifications({})
+
+      -- Should still be possible to timeout after this
+      mock_spawn()
+      child.lua([[
+        table.insert(_G.stdio_queue, { { 'out', 'Hello' } })
+        _G.process_mock_data = { { duration = 10 * _G.small_time } }
+      ]])
+      child.lua('MiniGit.config.job.timeout = ' .. (2 * small_time))
+
+      child.cmd('Git log')
+      local ref_notify_log = { { '(mini.git) PROCESS REACHED TIMEOUT', 'WARN' }, { '(mini.git) \nHello', 'ERROR' } }
+      validate_notifications(ref_notify_log)
     end,
   }
 )
