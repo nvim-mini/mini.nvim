@@ -797,7 +797,7 @@ H.ensure_git_subcommands = function()
 end
 
 H.ensure_git_editor = function(mods)
-  if H.git_editor_config == nil or not vim.fn.filereadable(H.git_editor_config) == 0 then
+  if H.git_editor_config == nil or vim.fn.filereadable(H.git_editor_config) == 0 then
     H.git_editor_config = vim.fn.tempname()
   end
 
