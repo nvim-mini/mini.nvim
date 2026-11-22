@@ -1165,7 +1165,9 @@ H.define_minigit_window = function(cleanup)
 
     pcall(vim.api.nvim_del_autocmd, finish_au_id)
     pcall(vim.api.nvim_win_close, win_id, true)
-    vim.schedule(function() pcall(vim.api.nvim_buf_delete, buf_id, { force = true }) end)
+    vim.schedule(function()
+      if #vim.fn.win_findbuf(buf_id) == 0 then pcall(vim.api.nvim_buf_delete, buf_id, { force = true }) end
+    end)
 
     if vim.is_callable(cleanup) then vim.schedule(cleanup) end
   end

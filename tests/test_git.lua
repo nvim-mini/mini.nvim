@@ -2595,9 +2595,24 @@ T[':Git']['output']['defines proper window/buffer cleanup'] = function()
   local buf_id_2, win_id_2 = get_buf(), get_win()
   set_buf(new_scratch_buf())
   eq(#child.api.nvim_tabpage_list_wins(0), 2)
+
   child.api.nvim_buf_delete(buf_id_2, { force = true })
   eq(#child.api.nvim_tabpage_list_wins(0), 1)
   eq(get_win() == win_id_2, false)
+
+  -- Should allow moving a buffer into a different tabpage
+  child.lua([[table.insert(_G.stdio_queue, { { 'out', 'New' } })]])
+  child.cmd('vertical Git log')
+  local buf_id_3 = get_buf()
+  local tabpage_id = child.api.nvim_get_current_tabpage()
+  eq(#child.api.nvim_list_tabpages(), 1)
+  eq(#child.api.nvim_tabpage_list_wins(tabpage_id), 2)
+
+  child.cmd('wincmd T')
+  eq(get_buf(), buf_id_3)
+  eq(child.api.nvim_get_current_tabpage() == tabpage_id, false)
+  eq(#child.api.nvim_list_tabpages(), 2)
+  eq(#child.api.nvim_tabpage_list_wins(tabpage_id), 1)
 end
 
 T[':Git']['output']['respects aliases'] = function()
