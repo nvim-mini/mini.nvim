@@ -1535,7 +1535,7 @@ H.cli_run = function(jobs)
       run_next()
     end
 
-    process = vim.uv.spawn(executable, spawn_opts, on_exit)
+    process = vim.uv.spawn(executable, spawn_opts, vim.schedule_wrap(on_exit))
     H.cli_read_stream(stdout, job.out)
     H.cli_read_stream(stderr, job.err)
     vim.defer_fn(function()

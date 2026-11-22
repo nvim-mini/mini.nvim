@@ -1665,7 +1665,9 @@ H.cli_run = function(command, cwd, on_done, opts)
     on_done(code, out, err)
   end
 
-  process = vim.uv.spawn(executable, spawn_opts, on_exit)
+  -- NOTE: `vim.schedule_wrap` is important as `stdio` might be not done right
+  -- on exit. The proper solution is (hopefully) to use `vim.system`.
+  process = vim.uv.spawn(executable, spawn_opts, vim.schedule_wrap(on_exit))
   H.cli_read_stream(stdout, out)
   H.cli_read_stream(stderr, err)
   vim.defer_fn(function()

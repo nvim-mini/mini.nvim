@@ -1735,7 +1735,7 @@ H.git_start_watching_index = function(buf_id, path)
     H.git_set_ref_text(buf_id)
   end
 
-  process = vim.uv.spawn('git', spawn_opts, on_exit)
+  process = vim.uv.spawn('git', spawn_opts, vim.schedule_wrap(on_exit))
   H.git_read_stream(stdout, stdout_feed)
 end
 
@@ -1786,7 +1786,9 @@ H.git_set_ref_text = vim.schedule_wrap(function(buf_id)
     buf_set_ref_text(text)
   end
 
-  process = vim.uv.spawn('git', spawn_opts, on_exit)
+  -- NOTE: `vim.schedule_wrap` is important as `stdio` might be not done right
+  -- on exit. The proper solution is (hopefully) to use `vim.system`.
+  process = vim.uv.spawn('git', spawn_opts, vim.schedule_wrap(on_exit))
   H.git_read_stream(stdout, stdout_feed)
 end)
 
@@ -1808,7 +1810,7 @@ H.git_get_path_data = function(path)
     res.mode_bits, res.eol, res.rel_path = string.match(out, '^(%d+) (%S+) (.*)$')
   end
 
-  process = vim.uv.spawn('git', spawn_opts, on_exit)
+  process = vim.uv.spawn('git', spawn_opts, vim.schedule_wrap(on_exit))
   H.git_read_stream(stdout, stdout_feed)
   vim.wait(1000, function() return did_exit end, 1)
   return res
@@ -1850,7 +1852,7 @@ H.git_apply_patch = function(path_data, patch)
   local args = { 'apply', '--whitespace=nowarn', '--cached', '--unidiff-zero', '-' }
   local spawn_opts = { args = args, cwd = path_data.cwd, stdio = { stdin, nil, nil } }
   local process
-  process = vim.uv.spawn('git', spawn_opts, function() process:close() end)
+  process = vim.uv.spawn('git', spawn_opts, vim.schedule_wrap(function() process:close() end))
 
   -- Write patch, notify that writing is finished (shutdown), and close
   for _, l in ipairs(patch) do
