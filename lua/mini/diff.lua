@@ -1766,7 +1766,8 @@ H.git_set_ref_text = vim.schedule_wrap(function(buf_id)
 
   -- Set
   local stdout = vim.uv.new_pipe()
-  local spawn_opts = { args = { 'show', ':0:./' .. basename }, cwd = cwd, stdio = { nil, stdout, nil } }
+  -- Apply text conversion when configured (like git-crypt)
+  local spawn_opts = { args = { 'show', '--textconv', ':0:./' .. basename }, cwd = cwd, stdio = { nil, stdout, nil } }
 
   local process, stdout_feed = nil, {}
   local on_exit = function(exit_code)

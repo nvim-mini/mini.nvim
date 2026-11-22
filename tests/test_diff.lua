@@ -866,7 +866,7 @@ T['gen_source']['git()']['works'] = function()
 
   local ref_git_spawn_log = {
     { args = { 'rev-parse', '--path-format=absolute', '--git-dir' }, cwd = git_dir_path },
-    { args = { 'show', ':0:./' .. git_file_basename }, cwd = git_dir_path },
+    { args = { 'show', '--textconv', ':0:./' .. git_file_basename }, cwd = git_dir_path },
   }
   validate_git_spawn_log(ref_git_spawn_log)
 
@@ -913,7 +913,7 @@ T['gen_source']['git()']['can apply hunks'] = function()
   --stylua: ignore
   local ref_git_spawn_log = {
     { args = { 'rev-parse', '--path-format=absolute', '--git-dir' }, cwd = git_dir_path },
-    { args = { 'show', ':0:./' .. git_file_basename }, cwd = git_dir_path },
+    { args = { 'show', '--textconv', ':0:./' .. git_file_basename }, cwd = git_dir_path },
     {
       args = { 'ls-files', '-z', '--full-name', '--format=%(objectmode) %(eolinfo:index) %(path)', '--', git_file_basename },
       cwd = git_dir_path,
@@ -1070,8 +1070,8 @@ T['gen_source']['git()']["reacts to change in 'index' Git file"] = function()
   -- Should make proper process spawns
   local ref_git_spawn_log = {
     { args = { 'rev-parse', '--path-format=absolute', '--git-dir' }, cwd = git_dir_path },
-    { args = { 'show', ':0:./' .. git_file_basename }, cwd = git_dir_path },
-    { args = { 'show', ':0:./' .. git_file_basename }, cwd = git_dir_path },
+    { args = { 'show', '--textconv', ':0:./' .. git_file_basename }, cwd = git_dir_path },
+    { args = { 'show', '--textconv', ':0:./' .. git_file_basename }, cwd = git_dir_path },
   }
   validate_git_spawn_log(ref_git_spawn_log)
 end
@@ -1142,7 +1142,7 @@ T['gen_source']['git()']['works with errors during getting reference text'] = fu
 
   local ref_git_spawn_log = {
     { args = { 'rev-parse', '--path-format=absolute', '--git-dir' }, cwd = git_dir_path },
-    { args = { 'show', ':0:./' .. git_file_basename }, cwd = git_dir_path },
+    { args = { 'show', '--textconv', ':0:./' .. git_file_basename }, cwd = git_dir_path },
   }
   validate_git_spawn_log(ref_git_spawn_log)
 end
@@ -1166,9 +1166,9 @@ T['gen_source']['git()']['reacts to file rename'] = function()
 
   local ref_git_spawn_log = {
     { args = { 'rev-parse', '--path-format=absolute', '--git-dir' }, cwd = git_dir_path },
-    { args = { 'show', ':0:./' .. 'file-in-git' }, cwd = git_dir_path },
+    { args = { 'show', '--textconv', ':0:./' .. 'file-in-git' }, cwd = git_dir_path },
     { args = { 'rev-parse', '--path-format=absolute', '--git-dir' }, cwd = test_dir_absolute },
-    { args = { 'show', ':0:./' .. 'file' }, cwd = test_dir_absolute },
+    { args = { 'show', '--textconv', ':0:./' .. 'file' }, cwd = test_dir_absolute },
   }
   validate_git_spawn_log(ref_git_spawn_log)
 
