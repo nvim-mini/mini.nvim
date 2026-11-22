@@ -195,14 +195,11 @@ T['map_multistep()']['works with multicursor'] = function()
   mock_test_steps()
   child.lua([[
     _G.steps[3].action = function()
-      return '<Cmd>call  nvim_buf_set_text(0, line(".")-1, col(".")-1, line(".")-1, col(".")-1, [ "33" ])<CR>'
+      return '<Cmd>call nvim_put([ "33" ], "c", v:false, v:true)<CR>'
     end
     _G.steps[5].action = function()
       local upvalue = '55'
-      return function()
-        local cur = vim.api.nvim_win_get_cursor(0)
-        vim.api.nvim_buf_set_text(0, cur[1] - 1, cur[2], cur[1] - 1, cur[2], { upvalue })
-      end
+      return function() vim.api.nvim_put({ upvalue }, 'c', false, true) end
     end
   ]])
   child.lua('require("mini.keymap").map_multistep("i", "<Tab>", _G.steps)')
@@ -224,12 +221,12 @@ T['map_multistep()']['works with multicursor'] = function()
 
   -- `<Cmd>...<CR>` mapping
   child.lua('_G.step_3_cond = true')
-  child.validate_mc_edit({ '', '' }, { 1, 0 }, { 'Qj', 'i', '<Tab>' }, { '33', '33' }, { 2, 0 }, { { 1, 2 } })
+  child.validate_mc_edit({ '', '' }, { 1, 0 }, { 'Qj', 'i', '<Tab>' }, { '33', '33' }, { 2, 2 }, { { 1, 2 } })
   child.lua('_G.step_3_cond = false')
 
   -- Callable
   child.lua('_G.step_5_cond = true')
-  child.validate_mc_edit({ '', '' }, { 1, 0 }, { 'Qj', 'i', '<Tab>' }, { '55', '55' }, { 2, 0 }, { { 1, 2 } })
+  child.validate_mc_edit({ '', '' }, { 1, 0 }, { 'Qj', 'i', '<Tab>' }, { '55', '55' }, { 2, 2 }, { { 1, 2 } })
   child.lua('_G.step_5_cond = false')
 end
 
