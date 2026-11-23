@@ -203,8 +203,7 @@ end
 ---   share of |'columns'|.
 ---   To have higher maximum width, use function in `config.window` which computes
 ---   dimensions inside of it (based on buffer content).
---- - `height` is chosen to fit buffer content with enabled |'wrap'| (assuming
----   default value of `width`).
+--- - `height` is chosen to fit buffer content.
 --- - `anchor`, `col`, and `row` are "NE", |'columns'|, and 0 or 1 (depending on tabline).
 --- - `border` is "single".
 --- - `zindex` is 999 to be as much on top as reasonably possible.
@@ -772,26 +771,16 @@ H.buffer_refresh = function(buf_id, notif_arr)
   end
 end
 
-H.buffer_default_dimensions = function(buf_id, max_width_share)
-  local line_widths = vim.tbl_map(vim.fn.strdisplaywidth, vim.api.nvim_buf_get_lines(buf_id, 0, -1, true))
-
+H.buffer_default_width = function(buf_id, max_width_share)
   -- Compute width so as to fit all lines
   local width = 1
-  for _, l_w in ipairs(line_widths) do
-    width = math.max(width, l_w)
+  for _, l in ipairs(vim.api.nvim_buf_get_lines(buf_id, 0, -1, true)) do
+    width = math.max(width, vim.fn.strdisplaywidth(l))
   end
   -- - Limit from above for better visuals
   max_width_share = math.min(math.max(max_width_share, 0), 1)
   local max_width = math.max(math.floor(max_width_share * vim.o.columns), 1)
-  width = math.min(width, max_width)
-
-  -- Compute height based on the width so as to fit all lines with 'wrap' on
-  local height = 0
-  for _, l_w in ipairs(line_widths) do
-    height = height + math.floor(math.max(l_w - 1, 0) / width) + 1
-  end
-
-  return width, height
+  return math.min(width, max_width)
 end
 
 -- Window ---------------------------------------------------------------------
@@ -801,9 +790,11 @@ H.window_open = function(buf_id)
 
   vim.wo[win_id].foldenable = false
   vim.wo[win_id].foldmethod = 'manual'
+  vim.wo[win_id].list = vim.go.list
+  vim.wo[win_id].listchars = vim.go.listchars
   vim.wo[win_id].winblend = H.get_config().window.winblend
   vim.wo[win_id].winhighlight = 'NormalFloat:MiniNotifyNormal,FloatBorder:MiniNotifyBorder,FloatTitle:MiniNotifyTitle'
-  vim.wo[win_id].wrap = true
+  vim.wo[win_id].wrap = false
 
   return win_id
 end
@@ -817,7 +808,8 @@ H.window_compute_config = function(buf_id, is_for_open)
   local config_win = H.get_config().window
   local default_config = { relative = 'editor', style = 'minimal', noautocmd = is_for_open, zindex = 999 }
   default_config.anchor, default_config.col, default_config.row = 'NE', vim.o.columns, has_tabline and 1 or 0
-  default_config.width, default_config.height = H.buffer_default_dimensions(buf_id, config_win.max_width_share)
+  default_config.width = H.buffer_default_width(buf_id, config_win.max_width_share)
+  default_config.height = vim.api.nvim_buf_line_count(buf_id)
   default_config.border = (vim.fn.exists('+winborder') == 0 or vim.o.winborder == '') and 'single' or nil
   default_config.title = ' Notifications '
   -- Don't allow focus to not disrupt window navigation

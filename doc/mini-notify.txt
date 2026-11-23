@@ -219,8 +219,7 @@ which show notifications in the upper right corner with upper limit on width:
   share of |'columns'|.
   To have higher maximum width, use function in `config.window` which computes
   dimensions inside of it (based on buffer content).
-- `height` is chosen to fit buffer content with enabled |'wrap'| (assuming
-  default value of `width`).
+- `height` is chosen to fit buffer content.
 - `anchor`, `col`, and `row` are "NE", |'columns'|, and 0 or 1 (depending on tabline).
 - `border` is "single".
 - `zindex` is 999 to be as much on top as reasonably possible.

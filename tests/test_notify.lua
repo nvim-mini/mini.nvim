@@ -806,12 +806,20 @@ T['Window']['computes default dimensions based on buffer content'] = function()
   child.expect_screenshot()
 end
 
-T['Window']['wraps text'] = function()
-  -- Should also correctly compute dimensions
-  add('A very big notification message which should be wrapped')
+T['Window']['does not wrap text by default'] = function()
+  add('A very big notification message which should not be wrapped')
   child.expect_screenshot()
-  add('Another wrapped message')
+  add('Another long message\nwhich is also multiline')
   child.expect_screenshot()
+end
+
+T['Window']["respects global value of 'list' and 'listchars' option"] = function()
+  child.go.list = true
+  child.go.listchars = 'extends:…'
+  add('A very long notification message')
+  add('Short')
+  local no_listchars = child.fn.has('nvim-0.12') == 0
+  child.expect_screenshot({ ignore_text = no_listchars and { 3 } or {}, ignore_attr = no_listchars })
 end
 
 T['Window']['shows start of buffer if it does not fit whole'] = function()

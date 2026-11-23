@@ -30,6 +30,7 @@ There are following change types:
 
 - Change how notifications are shown with the goal to reduce flicker during progress updates:
     - Update `default_sort` to sort by add time after priority instead of update time.
+    - Do not wrap text in the notification window.
 
 # Version 0.19.0-dev
 
