@@ -24,6 +24,13 @@ There are following change types:
 
 - Change default icons for `extension` and `file` categories to make default icons not repeat.
 
+## mini.notify
+
+### Evolve
+
+- Change how notifications are shown with the goal to reduce flicker during progress updates:
+    - Update `default_sort` to sort by add time after priority instead of update time.
+
 # Version 0.19.0-dev
 
 ## All

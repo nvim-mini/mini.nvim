@@ -736,21 +736,21 @@ local default_sort = forward_lua('MiniNotify.default_sort')
 
 T['default_sort()']['works'] = function()
   --stylua: ignore
-  -- First should sort by level and then by update time
+  -- First should sort by level and then by add time
   local notif_arr = {
-    { msg = 'Thirteen', level = 'OFF',   ts_add = ref_seconds + 1, ts_update = ref_seconds + 62 },
-    { msg = 'Twelve',   level = 'OFF',   ts_add = ref_seconds,     ts_update = ref_seconds + 63 },
-    { msg = 'Eleven',   level = 'TRACE', ts_add = ref_seconds + 1, ts_update = ref_seconds + 52 },
-    { msg = 'Ten',      level = 'TRACE', ts_add = ref_seconds,     ts_update = ref_seconds + 53 },
-    { msg = 'Nine',     level = 'DEBUG', ts_add = ref_seconds + 1, ts_update = ref_seconds + 42 },
-    { msg = 'Eight',    level = 'DEBUG', ts_add = ref_seconds,     ts_update = ref_seconds + 43 },
-    { msg = 'Seven',    level = 'INFO',  ts_add = ref_seconds + 1, ts_update = ref_seconds + 32 },
-    { msg = 'Six',      level = 'INFO',  ts_add = ref_seconds,     ts_update = ref_seconds + 33 },
-    { msg = 'Five',     level = 'WARN',  ts_add = ref_seconds + 1, ts_update = ref_seconds + 22 },
-    { msg = 'Four',     level = 'WARN',  ts_add = ref_seconds,     ts_update = ref_seconds + 23 },
-    { msg = 'Three',    level = 'ERROR', ts_add = ref_seconds + 1, ts_update = ref_seconds + 1, ts_remove = ref_seconds + 4 },
-    { msg = 'Two',      level = 'ERROR', ts_add = ref_seconds + 1, ts_update = ref_seconds + 12 },
-    { msg = 'One',      level = 'ERROR', ts_add = ref_seconds,     ts_update = ref_seconds + 13 },
+    { msg = 'Thirteen', level = 'OFF',   ts_add = ref_seconds + 62, ts_update = ref_seconds + 101 },
+    { msg = 'Twelve',   level = 'OFF',   ts_add = ref_seconds + 63, ts_update = ref_seconds + 101 },
+    { msg = 'Eleven',   level = 'TRACE', ts_add = ref_seconds + 52, ts_update = ref_seconds + 101 },
+    { msg = 'Ten',      level = 'TRACE', ts_add = ref_seconds + 53, ts_update = ref_seconds + 101 },
+    { msg = 'Nine',     level = 'DEBUG', ts_add = ref_seconds + 42, ts_update = ref_seconds + 101 },
+    { msg = 'Eight',    level = 'DEBUG', ts_add = ref_seconds + 43, ts_update = ref_seconds + 101 },
+    { msg = 'Seven',    level = 'INFO',  ts_add = ref_seconds + 32, ts_update = ref_seconds + 101 },
+    { msg = 'Six',      level = 'INFO',  ts_add = ref_seconds + 33, ts_update = ref_seconds + 100 },
+    { msg = 'Five',     level = 'WARN',  ts_add = ref_seconds + 22, ts_update = ref_seconds + 101 },
+    { msg = 'Four',     level = 'WARN',  ts_add = ref_seconds + 23, ts_update = ref_seconds + 100 },
+    { msg = 'Three',    level = 'ERROR', ts_add = ref_seconds + 1,  ts_update = ref_seconds + 101, ts_remove = ref_seconds + 4 },
+    { msg = 'Two',      level = 'ERROR', ts_add = ref_seconds + 12, ts_update = ref_seconds + 100 },
+    { msg = 'One',      level = 'ERROR', ts_add = ref_seconds + 13, ts_update = ref_seconds + 100 },
   }
   local ref = {}
   for i = #notif_arr, 1, -1 do

@@ -144,6 +144,7 @@ end
 ---
 --- Example: >lua
 ---
+---   local compare_update = function(a, b) return a.ts_update > b.ts_update end
 ---   require('mini.notify').setup({
 ---     content = {
 ---       -- Use notification message as is for LSP progress
@@ -152,12 +153,9 @@ end
 ---         return MiniNotify.default_format(notif)
 ---       end,
 ---
----       -- Show more recent notifications first
+---       -- Show more recently updates notifications first
 ---       sort = function(notif_arr)
----         table.sort(
----           notif_arr,
----           function(a, b) return a.ts_update > b.ts_update end
----         )
+---         table.sort(notif_arr, compare_update)
 ---         return notif_arr
 ---       end,
 ---     },
@@ -565,7 +563,7 @@ end
 ---
 --- Used by default as `config.content.sort`. First sorts by notification's `level`
 --- ("ERROR" > "WARN" > "INFO" > "DEBUG" > "TRACE" > "OFF"; the bigger the more
---- important); if draw - by latest update time (the later the more important).
+--- important); if draw - by latest add time (the later the more important).
 ---
 ---@param notif_arr table Array of notifications (see |MiniNotify-specification|).
 ---
@@ -885,7 +883,7 @@ end
 
 H.notif_compare = function(a, b)
   local a_priority, b_priority = H.level_priority[a.level], H.level_priority[b.level]
-  return a_priority > b_priority or (a_priority == b_priority and a.ts_update > b.ts_update)
+  return a_priority > b_priority or (a_priority == b_priority and a.ts_add > b.ts_add)
 end
 
 -- Utilities ------------------------------------------------------------------
