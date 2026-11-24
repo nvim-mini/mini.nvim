@@ -822,6 +822,63 @@ T['Window']["respects global value of 'list' and 'listchars' option"] = function
   child.expect_screenshot({ ignore_text = no_listchars and { 3 } or {}, ignore_attr = no_listchars })
 end
 
+T['Window']['triggers relevant events'] = function()
+  child.lua([[
+    _G.event_log = {}
+    local pattern = { 'MiniNotifyWindowOpen','MiniNotifyWindowUpdate' }
+    local cb = function(ev)
+      local win_id_cur = vim.api.nvim_get_current_win()
+      table.insert(_G.event_log, { event = ev.match, win_id_cur = win_id_cur, data = ev.data })
+
+      -- Should be possible to tweak window options as if it is current
+      vim.wo.winblend = 50
+      vim.wo.wrap = true
+    end
+    vim.api.nvim_create_autocmd('User', { pattern = pattern, callback = cb })
+  ]])
+
+  local validate_log = function(ref_log)
+    eq(child.lua_get('_G.event_log'), ref_log)
+    child.lua('_G.event_log = {}')
+  end
+
+  local validate = function()
+    add('Hello')
+    local win_id_ref = get_notif_win_id()
+
+    validate_log({
+      { event = 'MiniNotifyWindowOpen', data = { win_id = win_id_ref }, win_id_cur = win_id_ref },
+      { event = 'MiniNotifyWindowUpdate', data = { win_id = win_id_ref }, win_id_cur = win_id_ref },
+    })
+    eq(child.api.nvim_get_option_value('winblend', { win = win_id_ref }), 50)
+    eq(child.api.nvim_get_option_value('wrap', { win = win_id_ref }), true)
+
+    -- Should trigger on refresh
+    add('World')
+    validate_log({ { event = 'MiniNotifyWindowUpdate', data = { win_id = win_id_ref }, win_id_cur = win_id_ref } })
+
+    refresh()
+    validate_log({ { event = 'MiniNotifyWindowUpdate', data = { win_id = win_id_ref }, win_id_cur = win_id_ref } })
+
+    -- Should not trigger on close
+    clear()
+    validate_log({})
+    eq(child.api.nvim_win_is_valid(win_id_ref), false)
+  end
+
+  -- Should trigger on initial open
+  validate()
+
+  -- Should trigger on every new appearance
+  validate()
+end
+
+T['Window']['uses minimal style'] = function()
+  child.o.number = true
+  add('Hello')
+  child.expect_screenshot()
+end
+
 T['Window']['shows start of buffer if it does not fit whole'] = function()
   for i = 1, 20 do
     add('#' .. i)
@@ -901,22 +958,37 @@ T['Window']["respects 'winborder' option"] = function()
   validate('+,-,+,|,+,-,+,|')
 end
 
-T['Window']['respects `window.max_width_share`'] = function()
-  child.lua('MiniNotify.config.window.max_width_share = 0.75')
+T['Window']["respects 'linebreak' and 'breakat' options"] = function()
+  child.o.linebreak = true
+  child.o.breakat = ' '
+  child.cmd('au User MiniNotifyWindowOpen setlocal wrap')
   add('A very-very-very-very-very long notification')
   child.expect_screenshot()
-  child.lua('MiniNotify.config.window.max_width_share = 1')
-  refresh()
-  child.expect_screenshot()
+end
 
-  -- Handles out of range values
-  child.lua('MiniNotify.config.window.max_width_share = 10')
-  refresh()
-  child.expect_screenshot()
+T['Window']['respects `window.max_width_share`'] = function()
+  add('A very-very-very-very-very long notification')
+  local validate = function(max_width_share)
+    child.lua('MiniNotify.config.window.max_width_share = ' .. max_width_share)
+    refresh()
+    child.expect_screenshot()
+  end
 
-  child.lua('MiniNotify.config.window.max_width_share = 0')
-  refresh()
-  child.expect_screenshot()
+  validate(0.75)
+  validate(1)
+
+  -- Out of range values
+  validate(10)
+  validate(0)
+
+  -- With text wrapping
+  clear()
+  child.cmd('au User MiniNotifyWindowOpen setlocal wrap')
+  add('A very-very-very-very-very long notification')
+  validate(0.75)
+  validate(1)
+  validate(10)
+  validate(0)
 end
 
 T['Window']['respects `window.winblend`'] = function()
@@ -996,23 +1068,27 @@ T['Window']['persists across tabpages'] = function()
 end
 
 T['Window']['fully updates on vim resize'] = function()
+  local validate = function()
+    child.set_size(15, 50)
+    add('A very long notification')
+    child.expect_screenshot()
+    child.o.lines, child.o.columns = 10, 25
+    child.expect_screenshot()
+    clear()
+  end
+
   -- With default window config
-  child.set_size(10, 50)
-  add('A very long notification')
-  child.expect_screenshot()
-  child.o.columns = 25
-  child.expect_screenshot()
-  clear()
+  validate()
+
+  -- With text wrapping
+  child.cmd('au User MiniNotifyWindowOpen setlocal wrap')
+  validate()
 
   -- With callable window config
-  child.set_size(15, 50)
   child.lua([[MiniNotify.config.window.config = function()
     return { row = math.floor(0.2 * vim.o.lines), col = math.floor(0.8 * vim.o.columns) }
   end]])
-  add('A very long notification')
-  child.expect_screenshot()
-  child.o.lines, child.o.columns = 10, 25
-  child.expect_screenshot()
+  validate()
 end
 
 T['Window']['does not affect normal window navigation'] = function()

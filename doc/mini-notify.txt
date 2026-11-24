@@ -82,6 +82,21 @@ Notes:
 - Timestamps are compatible with |strftime()| and have fractional part.
 
 ------------------------------------------------------------------------------
+                                                             *MiniNotify-events*
+To allow user customization, there are the following |User| autocommand events:
+
+- `MiniNotifyWindowOpen` - after opening a notification window.
+- `MiniNotifyWindowUpdate` - after updating an existing notification window.
+
+Each event's |event-data| table contains `win_id` (window identifier) field.
+The window is also made current for the duration of events.
+
+Example usage: >lua
+
+  -- Tweak appearance via options of the notification window
+  vim.cmd('au User MiniNotifyWindowOpen setlocal winblend=50 wrap')
+<
+------------------------------------------------------------------------------
                                                             *MiniNotify.setup()*
                           `MiniNotify.setup`({config})
 Module setup

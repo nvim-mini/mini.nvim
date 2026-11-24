@@ -79,6 +79,21 @@
 --- - Timestamps are compatible with |strftime()| and have fractional part.
 ---@tag MiniNotify-specification
 
+--- To allow user customization, there are the following |User| autocommand events:
+---
+--- - `MiniNotifyWindowOpen` - after opening a notification window.
+--- - `MiniNotifyWindowUpdate` - after updating an existing notification window.
+---
+--- Each event's |event-data| table contains `win_id` (window identifier) field.
+--- The window is also made current for the duration of events.
+---
+--- Example usage: >lua
+---
+---   -- Tweak appearance via options of the notification window
+---   vim.cmd('au User MiniNotifyWindowOpen setlocal winblend=50 wrap')
+--- <
+---@tag MiniNotify-events
+
 ---@diagnostic disable:undefined-field
 ---@diagnostic disable:discard-returns
 ---@diagnostic disable:unused-local
@@ -480,10 +495,11 @@ MiniNotify.refresh = function()
   if not (H.is_valid_win(win_id) and H.is_win_in_tabpage(win_id)) then
     H.window_close()
     win_id = H.window_open(buf_id)
-  else
-    local new_config = H.window_compute_config(buf_id)
-    vim.api.nvim_win_set_config(win_id, new_config)
+    H.window_trigger_event(win_id, 'MiniNotifyWindowOpen')
   end
+
+  vim.api.nvim_win_set_config(win_id, H.window_compute_config(win_id, buf_id))
+  H.window_trigger_event(win_id, 'MiniNotifyWindowUpdate')
 
   -- Redraw
   vim.cmd('redraw')
@@ -785,7 +801,7 @@ end
 
 -- Window ---------------------------------------------------------------------
 H.window_open = function(buf_id)
-  local config = H.window_compute_config(buf_id, true)
+  local config = H.window_compute_config(nil, buf_id)
   local win_id = vim.api.nvim_open_win(buf_id, false, config)
 
   vim.wo[win_id].foldenable = false
@@ -799,14 +815,15 @@ H.window_open = function(buf_id)
   return win_id
 end
 
-H.window_compute_config = function(buf_id, is_for_open)
+H.window_compute_config = function(win_id, buf_id)
   local has_tabline = vim.o.showtabline == 2 or (vim.o.showtabline == 1 and #vim.api.nvim_list_tabpages() > 1)
   local has_statusline = vim.o.laststatus > 0
   local max_height = vim.o.lines - vim.o.cmdheight - (has_tabline and 1 or 0) - (has_statusline and 1 or 0)
   local max_width = vim.o.columns
 
+  -- Default config
   local config_win = H.get_config().window
-  local default_config = { relative = 'editor', style = 'minimal', noautocmd = is_for_open, zindex = 999 }
+  local default_config = { relative = 'editor', style = 'minimal', zindex = 999 }
   default_config.anchor, default_config.col, default_config.row = 'NE', vim.o.columns, has_tabline and 1 or 0
   default_config.width = H.buffer_default_width(buf_id, config_win.max_width_share)
   default_config.height = vim.api.nvim_buf_line_count(buf_id)
@@ -815,6 +832,12 @@ H.window_compute_config = function(buf_id, is_for_open)
   -- Don't allow focus to not disrupt window navigation
   default_config.focusable = false
 
+  if win_id ~= nil and vim.wo[win_id].wrap then
+    vim.api.nvim_win_set_config(win_id, { width = default_config.width })
+    default_config.height = vim.api.nvim_win_text_height(win_id, {}).all
+  end
+
+  -- User config
   local win_config = config_win.config
   if vim.is_callable(win_config) then win_config = win_config(buf_id) end
   local config = vim.tbl_deep_extend('force', default_config, win_config or {})
@@ -831,6 +854,11 @@ end
 H.window_close = function()
   if H.is_valid_win(H.cache.win_id) then vim.api.nvim_win_close(H.cache.win_id, true) end
   H.cache.win_id = nil
+end
+
+H.window_trigger_event = function(win_id, event_name)
+  local au_opts = { pattern = event_name, data = { win_id = win_id } }
+  vim.api.nvim_win_call(win_id, function() vim.api.nvim_exec_autocmds('User', au_opts) end)
 end
 
 -- Notifications --------------------------------------------------------------
