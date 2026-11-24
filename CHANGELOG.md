@@ -32,6 +32,10 @@ There are following change types:
     - Update `default_sort` to sort by add time after priority instead of update time.
     - Do not wrap text in the notification window by default. Use the new `:h MiniNotify-events` to set window-local 'wrap' option to `true` for text wrapping as before.
 
+### Refine
+
+- Soft deprecate `config.window.winblend` in favor of using using dedicated `:h MiniNotify-events`. This config setting works for now, but will be fully removed after the next release. Sorry for the inconvenience.
+
 ### Expand
 
 - Start triggering relevant events on every notification window open and update.

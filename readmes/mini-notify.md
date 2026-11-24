@@ -159,9 +159,6 @@ Stable branch:
 
     -- Maximum window width as share (between 0 and 1) of available columns
     max_width_share = 0.382,
-
-    -- Value of 'winblend' option
-    winblend = 25,
   },
 }
 ```

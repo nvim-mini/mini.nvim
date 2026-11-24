@@ -151,9 +151,6 @@ Defaults ~
 
       -- Maximum window width as share (between 0 and 1) of available columns
       max_width_share = 0.382,
-
-      -- Value of 'winblend' option
-      winblend = 25,
     },
   }
 <
@@ -252,8 +249,11 @@ Example for showing notifications in bottom right corner: >lua
   end
   require('mini.notify').setup({ window = { config = win_config } })
 <
-`window.winblend` defines |'winblend'| value for notification window.
-Default: 25.
+Notes:
+- To improve usability, some window options (like |'winblend'| and |'wrap'|) are
+  have specific values that may differ from global. To customize them, use
+  a dedicated autocommand as described in `:h MiniNotify-events`. To look at
+  missing or missed parts of the message, use |MiniNotify.show_history()|.
 
 ------------------------------------------------------------------------------
                                                       *MiniNotify.make_notify()*

@@ -236,8 +236,11 @@ end
 ---   end
 ---   require('mini.notify').setup({ window = { config = win_config } })
 --- <
---- `window.winblend` defines |'winblend'| value for notification window.
---- Default: 25.
+--- Notes:
+--- - To improve usability, some window options (like |'winblend'| and |'wrap'|) are
+---   have specific values that may differ from global. To customize them, use
+---   a dedicated autocommand as described in `:h MiniNotify-events`. To look at
+---   missing or missed parts of the message, use |MiniNotify.show_history()|.
 MiniNotify.config = {
   -- Content management
   content = {
@@ -269,9 +272,6 @@ MiniNotify.config = {
 
     -- Maximum window width as share (between 0 and 1) of available columns
     max_width_share = 0.382,
-
-    -- Value of 'winblend' option
-    winblend = 25,
   },
 }
 --minidoc_afterlines_end
@@ -640,7 +640,6 @@ H.setup_config = function(config)
     H.error('`window.config` should table or callable, not ' .. type(config.window.config))
   end
   H.check_type('window.max_width_share', config.window.max_width_share, 'number')
-  H.check_type('window.winblend', config.window.winblend, 'number')
 
   return config
 end
@@ -674,6 +673,17 @@ H.create_autocommands = function()
 
   au({ 'TabEnter', 'VimResized' }, '*', function() MiniNotify.refresh() end, 'Refresh notifications')
   au('ColorScheme', '*', H.create_default_hl, 'Ensure colors')
+
+  -- TODO: Remove after releasing 'mini.nvim' 0.20.0
+  if type(MiniNotify.config.window.winblend) == 'number' then
+    local set_winblend = function() vim.wo.winblend = MiniNotify.config.window.winblend end
+    au('User', 'MiniNotifyWindowOpen', set_winblend, "Ensure window 'winblend'")
+    local msg = '(mini.notify) `config.window.winblend` is soft deprecated in favor of'
+      .. ' using dedicated `:h MiniNotify-events`.'
+      .. ' This config setting works for now, but will be fully removed after the next release.'
+      .. ' Sorry for the inconvenience.'
+    vim.schedule(function() vim.notify(msg, vim.log.levels.WARN) end)
+  end
 end
 
 --stylua: ignore
@@ -808,7 +818,8 @@ H.window_open = function(buf_id)
   vim.wo[win_id].foldmethod = 'manual'
   vim.wo[win_id].list = vim.go.list
   vim.wo[win_id].listchars = vim.go.listchars
-  vim.wo[win_id].winblend = H.get_config().window.winblend
+  -- TODO: Modify after releasing 'mini.nvim' 0.20.0
+  vim.wo[win_id].winblend = H.get_config().window.winblend or 25
   vim.wo[win_id].winhighlight = 'NormalFloat:MiniNotifyNormal,FloatBorder:MiniNotifyBorder,FloatTitle:MiniNotifyTitle'
   vim.wo[win_id].wrap = false
 

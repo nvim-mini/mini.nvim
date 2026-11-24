@@ -108,13 +108,12 @@ T['setup()']['creates `config` field'] = function()
 
   expect_config('window.config', {})
   expect_config('window.max_width_share', 0.382)
-  expect_config('window.winblend', 25)
 end
 
 T['setup()']['respects `config` argument'] = function()
   unload_module()
-  load_module({ window = { winblend = 0 } })
-  eq(child.lua_get('MiniNotify.config.window.winblend'), 0)
+  load_module({ window = { max_width_share = 0.1 } })
+  eq(child.lua_get('MiniNotify.config.window.max_width_share'), 0.1)
 end
 
 T['setup()']['validates `config` argument'] = function()
@@ -136,7 +135,6 @@ T['setup()']['validates `config` argument'] = function()
   expect_config_error({ window = 'a' }, 'window', 'table')
   expect_config_error({ window = { config = 'a' } }, 'window.config', 'table or callable')
   expect_config_error({ window = { max_width_share = 'a' } }, 'window.max_width_share', 'number')
-  expect_config_error({ window = { winblend = 'a' } }, 'window.winblend', 'number')
 end
 
 T['setup()']['ensures colors'] = function()
@@ -992,13 +990,17 @@ T['Window']['respects `window.max_width_share`'] = function()
 end
 
 T['Window']['respects `window.winblend`'] = function()
-  local validate_winblend = function(ref)
-    local win_id = get_notif_win_id()
-    eq(child.api.nvim_win_get_option(win_id, 'winblend'), ref)
-  end
+  -- TODO: Remove after releasing 'mini.nvim' 0.20.0
+  local validate_winblend = function(ref) eq(child.api.nvim_win_get_option(get_notif_win_id(), 'winblend'), ref) end
+
+  load_module({ window = { winblend = 10 } })
+  -- Should show soft deprecation message with `vim.notify`
+  local notif = get_all()[1]
+  expect.match(notif.msg, '^%(mini.notify%) `config%.window%.winblend` is soft deprecated')
+  eq(notif.data.source, 'vim.notify')
 
   add('Hello')
-  validate_winblend(child.lua_get('MiniNotify.config.window.winblend'))
+  validate_winblend(10)
   clear()
 
   child.lua('MiniNotify.config.window.winblend = 50')
@@ -1105,9 +1107,20 @@ T['Window']['does not affect normal window navigation'] = function()
   eq(child.api.nvim_get_current_win(), win_id_1)
 end
 
-T['Window']['uses dedicated UI highlight groups'] = function()
+T['Window']['sets relevant options'] = function()
+  child.go.foldenable = true
+  child.go.foldmethod = 'indent'
+  child.go.winblend = 50
+  child.go.wrap = true
+
   add('Hello')
   local win_id = get_notif_win_id()
+
+  eq(child.api.nvim_win_get_option(win_id, 'foldenable'), false)
+  eq(child.api.nvim_win_get_option(win_id, 'foldmethod'), 'manual')
+  eq(child.api.nvim_win_get_option(win_id, 'winblend'), 25)
+  eq(child.api.nvim_win_get_option(win_id, 'wrap'), false)
+
   local winhighlight = child.api.nvim_win_get_option(win_id, 'winhighlight')
   expect.match(winhighlight, 'NormalFloat:MiniNotifyNormal')
   expect.match(winhighlight, 'FloatBorder:MiniNotifyBorder')
