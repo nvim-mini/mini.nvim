@@ -1334,4 +1334,24 @@ T['LSP progress']['reuses previous LSP handler'] = function()
   eq(child.lua_get('_G.n_been_here'), 3)
 end
 
+T['LSP progress']['handles two different servers with the same name'] = function()
+  local client_id_1 = child.lua_get('_G.fruits_lsp_client_id')
+  child.lua('_G.root_dir = "./tests"')
+  child.cmd('luafile tests/mock-lsp/fruits.lua')
+  local client_id_2 = child.lua_get('_G.fruits_lsp_client_id')
+  eq(child.lua_get('#vim.lsp.get_clients()'), 2)
+
+  -- Different attached servers (identified by `id`+`root_dir`) should use
+  -- different notifications even using the same token (happened in real life)
+  local ctx_1 = { bufnr = vim.api.nvim_get_current_buf(), client_id = client_id_1 }
+  call_handler({ token = 'test', value = { kind = 'begin', title = 'Client 1', percentage = 0 } }, ctx_1)
+  local ctx_2 = { bufnr = vim.api.nvim_get_current_buf(), client_id = client_id_2 }
+  call_handler({ token = 'test', value = { kind = 'begin', title = 'Client 2', percentage = 0 } }, ctx_2)
+
+  local all = get_all()
+  eq(#all, 2)
+  eq({ name = all[1].data.client_name, msg = all[1].msg }, { name = 'fruits-lsp', msg = '  0% fruits-lsp: Client 1' })
+  eq({ name = all[2].data.client_name, msg = all[2].msg }, { name = 'fruits-lsp', msg = '  0% fruits-lsp: Client 2' })
+end
+
 return T

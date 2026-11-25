@@ -731,7 +731,7 @@ H.lsp_progress_handler = function(err, result, ctx, config)
 
   -- Construct LSP progress id
   local buf_id = ctx.bufnr or 'nil'
-  local lsp_progress_id = buf_id .. client.name .. (result.token or '')
+  local lsp_progress_id = buf_id .. client.id .. (result.token or '')
   local progress_info = H.lsp_progress[lsp_progress_id] or {}
   local data = { source = 'lsp_progress', client_name = client.name, response = result, context = ctx }
 

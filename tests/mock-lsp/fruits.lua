@@ -38,4 +38,4 @@ local cmd = function(dispatchers)
 end
 
 -- Start server and attach to current buffer
-_G.fruits_lsp_client_id = vim.lsp.start({ name = 'fruits-lsp', cmd = cmd, root_dir = vim.fn.getcwd() })
+_G.fruits_lsp_client_id = vim.lsp.start({ name = 'fruits-lsp', cmd = cmd, root_dir = _G.root_dir or vim.fn.getcwd() })
