@@ -743,11 +743,8 @@ H.lsp_progress_handler = function(err, result, ctx, config)
 
   -- Make message
   local title, message = progress_info.title or '', value.message or ''
-  --stylua: ignore
-  local msg = string.format(
-    '%s: %s%s%s%s(%s%%)',
-    client.name, title, title == '' and '' or ' ', message, message == '' and '' or ' ', progress_info.percentage
-  )
+  local mid = (title == '' or message == '') and '' or ' '
+  local msg = string.format('%3d%% %s: %s%s%s', progress_info.percentage, client.name, title, mid, message)
 
   -- Check for valid history entry as `setup()` might have removed the id
   if H.history[progress_info.notif_id] == nil then

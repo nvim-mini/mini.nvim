@@ -1248,6 +1248,7 @@ T['LSP progress']['handles not present data'] = function()
   -- All data which is allowed to be absent (as per LSP spec) is absent
   local result = { token = 'test', value = { kind = 'begin', title = 'Testing' } }
   call_handler(result, ctx)
+  eq(get_all()[1].msg, '  0% fruits-lsp: Testing')
   child.expect_screenshot()
 
   result.value.kind, result.value.title = 'report', nil

@@ -32,6 +32,7 @@ There are following change types:
     - Update `default_sort` to sort by add time after priority instead of update time.
     - Do not wrap text in the notification window by default. Use the new `:h MiniNotify-events` to set window-local 'wrap' option to `true` for text wrapping as before.
     - Do not decrease width of an already visible window.
+    - Show progress update percentage first (instead of last), as this is a too important information to have reduced readability on continuous updates and to even possibly be truncated.
 
 - Adjust default format to use a tighter prefix and indentation for multiline messages. This makes big notifications look more consistent, which was not quite possible before due to text wrapping by default.
 
