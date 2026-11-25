@@ -215,7 +215,8 @@ end
 --- structure as in |nvim_open_win()|. It has the following default values
 --- which show notifications in the upper right corner with upper limit on width:
 --- - `width` is chosen to fit buffer content but at most `window.max_width_share`
----   share of |'columns'|.
+---   share of |'columns'|. To reduce flicker with intensive progress updates, it
+---   also doesn't decrease for a visible window after notification changes.
 ---   To have higher maximum width, use function in `config.window` which computes
 ---   dimensions inside of it (based on buffer content).
 --- - `height` is chosen to fit buffer content.
@@ -671,7 +672,10 @@ H.create_autocommands = function()
     vim.api.nvim_create_autocmd(event, { group = gr, pattern = pattern, callback = callback, desc = desc })
   end
 
-  au({ 'TabEnter', 'VimResized' }, '*', function() MiniNotify.refresh() end, 'Refresh notifications')
+  au({ 'TabEnter', 'VimResized' }, '*', function()
+    H.window_close()
+    MiniNotify.refresh()
+  end, 'Refresh notifications')
   au('ColorScheme', '*', H.create_default_hl, 'Ensure colors')
 
   -- TODO: Remove after releasing 'mini.nvim' 0.20.0
@@ -843,9 +847,12 @@ H.window_compute_config = function(win_id, buf_id)
   -- Don't allow focus to not disrupt window navigation
   default_config.focusable = false
 
-  if win_id ~= nil and vim.wo[win_id].wrap then
-    vim.api.nvim_win_set_config(win_id, { width = default_config.width })
-    default_config.height = vim.api.nvim_win_text_height(win_id, {}).all
+  if win_id ~= nil then
+    default_config.width = math.max(default_config.width, vim.api.nvim_win_get_width(win_id))
+    if vim.wo[win_id].wrap then
+      vim.api.nvim_win_set_config(win_id, { width = default_config.width })
+      default_config.height = vim.api.nvim_win_text_height(win_id, {}).all
+    end
   end
 
   -- User config

@@ -884,6 +884,29 @@ T['Window']['shows start of buffer if it does not fit whole'] = function()
   child.expect_screenshot()
 end
 
+T['Window']['does not decrease width'] = function()
+  local id_1 = add('A')
+  local id_2 = add('BB')
+  child.expect_screenshot()
+
+  -- Reducing minimum required width should not reduce the window width
+  update(id_2, { msg = 'B' })
+  child.expect_screenshot()
+
+  -- It should be possible to increase it
+  update(id_1, { msg = 'AAA' })
+  child.expect_screenshot()
+
+  -- Should not reduce the width on notification remove
+  remove(id_1)
+  child.expect_screenshot()
+
+  -- The new window should not have lower limit on width
+  clear()
+  add('A')
+  child.expect_screenshot()
+end
+
 T['Window']['uses proper buffer filetype and name'] = function()
   child.lua([[
     local f = function(args) _G.is_correct = vim.api.nvim_buf_get_name(args.buf) == ('mininotify://') .. args.buf .. '/content' end
@@ -965,11 +988,11 @@ T['Window']["respects 'linebreak' and 'breakat' options"] = function()
 end
 
 T['Window']['respects `window.max_width_share`'] = function()
-  add('A very-very-very-very-very long notification')
   local validate = function(max_width_share)
     child.lua('MiniNotify.config.window.max_width_share = ' .. max_width_share)
-    refresh()
+    add('A very-very-very-very-very long notification')
     child.expect_screenshot()
+    clear()
   end
 
   validate(0.75)
@@ -980,9 +1003,7 @@ T['Window']['respects `window.max_width_share`'] = function()
   validate(0)
 
   -- With text wrapping
-  clear()
   child.cmd('au User MiniNotifyWindowOpen setlocal wrap')
-  add('A very-very-very-very-very long notification')
   validate(0.75)
   validate(1)
   validate(10)
@@ -1074,6 +1095,8 @@ T['Window']['fully updates on vim resize'] = function()
     child.set_size(15, 50)
     add('A very long notification')
     child.expect_screenshot()
+    -- Updating to smaller size should also allow reducing notification width,
+    -- as this is not a result of a notification update.
     child.o.lines, child.o.columns = 10, 25
     child.expect_screenshot()
     clear()

@@ -228,7 +228,8 @@ window's buffer already showing notifications). It should have the same
 structure as in |nvim_open_win()|. It has the following default values
 which show notifications in the upper right corner with upper limit on width:
 - `width` is chosen to fit buffer content but at most `window.max_width_share`
-  share of |'columns'|.
+  share of |'columns'|. To reduce flicker with intensive progress updates, it
+  also doesn't decrease for a visible window after notification changes.
   To have higher maximum width, use function in `config.window` which computes
   dimensions inside of it (based on buffer content).
 - `height` is chosen to fit buffer content.
