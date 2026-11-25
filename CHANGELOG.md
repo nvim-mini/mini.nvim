@@ -33,6 +33,8 @@ There are following change types:
     - Do not wrap text in the notification window by default. Use the new `:h MiniNotify-events` to set window-local 'wrap' option to `true` for text wrapping as before.
     - Do not decrease width of an already visible window.
 
+- Adjust default format to use a tighter prefix and indentation for multiline messages. This makes big notifications look more consistent, which was not quite possible before due to text wrapping by default.
+
 ### Refine
 
 - Soft deprecate `config.window.winblend` in favor of using using dedicated `:h MiniNotify-events`. This config setting works for now, but will be fully removed after the next release. Sorry for the inconvenience.

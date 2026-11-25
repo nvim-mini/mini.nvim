@@ -725,7 +725,9 @@ local default_format = forward_lua('MiniNotify.default_format')
 
 T['default_format()']['works'] = function()
   mock_gettimeofday()
-  eq(default_format({ msg = 'Hello', ts_update = ref_seconds + ref_microseconds }), '12:34:56 │ Hello')
+  -- Should show time, separator, and indent prefix for multiline messages
+  local ref = '12:34:56│ Hello\n        │ World'
+  eq(default_format({ msg = 'Hello\nWorld', ts_update = ref_seconds + ref_microseconds }), ref)
 end
 
 T['default_sort()'] = new_set()

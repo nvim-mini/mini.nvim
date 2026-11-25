@@ -419,8 +419,9 @@ Notes:
                       `MiniNotify.default_format`({notif})
 Default content format
 
-Used by default as `config.content.format`. Prepends notification message
-with the human readable update time and a separator.
+Used by default as `config.content.format`. Prepends every notification message
+line with a prefix (human readable time and equal size whitespace) and
+a continuous vertical separator.
 
 Parameters ~
 {notif} `(table)` Notification object (see |MiniNotify-specification|).

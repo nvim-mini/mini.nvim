@@ -564,15 +564,17 @@ end
 
 --- Default content format
 ---
---- Used by default as `config.content.format`. Prepends notification message
---- with the human readable update time and a separator.
+--- Used by default as `config.content.format`. Prepends every notification message
+--- line with a prefix (human readable time and equal size whitespace) and
+--- a continuous vertical separator.
 ---
 ---@param notif table Notification object (see |MiniNotify-specification|).
 ---
 ---@return string Formatted notification message.
 MiniNotify.default_format = function(notif)
   local time = vim.fn.strftime('%H:%M:%S', math.floor(notif.ts_update))
-  return string.format('%s │ %s', time, notif.msg)
+  local prefix = string.rep(' ', vim.fn.strdisplaywidth(time)) .. '│ '
+  return (string.format('%s│ %s', time, notif.msg):gsub('\n', '\n' .. prefix))
 end
 
 --- Default content sort
