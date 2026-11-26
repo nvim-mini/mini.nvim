@@ -44,6 +44,8 @@ There are following change types:
 
 - Start triggering relevant events on every notification window open and update.
 
+- Add support for multicolor messages supplied as "array of text-hl chunk lines" (as `virt_lines` in `:h nvim_buf_set_extmark()`).
+
 # Version 0.19.0-dev
 
 ## All

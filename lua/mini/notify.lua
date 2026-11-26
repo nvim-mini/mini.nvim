@@ -5,6 +5,7 @@
 --- Features:
 ---
 --- - Show one or more highlighted notifications in a single floating window.
+---   Messages can be multicolor.
 ---
 --- - Manage notifications (add, update, remove, clear).
 ---
@@ -64,8 +65,15 @@
 ---
 --- Notification is a table with the following keys:
 ---
---- - <msg> `(string)` - single string with notification message.
----   Use `\n` to delimit several lines.
+--- - <msg> `(string)` - notification message in one of the forms:
+---   - Single string with `\n` delimiting several lines. Use for simple messages.
+---   - Array of "text-hl chunk" lines, as `virt_lines` in |nvim_buf_set_extmark()|.
+---     Text in chunk is required, highlight group is optional. Chunk with
+---     empty string as text at the end of line will add highlighting till the
+---     end of visible line. Chunk highlighting will be applied on top of the
+---     whole message `hl_group` group supplied in |MiniNotify.add()|.
+---     Use for multicolor messages. Example:
+---     `{ { { 'Line ' }, { '#1', 'Bold' } }, {}, { { 'Line #3', 'Italic' } } }`
 --- - <level> `(string)` - notification level as key of |vim.log.levels|.
 ---   Like "ERROR", "WARN", "INFO", etc.
 --- - <hl_group> `(string)` - highlight group with which notification is shown.
@@ -363,11 +371,11 @@ end
 ---   local id = MiniNotify.add('Hello', 'WARN', 'Comment')
 ---   vim.defer_fn(function() MiniNotify.remove(id) end, 1000)
 --- <
----@param msg string Notification message.
+---@param msg string|table Notification message. See |MiniNotify-specification|.
 ---@param level string|nil Notification level as key of |vim.log.levels|.
 ---   Default: `'INFO'`.
----@param hl_group string|nil Notification highlight group.
----   Default: `'MiniNotifyNormal'`.
+---@param hl_group string|nil Base notification highlight group. Will be applied to
+---   the whole notification message. Default: `'MiniNotifyNormal'`.
 ---@param data table|nil Extra data to store in the notification.
 ---   Default: `{}`.
 ---
@@ -570,11 +578,23 @@ end
 ---
 ---@param notif table Notification object (see |MiniNotify-specification|).
 ---
----@return string Formatted notification message.
+---@return string|table Formatted notification message of the same type as in input.
 MiniNotify.default_format = function(notif)
-  local time = vim.fn.strftime('%H:%M:%S', math.floor(notif.ts_update))
-  local prefix = string.rep(' ', vim.fn.strdisplaywidth(time)) .. '│ '
-  return (string.format('%s│ %s', time, notif.msg):gsub('\n', '\n' .. prefix))
+  local time = vim.fn.strftime('%H:%M:%S', math.floor(notif.ts_update)) .. '│ '
+  local indent = string.rep(' ', vim.fn.strdisplaywidth(time) - 2) .. '│ '
+  if type(notif.msg) == 'string' then return time .. notif.msg:gsub('\n', '\n' .. indent) end
+
+  -- Prepend with relevant chunks and reconstruct the copy (for performance)
+  local new_msg = { { { time } } }
+  for i = 2, #notif.msg do
+    new_msg[i] = { { indent } }
+  end
+  for i = 1, #notif.msg do
+    for j = 1, #notif.msg[i] do
+      new_msg[i][j + 1] = { notif.msg[i][j][1], notif.msg[i][j][2] }
+    end
+  end
+  return new_msg
 end
 
 --- Default content sort
@@ -781,22 +801,16 @@ H.buffer_refresh = function(buf_id, notif_arr)
   vim.api.nvim_buf_clear_namespace(buf_id, ns_id, 0, -1)
   vim.api.nvim_buf_set_lines(buf_id, 0, -1, true, {})
 
-  -- Compute lines and highlight regions
+  -- Compute+set lines+highlight
   local lines, highlights = {}, {}
   for _, notif in ipairs(notif_arr) do
-    local notif_lines = vim.split(notif.msg, '\n')
-    for _, l in ipairs(notif_lines) do
-      table.insert(lines, l)
-    end
-    table.insert(highlights, { group = notif.hl_group, from_line = #lines - #notif_lines + 1, to_line = #lines })
+    H.append_msg_line_and_hl(notif, lines, highlights)
   end
 
-  -- Set lines and highlighting
   vim.api.nvim_buf_set_lines(buf_id, 0, -1, true, lines)
-  local extmark_opts = { end_col = 0, hl_eol = true, hl_mode = 'combine' }
   for _, hi_data in ipairs(highlights) do
-    extmark_opts.end_row, extmark_opts.hl_group = hi_data.to_line, hi_data.group
-    vim.api.nvim_buf_set_extmark(buf_id, ns_id, hi_data.from_line - 1, 0, extmark_opts)
+    hi_data[3].hl_eol, hi_data[3].hl_mode = true, 'combine'
+    vim.api.nvim_buf_set_extmark(buf_id, ns_id, hi_data[1], hi_data[2], hi_data[3])
   end
 end
 
@@ -810,6 +824,32 @@ H.buffer_default_width = function(buf_id, max_width_share)
   max_width_share = math.min(math.max(max_width_share, 0), 1)
   local max_width = math.max(math.floor(max_width_share * vim.o.columns), 1)
   return math.min(width, max_width)
+end
+
+H.append_msg_line_and_hl = function(notif, lines, highlights)
+  local n_lines = #lines
+  if type(notif.msg) == 'string' then
+    vim.list_extend(lines, vim.split(notif.msg, '\n'))
+  else
+    for i, ch_line in ipairs(notif.msg) do
+      local l, old_w, cur_w = {}, 0, 0
+      local row, n_ch_line = #lines, #ch_line
+      for j, ch in ipairs(ch_line) do
+        table.insert(l, ch[1])
+        old_w, cur_w = cur_w, cur_w + ch[1]:len()
+
+        local is_last_empty = ch[1] == '' and j == n_ch_line
+        local end_row = is_last_empty and (row + 1) or row
+        local end_col = is_last_empty and 0 or cur_w
+        local ext_opts = { end_row = end_row, end_col = end_col, hl_group = ch[2], priority = 102 }
+        table.insert(highlights, { row, old_w, ext_opts })
+      end
+      table.insert(lines, table.concat(l))
+    end
+  end
+
+  local ext_opts = { end_row = #lines, end_col = 0, hl_group = notif.hl_group, priority = 101 }
+  table.insert(highlights, { n_lines, 0, ext_opts })
 end
 
 -- Window ---------------------------------------------------------------------
@@ -879,8 +919,8 @@ H.window_trigger_event = function(win_id, event_name)
 end
 
 -- Notifications --------------------------------------------------------------
-H.validate_msg = function(x)
-  if type(x) ~= 'string' then H.error('`msg` should be string.') end
+H.validate_msg = function(x, x_name)
+  if not H.is_msg(x) then H.error((x_name or '`msg`') .. ' should be string or array of "text-hl chunk" lines.') end
 end
 
 H.validate_level = function(x)
@@ -891,9 +931,22 @@ H.validate_hl_group = function(x)
   if type(x) ~= 'string' then H.error('`hl_group` should be string.') end
 end
 
+H.is_msg = function(x)
+  if type(x) == 'string' then return true end
+  if not vim.islist(x) or #x == 0 then return false end
+  for _, ch_line in ipairs(x) do
+    if not vim.islist(ch_line) then return false end
+    for _, ch in ipairs(ch_line) do
+      local is_ch = type(ch) == 'table' and type(ch[1]) == 'string' and (ch[2] == nil or type(ch[2]) == 'string')
+      if not is_ch then return false end
+    end
+  end
+  return true
+end
+
 H.is_notification = function(x)
   return type(x) == 'table'
-    and type(x.msg) == 'string'
+    and H.is_msg(x.msg)
     and vim.log.levels[x.level] ~= nil
     and type(x.hl_group) == 'string'
     and type(x.ts_add) == 'number'
@@ -912,7 +965,7 @@ end
 H.notif_apply_format = function(notif_arr, format)
   for _, notif in ipairs(notif_arr) do
     local res = format(notif)
-    if type(res) ~= 'string' then H.error('Output of `content.format` should be string.') end
+    H.validate_msg(res, 'Output of `content.format`')
     notif.msg = res
   end
   return notif_arr

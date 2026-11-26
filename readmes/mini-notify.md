@@ -25,7 +25,7 @@ https://github.com/nvim-mini/mini.nvim/assets/24854248/81014300-3380-4b8c-9ab5-b
 
 ## Features
 
-- Show one or more highlighted notifications in a single floating window.
+- Show one or more highlighted notifications in a single floating window. Messages can be multicolor.
 
 - Manage notifications (add, update, remove, clear).
 

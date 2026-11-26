@@ -7,6 +7,7 @@ MIT License Copyright (c) 2024 Evgeni Chasnovski
 Features:
 
 - Show one or more highlighted notifications in a single floating window.
+  Messages can be multicolor.
 
 - Manage notifications (add, update, remove, clear).
 
@@ -67,8 +68,15 @@ for disabling module's functionality is left to user. See
 
 Notification is a table with the following keys:
 
-- <msg> `(string)` - single string with notification message.
-  Use `\n` to delimit several lines.
+- <msg> `(string)` - notification message in one of the forms:
+  - Single string with `\n` delimiting several lines. Use for simple messages.
+  - Array of "text-hl chunk" lines, as `virt_lines` in |nvim_buf_set_extmark()|.
+    Text in chunk is required, highlight group is optional. Chunk with
+    empty string as text at the end of line will add highlighting till the
+    end of visible line. Chunk highlighting will be applied on top of the
+    whole message `hl_group` group supplied in |MiniNotify.add()|.
+    Use for multicolor messages. Example:
+    `{ { { 'Line ' }, { '#1', 'Bold' } }, {}, { { 'Line #3', 'Italic' } } }`
 - <level> `(string)` - notification level as key of |vim.log.levels|.
   Like "ERROR", "WARN", "INFO", etc.
 - <hl_group> `(string)` - highlight group with which notification is shown.
@@ -313,11 +321,11 @@ Example: >lua
   vim.defer_fn(function() MiniNotify.remove(id) end, 1000)
 <
 Parameters ~
-{msg} `(string)` Notification message.
+{msg} `(string|table)` Notification message. See |MiniNotify-specification|.
 {level} `(string|nil)` Notification level as key of |vim.log.levels|.
   Default: `'INFO'`.
-{hl_group} `(string|nil)` Notification highlight group.
-  Default: `'MiniNotifyNormal'`.
+{hl_group} `(string|nil)` Base notification highlight group. Will be applied to
+  the whole notification message. Default: `'MiniNotifyNormal'`.
 {data} `(table|nil)` Extra data to store in the notification.
   Default: `{}`.
 
@@ -427,7 +435,7 @@ Parameters ~
 {notif} `(table)` Notification object (see |MiniNotify-specification|).
 
 Return ~
-`(string)` Formatted notification message.
+`(string|table)` Formatted notification message of the same type as in input.
 
 ------------------------------------------------------------------------------
                                                      *MiniNotify.default_sort()*
