@@ -3035,14 +3035,16 @@ H.adjust_after_move = function(from, to, fs_actions, start_ind)
   end
 end
 
-H.uri_to_fname = vim.uri_to_fname
-H.fname_to_uri = vim.uri_from_fname
+-- TODO: Adjust after dropping Neovim=0.12 support
+H.uri_to_fname = vim.fn.has('nvim-0.13') == 1 and vim.uri.to_fname or vim.uri_to_fname
+H.fname_to_uri = vim.fn.has('nvim-0.13') == 1 and vim.uri.from_fname or vim.uri_from_fname
 if H.is_windows then
+  local uri_to_fname, fname_to_uri = H.uri_to_fname, H.fname_to_uri
   -- On Windows `uri_to_fname` forces `\`, but forcing `/` seems more robust
-  H.uri_to_fname = function(x) return (vim.uri_to_fname(x):gsub('\\', '/')) end
+  H.uri_to_fname = function(x) return (uri_to_fname(x):gsub('\\', '/')) end
   -- On Windows paths like `C://...` have issues with glob matching and some
   -- LSP implementations. Force `C:/` instead.
-  H.fname_to_uri = function(x) return vim.uri_from_fname((x:gsub('^(%a)://([^/])', '%1:/%2'))) end
+  H.fname_to_uri = function(x) return fname_to_uri((x:gsub('^(%a)://([^/])', '%1:/%2'))) end
 end
 
 -- Validators -----------------------------------------------------------------

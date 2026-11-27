@@ -6025,6 +6025,9 @@ T['LSP'] = new_set({
   hooks = {
     pre_case = function()
       if child.fn.has('nvim-0.11') == 0 then MiniTest.skip('LSP integration requires Neovim>=0.11') end
+
+      -- TODO: Remove after dropping Neovim=0.12 support
+      child.lua('_G.uri_from_fname = vim.fn.has("nvim-0.13") == 1 and vim.uri.from_fname or vim.uri_from_fname')
     end,
   },
 })
@@ -6046,16 +6049,17 @@ local validate_lsp_will = function(method, files, lines)
   child.lua('_G.lsp_requests = {}')
 end
 
-local make_test_lsp_uri = function(...) return vim.uri_from_fname(make_test_path(...)) end
-if helpers.is_windows() then
-  make_test_lsp_uri = function(...) return vim.uri_from_fname((make_test_path(...):gsub('^(%a)://([^/])', '%1:/%2'))) end
+local make_test_lsp_uri = function(...)
+  local test_path = make_test_path(...)
+  if helpers.is_windows() then test_path = test_path:gsub('^(%a)://([^/])', '%1:/%2') end
+  return child.lua_get('_G.uri_from_fname(...)', { test_path })
 end
 
 T['LSP']['works with `willCreateFiles`'] = function()
   child.lua([[
     local edit_range = { start = { line = 0, character = 0 }, ['end'] = { line = 0, character = 0 } }
     local path = vim.fn.fnamemodify('tests/dir-files/lsp-files/main.lua', ':p')
-    local uri = vim.uri_from_fname(path)
+    local uri = _G.uri_from_fname(path)
     _G.workspace_edit_response = { changes = { [uri] = { { range = edit_range, newText = '-- willCreate\n' } } } }
   ]])
   setup_lsp()
@@ -6075,7 +6079,7 @@ T['LSP']['works with `willRenameFiles`'] = function()
   child.lua([[
     local edit_range = { start = { line = 0, character = 9 }, ['end'] = { line = 0, character = 18 } }
     local path = vim.fn.fnamemodify('tests/dir-files/lsp-files/main.lua', ':p')
-    local uri = vim.uri_from_fname(path)
+    local uri = _G.uri_from_fname(path)
     _G.workspace_edit_response = { changes = { [uri] = { { range = edit_range, newText = 'something_else' } } } }
   ]])
   setup_lsp()
@@ -6097,7 +6101,7 @@ T['LSP']['works with `willDeleteFiles`'] = function()
   child.lua([[
     local edit_range = { start = { line = 0, character = 0 }, ['end'] = { line = 0, character = 0 } }
     local path = vim.fn.fnamemodify('tests/dir-files/lsp-files/main.lua', ':p')
-    local uri = vim.uri_from_fname(path)
+    local uri = _G.uri_from_fname(path)
     _G.workspace_edit_response = { changes = { [uri] = { { range = edit_range, newText = '-- willDelete\n' } } } }
   ]])
   setup_lsp()
@@ -6154,7 +6158,7 @@ T['LSP']['works with `didRenameFiles` that applies workspace edit'] = function()
   child.lua([[
     _G.did_callback = function(_, dispatchers)
       local path = vim.fn.fnamemodify('tests/dir-files/lsp-files/main.lua', ':p')
-      local uri = vim.uri_from_fname(path)
+      local uri = _G.uri_from_fname(path)
       local edit_range = { start = { line = 0, character = 9 }, ['end'] = { line = 0, character = 18 } }
       local text_edit = { range = edit_range, newText = 'something_else' }
       dispatchers.server_request('workspace/applyEdit', { edit = { changes = { [uri] = { text_edit } } } })
@@ -6185,7 +6189,7 @@ T['LSP']['works with `didRenameFiles` that applies workspace edit after confirma
       if selected.title ~= 'Confirm' then return end
 
       local path = 'tests/dir-files/lsp-files/main.lua'
-      local uri = vim.uri_from_fname(vim.fn.fnamemodify(path, ':p'))
+      local uri = _G.uri_from_fname(vim.fn.fnamemodify(path, ':p'))
       local edit_range = { start = { line = 0, character = 9 }, ['end'] = { line = 0, character = 18 } }
       local text_edit = { range = edit_range, newText = 'something_else' }
       dispatchers.server_request('workspace/applyEdit', { edit = { changes = { [uri] = { text_edit } } } })

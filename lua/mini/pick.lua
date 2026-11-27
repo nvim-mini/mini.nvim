@@ -3364,7 +3364,7 @@ H.preview_buffer = function(buf_id, item_data, opts)
 end
 
 H.preview_uri = function(buf_id, item_data, opts)
-  item_data.buf_id = vim.uri_to_bufnr(item_data.path)
+  item_data.buf_id = H.uri_to_buf(item_data.path)
   H.preview_buffer(buf_id, item_data, opts)
 end
 
@@ -3802,7 +3802,7 @@ end
 H.expand_home = function(path) return path:sub(1, 1) == '~' and ((vim.uv.os_homedir() or '~') .. path:sub(2)) or path end
 
 H.parse_uri = function(x)
-  local ok, path = pcall(vim.uri_to_fname, x)
+  local ok, path = pcall(H.uri_to_fname, x)
   if not ok then return nil end
   -- Don't accept Windows paths with volume letter as URI
   if H.is_windows and x:find('^%a:') ~= nil and path:find('^%a:') ~= nil then return nil end
@@ -3849,5 +3849,9 @@ end
 H.copy_tables = function(x)
   return type(x) == 'table' and setmetatable(vim.tbl_map(H.copy_tables, x), getmetatable(x)) or x
 end
+
+-- TODO: Remove after dropping Neovim=0.12 support
+H.uri_to_buf = vim.fn.has('nvim-0.13') == 1 and vim.uri.to_buf or vim.uri_to_bufnr
+H.uri_to_fname = vim.fn.has('nvim-0.13') == 1 and vim.uri.to_fname or vim.uri_to_fname
 
 return MiniPick
