@@ -656,6 +656,7 @@ H.setup_config = function(config)
 
   H.check_type('lsp_progress', config.lsp_progress, 'table')
   H.check_type('lsp_progress.enable', config.lsp_progress.enable, 'boolean')
+  H.validate_level(config.lsp_progress.level, 'config.lsp_progress.level')
   H.check_type('lsp_progress.duration_last', config.lsp_progress.duration_last, 'number')
 
   H.check_type('window', config.window, 'table')
@@ -923,8 +924,8 @@ H.validate_msg = function(x, x_name)
   if not H.is_msg(x) then H.error((x_name or '`msg`') .. ' should be string or array of "text-hl chunk" lines.') end
 end
 
-H.validate_level = function(x)
-  if vim.log.levels[x] == nil then H.error('`level` should be key of `vim.log.levels`.') end
+H.validate_level = function(x, x_name)
+  if vim.log.levels[x] == nil then H.error((x_name or '`level`') .. ' should be key of `vim.log.levels`.') end
 end
 
 H.validate_hl_group = function(x)

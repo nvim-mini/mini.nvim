@@ -137,6 +137,7 @@ T['setup()']['creates `config` field'] = function()
   expect_config('content.sort', vim.NIL)
 
   expect_config('lsp_progress.enable', true)
+  expect_config('lsp_progress.level', 'INFO')
   expect_config('lsp_progress.duration_last', 1000)
 
   expect_config('window.config', {})
@@ -163,6 +164,7 @@ T['setup()']['validates `config` argument'] = function()
 
   expect_config_error({ lsp_progress = 'a' }, 'lsp_progress', 'table')
   expect_config_error({ lsp_progress = { enable = 'a' } }, 'lsp_progress.enable', 'boolean')
+  expect_config_error({ lsp_progress = { level = 'a' } }, 'lsp_progress.level', 'key of `vim.log.levels`')
   expect_config_error({ lsp_progress = { duration_last = 'a' } }, 'lsp_progress.duration_last', 'number')
 
   expect_config_error({ window = 'a' }, 'window', 'table')
