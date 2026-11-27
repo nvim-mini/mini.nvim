@@ -45,6 +45,7 @@
 --- - `MiniNotifyBorder` - window border.
 --- - `MiniNotifyLspProgress` - notifications from built-in LSP progress report.
 --- - `MiniNotifyNormal` - basic foreground/background highlighting.
+--- - `MiniNotifyNvimProgress` - notifications from built-in Neovim progress report.
 --- - `MiniNotifyTitle` - window title.
 ---
 --- To change any highlight group, set it directly with |nvim_set_hl()|.
@@ -264,6 +265,18 @@ MiniNotify.config = {
 
   -- Notifications about LSP progress
   lsp_progress = {
+    -- Whether to enable showing
+    enable = true,
+
+    -- Notification level
+    level = 'INFO',
+
+    -- Duration (in ms) of how long last message should be shown
+    duration_last = 1000,
+  },
+
+  -- Notifications about Neovim controlled progress
+  nvim_progress = {
     -- Whether to enable showing
     enable = true,
 
@@ -622,8 +635,9 @@ H.active = {}
 -- History of all notifications in order they are created
 H.history = {}
 
--- Map of LSP progress process id to notification content
+-- Maps of progress process id to notification content
 H.lsp_progress = {}
+H.nvim_progress = {}
 
 -- Priorities of levels
 H.level_priority = { ERROR = 6, WARN = 5, INFO = 4, DEBUG = 3, TRACE = 2, OFF = 1 }
@@ -659,6 +673,11 @@ H.setup_config = function(config)
   H.validate_level(config.lsp_progress.level, 'config.lsp_progress.level')
   H.check_type('lsp_progress.duration_last', config.lsp_progress.duration_last, 'number')
 
+  H.check_type('nvim_progress', config.nvim_progress, 'table')
+  H.check_type('nvim_progress.enable', config.nvim_progress.enable, 'boolean')
+  H.validate_level(config.nvim_progress.level, 'config.nvim_progress.level')
+  H.check_type('nvim_progress.duration_last', config.nvim_progress.duration_last, 'number')
+
   H.check_type('window', config.window, 'table')
   if not (type(config.window.config) == 'table' or vim.is_callable(config.window.config)) then
     H.error('`window.config` should table or callable, not ' .. type(config.window.config))
@@ -681,6 +700,14 @@ H.apply_config = function(config)
 
       vim.lsp.handlers['$/progress'] = H.lsp_progress_handler
     end)
+  end
+
+  if config.nvim_progress.enable and vim.fn.has('nvim-0.12') == 1 then
+    vim.cmd('set messagesopt+=progress:')
+
+    local gr = vim.api.nvim_create_augroup('MiniNotifyNvimProgress', {})
+    local desc = 'Handle Neovim progress'
+    vim.api.nvim_create_autocmd('Progress', { group = gr, callback = H.nvim_progress_handler, desc = desc })
   end
 
   -- Clean history
@@ -723,6 +750,7 @@ H.create_default_hl = function()
   hi('MiniNotifyBorder', { link = 'FloatBorder' })
   hi('MiniNotifyLspProgress', { link = 'MiniNotifyNormal' })
   hi('MiniNotifyNormal', { link = 'NormalFloat' })
+  hi('MiniNotifyNvimProgress', { link = 'MiniNotifyNormal' })
   hi('MiniNotifyTitle',  { link = 'FloatTitle'  })
 end
 
@@ -732,7 +760,7 @@ H.get_config = function(config)
   return vim.tbl_deep_extend('force', MiniNotify.config, vim.b.mininotify_config or {}, config or {})
 end
 
--- LSP progress ---------------------------------------------------------------
+-- Progress handlers ----------------------------------------------------------
 H.lsp_progress_handler = function(err, result, ctx, config)
   -- Make basic response processing. First call original LSP handler.
   -- It is crucial to not override `LspProgress` event.
@@ -784,6 +812,50 @@ H.lsp_progress_handler = function(err, result, ctx, config)
     vim.defer_fn(function() MiniNotify.remove(progress_info.notif_id) end, delay)
   end
 end
+
+H.nvim_progress_handler = function(ev)
+  local nvim_progress_config = H.get_config().nvim_progress
+  if not nvim_progress_config.enable then return end
+
+  -- Store important data that can be supplied once
+  local progress_info = H.nvim_progress[ev.data.id] or {}
+  progress_info.percent = ev.data.percent or progress_info.percent or 0
+  progress_info.source = ev.data.source or progress_info.source or ''
+  progress_info.title = ev.data.title or progress_info.title or ''
+  progress_info.is_finished = false
+
+  -- Make message
+  local status = H.nvim_status_to_notify_status[ev.data.status]
+  local prefix = status == 'busy' and string.format('%3d%%', progress_info.percent) or status
+  local source = progress_info.source
+  local title = progress_info.title == source and '' or progress_info.title
+  local text = table.concat(ev.data.text or {})
+  local mid = (title == '' or text == '') and '' or ' '
+  local msg = string.format('%s %s %s%s%s', prefix, source, title, mid, text)
+
+  -- Check for valid history entry as `setup()` might have removed the id
+  local data = { source = 'nvim_progress', event_data = ev.data }
+  if H.history[progress_info.notif_id] == nil then
+    progress_info.notif_id = MiniNotify.add(msg, nvim_progress_config.level, 'MiniNotifyNvimProgress', data)
+  else
+    MiniNotify.update(progress_info.notif_id, { msg = msg, data = data })
+  end
+
+  -- Cache progress info
+  H.nvim_progress[ev.data.id] = progress_info
+
+  -- Hide after last update or reaching 100% (avoids "dangling" progress)
+  if not progress_info.is_finished and (ev.data.status ~= 'running' or progress_info.percent == 100) then
+    progress_info.is_finished = true
+    vim.defer_fn(function()
+      if not progress_info.is_finished then return end
+      H.nvim_progress[ev.data.id] = nil
+      pcall(MiniNotify.remove, progress_info.notif_id)
+    end, math.max(nvim_progress_config.duration_last, 0))
+  end
+end
+
+H.nvim_status_to_notify_status = { cancel = 'stop', failed = 'fail', running = 'busy', success = 'done' }
 
 -- Buffer ---------------------------------------------------------------------
 H.buffer_create = function(prev_buf_id)

@@ -46,6 +46,8 @@ There are following change types:
 
 - Add support for multicolor messages supplied as "array of text-hl chunk lines" (as `virt_lines` in `:h nvim_buf_set_extmark()`).
 
+- Add support for showing Neovim's native progress report (`:h progress-message`).
+
 # Version 0.19.0-dev
 
 ## All

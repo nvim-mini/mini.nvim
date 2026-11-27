@@ -152,6 +152,18 @@ Stable branch:
     duration_last = 1000,
   },
 
+  -- Notifications about Neovim controlled progress
+  nvim_progress = {
+    -- Whether to enable showing
+    enable = true,
+
+    -- Notification level
+    level = 'INFO',
+
+    -- Duration (in ms) of how long last message should be shown
+    duration_last = 1000,
+  },
+
   -- Window options
   window = {
     -- Floating window config

@@ -47,6 +47,7 @@ You can override runtime config settings locally to buffer inside
 - `MiniNotifyBorder` - window border.
 - `MiniNotifyLspProgress` - notifications from built-in LSP progress report.
 - `MiniNotifyNormal` - basic foreground/background highlighting.
+- `MiniNotifyNvimProgress` - notifications from built-in Neovim progress report.
 - `MiniNotifyTitle` - window title.
 
 To change any highlight group, set it directly with |nvim_set_hl()|.
@@ -142,6 +143,18 @@ Defaults ~
 
     -- Notifications about LSP progress
     lsp_progress = {
+      -- Whether to enable showing
+      enable = true,
+
+      -- Notification level
+      level = 'INFO',
+
+      -- Duration (in ms) of how long last message should be shown
+      duration_last = 1000,
+    },
+
+    -- Notifications about Neovim controlled progress
+    nvim_progress = {
       -- Whether to enable showing
       enable = true,
 

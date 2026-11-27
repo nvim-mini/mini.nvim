@@ -167,6 +167,11 @@ T['setup()']['validates `config` argument'] = function()
   expect_config_error({ lsp_progress = { level = 'a' } }, 'lsp_progress.level', 'key of `vim.log.levels`')
   expect_config_error({ lsp_progress = { duration_last = 'a' } }, 'lsp_progress.duration_last', 'number')
 
+  expect_config_error({ nvim_progress = 'a' }, 'nvim_progress', 'table')
+  expect_config_error({ nvim_progress = { enable = 'a' } }, 'nvim_progress.enable', 'boolean')
+  expect_config_error({ nvim_progress = { level = 'a' } }, 'nvim_progress.level', 'key of `vim.log.levels`')
+  expect_config_error({ nvim_progress = { duration_last = 'a' } }, 'nvim_progress.duration_last', 'number')
+
   expect_config_error({ window = 'a' }, 'window', 'table')
   expect_config_error({ window = { config = 'a' } }, 'window.config', 'table or callable')
   expect_config_error({ window = { max_width_share = 'a' } }, 'window.max_width_share', 'number')
